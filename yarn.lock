@@ -10981,6 +10981,11 @@ object.values@^1.1.0, object.values@^1.1.6, object.values@^1.2.0, object.values@
     define-properties "^1.2.1"
     es-object-atoms "^1.0.0"
 
+obscenity@^0.4.3:
+  version "0.4.3"
+  resolved "https://registry.yarnpkg.com/obscenity/-/obscenity-0.4.3.tgz#d6e3847da3a0ea149cfa88029ef1469abefde2b1"
+  integrity sha512-DZKM0xUEksY5dVGaZoyC5VmIRMSbI6O0Gyb/07L+77d4zWJKKf5tQZrhlT0aiVYD6prTmnxiS3RhN0sfh5Q95Q==
+
 obuf@^1.0.0, obuf@^1.1.2:
   version "1.1.2"
   resolved "https://registry.npmjs.org/obuf/-/obuf-1.1.2.tgz"
