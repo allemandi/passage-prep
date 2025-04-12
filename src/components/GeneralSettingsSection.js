@@ -11,6 +11,15 @@ import {
 const GeneralSettingsSection = ({ subChoice, setSubChoice, maxLimit, setMaxLimit, subcategories }) => {
   const theme = useTheme();
   
+  // Safety check for theme initialization
+  if (!theme?.palette) {
+    return null;
+  }
+
+  const borderColor = theme.palette.mode === 'dark' 
+    ? 'rgba(255, 255, 255, 0.12)' 
+    : 'rgba(0, 0, 0, 0.12)';
+
   return (
     <Paper 
       elevation={theme.palette.mode === 'dark' ? 2 : 1}
@@ -19,7 +28,7 @@ const GeneralSettingsSection = ({ subChoice, setSubChoice, maxLimit, setMaxLimit
         bgcolor: theme.palette.mode === 'dark' ? 'background.paper' : 'background.default', 
         borderRadius: 3,
         height: '100%',
-        border: `1px solid ${theme.palette.divider}`
+        border: `1px solid ${borderColor}`
       }}
     >
       <Typography 

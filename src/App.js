@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { ThemeProvider } from '@mui/material/styles';
+import { ThemeProvider, createTheme } from '@mui/material/styles';
 import { 
   Container, 
   Card, 
@@ -16,41 +16,51 @@ import {
 } from '@mui/material';
 import Brightness4Icon from '@mui/icons-material/Brightness4';
 import Brightness7Icon from '@mui/icons-material/Brightness7';
-import { darkTheme, lightTheme } from './theme/theme';
 import './App.css';
 import RequestForm from './components/RequestForm';
 import ContributeForm from './components/ContributeForm';
 import StudyModal from './components/StudyModal';
 import { getBooks, getQuestions } from './data/dataService';
+import { createAppTheme } from './theme/theme';
 
 function App() {
   const [showModal, setShowModal] = useState(false);
   const [studyData, setStudyData] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [mode, setMode] = useState('dark');
-  
   const prefersDarkMode = useMediaQuery('(prefers-color-scheme: dark)');
+  const [mode, setMode] = useState(prefersDarkMode ? 'dark' : 'light');
   
+  // Use saved theme mode from localStorage
   useEffect(() => {
     const savedMode = localStorage.getItem('themeMode');
     if (savedMode) {
       setMode(savedMode);
     } else {
-      setMode('dark');
+      setMode(prefersDarkMode ? 'dark' : 'light');
     }
-  }, []);
+  }, [prefersDarkMode]);
   
+  // Save theme mode to localStorage
   useEffect(() => {
     localStorage.setItem('themeMode', mode);
+  }, [mode]);
+
+  // Create theme instance with proper palette configuration
+  const theme = useMemo(() => {
+    const baseTheme = createAppTheme(mode);
+    return createTheme({
+      ...baseTheme,
+      palette: {
+        ...baseTheme.palette,
+        mode,
+        divider: mode === 'dark' ? 'rgba(255, 255, 255, 0.12)' : 'rgba(0, 0, 0, 0.12)',
+      },
+    });
   }, [mode]);
   
   const toggleColorMode = () => {
     setMode((prevMode) => (prevMode === 'light' ? 'dark' : 'light'));
   };
-  
-  const theme = useMemo(() => {
-    return mode === 'light' ? lightTheme : darkTheme;
-  }, [mode]);
   
   useEffect(() => {
     const loadInitialData = async () => {

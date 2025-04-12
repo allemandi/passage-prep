@@ -11,13 +11,23 @@ import {
   List,
   ListItem,
   Paper,
-  useTheme
+  useTheme,
+  Divider
 } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
 
 const StudyModal = ({ show, onHide, data }) => {
   const theme = useTheme();
   const totalQuestions = data?.questionArr?.reduce((acc, curr) => acc + curr.length, 0) || 0;
+  
+  // Safety check for theme initialization
+  if (!theme?.palette) {
+    return null;
+  }
+
+  const borderColor = theme.palette.mode === 'dark' 
+    ? 'rgba(255, 255, 255, 0.12)' 
+    : 'rgba(0, 0, 0, 0.12)';
   
   return (
     <Dialog
@@ -71,10 +81,12 @@ const StudyModal = ({ show, onHide, data }) => {
       </DialogTitle>
 
       <DialogContent 
-        dividers 
         sx={{ 
           p: { xs: 2.5, sm: 3.5 },
-          bgcolor: theme.palette.mode === 'dark' ? 'background.paper' : 'background.default'
+          bgcolor: theme.palette.mode === 'dark' ? 'background.paper' : 'background.default',
+          '& .MuiDialogContent-dividers': {
+            borderColor: borderColor
+          }
         }}
       >
         <Typography 
@@ -189,7 +201,7 @@ const StudyModal = ({ show, onHide, data }) => {
                       }}
                     >
                       <Typography variant="body1" sx={{ fontWeight: 400 }}>
-                        • {question}
+                        • {question.Question}
                       </Typography>
                     </ListItem>
                   ))}
@@ -210,13 +222,7 @@ const StudyModal = ({ show, onHide, data }) => {
               )}
               
               {themeIndex < data.themeArr.filter(t => t).length - 1 && (
-                <Box 
-                  sx={{ 
-                    my: 4, 
-                    borderTop: `1px solid ${theme.palette.divider}`,
-                    opacity: 0.6
-                  }} 
-                />
+                <Divider sx={{ my: 4, borderColor: borderColor }} />
               )}
             </Box>
           ))
@@ -236,12 +242,13 @@ const StudyModal = ({ show, onHide, data }) => {
         )}
       </DialogContent>
       
+      <Divider sx={{ borderColor: borderColor }} />
+      
       <DialogActions 
         sx={{ 
           p: 3, 
           justifyContent: 'space-between',
-          bgcolor: theme.palette.mode === 'dark' ? 'background.paper' : 'background.default',
-          borderTop: `1px solid ${theme.palette.divider}`
+          bgcolor: theme.palette.mode === 'dark' ? 'background.paper' : 'background.default'
         }}
       >
         <Button 

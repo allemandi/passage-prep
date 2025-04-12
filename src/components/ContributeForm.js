@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import { 
   TextField, 
   Button, 
@@ -36,6 +36,11 @@ const ContributeForm = () => {
   // Bible books from the JSON data
   const bibleBooks = getBibleBooks();
   
+  const updateReference = useCallback((book, chapter) => {
+    const reference = formatReference(book, chapter);
+    setScripture(reference);
+  }, []);
+  
   // Update chapters when book changes
   React.useEffect(() => {
     if (selectedBook) {
@@ -57,17 +62,12 @@ const ContributeForm = () => {
       setScripture('');
       setTotalChapters(0);
     }
-  }, [selectedBook]);
+  }, [selectedBook, updateReference]);
   
   // Update reference when chapter changes
   React.useEffect(() => {
     updateReference(selectedBook, selectedChapter);
-  }, [selectedChapter]);
-  
-  const updateReference = (book, chapter) => {
-    const reference = formatReference(book, chapter);
-    setScripture(reference);
-  };
+  }, [selectedChapter, selectedBook, updateReference]);
   
   const handleSubmit = async (e) => {
     e.preventDefault();

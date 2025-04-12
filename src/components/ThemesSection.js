@@ -2,15 +2,34 @@ import React from 'react';
 import { 
   Box, 
   Typography, 
-  TextField, 
   MenuItem,
   Paper,
-  useTheme
+  useTheme,
+  Checkbox,
+  ListItemText,
+  Select,
+  FormControl,
+  InputLabel,
+  OutlinedInput
 } from '@mui/material';
 
-const ThemesSection = ({ theme1, setTheme1, theme2, setTheme2, themes }) => {
+const ThemesSection = ({ selectedThemes, setSelectedThemes, themes }) => {
   const theme = useTheme();
   
+  // Safety check for theme initialization
+  if (!theme?.palette) {
+    return null;
+  }
+
+  const borderColor = theme.palette.mode === 'dark' 
+    ? 'rgba(255, 255, 255, 0.12)' 
+    : 'rgba(0, 0, 0, 0.12)';
+
+  const handleThemeChange = (event) => {
+    const { value } = event.target;
+    setSelectedThemes(value);
+  };
+
   return (
     <Paper 
       elevation={theme.palette.mode === 'dark' ? 2 : 1}
@@ -19,7 +38,7 @@ const ThemesSection = ({ theme1, setTheme1, theme2, setTheme2, themes }) => {
         bgcolor: theme.palette.mode === 'dark' ? 'background.paper' : 'background.default', 
         borderRadius: 3,
         height: '100%',
-        border: `1px solid ${theme.palette.divider}`
+        border: `1px solid ${borderColor}`
       }}
     >
       <Typography 
@@ -37,83 +56,46 @@ const ThemesSection = ({ theme1, setTheme1, theme2, setTheme2, themes }) => {
       </Typography>
       
       <Box>
-        <TextField
-          select
-          fullWidth
-          id="theme1"
-          label="Theme 1"
-          value={theme1}
-          onChange={(e) => setTheme1(e.target.value)}
-          required
-          size="medium"
-          sx={{ 
-            mb: 3.5,
-            '& .MuiOutlinedInput-root': {
-              borderRadius: 1.5,
-              '& fieldset': {
-                borderColor: theme.palette.mode === 'dark' ? 'rgba(255, 255, 255, 0.23)' : 'rgba(0, 0, 0, 0.23)',
-                borderWidth: 1.5,
+        <FormControl fullWidth>
+          <InputLabel id="themes-select-label">Themes</InputLabel>
+          <Select
+            labelId="themes-select-label"
+            id="themes-select"
+            multiple
+            value={selectedThemes}
+            onChange={handleThemeChange}
+            input={<OutlinedInput label="Themes" />}
+            renderValue={(selected) => selected.join(', ')}
+            sx={{ 
+              '& .MuiOutlinedInput-root': {
+                borderRadius: 1.5,
+                '& fieldset': {
+                  borderColor: theme.palette.mode === 'dark' ? 'rgba(255, 255, 255, 0.23)' : 'rgba(0, 0, 0, 0.23)',
+                  borderWidth: 1.5,
+                },
+                '&:hover fieldset': {
+                  borderColor: 'primary.main',
+                },
+                '&.Mui-focused fieldset': {
+                  borderWidth: 2,
+                }
               },
-              '&:hover fieldset': {
-                borderColor: 'primary.main',
+              '& .MuiInputLabel-root': {
+                fontSize: '0.95rem',
               },
-              '&.Mui-focused fieldset': {
-                borderWidth: 2,
+              '& .MuiMenuItem-root': {
+                fontSize: '0.95rem',
               }
-            },
-            '& .MuiInputLabel-root': {
-              fontSize: '0.95rem',
-            },
-            '& .MuiMenuItem-root': {
-              fontSize: '0.95rem',
-            }
-          }}
-        >
-          <MenuItem value="">
-            <em>Select a theme</em>
-          </MenuItem>
-          {themes.map((theme, index) => (
-            <MenuItem key={index} value={theme}>{theme}</MenuItem>
-          ))}
-        </TextField>
-        
-        <TextField
-          select
-          fullWidth
-          id="theme2"
-          label="Theme 2 (Optional)"
-          value={theme2}
-          onChange={(e) => setTheme2(e.target.value)}
-          size="medium"
-          sx={{ 
-            '& .MuiOutlinedInput-root': {
-              borderRadius: 1.5,
-              '& fieldset': {
-                borderColor: theme.palette.mode === 'dark' ? 'rgba(255, 255, 255, 0.23)' : 'rgba(0, 0, 0, 0.23)',
-                borderWidth: 1.5,
-              },
-              '&:hover fieldset': {
-                borderColor: 'primary.main',
-              },
-              '&.Mui-focused fieldset': {
-                borderWidth: 2,
-              }
-            },
-            '& .MuiInputLabel-root': {
-              fontSize: '0.95rem',
-            },
-            '& .MuiMenuItem-root': {
-              fontSize: '0.95rem',
-            }
-          }}
-        >
-          <MenuItem value="">
-            <em>None</em>
-          </MenuItem>
-          {themes.map((theme, index) => (
-            <MenuItem key={index} value={theme}>{theme}</MenuItem>
-          ))}
-        </TextField>
+            }}
+          >
+            {themes.map((themeOption) => (
+              <MenuItem key={themeOption} value={themeOption}>
+                <Checkbox checked={selectedThemes.indexOf(themeOption) > -1} />
+                <ListItemText primary={themeOption} />
+              </MenuItem>
+            ))}
+          </Select>
+        </FormControl>
       </Box>
     </Paper>
   );

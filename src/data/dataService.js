@@ -127,7 +127,7 @@ export const processForm = async (formData) => {
     
     console.log("Processing form data with references:", formData.refArr, "themes:", formData.themeArr);
     
-    // Process reference array (similar to the original code)
+    // Process reference array
     const refArr = [...new Set(formData.refArr)].filter(n => n);
     
     // Sanitize Bible references to return only alphabetical characters
@@ -145,8 +145,8 @@ export const processForm = async (formData) => {
     
     console.log("Processed references - noVerseArr:", noVerseArr, "withChapterArr:", withChapterArr);
     
-    // Get unique themes
-    const themeArr = [...new Set(formData.themeArr)].filter(n => n);
+    // Get unique themes or use all themes if none specified
+    const themeArr = formData.themeArr.length === 0 ? themes : [...new Set(formData.themeArr)].filter(n => n);
     
     // Filter books for context based on references
     const contextArr = books
@@ -157,22 +157,15 @@ export const processForm = async (formData) => {
           const bookLower = book.Book.toLowerCase();
           const refLower = ref.toLowerCase();
           
-          // Check for exact book match or book with chapter/verse
-          // For numbered books like "1 John", ensure we match the full book name
           if (bookLower.match(/^\d\s+\w+/)) {
-            // This is a numbered book like "1 John"
             return bookLower === refLower || refLower === bookLower;
           } else {
-            // For regular books, check if reference starts with the book name
-            // or if the book name matches the reference exactly
             const bookWords = bookLower.split(' ');
             const refWords = refLower.split(' ');
             
             if (bookWords.length === 1) {
-              // Single word book (like "John")
               return refWords[0] === bookLower;
             } else {
-              // Multi-word book (like "Song of Solomon")
               return bookLower === refLower || refLower.startsWith(bookLower);
             }
           }
@@ -193,73 +186,63 @@ export const processForm = async (formData) => {
             
             if (subLower === 'general') return true;
             
-            // Check against chapter references
             return withChapterArr.some(chapterRef => {
-              // Extract book name from chapter reference (e.g., "john6" -> "john")
               const bookPart = chapterRef.replace(/\d+$/, '').toLowerCase();
               
-              // For exact matching of book names in chapters
               if (bookPart.match(/^\d\s*\w+/)) {
-                // Numbered book with chapter
                 return subLower.startsWith(bookPart);
               } else {
-                // Standard book with chapter
                 const subWords = subLower.split(' ');
                 return subWords[0] === bookPart || subLower.startsWith(bookPart);
               }
             }) || refArr.some(ref => q.Subcategory.includes(ref));
           });
           break;
+          
         case 'Referenced Chapters Only':
           filteredQuestions = filteredQuestions.filter(q => {
             if (!q.Subcategory) return false;
             const subLower = q.Subcategory.toLowerCase();
             
-            // Check against chapter references
             return withChapterArr.some(chapterRef => {
-              // Extract book name from chapter reference (e.g., "john6" -> "john")
               const bookPart = chapterRef.replace(/\d+$/, '').toLowerCase();
               
-              // For exact matching of book names in chapters
               if (bookPart.match(/^\d\s*\w+/)) {
-                // Numbered book with chapter
                 return subLower.startsWith(bookPart);
               } else {
-                // Standard book with chapter
                 const subWords = subLower.split(' ');
                 return subWords[0] === bookPart || subLower.startsWith(bookPart);
               }
             }) || refArr.some(ref => q.Subcategory.includes(ref));
           });
           break;
+          
         case 'Referenced Books Only':
           filteredQuestions = filteredQuestions.filter(q => {
             if (!q.Subcategory) return false;
             const subLower = q.Subcategory.toLowerCase();
             
             return noVerseArr.some(book => {
-              // For exact matching of book names
               const bookWords = book.split(' ');
               const subWords = subLower.split(' ');
               
               if (book.match(/^\d\s+\w+/)) {
-                // For numbered books like "1 John"
                 return subLower === book || subLower.startsWith(book);
               } else if (bookWords.length === 1) {
-                // Single word book (like "John")
                 return subWords[0] === book;
               } else {
-                // Multi-word book
                 return subLower === book || subLower.startsWith(book);
               }
             });
           });
           break;
+          
         case 'General Only':
           filteredQuestions = filteredQuestions.filter(q => 
             q.Subcategory.toLowerCase() === 'general'
           );
           break;
+          
         case 'General and Referenced Books':
           filteredQuestions = filteredQuestions.filter(q => {
             if (!q.Subcategory) return false;
@@ -268,41 +251,45 @@ export const processForm = async (formData) => {
             if (subLower === 'general') return true;
             
             return noVerseArr.some(book => {
-              // For exact matching of book names
               const bookWords = book.split(' ');
               const subWords = subLower.split(' ');
               
               if (book.match(/^\d\s+\w+/)) {
-                // For numbered books like "1 John"
                 return subLower === book || subLower.startsWith(book);
               } else if (bookWords.length === 1) {
-                // Single word book (like "John")
                 return subWords[0] === book;
               } else {
-                // Multi-word book
                 return subLower === book || subLower.startsWith(book);
               }
             });
           });
           break;
+          
+        case 'All':
+          // No additional filtering needed
+          break;
+          
         default:
-          // 'All' returns all questions for the theme, so no filtering needed
+          // No filtering by default
           break;
       }
       
-      // Limit number of questions
+      // Limit number of questions per theme
       return filteredQuestions.slice(0, formData.maxLimit);
     });
+    
+    // Remove empty theme arrays and flatten question arrays
+    const finalQuestionArr = questionsByTheme.filter(questions => questions.length > 0);
     
     // Prepare data for the study
     return {
       refArr,
-      themeArr,
+      themeArr: themeArr.filter((_, index) => finalQuestionArr[index]?.length > 0),
       contextArr,
-      questionArr: questionsByTheme.map(questions => questions.map(q => q.Question))
+      questionArr: finalQuestionArr
     };
   } catch (error) {
     console.error("Study generation error:", error);
     throw new Error(`An error occurred while generating your study: ${error.message}`);
   }
-}; 
+};

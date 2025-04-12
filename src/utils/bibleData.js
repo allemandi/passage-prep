@@ -50,10 +50,13 @@ export const formatReference = (book, chapter) => {
   return `${book} ${chapter}`;
 };
 
-export default {
+// Export all functions as a named object
+const bibleDataUtils = {
   getBibleBooks,
   getChaptersForBook,
   getChapterCountForBook,
   getVersesForChapter,
   formatReference
-}; 
+};
+
+export default bibleDataUtils;

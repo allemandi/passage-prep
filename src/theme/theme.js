@@ -2,6 +2,7 @@ import { createTheme } from '@mui/material/styles';
 
 // Create light and dark mode palettes
 const lightPalette = {
+  mode: 'light',
   primary: {
     main: '#1976d2',
     light: '#42a5f5',
@@ -44,6 +45,7 @@ const lightPalette = {
 };
 
 const darkPalette = {
+  mode: 'dark',
   primary: {
     main: '#90caf9',
     light: '#e3f2fd',
@@ -87,40 +89,47 @@ const darkPalette = {
 
 // Create a theme instance with consistent typography and components across modes
 const getTheme = (mode = 'dark') => {
+  const palette = mode === 'light' ? lightPalette : darkPalette;
+  
   return createTheme({
-    palette: {
-      mode,
-      ...(mode === 'light' ? lightPalette : darkPalette),
+    palette,
+    shape: {
+      borderRadius: 8,
     },
     typography: {
       fontFamily: '"Roboto", "Helvetica", "Arial", sans-serif',
-      h1: {
-        fontSize: '2.5rem',
-        fontWeight: 500,
-      },
-      h2: {
-        fontSize: '2rem',
-        fontWeight: 500,
-      },
-      h3: {
-        fontSize: '1.75rem',
-        fontWeight: 500,
-      },
-      h4: {
-        fontSize: '1.5rem',
-        fontWeight: 500,
-      },
-      h5: {
-        fontSize: '1.25rem',
-        fontWeight: 500,
-      },
-      h6: {
-        fontSize: '1rem',
-        fontWeight: 500,
-      },
+      h1: { fontSize: '2.5rem', fontWeight: 500 },
+      h2: { fontSize: '2rem', fontWeight: 500 },
+      h3: { fontSize: '1.75rem', fontWeight: 500 },
+      h4: { fontSize: '1.5rem', fontWeight: 500 },
+      h5: { fontSize: '1.25rem', fontWeight: 500 },
+      h6: { fontSize: '1rem', fontWeight: 500 },
     },
-    spacing: 8, // Base spacing unit
     components: {
+      MuiCssBaseline: {
+        styleOverrides: {
+          body: {
+            scrollbarColor: "#6b6b6b #2b2b2b",
+            "&::-webkit-scrollbar, & *::-webkit-scrollbar": {
+              backgroundColor: mode === 'dark' ? "#2b2b2b" : "#f5f5f5",
+            },
+            "&::-webkit-scrollbar-thumb, & *::-webkit-scrollbar-thumb": {
+              borderRadius: 8,
+              backgroundColor: mode === 'dark' ? "#6b6b6b" : "#888",
+              minHeight: 24,
+            },
+            "&::-webkit-scrollbar-thumb:focus, & *::-webkit-scrollbar-thumb:focus": {
+              backgroundColor: mode === 'dark' ? "#959595" : "#666",
+            },
+            "&::-webkit-scrollbar-thumb:active, & *::-webkit-scrollbar-thumb:active": {
+              backgroundColor: mode === 'dark' ? "#959595" : "#666",
+            },
+            "&::-webkit-scrollbar-thumb:hover, & *::-webkit-scrollbar-thumb:hover": {
+              backgroundColor: mode === 'dark' ? "#959595" : "#666",
+            },
+          },
+        },
+      },
       MuiButton: {
         styleOverrides: {
           root: {
@@ -141,16 +150,6 @@ const getTheme = (mode = 'dark') => {
         styleOverrides: {
           root: {
             marginBottom: 16,
-          },
-        },
-      },
-      MuiCard: {
-        styleOverrides: {
-          root: {
-            borderRadius: 12,
-            boxShadow: mode === 'dark' 
-              ? '0px 4px 12px rgba(0, 0, 0, 0.4)' 
-              : '0px 4px 12px rgba(0, 0, 0, 0.05)',
           },
         },
       },
@@ -187,8 +186,6 @@ const getTheme = (mode = 'dark') => {
   });
 };
 
-// Export default dark theme by default
-export const darkTheme = getTheme('dark');
-export const lightTheme = getTheme('light');
-
-export default darkTheme; 
+// Export themes
+export const createAppTheme = (mode) => getTheme(mode);
+export default getTheme;

@@ -4,10 +4,8 @@ import {
   Typography, 
   Alert, 
   Snackbar,
-  useTheme,
-  IconButton
+  useTheme
 } from '@mui/material';
-import AddIcon from '@mui/icons-material/Add';
 import { themes, subcategories, processForm } from '../data/dataService';
 import { getBibleBooks, getChaptersForBook, getChapterCountForBook, formatReference } from '../utils/bibleData';
 import StudyFormContainer from './StudyFormContainer';
@@ -25,9 +23,7 @@ const RequestForm = ({ onStudyGenerated, isLoading }) => {
     }
   ]);
   
-  const [theme1, setTheme1] = useState('');
-  const [theme2, setTheme2] = useState('');
-  
+  const [selectedThemes, setSelectedThemes] = useState(themes); // Default to all themes selected
   const [subChoice, setSubChoice] = useState(subcategories[0]);
   const [maxLimit, setMaxLimit] = useState('5');
   const [showSuccess, setShowSuccess] = useState(false);
@@ -53,38 +49,37 @@ const RequestForm = ({ onStudyGenerated, isLoading }) => {
   const updateScriptureRef = (index, updates) => {
     setScriptureRefs(prev => {
       const newRefs = [...prev];
-      newRefs[index] = { ...newRefs[index], ...updates };
+      const currentRef = newRefs[index];
+      
+      // If updating the book, reset the chapter and recalculate chapters
+      if (updates.selectedBook !== undefined && updates.selectedBook !== currentRef.selectedBook) {
+        const chapters = getChaptersForBook(updates.selectedBook);
+        const chapterCount = getChapterCountForBook(updates.selectedBook);
+        newRefs[index] = {
+          ...currentRef,
+          ...updates,
+          selectedChapter: '',
+          availableChapters: chapters,
+          totalChapters: chapterCount,
+          scripture: formatReference(updates.selectedBook, '')
+        };
+      } 
+      // If updating just the chapter
+      else if (updates.selectedChapter !== undefined) {
+        newRefs[index] = {
+          ...currentRef,
+          selectedChapter: updates.selectedChapter,
+          scripture: formatReference(currentRef.selectedBook, updates.selectedChapter)
+        };
+      }
+      // For any other updates
+      else {
+        newRefs[index] = { ...currentRef, ...updates };
+      }
+      
       return newRefs;
     });
   };
-
-  // Update chapters when book changes
-  useEffect(() => {
-    scriptureRefs.forEach((ref, index) => {
-      if (ref.selectedBook) {
-        const chapters = getChaptersForBook(ref.selectedBook);
-        const chapterCount = getChapterCountForBook(ref.selectedBook);
-        
-        updateScriptureRef(index, {
-          availableChapters: chapters,
-          totalChapters: chapterCount,
-          selectedChapter: '',
-          scripture: formatReference(ref.selectedBook, '')
-        });
-      }
-    });
-  }, [scriptureRefs.map(ref => ref.selectedBook).join(',')]);
-
-  // Update reference when chapter changes
-  useEffect(() => {
-    scriptureRefs.forEach((ref, index) => {
-      if (ref.selectedBook && ref.selectedChapter) {
-        updateScriptureRef(index, {
-          scripture: formatReference(ref.selectedBook, ref.selectedChapter)
-        });
-      }
-    });
-  }, [scriptureRefs.map(ref => ref.selectedChapter).join(',')]);
 
   const handleSubmit = async (e) => {
     if (e) e.preventDefault();
@@ -95,12 +90,12 @@ const RequestForm = ({ onStudyGenerated, isLoading }) => {
     
     // Gather all scripture references and themes
     const refArr = scriptureRefs.map(ref => ref.scripture).filter(Boolean);
-    const themeArr = [theme1, theme2].filter(Boolean);
+    const themeArr = selectedThemes.length === themes.length ? [] : selectedThemes; // Empty array means all themes
     
-    // Check if at least one theme is selected
-    if (!themeArr.length) {
+    // Check if at least one scripture reference is selected
+    if (!refArr.length) {
       setShowError(true);
-      setErrorMessage('Please select at least one theme.');
+      setErrorMessage('Please select at least one scripture reference.');
       setIsSubmitting(false);
       return;
     }
@@ -170,10 +165,8 @@ const RequestForm = ({ onStudyGenerated, isLoading }) => {
         onAddScriptureRef={addScriptureReference}
         
         // Themes props
-        theme1={theme1}
-        setTheme1={setTheme1}
-        theme2={theme2}
-        setTheme2={setTheme2}
+        selectedThemes={selectedThemes}
+        setSelectedThemes={setSelectedThemes}
         themes={themes}
         
         // General Settings props

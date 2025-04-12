@@ -7,8 +7,7 @@ import {
   Grid,
   Paper,
   useTheme,
-  Container,
-  IconButton
+  Container
 } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import ScriptureCombobox from './ScriptureCombobox';
@@ -23,10 +22,8 @@ const StudyFormContainer = ({
   onAddScriptureRef,
   
   // Themes props
-  theme1,
-  setTheme1,
-  theme2,
-  setTheme2,
+  selectedThemes,
+  setSelectedThemes,
   themes,
   
   // General Settings props
@@ -43,6 +40,15 @@ const StudyFormContainer = ({
 }) => {
   const theme = useTheme();
   
+  // Safety check for theme initialization
+  if (!theme?.palette) {
+    return null;
+  }
+
+  const borderColor = theme.palette.mode === 'dark' 
+    ? 'rgba(255, 255, 255, 0.12)' 
+    : 'rgba(0, 0, 0, 0.12)';
+  
   return (
     <Container 
       maxWidth="xl" 
@@ -57,7 +63,7 @@ const StudyFormContainer = ({
           p: { xs: 2.5, sm: 3.5, md: 4.5 }, 
           bgcolor: theme.palette.mode === 'dark' ? 'background.paper' : 'background.default',
           borderRadius: 4,
-          border: `1px solid ${theme.palette.divider}`,
+          border: `1px solid ${borderColor}`,
           boxShadow: theme.palette.mode === 'dark' 
             ? '0 8px 24px rgba(0, 0, 0, 0.3)' 
             : '0 8px 24px rgba(0, 0, 0, 0.05)'
@@ -85,7 +91,7 @@ const StudyFormContainer = ({
                 p: { xs: 2.5, sm: 3.5 }, 
                 bgcolor: theme.palette.mode === 'dark' ? 'background.paper' : 'background.default', 
                 borderRadius: 3,
-                border: `1px solid ${theme.palette.divider}`
+                border: `1px solid ${borderColor}`
               }}
             >
               <Typography 
@@ -154,10 +160,8 @@ const StudyFormContainer = ({
             
             <Box sx={{ mt: 4 }}>
               <ThemesSection 
-                theme1={theme1}
-                setTheme1={setTheme1}
-                theme2={theme2}
-                setTheme2={setTheme2}
+                selectedThemes={selectedThemes}
+                setSelectedThemes={setSelectedThemes}
                 themes={themes}
               />
             </Box>
