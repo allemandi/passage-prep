@@ -16,6 +16,12 @@ import {
 import ScriptureCombobox from './ScriptureCombobox';
 import { themes, saveQuestion } from '../data/dataService';
 import { getBibleBooks, getChaptersForBook, getChapterCountForBook, formatReference } from '../utils/bibleData';
+import {
+	RegExpMatcher,
+	englishDataset,
+	englishRecommendedTransformers,
+} from 'obscenity';
+
 
 const ContributeForm = () => {
   const theme = useTheme();
@@ -32,6 +38,11 @@ const ContributeForm = () => {
   const [showSuccess, setShowSuccess] = useState(false);
   const [showError, setShowError] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
+
+  const matcher = new RegExpMatcher({
+    ...englishDataset.build(),
+    ...englishRecommendedTransformers,
+  });
   
   // Bible books from the JSON data
   const bibleBooks = getBibleBooks();
@@ -90,7 +101,14 @@ const ContributeForm = () => {
       setErrorMessage('Please select a scripture reference.');
       return;
     }
-    
+
+    // Check for profanity
+    if (matcher.hasMatch(questionText)) {
+      setShowError(true);
+      setErrorMessage('Possible profanity detected. Please revise your question.');
+      return;
+    }
+
     setIsSubmitting(true);
     setShowError(false);
     
