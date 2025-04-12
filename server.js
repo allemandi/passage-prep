@@ -94,19 +94,23 @@ function shutdown() {
     // Close database connection
     console.log('Closing database connection...');
     if (connectDB.mongoose && connectDB.mongoose.connection) {
-      connectDB.mongoose.connection.close(false, () => {
+      try {
+        connectDB.mongoose.connection.close();
         console.log('MongoDB connection closed.');
         process.exit(0);
-      });
+      } catch (error) {
+        console.error('Error closing MongoDB connection:', error);
+        process.exit(1);
+      }
     } else {
       console.log('No active MongoDB connection to close.');
       process.exit(0);
     }
-    
-    // Failsafe: if we can't close DB properly, exit after timeout
-    setTimeout(() => {
-      console.log('Could not close connections in time, forcefully shutting down');
-      process.exit(1);
-    }, 1000);
   });
+  
+  // Failsafe: if we can't close connections in time, forcefully shut down
+  setTimeout(() => {
+    console.log('Could not close connections in time, forcefully shutting down');
+    process.exit(1);
+  }, 5000);
 } 

@@ -30,14 +30,28 @@ cd bible-study-app
    ```
    - Replace `<password>` with your actual database password
 
-4. Run the setup script:
+4. Install dependencies and start the application:
 ```bash
-./run.sh
+yarn install
+yarn dev
 ```
 
-This script will:
-- Install dependencies using Yarn
-- Start the development server
+## Running the Application
+
+The application consists of two parts that need to run together:
+- React frontend (accessible on port 3000)
+- Express backend API (runs on port 3001)
+
+**Important: Always use `yarn dev` to start the application locally.** 
+
+This command starts both the frontend and backend servers together. Even though you'll access the application through port 3000 in your browser (http://localhost:3000), the backend server on port 3001 is required for database operations.
+
+### Available scripts:
+
+- `yarn dev` - **Recommended:** Starts both frontend and backend servers together
+- `yarn start` - Starts only the frontend (will not be able to access database)
+- `yarn server` - Starts only the backend API server
+- `yarn import-data` - Imports sample data to MongoDB database
 
 ## Environment Variables
 
@@ -104,7 +118,7 @@ This command will:
 3. Choose subcategory settings and maximum number of questions
 4. Click "Submit"
 5. View your study in the modal that appears
-6. You can print the study using the "Print Study" button
+6. You can copy the study content to clipboard using the "Copy to Clipboard" button
 
 ### Contributing Questions
 
