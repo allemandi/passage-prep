@@ -1,14 +1,30 @@
 // API Service for handling server requests
 
 /**
+ * Gets the correct API URL based on the environment
+ * @param {string} endpoint - The API endpoint path
+ * @returns {string} - The full API URL
+ */
+const getApiUrl = (endpoint) => {
+  // In production with Netlify, use /.netlify/functions/
+  // In development, use /api/
+  const base = process.env.NODE_ENV === 'production' 
+    ? '/.netlify/functions'
+    : '/api';
+  
+  return `${base}/${endpoint}`;
+};
+
+/**
  * Generic fetch wrapper with error handling
- * @param {string} url - The URL to fetch from
+ * @param {string} endpoint - The API endpoint
  * @param {Object} options - Fetch options
  * @returns {Promise<any>} - The response data
  */
-const fetchWithErrorHandling = async (url, options = {}, retries = 2) => {
+const fetchWithErrorHandling = async (endpoint, options = {}, retries = 2) => {
+  const url = getApiUrl(endpoint);
+  
   try {
-    console.log(`Sending ${options.method || 'GET'} request to ${url}`);
     const response = await fetch(url, options);
     
     if (!response.ok) {
@@ -16,9 +32,8 @@ const fetchWithErrorHandling = async (url, options = {}, retries = 2) => {
       try {
         const errorData = await response.json();
         errorMessage = errorData?.error || errorMessage;
-        console.error('Error response:', errorData);
       } catch (e) {
-        console.error('Could not parse error response as JSON');
+        // Could not parse error response as JSON
       }
       throw new Error(errorMessage);
     }
@@ -26,12 +41,10 @@ const fetchWithErrorHandling = async (url, options = {}, retries = 2) => {
     return await response.json();
   } catch (error) {
     if (retries > 0) {
-      console.log(`Retrying request to ${url}, ${retries} retries left`);
       // Wait a bit before retrying
       await new Promise(resolve => setTimeout(resolve, 1000));
-      return fetchWithErrorHandling(url, options, retries - 1);
+      return fetchWithErrorHandling(endpoint, options, retries - 1);
     }
-    console.error(`Error fetching from ${url}:`, error);
     throw error;
   }
 };
@@ -42,13 +55,9 @@ const fetchWithErrorHandling = async (url, options = {}, retries = 2) => {
  */
 export const checkServerHealth = async () => {
   try {
-    console.log('Checking server health...');
-    const result = await fetch('/api/health', { method: 'GET' });
-    const isOk = result.ok;
-    console.log('Health check result:', isOk ? 'OK' : 'Failed');
-    return isOk;
+    const result = await fetch(getApiUrl('health'), { method: 'GET' });
+    return result.ok;
   } catch (error) {
-    console.error('Server health check failed:', error);
     return false;
   }
 };
@@ -63,16 +72,12 @@ export const saveQuestionToServer = async (_, data) => {
     // First check if the server is available
     const isServerReachable = await checkServerHealth().catch(() => false);
     if (!isServerReachable) {
-      console.warn('Server is not reachable');
       return false;
     }
     
-    console.log('Sending question data to server:', data);
-    
     const requestBody = JSON.stringify({ newData: data });
-    console.log('Request body:', requestBody);
     
-    const result = await fetchWithErrorHandling('/api/save-question', {
+    const result = await fetchWithErrorHandling('save-question', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -80,15 +85,8 @@ export const saveQuestionToServer = async (_, data) => {
       body: requestBody,
     });
     
-    if (result.success) {
-      console.log('Question saved successfully to MongoDB');
-      return true;
-    } else {
-      console.warn('Server returned success:false', result);
-      return false;
-    }
+    return result.success === true;
   } catch (error) {
-    console.error('Error saving question to MongoDB:', error);
     return false;
   }
 };
@@ -122,10 +120,8 @@ export const downloadCSV = async (data, filename = 'question.csv') => {
     link.click();
     document.body.removeChild(link);
     
-    console.log('CSV file downloaded successfully');
     return true;
   } catch (error) {
-    console.error('Error downloading CSV:', error);
     return false;
   }
 }; 

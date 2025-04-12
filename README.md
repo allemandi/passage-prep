@@ -124,14 +124,59 @@ This command will:
 - `/src` - React application source code
   - `/components` - React components
   - `/data` - Data services for handling API calls
+- `/netlify` - Netlify-specific files for deployment
+  - `/functions` - Serverless functions for the backend API
 
 ## Server Component
 
-The application includes an Express server to handle API requests, including:
-- Saving questions to MongoDB
-- Retrieving books and questions from MongoDB
+The application includes an Express server for local development and Netlify Functions for production deployment.
 
-In development mode, both the React app and the server will run concurrently.
+In development mode, both the React app and the Express server will run concurrently.
+
+## Netlify Deployment
+
+This application is configured to be deployed on Netlify. The backend Express API has been converted to serverless Netlify Functions.
+
+### Deployment Steps
+
+1. Push your code to a GitHub repository
+
+2. Sign up for a Netlify account if you don't have one
+
+3. Connect your GitHub repository to Netlify:
+   - Go to Netlify dashboard
+   - Click "New site from Git"
+   - Select GitHub as your Git provider
+   - Authorize Netlify to access your repositories
+   - Select your repository
+
+4. Configure build settings:
+   - Build command: `npm run build`
+   - Publish directory: `build`
+
+5. Configure environment variables:
+   - Go to Site settings > Environment variables
+   - Add your `MONGODB_URI` environment variable with your MongoDB connection string
+
+6. Deploy the site:
+   - Netlify will automatically build and deploy your site
+   - Functions will be deployed to `/.netlify/functions/`
+
+### Testing Locally with Netlify Functions
+
+To test your Netlify deployment locally:
+
+1. Install the Netlify CLI:
+```bash
+npm install -g netlify-cli
+```
+
+2. Run the Netlify development server:
+```bash
+netlify dev
+```
+
+This will start both the React app and the Netlify Functions locally, mimicking the production environment.
 
 ## Building for Production
 

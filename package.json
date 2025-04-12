@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "@netlify/functions": "^3.0.4",
     "body-parser": "^1.20.2",
     "bootstrap": "^5.3.2",
     "chalk": "^4.1.2",
@@ -32,7 +33,9 @@
     "build-and-serve": "yarn build && yarn server",
     "dev": "node scripts/start-dev.js",
     "dev:old": "concurrently --kill-others --handle-input \"yarn start:dev\" \"yarn server\"",
-    "clean": "node scripts/cleanup.js"
+    "clean": "node scripts/cleanup.js",
+    "netlify-dev": "netlify dev",
+    "netlify-build": "npm run build"
   },
   "proxy": "http://localhost:3001",
   "eslintConfig": {
@@ -52,5 +55,8 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
+  },
+  "devDependencies": {
+    "netlify-cli": "^20.0.0"
   }
 }

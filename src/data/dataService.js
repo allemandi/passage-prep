@@ -1,6 +1,17 @@
 import Papa from 'papaparse';
 import { saveQuestionToServer, downloadCSV } from './apiService';
 
+// Helper to get the correct API URL based on environment
+const getApiUrl = (endpoint) => {
+  // In production with Netlify, use /.netlify/functions/
+  // In development, use /api/
+  const base = process.env.NODE_ENV === 'production' 
+    ? '/.netlify/functions'
+    : '/api';
+  
+  return `${base}/${endpoint}`;
+};
+
 // Utility functions to read and parse CSV files
 const parseCSV = async (file) => {
   return new Promise((resolve, reject) => {
@@ -48,25 +59,20 @@ let booksCache = null;
 export const getBooks = async () => {
   try {
     if (booksCache) {
-      console.log('Using cached books data');
       return booksCache;
     }
     
-    console.log('Fetching books from API: /api/books');
-    const response = await fetch('/api/books');
+    const response = await fetch(getApiUrl('books'));
     
     if (!response.ok) {
       const errorText = await response.text();
-      console.error('API error response:', errorText);
       throw new Error(`Failed to fetch books: ${response.status} ${response.statusText}`);
     }
     
     const books = await response.json();
-    console.log(`Received ${books.length} books from API`);
     booksCache = books;
     return books;
   } catch (error) {
-    console.error("Error loading Books data:", error);
     return [];
   }
 };
@@ -78,21 +84,17 @@ export const getQuestions = async () => {
     // Always reload questions to get the latest
     questionsCache = null;
     
-    console.log('Fetching questions from API: /api/questions');
-    const response = await fetch('/api/questions');
+    const response = await fetch(getApiUrl('questions'));
     
     if (!response.ok) {
       const errorText = await response.text();
-      console.error('API error response:', errorText);
       throw new Error(`Failed to fetch questions: ${response.status} ${response.statusText}`);
     }
     
     const questions = await response.json();
-    console.log(`Received ${questions.length} questions from API`);
     questionsCache = questions;
     return questions;
   } catch (error) {
-    console.error("Error loading Questions data:", error);
     return [];
   }
 };
@@ -102,7 +104,6 @@ export const saveQuestion = async (theme, question, reference) => {
   try {
     // Validate inputs
     if (!theme || !question || !reference) {
-      console.error("Invalid question data:", { theme, question, reference });
       throw new Error("Missing required question data");
     }
     
@@ -112,25 +113,18 @@ export const saveQuestion = async (theme, question, reference) => {
       Subcategory: reference
     };
     
-    // Log for debugging
-    console.log("Saving new question:", newQuestion);
-    
     // Save to server
     const serverSaved = await saveQuestionToServer(null, newQuestion);
     
     if (!serverSaved) {
-      console.error("Failed to save question to the server");
       return false;
     }
-    
-    console.log("Question successfully saved to MongoDB");
     
     // Clear the cache so we reload questions next time
     questionsCache = null;
     
     return true;
   } catch (error) {
-    console.error("Error saving question:", error);
     return false;
   }
 };
@@ -138,16 +132,11 @@ export const saveQuestion = async (theme, question, reference) => {
 // Process the form data and return study data
 export const processForm = async (formData) => {
   try {
-    console.log("Processing form data:", formData);
-    
     // Get all questions and books
     const questions = await getQuestions();
     const books = await getBooks();
     
-    console.log(`Working with ${questions.length} questions and ${books.length} books`);
-    
     if (!questions.length || !books.length) {
-      console.error("Failed to load necessary data from MongoDB");
       throw new Error("Failed to load necessary data from MongoDB");
     }
     
@@ -177,15 +166,9 @@ export const processForm = async (formData) => {
       ))
       .map(book => `${book.Book}: ${book.Context}`);
     
-    console.log("Processing references:", refArr);
-    console.log("Book-only references:", noVerseArr);
-    console.log("With chapter references:", withChapterArr);
-    console.log("Themes:", themeArr);
-    
     // Filter questions based on themes and subcategory choice
     const questionsByTheme = themeArr.map(theme => {
       let filteredQuestions = questions.filter(q => q.Theme === theme);
-      console.log(`Found ${filteredQuestions.length} questions for theme ${theme}`);
       
       // Apply subcategory filtering
       switch (formData.subChoice) {
@@ -221,8 +204,6 @@ export const processForm = async (formData) => {
         // 'All' returns all questions for the theme, so no filtering needed
       }
       
-      console.log(`After subcategory filtering: ${filteredQuestions.length} questions for theme ${theme}`);
-      
       // Limit number of questions
       return filteredQuestions.slice(0, formData.maxLimit);
     });
@@ -235,7 +216,6 @@ export const processForm = async (formData) => {
       questionArr: questionsByTheme.map(questions => questions.map(q => q.Question))
     };
   } catch (error) {
-    console.error("Error in processForm:", error);
     throw error;
   }
 }; 
