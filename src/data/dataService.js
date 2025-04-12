@@ -87,9 +87,9 @@ export const saveQuestion = async (theme, question, reference) => {
     }
     
     const newQuestion = {
-      Theme: theme,
-      Question: question,
-      Subcategory: reference
+      theme: theme,
+      question: question,
+      biblePassage: reference
     };
     
     // Save to server
@@ -175,14 +175,14 @@ export const processForm = async (formData) => {
     
     // Filter questions based on themes and subcategory choice
     const questionsByTheme = themeArr.map(theme => {
-      let filteredQuestions = questions.filter(q => q.Theme === theme);
+      let filteredQuestions = questions.filter(q => q.theme === theme);
       
       // Apply subcategory filtering
       switch (formData.subChoice) {
         case 'General and Referenced Chapters':
           filteredQuestions = filteredQuestions.filter(q => {
-            if (!q.Subcategory) return false;
-            const subLower = q.Subcategory.toLowerCase();
+            if (!q.biblePassage) return false;
+            const subLower = q.biblePassage.toLowerCase();
             
             if (subLower === 'general') return true;
             
@@ -195,14 +195,14 @@ export const processForm = async (formData) => {
                 const subWords = subLower.split(' ');
                 return subWords[0] === bookPart || subLower.startsWith(bookPart);
               }
-            }) || refArr.some(ref => q.Subcategory.includes(ref));
+            }) || refArr.some(ref => q.biblePassage.includes(ref));
           });
           break;
           
         case 'Referenced Chapters Only':
           filteredQuestions = filteredQuestions.filter(q => {
-            if (!q.Subcategory) return false;
-            const subLower = q.Subcategory.toLowerCase();
+            if (!q.biblePassage) return false;
+            const subLower = q.biblePassage.toLowerCase();
             
             return withChapterArr.some(chapterRef => {
               const bookPart = chapterRef.replace(/\d+$/, '').toLowerCase();
@@ -213,14 +213,14 @@ export const processForm = async (formData) => {
                 const subWords = subLower.split(' ');
                 return subWords[0] === bookPart || subLower.startsWith(bookPart);
               }
-            }) || refArr.some(ref => q.Subcategory.includes(ref));
+            }) || refArr.some(ref => q.biblePassage.includes(ref));
           });
           break;
           
         case 'Referenced Books Only':
           filteredQuestions = filteredQuestions.filter(q => {
-            if (!q.Subcategory) return false;
-            const subLower = q.Subcategory.toLowerCase();
+            if (!q.biblePassage) return false;
+            const subLower = q.biblePassage.toLowerCase();
             
             return noVerseArr.some(book => {
               const bookWords = book.split(' ');
@@ -239,14 +239,14 @@ export const processForm = async (formData) => {
           
         case 'General Only':
           filteredQuestions = filteredQuestions.filter(q => 
-            q.Subcategory.toLowerCase() === 'general'
+            q.biblePassage.toLowerCase() === 'general'
           );
           break;
           
         case 'General and Referenced Books':
           filteredQuestions = filteredQuestions.filter(q => {
-            if (!q.Subcategory) return false;
-            const subLower = q.Subcategory.toLowerCase();
+            if (!q.biblePassage) return false;
+            const subLower = q.biblePassage.toLowerCase();
             
             if (subLower === 'general') return true;
             

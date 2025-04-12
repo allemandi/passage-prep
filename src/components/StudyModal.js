@@ -201,7 +201,7 @@ const StudyModal = ({ show, onHide, data }) => {
                       }}
                     >
                       <Typography variant="body1" sx={{ fontWeight: 400 }}>
-                        • {question.Question}
+                        • {question.question}
                       </Typography>
                     </ListItem>
                   ))}

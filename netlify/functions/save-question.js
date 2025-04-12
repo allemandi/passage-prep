@@ -22,7 +22,7 @@ exports.handler = async function(event, context) {
     const { newData } = data;
     
     // Validate the data
-    if (!newData || !newData.Theme || !newData.Question || !newData.Subcategory) {
+    if (!newData || !newData.theme || !newData.question || !newData.biblePassage) {
       return {
         statusCode: 400,
         headers: {
@@ -37,9 +37,9 @@ exports.handler = async function(event, context) {
     
     // Save to MongoDB
     await Question.create({
-      Theme: newData.Theme,
-      Question: newData.Question,
-      Subcategory: newData.Subcategory
+      theme: newData.theme,
+      question: newData.question,
+      biblePassage: newData.biblePassage
     });
     
     return {
@@ -64,4 +64,4 @@ exports.handler = async function(event, context) {
       })
     };
   }
-}; 
+};

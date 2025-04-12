@@ -42,15 +42,15 @@ app.post('/api/save-question', async (req, res) => {
   try {
     const { newData } = req.body;
     
-    if (!newData || !newData.Theme || !newData.Question || !newData.Subcategory) {
+    if (!newData || !newData.theme || !newData.question || !newData.biblePassage) {
       return res.status(400).json({ error: 'Missing required question data' });
     }
     
     // Save to MongoDB
     const savedQuestion = await Question.create({
-      Theme: newData.Theme,
-      Question: newData.Question,
-      Subcategory: newData.Subcategory
+      theme: newData.theme,
+      question: newData.question,
+      biblePassage: newData.biblePassage
     });
     
     res.status(200).json({ success: true, message: 'Question saved successfully to MongoDB' });
@@ -113,4 +113,4 @@ function shutdown() {
     console.log('Could not close connections in time, forcefully shutting down');
     process.exit(1);
   }, 5000);
-} 
+}

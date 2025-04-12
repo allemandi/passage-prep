@@ -1,17 +1,17 @@
 const mongoose = require('mongoose');
 
 const QuestionSchema = new mongoose.Schema({
-  Theme: {
+  theme: {
     type: String,
     required: true,
     trim: true
   },
-  Question: {
+  question: {
     type: String,
     required: true,
     trim: true
   },
-  Subcategory: {
+  biblePassage: {
     type: String,
     required: true,
     trim: true
@@ -19,4 +19,4 @@ const QuestionSchema = new mongoose.Schema({
 });
 
 // Prevent model recompilation error in serverless context
-module.exports = mongoose.models.Question || mongoose.model('Question', QuestionSchema); 
+module.exports = mongoose.models.Question || mongoose.model('Question', QuestionSchema);

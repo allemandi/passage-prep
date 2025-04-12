@@ -75,12 +75,12 @@ const importQuestions = async () => {
     // Clear existing questions
     await Question.deleteMany({});
     
-    // Import questions
+    // Import questions - map old field names to new ones
     for (const question of questions) {
       await Question.create({
-        Theme: question.Theme,
-        Question: question.Question,
-        Subcategory: question.Subcategory
+        theme: question.Theme,
+        question: question.Question,
+        biblePassage: question.Subcategory
       });
     }
     
@@ -106,4 +106,4 @@ const importAll = async () => {
 };
 
 // Run the import
-importAll(); 
+importAll();

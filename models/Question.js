@@ -1,21 +1,21 @@
 const mongoose = require('mongoose');
 
 const QuestionSchema = new mongoose.Schema({
-  Theme: {
+  theme: {
     type: String,
     required: true,
     trim: true
   },
-  Question: {
+  question: {
     type: String,
     required: true,
     trim: true
   },
-  Subcategory: {
+  biblePassage: {
     type: String,
     required: true,
     trim: true
   }
 });
 
-module.exports = mongoose.model('Question', QuestionSchema); 
+module.exports = mongoose.model('Question', QuestionSchema);
