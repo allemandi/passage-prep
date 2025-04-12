@@ -1,7 +1,26 @@
 import React, { useState } from 'react';
-import { Modal, Button, Alert } from 'react-bootstrap';
+import { 
+  Dialog, 
+  DialogTitle, 
+  DialogContent, 
+  DialogActions, 
+  Button, 
+  Typography, 
+  Box, 
+  List, 
+  ListItem, 
+  Divider, 
+  IconButton, 
+  Snackbar, 
+  Alert,
+  Paper,
+  useTheme
+} from '@mui/material';
+import CloseIcon from '@mui/icons-material/Close';
+import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 
 const StudyModal = ({ show, onHide, data }) => {
+  const theme = useTheme();
   const [copySuccess, setCopySuccess] = useState(false);
   
   if (!data) {
@@ -122,74 +141,209 @@ const StudyModal = ({ show, onHide, data }) => {
   };
   
   return (
-    <Modal
-      show={show}
-      onHide={onHide}
-      size="lg"
-      aria-labelledby="contained-modal-title-vcenter"
-      centered
-      id="myModal"
-    >
-      <Modal.Header closeButton>
-        <Modal.Title id="contained-modal-title-vcenter" className="modal-text">
-          Bible Study Preparation
-        </Modal.Title>
-      </Modal.Header>
-      <Modal.Body>
-        <h4 className="modal-text">Bible References</h4>
-        {data.refArr && data.refArr.filter(ref => ref).length > 0 ? (
-          <ul>
-            {data.refArr.filter(ref => ref).map((reference, index) => (
-              <li key={index} className="modal-text">{reference}</li>
-            ))}
-          </ul>
-        ) : (
-          <Alert variant="info">No Bible references specified.</Alert>
-        )}
-        
-        <h4 className="modal-text">General Context</h4>
-        {data.contextArr && data.contextArr.length > 0 ? (
-          <ul>
-            {data.contextArr.map((context, index) => (
-              <li key={index} className="modal-text">{context}</li>
-            ))}
-          </ul>
-        ) : (
-          <Alert variant="info">No context information available for the selected references.</Alert>
-        )}
-        
-        <h4 className="modal-text">Questions</h4>
-        {totalQuestions > 0 ? (
-          data.themeArr.filter(theme => theme).map((theme, themeIndex) => (
-            <div key={themeIndex}>
-              <h5 className="modal-text">{theme}</h5>
-              {data.questionArr[themeIndex] && data.questionArr[themeIndex].length > 0 ? (
-                <ul>
-                  {data.questionArr[themeIndex].map((question, qIndex) => (
-                    <li key={qIndex} className="modal-text">{question}</li>
-                  ))}
-                </ul>
-              ) : (
-                <Alert variant="warning">No questions found for this theme.</Alert>
-              )}
-            </div>
-          ))
-        ) : (
-          <Alert variant="warning">
-            No questions found that match your criteria. Try different themes or subcategory settings.
-          </Alert>
-        )}
-      </Modal.Body>
-      <Modal.Footer>
-        <Button variant="secondary" onClick={onHide}>Close</Button>
-        <Button 
-          variant="primary" 
-          onClick={copyToClipboard}
+    <>
+      <Dialog 
+        open={show} 
+        onClose={onHide}
+        fullWidth
+        maxWidth="md"
+        scroll="paper"
+        aria-labelledby="study-modal-title"
+        PaperProps={{
+          elevation: 6,
+          sx: { 
+            borderRadius: 3,
+            overflow: 'hidden',
+            backgroundColor: theme.palette.background.paper
+          }
+        }}
+      >
+        <DialogTitle 
+          id="study-modal-title" 
+          sx={{ 
+            bgcolor: 'primary.main', 
+            color: theme.palette.mode === 'dark' ? 'white' : 'white',
+            py: 2.5,
+            px: 3
+          }}
         >
-          {copySuccess ? 'Copied!' : 'Copy to Clipboard'}
-        </Button>
-      </Modal.Footer>
-    </Modal>
+          <Typography variant="h5" component="div" sx={{ fontWeight: 'medium' }}>
+            Bible Study Preparation
+          </Typography>
+          <IconButton
+            aria-label="close"
+            onClick={onHide}
+            sx={{
+              position: 'absolute',
+              right: 16,
+              top: 16,
+              color: 'white',
+            }}
+          >
+            <CloseIcon />
+          </IconButton>
+        </DialogTitle>
+        
+        <DialogContent dividers sx={{ p: { xs: 2, sm: 3, md: 4 } }}>
+          <Typography 
+            variant="h6" 
+            gutterBottom 
+            color="primary.main"
+            sx={{ 
+              fontWeight: 'medium',
+              pb: 1,
+              borderBottom: `2px solid ${theme.palette.primary.main}`,
+              mb: 3
+            }}
+          >
+            Bible References
+          </Typography>
+          
+          {data.refArr && data.refArr.filter(ref => ref).length > 0 ? (
+            <List disablePadding sx={{ mb: 4, pl: 2 }}>
+              {data.refArr.filter(ref => ref).map((reference, index) => (
+                <ListItem key={index} sx={{ py: 0.75 }}>
+                  <Typography variant="body1">• {reference}</Typography>
+                </ListItem>
+              ))}
+            </List>
+          ) : (
+            <Typography variant="body1" sx={{ mb: 4, ml: 2 }}>
+              No Bible references specified.
+            </Typography>
+          )}
+          
+          <Typography 
+            variant="h6" 
+            gutterBottom 
+            color="primary.main"
+            sx={{ 
+              fontWeight: 'medium',
+              pb: 1,
+              borderBottom: `2px solid ${theme.palette.primary.main}`,
+              mb: 3
+            }}
+          >
+            General Context
+          </Typography>
+          
+          {data.contextArr && data.contextArr.length > 0 ? (
+            <List disablePadding sx={{ mb: 4, pl: 2 }}>
+              {data.contextArr.map((context, index) => (
+                <ListItem key={index} sx={{ py: 0.75 }}>
+                  <Typography variant="body1">• {context}</Typography>
+                </ListItem>
+              ))}
+            </List>
+          ) : (
+            <Typography variant="body1" sx={{ mb: 4, ml: 2 }}>
+              No context information available.
+            </Typography>
+          )}
+          
+          <Typography 
+            variant="h6" 
+            gutterBottom 
+            color="primary.main"
+            sx={{ 
+              fontWeight: 'medium',
+              pb: 1,
+              borderBottom: `2px solid ${theme.palette.primary.main}`,
+              mb: 3
+            }}
+          >
+            Questions
+          </Typography>
+          
+          {totalQuestions > 0 ? (
+            data.themeArr.filter(theme => theme).map((theme, themeIndex) => (
+              <Box key={themeIndex} sx={{ mb: 4 }}>
+                <Typography 
+                  variant="subtitle1" 
+                  sx={{ 
+                    fontWeight: 'bold', 
+                    mb: 2,
+                    color: 'primary.light'
+                  }}
+                >
+                  {theme}
+                </Typography>
+                
+                {data.questionArr[themeIndex] && data.questionArr[themeIndex].length > 0 ? (
+                  <List disablePadding sx={{ pl: 2 }}>
+                    {data.questionArr[themeIndex].map((question, qIndex) => (
+                      <ListItem key={qIndex} sx={{ py: 0.75 }}>
+                        <Typography variant="body1">• {question}</Typography>
+                      </ListItem>
+                    ))}
+                  </List>
+                ) : (
+                  <Paper 
+                    sx={{ 
+                      p: 2, 
+                      bgcolor: theme.palette.mode === 'dark' ? 'rgba(255, 152, 0, 0.12)' : 'warning.light', 
+                      borderRadius: 2
+                    }}
+                  >
+                    <Typography>No questions found for this theme.</Typography>
+                  </Paper>
+                )}
+                
+                {themeIndex < data.themeArr.filter(t => t).length - 1 && (
+                  <Divider sx={{ my: 3 }} />
+                )}
+              </Box>
+            ))
+          ) : (
+            <Paper 
+              sx={{ 
+                p: 3, 
+                bgcolor: theme.palette.mode === 'dark' ? 'rgba(255, 152, 0, 0.12)' : 'warning.light', 
+                borderRadius: 2
+              }}
+            >
+              <Typography>
+                No questions found that match your criteria. Try different themes or subcategory settings.
+              </Typography>
+            </Paper>
+          )}
+        </DialogContent>
+        
+        <DialogActions sx={{ p: 3, justifyContent: 'space-between' }}>
+          <Button 
+            variant="outlined" 
+            onClick={onHide}
+            sx={{ px: 4, py: 1, borderRadius: 3 }}
+          >
+            Close
+          </Button>
+          <Button 
+            variant="contained" 
+            onClick={copyToClipboard}
+            startIcon={<ContentCopyIcon />}
+            sx={{ px: 4, py: 1, borderRadius: 3 }}
+            disableElevation
+          >
+            {copySuccess ? 'Copied!' : 'Copy to Clipboard'}
+          </Button>
+        </DialogActions>
+      </Dialog>
+      
+      <Snackbar
+        open={copySuccess}
+        autoHideDuration={3000}
+        onClose={() => setCopySuccess(false)}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+      >
+        <Alert 
+          severity="success" 
+          variant="filled"
+          sx={{ borderRadius: 2 }}
+        >
+          Study content copied to clipboard!
+        </Alert>
+      </Snackbar>
+    </>
   );
 };
 

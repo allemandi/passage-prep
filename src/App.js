@@ -1,6 +1,22 @@
-import React, { useState, useEffect } from 'react';
-import { Container, Card } from 'react-bootstrap';
-import 'bootstrap/dist/css/bootstrap.min.css';
+import React, { useState, useEffect, useMemo } from 'react';
+import { ThemeProvider } from '@mui/material/styles';
+import { 
+  Container, 
+  Card, 
+  CardHeader, 
+  CardContent, 
+  Typography, 
+  Grid, 
+  Box,
+  CssBaseline,
+  IconButton,
+  Tooltip,
+  useMediaQuery,
+  Paper
+} from '@mui/material';
+import Brightness4Icon from '@mui/icons-material/Brightness4';
+import Brightness7Icon from '@mui/icons-material/Brightness7';
+import { darkTheme, lightTheme } from './theme/theme';
 import './App.css';
 import RequestForm from './components/RequestForm';
 import ContributeForm from './components/ContributeForm';
@@ -11,6 +27,34 @@ function App() {
   const [showModal, setShowModal] = useState(false);
   const [studyData, setStudyData] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [mode, setMode] = useState('dark');
+  
+  const prefersDarkMode = useMediaQuery('(prefers-color-scheme: dark)');
+  
+  // Initialize with system preference, defaulting to dark mode
+  useEffect(() => {
+    const savedMode = localStorage.getItem('themeMode');
+    if (savedMode) {
+      setMode(savedMode);
+    } else {
+      setMode('dark');
+    }
+  }, []);
+  
+  // Save theme preference to localStorage
+  useEffect(() => {
+    localStorage.setItem('themeMode', mode);
+  }, [mode]);
+  
+  // Toggle between light and dark mode
+  const toggleColorMode = () => {
+    setMode((prevMode) => (prevMode === 'light' ? 'dark' : 'light'));
+  };
+  
+  // Use the appropriate theme based on mode
+  const theme = useMemo(() => {
+    return mode === 'light' ? lightTheme : darkTheme;
+  }, [mode]);
   
   // Load data on component mount
   useEffect(() => {
@@ -28,46 +72,121 @@ function App() {
   };
   
   return (
-    <div className="app-container">
-      <Container fluid id="component-container">
-        <Card className="text-dark bg-light mb-3 mx-auto" id="card-container">
-          <Card.Header>Bible Study Preparation</Card.Header>
-          <Card.Body>
-            <Card.Title>Made with React</Card.Title>
-            <Card.Text>
-              Bible References should be written in the format of Genesis 1:1, John 3:16-18, etc.
-              Please spell correctly, with proper spacing.
-            </Card.Text>
-            <Card.Text>
-              You must select at least one theme. If no questions show up after submission, 
-              there are not enough questions for that theme against your subcategory settings. 
-              Contribute questions to expand the pool.
-            </Card.Text>
-          </Card.Body>
-        </Card>
-        
-        <Container fluid>
-          <div className="row">
-            <div className="col-md-12 col-lg-8" id="requestBody">
-              <RequestForm onStudyGenerated={handleShowStudy} isLoading={isLoading} />
-            </div>
-            <div className="col-sm" id="contributeBody">
-              <ContributeForm isLoading={isLoading} />
-            </div>
-          </div>
+    <ThemeProvider theme={theme}>
+      <CssBaseline />
+      <Box 
+        className="app-container" 
+        sx={{ 
+          bgcolor: 'background.default', 
+          minHeight: '100vh', 
+          pb: 4,
+          backgroundImage: mode === 'dark' 
+            ? 'linear-gradient(rgba(18, 18, 18, 0.97), rgba(18, 18, 18, 0.95)), url("/bg-pattern.png")'
+            : 'linear-gradient(rgba(245, 245, 245, 0.97), rgba(245, 245, 245, 0.95)), url("/bg-pattern.png")',
+          backgroundAttachment: 'fixed',
+          backgroundSize: 'cover'
+        }}
+      >
+        <Container maxWidth="xl" sx={{ pt: 4 }}>
+          <Box sx={{ display: 'flex', justifyContent: 'flex-end', mb: 2 }}>
+            <Tooltip title={mode === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}>
+              <IconButton onClick={toggleColorMode} color="inherit" aria-label="toggle light/dark mode">
+                {mode === 'dark' ? <Brightness7Icon /> : <Brightness4Icon />}
+              </IconButton>
+            </Tooltip>
+          </Box>
+          
+          <Card 
+            elevation={3}
+            sx={{ 
+              mb: 5, 
+              borderRadius: 3, 
+              mx: 'auto', 
+              maxWidth: '100%',
+              overflow: 'hidden',
+              boxShadow: mode === 'dark' 
+                ? '0 8px 24px rgba(0, 0, 0, 0.4)' 
+                : '0 8px 24px rgba(0, 0, 0, 0.05)'
+            }}
+          >
+            <CardHeader 
+              title="Bible Study Preparation" 
+              sx={{ 
+                bgcolor: 'primary.main', 
+                color: 'white',
+                py: 2
+              }}
+            />
+            <CardContent sx={{ py: 3, px: { xs: 2, sm: 3, md: 4 } }}>
+              <Typography variant="h5" component="div" gutterBottom sx={{ mb: 2 }}>
+                Made with React + Material UI
+              </Typography>
+              <Typography variant="body1" paragraph sx={{ mb: 3 }}>
+                Bible References should be written in the format of Genesis 1:1, John 3:16-18, etc.
+                Please spell correctly, with proper spacing.
+              </Typography>
+              <Typography variant="body1">
+                You must select at least one theme. If no questions show up after submission, 
+                there are not enough questions for that theme against your subcategory settings. 
+                Contribute questions to expand the pool.
+              </Typography>
+            </CardContent>
+          </Card>
+          
+          <Paper 
+            elevation={mode === 'dark' ? 4 : 1}
+            sx={{ 
+              p: { xs: 2, sm: 3, md: 4 }, 
+              bgcolor: 'background.paper', 
+              borderRadius: 3,
+              boxShadow: mode === 'dark' 
+                ? '0 6px 20px rgba(0, 0, 0, 0.3)' 
+                : '0 6px 20px rgba(0, 0, 0, 0.05)',
+              mb: 4,
+              width: '100%'
+            }}
+          >
+            <RequestForm onStudyGenerated={handleShowStudy} isLoading={isLoading} />
+          </Paper>
+          
+          <Paper 
+            elevation={mode === 'dark' ? 4 : 1}
+            sx={{ 
+              p: { xs: 2, sm: 3, md: 4 }, 
+              bgcolor: 'background.paper', 
+              borderRadius: 3,
+              boxShadow: mode === 'dark' 
+                ? '0 6px 20px rgba(0, 0, 0, 0.3)' 
+                : '0 6px 20px rgba(0, 0, 0, 0.05)',
+              width: '100%'
+            }}
+          >
+            <ContributeForm isLoading={isLoading} />
+          </Paper>
+          
+          <StudyModal 
+            show={showModal} 
+            onHide={() => setShowModal(false)} 
+            data={studyData}
+          />
         </Container>
         
-        <StudyModal 
-          show={showModal} 
-          onHide={() => setShowModal(false)} 
-          data={studyData}
-        />
-      </Container>
-      
-      <footer className="container">
-        Copyright &copy; <span id="copyright">{new Date().getFullYear()}</span> allemandi, All Rights Reserved
-      </footer>
-    </div>
+        <Box 
+          component="footer" 
+          sx={{ 
+            mt: 6, 
+            textAlign: 'center',
+            py: 3,
+            borderTop: '1px solid',
+            borderColor: 'divider'
+          }}
+        >
+          <Typography variant="body2" color="text.secondary">
+            Copyright &copy; {new Date().getFullYear()} allemandi, All Rights Reserved
+          </Typography>
+        </Box>
+      </Box>
+    </ThemeProvider>
   );
 }
 

@@ -1,194 +1,326 @@
 import React, { useState } from 'react';
-import { Form, Button, Alert, Spinner } from 'react-bootstrap';
+import { 
+  TextField, 
+  Button, 
+  MenuItem, 
+  Box, 
+  Typography, 
+  Grid, 
+  CircularProgress, 
+  Alert, 
+  Paper,
+  Snackbar,
+  useTheme
+} from '@mui/material';
+import ScriptureCombobox from './ScriptureCombobox';
 import { themes, saveQuestion } from '../data/dataService';
+import { getBibleBooks, getChaptersForBook, getChapterCountForBook, formatReference } from '../utils/bibleData';
 
-const ContributeForm = ({ isLoading }) => {
-  const [themeSubmission, setThemeSubmission] = useState('');
-  const [subSubmission, setSubSubmission] = useState('');
-  const [questSubmission, setQuestSubmission] = useState('');
+const ContributeForm = () => {
+  const theme = useTheme();
+  const [questionText, setQuestionText] = useState('');
+  const [selectedTheme, setSelectedTheme] = useState('');
+  const [scripture, setScripture] = useState('');
+  
+  const [selectedBook, setSelectedBook] = useState('');
+  const [selectedChapter, setSelectedChapter] = useState('');
+  const [availableChapters, setAvailableChapters] = useState([]);
+  const [totalChapters, setTotalChapters] = useState(0);
+  
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
   const [showError, setShowError] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
-  const [showInvalid, setShowInvalid] = useState(false);
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  
+  // Bible books from the JSON data
+  const bibleBooks = getBibleBooks();
+  
+  // Update chapters when book changes
+  React.useEffect(() => {
+    if (selectedBook) {
+      const chapters = getChaptersForBook(selectedBook);
+      setAvailableChapters(chapters);
+      
+      // Get and set the total chapter count
+      const chapterCount = getChapterCountForBook(selectedBook);
+      setTotalChapters(chapterCount);
+      
+      // Reset chapter if the book changes
+      setSelectedChapter('');
+      
+      // Update the reference
+      updateReference(selectedBook, '');
+    } else {
+      setAvailableChapters([]);
+      setSelectedChapter('');
+      setScripture('');
+      setTotalChapters(0);
+    }
+  }, [selectedBook]);
+  
+  // Update reference when chapter changes
+  React.useEffect(() => {
+    updateReference(selectedBook, selectedChapter);
+  }, [selectedChapter]);
+  
+  const updateReference = (book, chapter) => {
+    const reference = formatReference(book, chapter);
+    setScripture(reference);
+  };
   
   const handleSubmit = async (e) => {
     e.preventDefault();
     
-    if (validateForm()) {
-      setIsSubmitting(true);
-      setShowSuccess(false);
-      setShowError(false);
+    // Validation
+    if (!questionText.trim()) {
+      setShowError(true);
+      setErrorMessage('Please enter a question.');
+      return;
+    }
+    
+    if (!selectedTheme) {
+      setShowError(true);
+      setErrorMessage('Please select a theme.');
+      return;
+    }
+    
+    if (!scripture) {
+      setShowError(true);
+      setErrorMessage('Please select a scripture reference.');
+      return;
+    }
+    
+    setIsSubmitting(true);
+    setShowError(false);
+    
+    try {
+      await saveQuestion(selectedTheme, questionText, scripture);
+      setShowSuccess(true);
       
-      const reference = subSubmission.trim();
-      const question = questSubmission.trim();
-      const theme = themeSubmission;
-      
-      if (isValidReference(reference)) {
-        const saved = await saveQuestion(theme, question, reference);
-        
-        if (saved) {
-          setShowSuccess(true);
-          setThemeSubmission('');
-          setSubSubmission('');
-          setQuestSubmission('');
-          setTimeout(() => setShowSuccess(false), 3000);
-        } else {
-          setShowError(true);
-          setErrorMessage('Failed to save question. Please try again or contact the admin.');
-        }
-      } else {
-        setShowInvalid(true);
-      }
-      
+      // Reset the form
+      setQuestionText('');
+      setSelectedTheme('');
+      setSelectedBook('');
+      setSelectedChapter('');
+      setScripture('');
+    } catch (error) {
+      console.error('Error submitting question:', error);
+      setShowError(true);
+      setErrorMessage('Failed to submit your question. Please try again.');
+    } finally {
       setIsSubmitting(false);
     }
   };
   
-  // A simple Bible reference validator
-  const validateBibleReference = (reference) => {
-    // This is a simplified validation, should be more robust in production
-    const bibleBooks = [
-      'genesis', 'exodus', 'leviticus', 'numbers', 'deuteronomy', 'joshua', 'judges', 'ruth',
-      '1 samuel', '2 samuel', '1 kings', '2 kings', '1 chronicles', '2 chronicles', 'ezra',
-      'nehemiah', 'esther', 'job', 'psalms', 'psalm', 'proverbs', 'ecclesiastes', 'song of solomon',
-      'isaiah', 'jeremiah', 'lamentations', 'ezekiel', 'daniel', 'hosea', 'joel', 'amos', 'obadiah',
-      'jonah', 'micah', 'nahum', 'habakkuk', 'zephaniah', 'haggai', 'zechariah', 'malachi',
-      'matthew', 'mark', 'luke', 'john', 'acts', 'romans', '1 corinthians', '2 corinthians',
-      'galatians', 'ephesians', 'philippians', 'colossians', '1 thessalonians', '2 thessalonians',
-      '1 timothy', '2 timothy', 'titus', 'philemon', 'hebrews', 'james', '1 peter', '2 peter',
-      '1 john', '2 john', '3 john', 'jude', 'revelation'
-    ];
-    
-    const lowercaseRef = reference.toLowerCase();
-    
-    // Check if the reference starts with a Bible book
-    return bibleBooks.some(book => lowercaseRef.startsWith(book));
-  };
-  
-  const validateForm = () => {
-    const reference = subSubmission.trim();
-    const question = questSubmission.trim();
-    const theme = themeSubmission;
-    
-    if (!theme || !question || !reference) {
-      setShowError(true);
-      setErrorMessage('All fields are required. Please fill them in and try again.');
-      return false;
-    }
-    
-    return true;
-  };
-  
-  const isValidReference = (reference) => {
-    return reference.toLowerCase() === 'general' || validateBibleReference(reference);
+  const closeAlert = (alertType) => {
+    if (alertType === 'success') setShowSuccess(false);
+    if (alertType === 'error') setShowError(false);
   };
   
   return (
-    <Form onSubmit={handleSubmit}>
-      <p className="card-text"><strong>Contribute a Question</strong></p>
-      
-      <Form.Group className="mb-3">
-        <Form.Label htmlFor="themeSubmission">Theme</Form.Label>
-        <Form.Select 
-          id="themeSubmission" 
-          value={themeSubmission}
-          onChange={(e) => setThemeSubmission(e.target.value)}
-          required
-        >
-          <option value=""></option>
-          {themes.map((theme, index) => (
-            <option key={index} value={theme}>{theme}</option>
-          ))}
-        </Form.Select>
-        <Form.Text className="text-muted">
-          Pick your question's theme. If none fit, contact your admin
-        </Form.Text>
-      </Form.Group>
-      
-      <Form.Group className="mb-3">
-        <Form.Label htmlFor="subSubmission">Bible Reference</Form.Label>
-        <Form.Control 
-          id="subSubmission" 
-          type="text" 
-          placeholder="John 3:16" 
-          value={subSubmission}
-          onChange={(e) => setSubSubmission(e.target.value)}
-          required
-        />
-        <Form.Text className="text-muted">
-          Write a passage or write 'General'
-        </Form.Text>
-      </Form.Group>
-      
-      <Form.Group className="mb-3">
-        <Form.Label htmlFor="questSubmission">Question</Form.Label>
-        <Form.Control 
-          id="questSubmission" 
-          type="text" 
-          placeholder="Why?" 
-          value={questSubmission}
-          onChange={(e) => setQuestSubmission(e.target.value)}
-          required
-        />
-        <Form.Text className="text-muted">
-          Write your contributing question to the database
-        </Form.Text>
-      </Form.Group>
-      
-      <Button 
-        className="btn btn-primary btn-lg btn-block" 
-        type="submit" 
-        disabled={isLoading || isSubmitting}
+    <Box component="form" onSubmit={handleSubmit} noValidate sx={{ pt: 1, pb: 2 }}>
+      <Typography 
+        variant="h5" 
+        component="h2" 
+        sx={{ 
+          mb: 4, 
+          fontWeight: 'bold', 
+          textAlign: 'center',
+          color: 'primary.main'
+        }}
       >
-        {isSubmitting ? (
-          <>
-            <Spinner
-              as="span"
-              animation="border"
-              size="sm"
-              role="status"
-              aria-hidden="true"
-              className="me-2"
+        New Questions
+      </Typography>
+      
+      <Paper 
+        elevation={theme.palette.mode === 'dark' ? 2 : 0} 
+        sx={{ 
+          p: 3, 
+          bgcolor: theme.palette.mode === 'dark' ? 'background.paper' : 'background.default', 
+          borderRadius: 2,
+          border: `1px solid ${theme.palette.divider}`
+        }}
+      >
+        <Typography 
+          variant="h6" 
+          gutterBottom 
+          sx={{ 
+            fontWeight: 'medium', 
+            color: 'primary.main',
+            pb: 1,
+            mb: 3,
+            borderBottom: `2px solid ${theme.palette.primary.main}`
+          }}
+        >
+          Add Questions
+        </Typography>
+        
+        <Grid container spacing={3}>
+          <Grid item xs={12} md={4}>
+            <Typography 
+              variant="subtitle1" 
+              gutterBottom 
+              sx={{ 
+                fontWeight: 'medium', 
+                color: 'primary.main',
+              }}
+            >
+              Question Details
+            </Typography>
+            
+            <TextField
+              fullWidth
+              id="questionText"
+              label="Question"
+              multiline
+              rows={4}
+              value={questionText}
+              onChange={(e) => setQuestionText(e.target.value)}
+              required
+              placeholder="Type your Bible study question here..."
+              variant="outlined"
+              sx={{ mb: 2 }}
             />
-            Submitting...
-          </>
-        ) : 'Submit'}
-      </Button>
+          </Grid>
+          
+          <Grid item xs={12} md={4}>
+            <Typography 
+              variant="subtitle1" 
+              gutterBottom 
+              sx={{ 
+                fontWeight: 'medium', 
+                color: 'primary.main',
+              }}
+            >
+              Theme
+            </Typography>
+            
+            <TextField
+              select
+              fullWidth
+              id="themeSelect"
+              label="Theme"
+              value={selectedTheme}
+              onChange={(e) => setSelectedTheme(e.target.value)}
+              required
+              variant="outlined"
+              size="small"
+            >
+              <MenuItem value="">
+                <em>Select a theme</em>
+              </MenuItem>
+              {themes.map((theme, index) => (
+                <MenuItem key={index} value={theme}>{theme}</MenuItem>
+              ))}
+            </TextField>
+          </Grid>
+          
+          <Grid item xs={12} md={4}>
+            <Typography 
+              variant="subtitle1" 
+              gutterBottom 
+              sx={{ 
+                fontWeight: 'medium', 
+                color: 'primary.main',
+              }}
+            >
+              Bible Reference
+            </Typography>
+            
+            <Grid container spacing={2}>
+              <Grid item xs={12}>
+                <ScriptureCombobox
+                  id="bookSelect"
+                  label="Book"
+                  value={selectedBook}
+                  onChange={setSelectedBook}
+                  options={bibleBooks}
+                  placeholder="Select a book..."
+                  isRequired
+                  helperText={selectedBook ? `Total chapters: ${totalChapters}` : ""}
+                />
+              </Grid>
+              <Grid item xs={12}>
+                <ScriptureCombobox
+                  id="chapterSelect"
+                  label="Chapter"
+                  value={selectedChapter}
+                  onChange={setSelectedChapter}
+                  options={availableChapters}
+                  placeholder={selectedBook ? `Select chapter (1-${totalChapters})` : "Select a book first"}
+                  disabled={!selectedBook}
+                />
+              </Grid>
+            </Grid>
+            
+            <input 
+              id="scripture" 
+              type="hidden" 
+              value={scripture}
+              required
+            />
+          </Grid>
+        </Grid>
+        
+        <Box sx={{ mt: 4, display: 'flex', justifyContent: 'center' }}>
+          <Button 
+            variant="contained" 
+            color="primary" 
+            type="submit" 
+            disabled={isSubmitting}
+            size="large"
+            sx={{ 
+              px: 6, 
+              py: 1.5, 
+              minWidth: 200,
+              borderRadius: 3,
+              fontSize: '1rem',
+              fontWeight: 'medium'
+            }}
+            disableElevation
+          >
+            {isSubmitting ? (
+              <>
+                <CircularProgress size={24} color="inherit" sx={{ mr: 1 }} />
+                Submitting...
+              </>
+            ) : 'Submit Question'}
+          </Button>
+        </Box>
+      </Paper>
       
-      {showInvalid && (
+      <Snackbar
+        open={showSuccess}
+        autoHideDuration={6000}
+        onClose={() => closeAlert('success')}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+      >
         <Alert 
-          className="mt-3"
-          variant="warning" 
-          dismissible 
-          onClose={() => setShowInvalid(false)}
+          onClose={() => closeAlert('success')} 
+          severity="success" 
+          variant="filled"
+          sx={{ borderRadius: 2 }}
         >
-          <strong>Invalid Reference</strong> Sorry, reference not accepted. Either write a book in the Bible or write "General"
+          Your question has been submitted successfully! Thank you for contributing.
         </Alert>
-      )}
+      </Snackbar>
       
-      {showSuccess && (
+      <Snackbar
+        open={showError}
+        autoHideDuration={6000}
+        onClose={() => closeAlert('error')}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+      >
         <Alert 
-          className="mt-3"
-          variant="success" 
-          dismissible 
-          onClose={() => setShowSuccess(false)}
+          onClose={() => closeAlert('error')} 
+          severity="error" 
+          variant="filled"
+          sx={{ borderRadius: 2 }}
         >
-          <strong>Question Saved!</strong> Thank you for contributing a question to the database.
+          {errorMessage}
         </Alert>
-      )}
-      
-      {showError && (
-        <Alert 
-          className="mt-3"
-          variant="danger" 
-          dismissible 
-          onClose={() => setShowError(false)}
-        >
-          <strong>Error:</strong> {errorMessage}
-        </Alert>
-      )}
-    </Form>
+      </Snackbar>
+    </Box>
   );
 };
 

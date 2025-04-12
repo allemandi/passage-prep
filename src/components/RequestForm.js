@@ -1,19 +1,22 @@
-import React, { useState } from 'react';
-import { Form, Button, Alert, Spinner } from 'react-bootstrap';
+import React, { useState, useEffect } from 'react';
+import { 
+  Box, 
+  Typography, 
+  Alert, 
+  Snackbar,
+  useTheme
+} from '@mui/material';
 import { themes, subcategories, processForm } from '../data/dataService';
+import { getBibleBooks, getChaptersForBook, getChapterCountForBook, formatReference } from '../utils/bibleData';
+import StudyFormContainer from './StudyFormContainer';
 
 const RequestForm = ({ onStudyGenerated, isLoading }) => {
+  const theme = useTheme();
   const [scripture1, setScripture1] = useState('');
   const [scripture2, setScripture2] = useState('');
-  const [scripture3, setScripture3] = useState('');
-  const [scripture4, setScripture4] = useState('');
-  const [scripture5, setScripture5] = useState('');
   
   const [theme1, setTheme1] = useState('');
   const [theme2, setTheme2] = useState('');
-  const [theme3, setTheme3] = useState('');
-  const [theme4, setTheme4] = useState('');
-  const [theme5, setTheme5] = useState('');
   
   const [subChoice, setSubChoice] = useState(subcategories[0]);
   const [maxLimit, setMaxLimit] = useState('5');
@@ -23,16 +26,97 @@ const RequestForm = ({ onStudyGenerated, isLoading }) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [noQuestionsFound, setNoQuestionsFound] = useState(false);
   
+  // New state for Scripture 1 Comboboxes
+  const [selectedBook1, setSelectedBook1] = useState('');
+  const [selectedChapter1, setSelectedChapter1] = useState('');
+  const [availableChapters1, setAvailableChapters1] = useState([]);
+  const [totalChapters1, setTotalChapters1] = useState(0);
+  
+  // New state for Scripture 2 Comboboxes
+  const [selectedBook2, setSelectedBook2] = useState('');
+  const [selectedChapter2, setSelectedChapter2] = useState('');
+  const [availableChapters2, setAvailableChapters2] = useState([]);
+  const [totalChapters2, setTotalChapters2] = useState(0);
+  
+  // Bible books from the JSON data
+  const bibleBooks = getBibleBooks();
+  
+  // Update chapters when book 1 changes
+  useEffect(() => {
+    if (selectedBook1) {
+      const chapters = getChaptersForBook(selectedBook1);
+      setAvailableChapters1(chapters);
+      
+      // Get and set the total chapter count
+      const chapterCount = getChapterCountForBook(selectedBook1);
+      setTotalChapters1(chapterCount);
+      
+      // Reset chapter if the book changes
+      setSelectedChapter1('');
+      
+      // Update the reference
+      updateReference1(selectedBook1, '');
+    } else {
+      setAvailableChapters1([]);
+      setSelectedChapter1('');
+      setScripture1('');
+      setTotalChapters1(0);
+    }
+  }, [selectedBook1]);
+  
+  // Update reference when chapter 1 changes
+  useEffect(() => {
+    updateReference1(selectedBook1, selectedChapter1);
+  }, [selectedChapter1]);
+  
+  // Update chapters when book 2 changes
+  useEffect(() => {
+    if (selectedBook2) {
+      const chapters = getChaptersForBook(selectedBook2);
+      setAvailableChapters2(chapters);
+      
+      // Get and set the total chapter count
+      const chapterCount = getChapterCountForBook(selectedBook2);
+      setTotalChapters2(chapterCount);
+      
+      // Reset chapter if the book changes
+      setSelectedChapter2('');
+      
+      // Update the reference
+      updateReference2(selectedBook2, '');
+    } else {
+      setAvailableChapters2([]);
+      setSelectedChapter2('');
+      setScripture2('');
+      setTotalChapters2(0);
+    }
+  }, [selectedBook2]);
+  
+  // Update reference when chapter 2 changes
+  useEffect(() => {
+    updateReference2(selectedBook2, selectedChapter2);
+  }, [selectedChapter2]);
+  
+  const updateReference1 = (book, chapter) => {
+    const reference = formatReference(book, chapter);
+    setScripture1(reference);
+  };
+  
+  const updateReference2 = (book, chapter) => {
+    const reference = formatReference(book, chapter);
+    setScripture2(reference);
+  };
+  
   const handleSubmit = async (e) => {
-    e.preventDefault();
+    if (e) e.preventDefault();
     setIsSubmitting(true);
     setShowSuccess(false);
     setShowError(false);
     setNoQuestionsFound(false);
     
     // Gather all scripture references and themes
-    const refArr = [scripture1, scripture2, scripture3, scripture4, scripture5];
-    const themeArr = [theme1, theme2, theme3, theme4, theme5];
+    const refArr = [scripture1, scripture2];
+    const themeArr = [theme1, theme2];
     
     // Check if at least one theme is selected
     if (!themeArr.some(theme => theme)) {
@@ -86,218 +170,106 @@ const RequestForm = ({ onStudyGenerated, isLoading }) => {
   };
   
   return (
-    <Form onSubmit={handleSubmit}>
-      <p className="card-text"><strong>Request Bible Study</strong></p>
-      
-      <div className="container-fluid">
-        <div className="row">
-          <div className="col-sm">
-            <h3>Bible References</h3>
-          </div>
-          <div className="col-sm">
-            <h3>Themes</h3>
-          </div>
-          <div className="col-sm">
-            <h3>General Settings</h3>
-          </div>
-        </div>
-        
-        <div className="row">
-          <div className="col-sm">
-            <Form.Group className="mb-3">
-              <Form.Label htmlFor="scripture1">Scripture 1</Form.Label>
-              <Form.Control 
-                id="scripture1" 
-                type="text" 
-                placeholder="Write a passage" 
-                value={scripture1}
-                onChange={(e) => setScripture1(e.target.value)}
-                required
-              />
-              
-              <Form.Label htmlFor="scripture2">Scripture 2</Form.Label>
-              <Form.Control 
-                id="scripture2" 
-                type="text" 
-                value={scripture2}
-                onChange={(e) => setScripture2(e.target.value)}
-              />
-              
-              <Form.Label htmlFor="scripture3">Scripture 3</Form.Label>
-              <Form.Control 
-                id="scripture3" 
-                type="text" 
-                value={scripture3}
-                onChange={(e) => setScripture3(e.target.value)}
-              />
-              
-              <Form.Label htmlFor="scripture4">Scripture 4</Form.Label>
-              <Form.Control 
-                id="scripture4" 
-                type="text" 
-                value={scripture4}
-                onChange={(e) => setScripture4(e.target.value)}
-              />
-              
-              <Form.Label htmlFor="scripture5">Scripture 5</Form.Label>
-              <Form.Control 
-                id="scripture5" 
-                type="text" 
-                value={scripture5}
-                onChange={(e) => setScripture5(e.target.value)}
-              />
-            </Form.Group>
-          </div>
-          
-          <div className="col-sm">
-            <Form.Group className="mb-3">
-              <Form.Label htmlFor="theme1">Theme 1</Form.Label>
-              <Form.Select 
-                id="theme1" 
-                value={theme1}
-                onChange={(e) => setTheme1(e.target.value)}
-                required
-              >
-                <option value=""></option>
-                {themes.map((theme, index) => (
-                  <option key={index} value={theme}>{theme}</option>
-                ))}
-              </Form.Select>
-              
-              <Form.Label htmlFor="theme2">Theme 2</Form.Label>
-              <Form.Select 
-                id="theme2" 
-                value={theme2}
-                onChange={(e) => setTheme2(e.target.value)}
-              >
-                <option value=""></option>
-                {themes.map((theme, index) => (
-                  <option key={index} value={theme}>{theme}</option>
-                ))}
-              </Form.Select>
-              
-              <Form.Label htmlFor="theme3">Theme 3</Form.Label>
-              <Form.Select 
-                id="theme3" 
-                value={theme3}
-                onChange={(e) => setTheme3(e.target.value)}
-              >
-                <option value=""></option>
-                {themes.map((theme, index) => (
-                  <option key={index} value={theme}>{theme}</option>
-                ))}
-              </Form.Select>
-              
-              <Form.Label htmlFor="theme4">Theme 4</Form.Label>
-              <Form.Select 
-                id="theme4" 
-                value={theme4}
-                onChange={(e) => setTheme4(e.target.value)}
-              >
-                <option value=""></option>
-                {themes.map((theme, index) => (
-                  <option key={index} value={theme}>{theme}</option>
-                ))}
-              </Form.Select>
-              
-              <Form.Label htmlFor="theme5">Theme 5</Form.Label>
-              <Form.Select 
-                id="theme5" 
-                value={theme5}
-                onChange={(e) => setTheme5(e.target.value)}
-              >
-                <option value=""></option>
-                {themes.map((theme, index) => (
-                  <option key={index} value={theme}>{theme}</option>
-                ))}
-              </Form.Select>
-            </Form.Group>
-          </div>
-          
-          <div className="col-sm">
-            <Form.Group className="mb-3">
-              <Form.Label htmlFor="subChoice">Subcategories</Form.Label>
-              <Form.Select 
-                id="subChoice" 
-                value={subChoice}
-                onChange={(e) => setSubChoice(e.target.value)}
-              >
-                {subcategories.map((sub, index) => (
-                  <option key={index} value={sub}>{sub}</option>
-                ))}
-              </Form.Select>
-              
-              <Form.Label htmlFor="maxLimit">Max Questions</Form.Label>
-              <Form.Select 
-                id="maxLimit" 
-                value={maxLimit}
-                onChange={(e) => setMaxLimit(e.target.value)}
-              >
-                {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((num) => (
-                  <option key={num} value={num.toString()}>{num}</option>
-                ))}
-              </Form.Select>
-              <Form.Text className="text-muted">
-                More themes, more questions
-              </Form.Text>
-            </Form.Group>
-          </div>
-        </div>
-      </div>
-      
-      <Button 
-        className="btn btn-primary btn-lg btn-block" 
-        type="submit" 
-        disabled={isLoading || isSubmitting}
+    <Box component="form" onSubmit={handleSubmit} noValidate sx={{ pt: 1, pb: 2 }}>
+      <Typography 
+        variant="h5" 
+        component="h2" 
+        sx={{ 
+          mb: 4, 
+          fontWeight: 'bold', 
+          textAlign: 'center',
+          color: 'primary.main'
+        }}
       >
-        {isSubmitting ? (
-          <>
-            <Spinner
-              as="span"
-              animation="border"
-              size="sm"
-              role="status"
-              aria-hidden="true"
-              className="me-2"
-            />
-            Submitting...
-          </>
-        ) : 'Submit'}
-      </Button>
+        Request Bible Study
+      </Typography>
       
-      {showSuccess && (
-        <Alert 
-          className="mt-3"
-          variant="success" 
-          dismissible 
-          onClose={() => closeAlert('success')}
-        >
-          <strong>Success!</strong> Your Bible study has been generated. You can keep clicking the Submit button if you want more based on the above.
-        </Alert>
-      )}
+      <StudyFormContainer
+        // Bible References props
+        bibleBooks={bibleBooks}
+        selectedBook1={selectedBook1}
+        setSelectedBook1={setSelectedBook1}
+        selectedChapter1={selectedChapter1}
+        setSelectedChapter1={setSelectedChapter1}
+        availableChapters1={availableChapters1}
+        totalChapters1={totalChapters1}
+        selectedBook2={selectedBook2}
+        setSelectedBook2={setSelectedBook2}
+        selectedChapter2={selectedChapter2}
+        setSelectedChapter2={setSelectedChapter2}
+        availableChapters2={availableChapters2}
+        totalChapters2={totalChapters2}
+        scripture1={scripture1}
+        scripture2={scripture2}
+        
+        // Themes props
+        theme1={theme1}
+        setTheme1={setTheme1}
+        theme2={theme2}
+        setTheme2={setTheme2}
+        themes={themes}
+        
+        // General Settings props
+        subChoice={subChoice}
+        setSubChoice={setSubChoice}
+        maxLimit={maxLimit}
+        setMaxLimit={setMaxLimit}
+        subcategories={subcategories}
+        
+        // Form submission props
+        isLoading={isLoading}
+        isSubmitting={isSubmitting}
+        handleSubmit={handleSubmit}
+      />
       
-      {showError && (
+      <Snackbar
+        open={showSuccess}
+        autoHideDuration={6000}
+        onClose={() => closeAlert('success')}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+      >
         <Alert 
-          className="mt-3"
-          variant="danger" 
-          dismissible 
-          onClose={() => closeAlert('error')}
+          onClose={() => closeAlert('success')} 
+          severity="success" 
+          variant="filled"
+          sx={{ borderRadius: 2 }}
         >
-          <strong>Error:</strong> {errorMessage}
+          Success! Your Bible study has been generated. You can keep clicking the Submit button if you want more based on the above.
         </Alert>
-      )}
+      </Snackbar>
       
-      {noQuestionsFound && (
+      <Snackbar
+        open={showError}
+        autoHideDuration={6000}
+        onClose={() => closeAlert('error')}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+      >
         <Alert 
-          className="mt-3"
-          variant="warning" 
-          dismissible 
-          onClose={() => closeAlert('noQuestions')}
+          onClose={() => closeAlert('error')} 
+          severity="error" 
+          variant="filled"
+          sx={{ borderRadius: 2 }}
         >
-          <strong>No Questions Found</strong> There are not enough questions for that theme against your subcategory settings. Try a different combination or contribute questions to expand the pool.
+          {errorMessage}
         </Alert>
-      )}
-    </Form>
+      </Snackbar>
+      
+      <Snackbar
+        open={noQuestionsFound}
+        autoHideDuration={6000}
+        onClose={() => closeAlert('noQuestions')}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+      >
+        <Alert 
+          onClose={() => closeAlert('noQuestions')} 
+          severity="warning" 
+          variant="filled"
+          sx={{ borderRadius: 2 }}
+        >
+          No Questions Found. There are not enough questions for that theme against your subcategory settings. Try a different combination or contribute questions to expand the pool.
+        </Alert>
+      </Snackbar>
+    </Box>
   );
 };
 
