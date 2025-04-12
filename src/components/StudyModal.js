@@ -1,9 +1,8 @@
-import React, { useRef, useState } from 'react';
+import React, { useState } from 'react';
 import { Modal, Button, Alert } from 'react-bootstrap';
 
 const StudyModal = ({ show, onHide, data }) => {
   const [copySuccess, setCopySuccess] = useState(false);
-  const textAreaRef = useRef(null);
   
   if (!data) {
     return null;
