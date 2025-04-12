@@ -32,12 +32,6 @@ const StudyModal = ({ show, onHide, data }) => {
   const borderColor = theme.palette.mode === 'dark' 
     ? 'rgba(255, 255, 255, 0.12)' 
     : 'rgba(0, 0, 0, 0.12)';
-  
-  // Create a mapping of book abbreviations to full names
-  const bookMap = bibleCounts.reduce((acc, { book, abbr }) => {
-    acc[book] = abbr; // Map full book names to their abbreviations
-    return acc;
-  }, {});
 
   // Function to get the book name from a reference
   const getBookFromReference = (reference) => {
@@ -206,7 +200,7 @@ const StudyModal = ({ show, onHide, data }) => {
                   {book && (
                     <>
                       <Typography variant="h6" sx={{ fontWeight: 600, mt: 2 }}>
-                        {book}
+                        {reference}
                       </Typography>
                       {questionsForBook.length > 0 ? (
                         questionsForBook.map((question, qIndex) => (
