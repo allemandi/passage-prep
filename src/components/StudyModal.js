@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { 
   Dialog, 
   DialogTitle, 
@@ -15,9 +15,12 @@ import {
 } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
 import bibleCounts from '../data/bible-counts.json'; // Import the bible counts data
+import Snackbar from '@mui/material/Snackbar';
+import MuiAlert from '@mui/material/Alert';
 
 const StudyModal = ({ show, onHide, data }) => {
   const theme = useTheme();
+  const [showSnackbar, setShowSnackbar] = useState(false);
   
   // Safety check for data initialization
   if (!data || !data.filteredQuestions) {
@@ -95,6 +98,7 @@ const StudyModal = ({ show, onHide, data }) => {
       </DialogTitle>
 
       <DialogContent 
+        id="study-modal-content"
         sx={{ 
           p: { xs: 2.5, sm: 3.5 },
           bgcolor: theme.palette.mode === 'dark' ? 'background.paper' : 'background.default',
@@ -128,7 +132,7 @@ const StudyModal = ({ show, onHide, data }) => {
                 }}
               >
                 <Typography variant="body1" sx={{ fontWeight: 400 }}>
-                  • {reference}
+                  - {reference}
                 </Typography>
               </ListItem>
             ))}
@@ -164,7 +168,7 @@ const StudyModal = ({ show, onHide, data }) => {
                 }}
               >
                 <Typography variant="body1" sx={{ fontWeight: 400 }}>
-                  • {context}
+                  - {context}
                 </Typography>
               </ListItem>
             ))}
@@ -192,7 +196,7 @@ const StudyModal = ({ show, onHide, data }) => {
         {data.filteredQuestions && data.filteredQuestions.length > 0 ? (
           <List disablePadding>
             {data.refArr.filter(ref => ref).map((reference, index) => {
-              const book = getBookFromReference(reference); // Get the book name from the reference
+              const book = getBookFromReference(reference);
               const questionsForBook = data.filteredQuestions.filter(question => question.biblePassage.includes(book));
 
               return (
@@ -206,7 +210,7 @@ const StudyModal = ({ show, onHide, data }) => {
                         questionsForBook.map((question, qIndex) => (
                           <ListItem key={qIndex}>
                             <Typography variant="body1">
-                              • {question.question}
+                            - {question.question}
                             </Typography>
                           </ListItem>
                         ))
@@ -256,7 +260,12 @@ const StudyModal = ({ show, onHide, data }) => {
           Close
         </Button>
         <Button 
-          onClick={() => window.print()} 
+          onClick={() => {
+            const content = document.getElementById('study-modal-content').innerText; // Get the content to copy
+            navigator.clipboard.writeText(content).then(() => {
+              setShowSnackbar(true); // Show the Snackbar alert
+            });
+          }} 
           variant="contained" 
           color="primary"
           sx={{ 
@@ -275,9 +284,25 @@ const StudyModal = ({ show, onHide, data }) => {
             }
           }}
         >
-          Print
+          Copy
         </Button>
       </DialogActions>
+
+      <Snackbar
+        open={showSnackbar}
+        autoHideDuration={6000}
+        onClose={() => setShowSnackbar(false)}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+      >
+        <MuiAlert 
+          onClose={() => setShowSnackbar(false)} 
+          severity="success" 
+          variant="filled"
+          sx={{ borderRadius: 2 }}
+        >
+          Content copied to clipboard!
+        </MuiAlert>
+      </Snackbar>
     </Dialog>
   );
 };
