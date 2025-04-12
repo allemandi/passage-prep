@@ -4,11 +4,14 @@ import {
   Typography, 
   Alert, 
   Snackbar,
-  useTheme
+  useTheme,
+  Button,
+  Stack
 } from '@mui/material';
-import { themes, processForm } from '../data/dataService';
+import { themes, processForm, searchQuestions } from '../data/dataService';
 import { getBibleBooks, getChaptersForBook, getChapterCountForBook, formatReference } from '../utils/bibleData';
 import StudyFormContainer from './StudyFormContainer';
+import QuestionTable from './QuestionTable';
 
 const RequestForm = ({ onStudyGenerated, isLoading }) => {
   const theme = useTheme();
@@ -30,6 +33,9 @@ const RequestForm = ({ onStudyGenerated, isLoading }) => {
   const [errorMessage, setErrorMessage] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [noQuestionsFound, setNoQuestionsFound] = useState(false);
+  const [showSearchResults, setShowSearchResults] = useState(false);
+  const [searchResults, setSearchResults] = useState([]);
+  const [selectedQuestions, setSelectedQuestions] = useState([]);
 
   // Bible books from the JSON data
   const bibleBooks = getBibleBooks();
@@ -133,7 +139,54 @@ const RequestForm = ({ onStudyGenerated, isLoading }) => {
       setIsSubmitting(false);
     }
   };
-  
+
+  const handleSearch = async () => {
+    setIsSubmitting(true);
+    setShowError(false);
+    
+    // Gather all scripture references and themes
+    const refArr = scriptureRefs.map(ref => ref.scripture).filter(Boolean);
+    const themeArr = selectedThemes.length === themes.length ? [] : selectedThemes;
+    
+    if (!refArr.length) {
+      setShowError(true);
+      setErrorMessage('Please select at least one scripture reference.');
+      setIsSubmitting(false);
+      return;
+    }
+    
+    try {
+      const questions = await searchQuestions({
+        refArr,
+        themeArr,
+        maxLimit: parseInt(maxLimit, 10)
+      });
+      
+      setSearchResults(questions);
+      setShowSearchResults(true);
+      
+      if (questions.length === 0) {
+        setNoQuestionsFound(true);
+      }
+    } catch (error) {
+      console.error("Error in question search:", error);
+      setShowError(true);
+      setErrorMessage(error.message || 'An error occurred while searching questions.');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleQuestionSelect = (index, isSelected) => {
+    setSelectedQuestions(prev => {
+      if (isSelected) {
+        return [...prev, index];
+      } else {
+        return prev.filter(i => i !== index);
+      }
+    });
+  };
+
   const closeAlert = (alertType) => {
     if (alertType === 'success') setShowSuccess(false);
     if (alertType === 'error') setShowError(false);
@@ -141,7 +194,7 @@ const RequestForm = ({ onStudyGenerated, isLoading }) => {
   };
   
   return (
-    <Box component="form" onSubmit={handleSubmit} noValidate sx={{ pt: 1, pb: 2 }}>
+    <Box component="form" noValidate sx={{ pt: 1, pb: 2 }}>
       <Typography 
         variant="h5" 
         component="h2" 
@@ -176,6 +229,45 @@ const RequestForm = ({ onStudyGenerated, isLoading }) => {
         isSubmitting={isSubmitting}
         handleSubmit={handleSubmit}
       />
+
+      <Stack direction="row" spacing={2} justifyContent="center" sx={{ mt: 4 }}>
+        <Button 
+          variant="contained" 
+          color="primary" 
+          onClick={handleSubmit}
+          disabled={isLoading || isSubmitting}
+          size="large"
+          sx={{ 
+            px: { xs: 4, sm: 5, md: 6 }, 
+            py: 1.5, 
+            minWidth: { xs: 200, sm: 240 }
+          }}
+        >
+          Generate Study
+        </Button>
+        <Button 
+          variant="outlined" 
+          color="primary" 
+          onClick={handleSearch}
+          disabled={isLoading || isSubmitting}
+          size="large"
+          sx={{ 
+            px: { xs: 4, sm: 5, md: 6 }, 
+            py: 1.5, 
+            minWidth: { xs: 200, sm: 240 }
+          }}
+        >
+          Search Questions
+        </Button>
+      </Stack>
+
+      {showSearchResults && (
+        <QuestionTable 
+          questions={searchResults}
+          selectedQuestions={selectedQuestions}
+          onQuestionSelect={handleQuestionSelect}
+        />
+      )}
       
       <Snackbar
         open={showSuccess}

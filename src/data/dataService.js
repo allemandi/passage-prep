@@ -193,3 +193,77 @@ export const processForm = async (formData) => {
     throw new Error(`An error occurred while generating your study: ${error.message}`);
   }
 };
+
+export const searchQuestions = async (formData) => {
+  try {
+    // Get all questions and books
+    const questions = await getQuestions();
+    const books = await getBooks();
+    
+    if (!Array.isArray(questions) || !Array.isArray(books)) {
+      throw new Error("Data not in expected format: questions or books is not an array");
+    }
+    
+    if (questions.length === 0 || books.length === 0) {
+      throw new Error("Missing data: Check your database connection or data import");
+    }
+    
+    // Process reference array - remove any empty values
+    const refArr = [...new Set(formData.refArr)].filter(n => n);
+    
+    // Get unique themes or use all themes if none specified
+    const themeArr = formData.themeArr.length === 0 ? themes : [...new Set(formData.themeArr)].filter(n => n);
+    
+    // Process scripture references using the same logic as processForm
+    const scriptureRefs = refArr.map(ref => {
+      const match = ref.match(/^((?:\d\s+)?[A-Za-z]+(?:\s+[A-Za-z]+)*)\s*(\d+)?/i);
+      if (!match) return null;
+      
+      const [, book, chapter] = match;
+      return {
+        book: book.toLowerCase().trim(),
+        chapter: chapter ? parseInt(chapter, 10) : null
+      };
+    }).filter(Boolean);
+    
+    // Filter questions based on themes and scripture references
+    const matchingQuestions = questions.filter(q => {
+      // Check if the question matches any of the selected themes
+      const themeMatches = themeArr.length === 0 || themeArr.includes(q.theme);
+      if (!themeMatches) return false;
+      
+      // Convert passage to lowercase for case-insensitive comparison
+      const passageLower = q.biblePassage.toLowerCase();
+      
+      // Check if the question matches any of the scripture references
+      return scriptureRefs.some(ref => {
+        if (!passageLower.includes(ref.book)) return false;
+        
+        if (ref.chapter !== null) {
+          const chapterMatch = passageLower.match(/\b(\d+)(?::\d+(?:-\d+)?)?/);
+          if (!chapterMatch) return false;
+          return parseInt(chapterMatch[1], 10) === ref.chapter;
+        }
+        
+        return true;
+      });
+    });
+    
+    // Sort questions by book order and chapter
+    return matchingQuestions.sort((a, b) => {
+      const aBook = books.findIndex(book => a.biblePassage.toLowerCase().includes(book.Book.toLowerCase()));
+      const bBook = books.findIndex(book => b.biblePassage.toLowerCase().includes(book.Book.toLowerCase()));
+      
+      if (aBook !== bBook) return aBook - bBook;
+      
+      const aChapter = parseInt(a.biblePassage.match(/\b(\d+)(?::\d+(?:-\d+)?)?/)?.[1] || '0', 10);
+      const bChapter = parseInt(b.biblePassage.match(/\b(\d+)(?::\d+(?:-\d+)?)?/)?.[1] || '0', 10);
+      
+      return aChapter - bChapter;
+    });
+    
+  } catch (error) {
+    console.error("Question search error:", error);
+    throw new Error(`An error occurred while searching questions: ${error.message}`);
+  }
+};
