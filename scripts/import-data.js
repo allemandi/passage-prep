@@ -78,9 +78,9 @@ const importQuestions = async () => {
     // Import questions - map old field names to new ones
     for (const question of questions) {
       await Question.create({
-        theme: question.Theme,
-        question: question.Question,
-        biblePassage: question.Subcategory
+        theme: question.theme,
+        question: question.question,
+        biblePassage: question.biblePassage
       });
     }
     

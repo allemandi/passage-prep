@@ -27,11 +27,8 @@ const StudyFormContainer = ({
   themes,
   
   // General Settings props
-  subChoice,
-  setSubChoice,
   maxLimit,
   setMaxLimit,
-  subcategories,
   
   // Form submission props
   isLoading,
@@ -169,11 +166,8 @@ const StudyFormContainer = ({
           
           <Grid item xs={12} md={4}>
             <GeneralSettingsSection
-              subChoice={subChoice}
-              setSubChoice={setSubChoice}
               maxLimit={maxLimit}
               setMaxLimit={setMaxLimit}
-              subcategories={subcategories}
             />
           </Grid>
         </Grid>

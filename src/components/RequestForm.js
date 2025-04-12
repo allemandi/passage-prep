@@ -6,7 +6,7 @@ import {
   Snackbar,
   useTheme
 } from '@mui/material';
-import { themes, subcategories, processForm } from '../data/dataService';
+import { themes, processForm } from '../data/dataService';
 import { getBibleBooks, getChaptersForBook, getChapterCountForBook, formatReference } from '../utils/bibleData';
 import StudyFormContainer from './StudyFormContainer';
 
@@ -24,7 +24,6 @@ const RequestForm = ({ onStudyGenerated, isLoading }) => {
   ]);
   
   const [selectedThemes, setSelectedThemes] = useState(themes); // Default to all themes selected
-  const [subChoice, setSubChoice] = useState(subcategories[0]);
   const [maxLimit, setMaxLimit] = useState('5');
   const [showSuccess, setShowSuccess] = useState(false);
   const [showError, setShowError] = useState(false);
@@ -104,7 +103,6 @@ const RequestForm = ({ onStudyGenerated, isLoading }) => {
     const formData = {
       refArr,
       themeArr,
-      subChoice,
       maxLimit: parseInt(maxLimit, 10)
     };
     
@@ -170,11 +168,8 @@ const RequestForm = ({ onStudyGenerated, isLoading }) => {
         themes={themes}
         
         // General Settings props
-        subChoice={subChoice}
-        setSubChoice={setSubChoice}
         maxLimit={maxLimit}
         setMaxLimit={setMaxLimit}
-        subcategories={subcategories}
         
         // Form submission props
         isLoading={isLoading}
@@ -194,7 +189,7 @@ const RequestForm = ({ onStudyGenerated, isLoading }) => {
           variant="filled"
           sx={{ borderRadius: 2 }}
         >
-          Success! Your Bible study has been generated. You can keep clicking the Submit button if you want more based on the above.
+          Success! Your Bible study has been generated.
         </Alert>
       </Snackbar>
       
@@ -226,7 +221,7 @@ const RequestForm = ({ onStudyGenerated, isLoading }) => {
           variant="filled"
           sx={{ borderRadius: 2 }}
         >
-          No Questions Found. There are not enough questions for that theme against your subcategory settings. Try a different combination or contribute questions to expand the pool.
+          No questions found that match your criteria. Try different themes or contribute more questions to expand the pool.
         </Alert>
       </Snackbar>
     </Box>

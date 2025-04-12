@@ -154,7 +154,7 @@ function App() {
                 Please spell correctly, with proper spacing. You must select at least one theme.
               </Typography>
               <Typography variant="body1" sx={{ opacity: 0.9 }}>
-                If no questions show up after submission, there are not enough questions for that theme against your subcategory settings. 
+                If no questions show up after submission, there are not enough questions for those themes and references. 
                 Contribute questions to expand the pool.
               </Typography>
             </CardContent>

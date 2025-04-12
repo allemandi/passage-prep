@@ -11,7 +11,7 @@ const getApiUrl = (endpoint) => {
   return `${base}/${endpoint}`;
 };
 
-// Constants (previously defined in code.gs)
+// Constants
 export const themes = [
   "God's Love",
   "Forgiveness",
@@ -21,15 +21,6 @@ export const themes = [
   "Spiritual Gifts",
   "Identity",
   "Healing"
-];
-
-export const subcategories = [
-  "General and Referenced Chapters",
-  "Referenced Chapters Only",
-  "Referenced Books Only",
-  "General Only",
-  "General and Referenced Books",
-  "All"
 ];
 
 // Load books data from MongoDB
@@ -127,158 +118,67 @@ export const processForm = async (formData) => {
     
     console.log("Processing form data with references:", formData.refArr, "themes:", formData.themeArr);
     
-    // Process reference array
+    // Process reference array - remove any empty values
     const refArr = [...new Set(formData.refArr)].filter(n => n);
-    
-    // Sanitize Bible references to return only alphabetical characters
-    const noVerseArr = refArr.map(ref => {
-      if (!ref) return '';
-      return ref.replace(/[\d:.-]+$/, '').toLowerCase().trim();
-    }).filter(n => n);
-    
-    // Sanitize Bible references to include chapters
-    const withChapterArr = refArr.map(ref => {
-      if (!ref) return '';
-      const sanitized = ref.replace(/[^A-Za-z\d:]/g, '').split(':');
-      return sanitized[0].toLowerCase();
-    }).filter(n => n);
-    
-    console.log("Processed references - noVerseArr:", noVerseArr, "withChapterArr:", withChapterArr);
     
     // Get unique themes or use all themes if none specified
     const themeArr = formData.themeArr.length === 0 ? themes : [...new Set(formData.themeArr)].filter(n => n);
     
-    // Filter books for context based on references
+    // Process scripture references to get book and chapter information
+    const scriptureRefs = refArr.map(ref => {
+      // Split reference into book and chapter parts
+      const match = ref.match(/^((?:\d\s+)?[A-Za-z]+(?:\s+[A-Za-z]+)*)\s*(\d+)?/i);
+      if (!match) return null;
+      
+      const [, book, chapter] = match;
+      return {
+        book: book.toLowerCase().trim(),
+        chapter: chapter ? parseInt(chapter, 10) : null
+      };
+    }).filter(Boolean);
+    
+    // Get book contexts for matched books
     const contextArr = books
       .filter(book => {
         if (!book.Book) return false;
-        
-        return noVerseArr.some(ref => {
+        return scriptureRefs.some(ref => {
           const bookLower = book.Book.toLowerCase();
-          const refLower = ref.toLowerCase();
-          
-          if (bookLower.match(/^\d\s+\w+/)) {
-            return bookLower === refLower || refLower === bookLower;
-          } else {
-            const bookWords = bookLower.split(' ');
-            const refWords = refLower.split(' ');
-            
-            if (bookWords.length === 1) {
-              return refWords[0] === bookLower;
-            } else {
-              return bookLower === refLower || refLower.startsWith(bookLower);
-            }
-          }
+          return bookLower.includes(ref.book);
         });
       })
       .map(book => `${book.Book}: ${book.Context}`);
     
-    // Filter questions based on themes and subcategory choice
+    // Filter questions based on themes
     const questionsByTheme = themeArr.map(theme => {
+      // First filter by theme
       let filteredQuestions = questions.filter(q => q.theme === theme);
       
-      // Apply subcategory filtering
-      switch (formData.subChoice) {
-        case 'General and Referenced Chapters':
-          filteredQuestions = filteredQuestions.filter(q => {
-            if (!q.biblePassage) return false;
-            const subLower = q.biblePassage.toLowerCase();
-            
-            if (subLower === 'general') return true;
-            
-            return withChapterArr.some(chapterRef => {
-              const bookPart = chapterRef.replace(/\d+$/, '').toLowerCase();
-              
-              if (bookPart.match(/^\d\s*\w+/)) {
-                return subLower.startsWith(bookPart);
-              } else {
-                const subWords = subLower.split(' ');
-                return subWords[0] === bookPart || subLower.startsWith(bookPart);
-              }
-            }) || refArr.some(ref => q.biblePassage.includes(ref));
-          });
-          break;
+      // Then filter by scripture references
+      filteredQuestions = filteredQuestions.filter(q => {
+        if (!q.biblePassage) return false;
+        const passageLower = q.biblePassage.toLowerCase();
+        
+        // Check if the question matches any of the scripture references
+        return scriptureRefs.some(ref => {
+          // First check if the book matches
+          if (!passageLower.includes(ref.book)) return false;
           
-        case 'Referenced Chapters Only':
-          filteredQuestions = filteredQuestions.filter(q => {
-            if (!q.biblePassage) return false;
-            const subLower = q.biblePassage.toLowerCase();
-            
-            return withChapterArr.some(chapterRef => {
-              const bookPart = chapterRef.replace(/\d+$/, '').toLowerCase();
-              
-              if (bookPart.match(/^\d\s*\w+/)) {
-                return subLower.startsWith(bookPart);
-              } else {
-                const subWords = subLower.split(' ');
-                return subWords[0] === bookPart || subLower.startsWith(bookPart);
-              }
-            }) || refArr.some(ref => q.biblePassage.includes(ref));
-          });
-          break;
+          // If a chapter was specified, check if it matches
+          if (ref.chapter !== null) {
+            const chapterMatch = passageLower.match(/\b(\d+)(?::\d+(?:-\d+)?)?/);
+            if (!chapterMatch) return false;
+            return parseInt(chapterMatch[1], 10) === ref.chapter;
+          }
           
-        case 'Referenced Books Only':
-          filteredQuestions = filteredQuestions.filter(q => {
-            if (!q.biblePassage) return false;
-            const subLower = q.biblePassage.toLowerCase();
-            
-            return noVerseArr.some(book => {
-              const bookWords = book.split(' ');
-              const subWords = subLower.split(' ');
-              
-              if (book.match(/^\d\s+\w+/)) {
-                return subLower === book || subLower.startsWith(book);
-              } else if (bookWords.length === 1) {
-                return subWords[0] === book;
-              } else {
-                return subLower === book || subLower.startsWith(book);
-              }
-            });
-          });
-          break;
-          
-        case 'General Only':
-          filteredQuestions = filteredQuestions.filter(q => 
-            q.biblePassage.toLowerCase() === 'general'
-          );
-          break;
-          
-        case 'General and Referenced Books':
-          filteredQuestions = filteredQuestions.filter(q => {
-            if (!q.biblePassage) return false;
-            const subLower = q.biblePassage.toLowerCase();
-            
-            if (subLower === 'general') return true;
-            
-            return noVerseArr.some(book => {
-              const bookWords = book.split(' ');
-              const subWords = subLower.split(' ');
-              
-              if (book.match(/^\d\s+\w+/)) {
-                return subLower === book || subLower.startsWith(book);
-              } else if (bookWords.length === 1) {
-                return subWords[0] === book;
-              } else {
-                return subLower === book || subLower.startsWith(book);
-              }
-            });
-          });
-          break;
-          
-        case 'All':
-          // No additional filtering needed
-          break;
-          
-        default:
-          // No filtering by default
-          break;
-      }
+          return true;
+        });
+      });
       
-      // Limit number of questions per theme
+      // Apply max limit per theme
       return filteredQuestions.slice(0, formData.maxLimit);
     });
     
-    // Remove empty theme arrays and flatten question arrays
+    // Remove empty theme arrays
     const finalQuestionArr = questionsByTheme.filter(questions => questions.length > 0);
     
     // Prepare data for the study

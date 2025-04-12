@@ -174,7 +174,7 @@ const StudyModal = ({ show, onHide, data }) => {
         >
           Questions
         </Typography>
-        
+
         {totalQuestions > 0 ? (
           data.themeArr.filter(theme => theme).map((theme, themeIndex) => (
             <Box key={themeIndex} sx={{ mb: themeIndex < data.themeArr.filter(t => t).length - 1 ? 4 : 0 }}>
@@ -236,7 +236,7 @@ const StudyModal = ({ show, onHide, data }) => {
             }}
           >
             <Typography sx={{ color: 'warning.main' }}>
-              No questions found that match your criteria. Try different themes or subcategory settings.
+              No questions found that match your criteria. Try selecting different themes or Bible references.
             </Typography>
           </Paper>
         )}
