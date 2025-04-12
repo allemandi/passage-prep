@@ -1,5 +1,4 @@
-import Papa from 'papaparse';
-import { saveQuestionToServer, downloadCSV } from './apiService';
+import { saveQuestionToServer } from './apiService';
 
 // Helper to get the correct API URL based on environment
 const getApiUrl = (endpoint) => {
@@ -10,27 +9,6 @@ const getApiUrl = (endpoint) => {
     : '/api';
   
   return `${base}/${endpoint}`;
-};
-
-// Utility functions to read and parse CSV files
-const parseCSV = async (file) => {
-  return new Promise((resolve, reject) => {
-    fetch(file)
-      .then(response => {
-        if (!response.ok) {
-          throw new Error(`Failed to fetch ${file}: ${response.status} ${response.statusText}`);
-        }
-        return response.text();
-      })
-      .then(csvText => {
-        Papa.parse(csvText, {
-          header: true,
-          complete: results => resolve(results.data),
-          error: error => reject(error)
-        });
-      })
-      .catch(error => reject(error));
-  });
 };
 
 // Constants (previously defined in code.gs)
@@ -65,7 +43,6 @@ export const getBooks = async () => {
     const response = await fetch(getApiUrl('books'));
     
     if (!response.ok) {
-      const errorText = await response.text();
       throw new Error(`Failed to fetch books: ${response.status} ${response.statusText}`);
     }
     
@@ -78,21 +55,15 @@ export const getBooks = async () => {
 };
 
 // Load questions data from MongoDB
-let questionsCache = null;
 export const getQuestions = async () => {
   try {
-    // Always reload questions to get the latest
-    questionsCache = null;
-    
     const response = await fetch(getApiUrl('questions'));
     
     if (!response.ok) {
-      const errorText = await response.text();
       throw new Error(`Failed to fetch questions: ${response.status} ${response.statusText}`);
     }
     
     const questions = await response.json();
-    questionsCache = questions;
     return questions;
   } catch (error) {
     return [];
@@ -120,9 +91,6 @@ export const saveQuestion = async (theme, question, reference) => {
       return false;
     }
     
-    // Clear the cache so we reload questions next time
-    questionsCache = null;
-    
     return true;
   } catch (error) {
     return false;
@@ -146,7 +114,7 @@ export const processForm = async (formData) => {
     // Sanitize Bible references to return only alphabetical characters
     const noVerseArr = refArr.map(ref => {
       if (!ref) return '';
-      return ref.replace(/[\d:\.\-]+$/, '').toLowerCase().trim();
+      return ref.replace(/[\d:.-]+$/, '').toLowerCase().trim();
     }).filter(n => n);
     
     // Sanitize Bible references to include chapters
@@ -201,7 +169,9 @@ export const processForm = async (formData) => {
             noVerseArr.some(book => q.Subcategory.toLowerCase().includes(book))
           );
           break;
-        // 'All' returns all questions for the theme, so no filtering needed
+        default:
+          // 'All' returns all questions for the theme, so no filtering needed
+          break;
       }
       
       // Limit number of questions
