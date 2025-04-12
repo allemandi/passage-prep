@@ -3,7 +3,6 @@ import {
   Box, 
   Typography, 
   Button, 
-  CircularProgress, 
   Grid,
   Paper,
   useTheme,
@@ -179,37 +178,6 @@ const StudyFormContainer = ({
             justifyContent: 'center' 
           }}
         >
-          <Button 
-            variant="contained" 
-            color="primary" 
-            onClick={handleSubmit}
-            disabled={isLoading || isSubmitting}
-            size="large"
-            sx={{ 
-              px: { xs: 4, sm: 5, md: 6 }, 
-              py: 1.5, 
-              minWidth: { xs: 200, sm: 240 },
-              borderRadius: 2,
-              fontSize: { xs: '1rem', sm: '1.1rem' },
-              fontWeight: 500,
-              textTransform: 'none',
-              boxShadow: theme.palette.mode === 'dark' 
-                ? '0 2px 8px rgba(144, 202, 249, 0.2)' 
-                : '0 2px 8px rgba(25, 118, 210, 0.2)',
-              '&:hover': {
-                boxShadow: theme.palette.mode === 'dark' 
-                  ? '0 4px 12px rgba(144, 202, 249, 0.3)' 
-                  : '0 4px 12px rgba(25, 118, 210, 0.3)'
-              }
-            }}
-          >
-            {isSubmitting ? (
-              <>
-                <CircularProgress size={24} color="inherit" sx={{ mr: 1.5 }} />
-                Submitting...
-              </>
-            ) : 'Generate Study'}
-          </Button>
         </Box>
       </Paper>
     </Container>

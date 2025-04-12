@@ -18,6 +18,7 @@ const QuestionTable = ({ questions, selectedQuestions, onQuestionSelect }) => {
           <TableRow>
             <TableCell padding="checkbox" />
             <TableCell>Bible Passage</TableCell>
+            <TableCell>Theme</TableCell>
             <TableCell>Question</TableCell>
           </TableRow>
         </TableHead>
@@ -31,6 +32,7 @@ const QuestionTable = ({ questions, selectedQuestions, onQuestionSelect }) => {
                 />
               </TableCell>
               <TableCell>{question.biblePassage}</TableCell>
+              <TableCell>{question.theme}</TableCell>
               <TableCell>{question.question}</TableCell>
             </TableRow>
           ))}

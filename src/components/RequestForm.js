@@ -231,22 +231,8 @@ const RequestForm = ({ onStudyGenerated, isLoading }) => {
       />
 
       <Stack direction="row" spacing={2} justifyContent="center" sx={{ mt: 4 }}>
-        <Button 
-          variant="contained" 
-          color="primary" 
-          onClick={handleSubmit}
-          disabled={isLoading || isSubmitting}
-          size="large"
-          sx={{ 
-            px: { xs: 4, sm: 5, md: 6 }, 
-            py: 1.5, 
-            minWidth: { xs: 200, sm: 240 }
-          }}
-        >
-          Generate Study
-        </Button>
-        <Button 
-          variant="outlined" 
+      <Button 
+          variant="contained"
           color="primary" 
           onClick={handleSearch}
           disabled={isLoading || isSubmitting}
@@ -258,6 +244,20 @@ const RequestForm = ({ onStudyGenerated, isLoading }) => {
           }}
         >
           Search Questions
+        </Button>
+        <Button 
+          variant="outlined" 
+          color="primary" 
+          onClick={handleSubmit}
+          disabled={isLoading || isSubmitting}
+          size="large"
+          sx={{ 
+            px: { xs: 4, sm: 5, md: 6 }, 
+            py: 1.5, 
+            minWidth: { xs: 200, sm: 240 }
+          }}
+        >
+          Generate Study
         </Button>
       </Stack>
 
