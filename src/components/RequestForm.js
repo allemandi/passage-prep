@@ -4,7 +4,7 @@ import {
   Typography, 
   Alert, 
   Snackbar,
-  useTheme,
+  // useTheme,
   Button,
   Stack
 } from '@mui/material';
@@ -14,7 +14,7 @@ import StudyFormContainer from './StudyFormContainer';
 import QuestionTable from './QuestionTable';
 
 const RequestForm = ({ onStudyGenerated, isLoading }) => {
-  const theme = useTheme();
+  // const theme = useTheme();
   const [scriptureRefs, setScriptureRefs] = useState([
     {
       id: 1,
