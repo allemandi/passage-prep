@@ -146,7 +146,7 @@ export const processForm = async (formData) => {
           return bookLower.includes(ref.book);
         });
       })
-      .map(book => `${book.Book}: ${book.Context}`);
+      .map(book => `${book.Book} is about ${book.Context} The author is ${book.Author}.`);
     
     // Filter questions based on themes
     const questionsByTheme = themeArr.map(theme => {

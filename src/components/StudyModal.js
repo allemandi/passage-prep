@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { 
   Dialog, 
   DialogTitle, 
@@ -6,7 +6,6 @@ import {
   DialogActions,
   Typography,
   IconButton,
-  Box,
   Button,
   List,
   ListItem,
@@ -15,11 +14,19 @@ import {
   Divider
 } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
+import bibleCounts from '../data/bible-counts.json'; // Import the bible counts data
+import Snackbar from '@mui/material/Snackbar';
+import MuiAlert from '@mui/material/Alert';
 
 const StudyModal = ({ show, onHide, data }) => {
   const theme = useTheme();
-  const totalQuestions = data?.questionArr?.reduce((acc, curr) => acc + curr.length, 0) || 0;
+  const [showSnackbar, setShowSnackbar] = useState(false);
   
+  // Safety check for data initialization
+  if (!data || !data.filteredQuestions) {
+    return null; // or you can return a loading state or a message
+  }
+
   // Safety check for theme initialization
   if (!theme?.palette) {
     return null;
@@ -28,7 +35,17 @@ const StudyModal = ({ show, onHide, data }) => {
   const borderColor = theme.palette.mode === 'dark' 
     ? 'rgba(255, 255, 255, 0.12)' 
     : 'rgba(0, 0, 0, 0.12)';
-  
+
+  // Function to get the book name from a reference
+  const getBookFromReference = (reference) => {
+    for (const { book } of bibleCounts) {
+      if (reference.includes(book)) {
+        return book; // Return the first matching book name
+      }
+    }
+    return null; // Return null if no match found
+  };
+
   return (
     <Dialog
       open={show}
@@ -81,6 +98,7 @@ const StudyModal = ({ show, onHide, data }) => {
       </DialogTitle>
 
       <DialogContent 
+        id="study-modal-content"
         sx={{ 
           p: { xs: 2.5, sm: 3.5 },
           bgcolor: theme.palette.mode === 'dark' ? 'background.paper' : 'background.default',
@@ -114,7 +132,7 @@ const StudyModal = ({ show, onHide, data }) => {
                 }}
               >
                 <Typography variant="body1" sx={{ fontWeight: 400 }}>
-                  • {reference}
+                  - {reference}
                 </Typography>
               </ListItem>
             ))}
@@ -150,7 +168,7 @@ const StudyModal = ({ show, onHide, data }) => {
                 }}
               >
                 <Typography variant="body1" sx={{ fontWeight: 400 }}>
-                  • {context}
+                  - {context}
                 </Typography>
               </ListItem>
             ))}
@@ -175,68 +193,44 @@ const StudyModal = ({ show, onHide, data }) => {
           Questions
         </Typography>
 
-        {totalQuestions > 0 ? (
-          data.themeArr.filter(theme => theme).map((theme, themeIndex) => (
-            <Box key={themeIndex} sx={{ mb: themeIndex < data.themeArr.filter(t => t).length - 1 ? 4 : 0 }}>
-              <Typography 
-                variant="subtitle1" 
-                sx={{ 
-                  fontWeight: 600, 
-                  mb: 2.5,
-                  color: 'primary.light',
-                  fontSize: '1.1rem'
-                }}
-              >
-                {theme}
-              </Typography>
-              
-              {data.questionArr[themeIndex] && data.questionArr[themeIndex].length > 0 ? (
-                <List disablePadding sx={{ pl: 2 }}>
-                  {data.questionArr[themeIndex].map((question, qIndex) => (
-                    <ListItem 
-                      key={qIndex} 
-                      sx={{ 
-                        py: 1,
-                        px: 0
-                      }}
-                    >
-                      <Typography variant="body1" sx={{ fontWeight: 400 }}>
-                        • {question.question}
+        {data.filteredQuestions && data.filteredQuestions.length > 0 ? (
+          <List disablePadding>
+            {data.refArr.filter(ref => ref).map((reference, index) => {
+              const book = getBookFromReference(reference);
+              const questionsForBook = data.filteredQuestions.filter(question => question.biblePassage.includes(book));
+
+              return (
+                <React.Fragment key={index}>
+                  {book && (
+                    <>
+                      <Typography variant="h6" sx={{ fontWeight: 600, mt: 2 }}>
+                        {reference}
                       </Typography>
-                    </ListItem>
-                  ))}
-                </List>
-              ) : (
-                <Paper 
-                  sx={{ 
-                    p: 2.5, 
-                    bgcolor: theme.palette.mode === 'dark' ? 'rgba(255, 152, 0, 0.12)' : 'warning.light', 
-                    borderRadius: 2,
-                    border: `1px solid ${theme.palette.warning.main}`
-                  }}
-                >
-                  <Typography sx={{ color: 'warning.main' }}>
-                    No questions found for this theme.
-                  </Typography>
-                </Paper>
-              )}
-              
-              {themeIndex < data.themeArr.filter(t => t).length - 1 && (
-                <Divider sx={{ my: 4, borderColor: borderColor }} />
-              )}
-            </Box>
-          ))
+                      {questionsForBook.length > 0 ? (
+                        questionsForBook.map((question, qIndex) => (
+                          <ListItem key={qIndex}>
+                            <Typography variant="body1">
+                            - {question.question}
+                            </Typography>
+                          </ListItem>
+                        ))
+                      ) : (
+                        <ListItem>
+                          <Typography variant="body1" sx={{ opacity: 0.6 }}>
+                            No questions available for this book.
+                          </Typography>
+                        </ListItem>
+                      )}
+                    </>
+                  )}
+                </React.Fragment>
+              );
+            })}
+          </List>
         ) : (
-          <Paper 
-            sx={{ 
-              p: 3, 
-              bgcolor: theme.palette.mode === 'dark' ? 'rgba(255, 152, 0, 0.12)' : 'warning.light', 
-              borderRadius: 2,
-              border: `1px solid ${theme.palette.warning.main}`
-            }}
-          >
-            <Typography sx={{ color: 'warning.main' }}>
-              No questions found that match your criteria. Try selecting different themes or Bible references.
+          <Paper>
+            <Typography>
+              No questions selected from Search Questions table.
             </Typography>
           </Paper>
         )}
@@ -266,7 +260,12 @@ const StudyModal = ({ show, onHide, data }) => {
           Close
         </Button>
         <Button 
-          onClick={() => window.print()} 
+          onClick={() => {
+            const content = document.getElementById('study-modal-content').innerText; // Get the content to copy
+            navigator.clipboard.writeText(content).then(() => {
+              setShowSnackbar(true); // Show the Snackbar alert
+            });
+          }} 
           variant="contained" 
           color="primary"
           sx={{ 
@@ -285,9 +284,25 @@ const StudyModal = ({ show, onHide, data }) => {
             }
           }}
         >
-          Print
+          Copy
         </Button>
       </DialogActions>
+
+      <Snackbar
+        open={showSnackbar}
+        autoHideDuration={6000}
+        onClose={() => setShowSnackbar(false)}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+      >
+        <MuiAlert 
+          onClose={() => setShowSnackbar(false)} 
+          severity="success" 
+          variant="filled"
+          sx={{ borderRadius: 2 }}
+        >
+          Content copied to clipboard!
+        </MuiAlert>
+      </Snackbar>
     </Dialog>
   );
 };
