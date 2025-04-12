@@ -4,16 +4,26 @@ import {
   Typography, 
   Alert, 
   Snackbar,
-  useTheme
+  useTheme,
+  IconButton
 } from '@mui/material';
+import AddIcon from '@mui/icons-material/Add';
 import { themes, subcategories, processForm } from '../data/dataService';
 import { getBibleBooks, getChaptersForBook, getChapterCountForBook, formatReference } from '../utils/bibleData';
 import StudyFormContainer from './StudyFormContainer';
 
 const RequestForm = ({ onStudyGenerated, isLoading }) => {
   const theme = useTheme();
-  const [scripture1, setScripture1] = useState('');
-  const [scripture2, setScripture2] = useState('');
+  const [scriptureRefs, setScriptureRefs] = useState([
+    {
+      id: 1,
+      scripture: '',
+      selectedBook: '',
+      selectedChapter: '',
+      availableChapters: [],
+      totalChapters: 0
+    }
+  ]);
   
   const [theme1, setTheme1] = useState('');
   const [theme2, setTheme2] = useState('');
@@ -25,88 +35,57 @@ const RequestForm = ({ onStudyGenerated, isLoading }) => {
   const [errorMessage, setErrorMessage] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [noQuestionsFound, setNoQuestionsFound] = useState(false);
-  
-  // New state for Scripture 1 Comboboxes
-  const [selectedBook1, setSelectedBook1] = useState('');
-  const [selectedChapter1, setSelectedChapter1] = useState('');
-  const [availableChapters1, setAvailableChapters1] = useState([]);
-  const [totalChapters1, setTotalChapters1] = useState(0);
-  
-  // New state for Scripture 2 Comboboxes
-  const [selectedBook2, setSelectedBook2] = useState('');
-  const [selectedChapter2, setSelectedChapter2] = useState('');
-  const [availableChapters2, setAvailableChapters2] = useState([]);
-  const [totalChapters2, setTotalChapters2] = useState(0);
-  
+
   // Bible books from the JSON data
   const bibleBooks = getBibleBooks();
-  
-  // Update chapters when book 1 changes
-  useEffect(() => {
-    if (selectedBook1) {
-      const chapters = getChaptersForBook(selectedBook1);
-      setAvailableChapters1(chapters);
-      
-      // Get and set the total chapter count
-      const chapterCount = getChapterCountForBook(selectedBook1);
-      setTotalChapters1(chapterCount);
-      
-      // Reset chapter if the book changes
-      setSelectedChapter1('');
-      
-      // Update the reference
-      updateReference1(selectedBook1, '');
-    } else {
-      setAvailableChapters1([]);
-      setSelectedChapter1('');
-      setScripture1('');
-      setTotalChapters1(0);
-    }
-  }, [selectedBook1]);
-  
-  // Update reference when chapter 1 changes
-  useEffect(() => {
-    updateReference1(selectedBook1, selectedChapter1);
-  }, [selectedChapter1]);
-  
-  // Update chapters when book 2 changes
-  useEffect(() => {
-    if (selectedBook2) {
-      const chapters = getChaptersForBook(selectedBook2);
-      setAvailableChapters2(chapters);
-      
-      // Get and set the total chapter count
-      const chapterCount = getChapterCountForBook(selectedBook2);
-      setTotalChapters2(chapterCount);
-      
-      // Reset chapter if the book changes
-      setSelectedChapter2('');
-      
-      // Update the reference
-      updateReference2(selectedBook2, '');
-    } else {
-      setAvailableChapters2([]);
-      setSelectedChapter2('');
-      setScripture2('');
-      setTotalChapters2(0);
-    }
-  }, [selectedBook2]);
-  
-  // Update reference when chapter 2 changes
-  useEffect(() => {
-    updateReference2(selectedBook2, selectedChapter2);
-  }, [selectedChapter2]);
-  
-  const updateReference1 = (book, chapter) => {
-    const reference = formatReference(book, chapter);
-    setScripture1(reference);
+
+  const addScriptureReference = () => {
+    setScriptureRefs(prev => [...prev, {
+      id: prev.length + 1,
+      scripture: '',
+      selectedBook: '',
+      selectedChapter: '',
+      availableChapters: [],
+      totalChapters: 0
+    }]);
   };
-  
-  const updateReference2 = (book, chapter) => {
-    const reference = formatReference(book, chapter);
-    setScripture2(reference);
+
+  const updateScriptureRef = (index, updates) => {
+    setScriptureRefs(prev => {
+      const newRefs = [...prev];
+      newRefs[index] = { ...newRefs[index], ...updates };
+      return newRefs;
+    });
   };
-  
+
+  // Update chapters when book changes
+  useEffect(() => {
+    scriptureRefs.forEach((ref, index) => {
+      if (ref.selectedBook) {
+        const chapters = getChaptersForBook(ref.selectedBook);
+        const chapterCount = getChapterCountForBook(ref.selectedBook);
+        
+        updateScriptureRef(index, {
+          availableChapters: chapters,
+          totalChapters: chapterCount,
+          selectedChapter: '',
+          scripture: formatReference(ref.selectedBook, '')
+        });
+      }
+    });
+  }, [scriptureRefs.map(ref => ref.selectedBook).join(',')]);
+
+  // Update reference when chapter changes
+  useEffect(() => {
+    scriptureRefs.forEach((ref, index) => {
+      if (ref.selectedBook && ref.selectedChapter) {
+        updateScriptureRef(index, {
+          scripture: formatReference(ref.selectedBook, ref.selectedChapter)
+        });
+      }
+    });
+  }, [scriptureRefs.map(ref => ref.selectedChapter).join(',')]);
+
   const handleSubmit = async (e) => {
     if (e) e.preventDefault();
     setIsSubmitting(true);
@@ -115,11 +94,11 @@ const RequestForm = ({ onStudyGenerated, isLoading }) => {
     setNoQuestionsFound(false);
     
     // Gather all scripture references and themes
-    const refArr = [scripture1, scripture2];
-    const themeArr = [theme1, theme2];
+    const refArr = scriptureRefs.map(ref => ref.scripture).filter(Boolean);
+    const themeArr = [theme1, theme2].filter(Boolean);
     
     // Check if at least one theme is selected
-    if (!themeArr.some(theme => theme)) {
+    if (!themeArr.length) {
       setShowError(true);
       setErrorMessage('Please select at least one theme.');
       setIsSubmitting(false);
@@ -152,7 +131,6 @@ const RequestForm = ({ onStudyGenerated, isLoading }) => {
       console.error("Error in study generation:", error);
       setShowError(true);
       
-      // Use the specific error message if available
       if (error.message) {
         setErrorMessage(error.message);
       } else {
@@ -187,20 +165,9 @@ const RequestForm = ({ onStudyGenerated, isLoading }) => {
       <StudyFormContainer
         // Bible References props
         bibleBooks={bibleBooks}
-        selectedBook1={selectedBook1}
-        setSelectedBook1={setSelectedBook1}
-        selectedChapter1={selectedChapter1}
-        setSelectedChapter1={setSelectedChapter1}
-        availableChapters1={availableChapters1}
-        totalChapters1={totalChapters1}
-        selectedBook2={selectedBook2}
-        setSelectedBook2={setSelectedBook2}
-        selectedChapter2={selectedChapter2}
-        setSelectedChapter2={setSelectedChapter2}
-        availableChapters2={availableChapters2}
-        totalChapters2={totalChapters2}
-        scripture1={scripture1}
-        scripture2={scripture2}
+        scriptureRefs={scriptureRefs}
+        onUpdateScriptureRef={updateScriptureRef}
+        onAddScriptureRef={addScriptureReference}
         
         // Themes props
         theme1={theme1}
@@ -273,4 +240,4 @@ const RequestForm = ({ onStudyGenerated, isLoading }) => {
   );
 };
 
-export default RequestForm; 
+export default RequestForm;

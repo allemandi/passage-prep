@@ -7,8 +7,10 @@ import {
   Grid,
   Paper,
   useTheme,
-  Container
+  Container,
+  IconButton
 } from '@mui/material';
+import AddIcon from '@mui/icons-material/Add';
 import ScriptureCombobox from './ScriptureCombobox';
 import ThemesSection from './ThemesSection';
 import GeneralSettingsSection from './GeneralSettingsSection';
@@ -16,20 +18,9 @@ import GeneralSettingsSection from './GeneralSettingsSection';
 const StudyFormContainer = ({ 
   // Bible References props
   bibleBooks,
-  selectedBook1,
-  setSelectedBook1,
-  selectedChapter1,
-  setSelectedChapter1,
-  availableChapters1,
-  totalChapters1,
-  selectedBook2,
-  setSelectedBook2,
-  selectedChapter2,
-  setSelectedChapter2,
-  availableChapters2,
-  totalChapters2,
-  scripture1,
-  scripture2,
+  scriptureRefs,
+  onUpdateScriptureRef,
+  onAddScriptureRef,
   
   // Themes props
   theme1,
@@ -111,87 +102,53 @@ const StudyFormContainer = ({
                 Bible References
               </Typography>
               
-              <Box sx={{ mb: 4 }}>
-                <Typography 
-                  variant="subtitle1" 
-                  gutterBottom 
-                  sx={{ 
-                    fontWeight: 500, 
-                    color: 'text.primary', 
-                    mb: 2.5,
-                    fontSize: '1.1rem'
-                  }}
-                >
-                  Scripture 1
-                </Typography>
-                <Grid container spacing={3}>
-                  <Grid item xs={12} sm={6}>
-                    <ScriptureCombobox
-                      id="bookSelect1"
-                      label="Book"
-                      value={selectedBook1}
-                      onChange={setSelectedBook1}
-                      options={bibleBooks}
-                      placeholder="Select a book..."
-                      isRequired
-                      helperText={selectedBook1 ? `Total chapters: ${totalChapters1}` : ""}
-                      sx={{ width: '100%' }}
-                    />
+              {scriptureRefs.map((ref, index) => (
+                <Box key={ref.id} sx={{ mb: index < scriptureRefs.length - 1 ? 4 : 0 }}>
+                  <Grid container spacing={3}>
+                    <Grid item xs={12} sm={6}>
+                      <ScriptureCombobox
+                        id={`bookSelect${ref.id}`}
+                        label="Book"
+                        value={ref.selectedBook}
+                        onChange={(newValue) => onUpdateScriptureRef(index, { selectedBook: newValue })}
+                        options={bibleBooks}
+                        placeholder="Select a book..."
+                        isRequired={index === 0}
+                        helperText={ref.selectedBook ? `Total chapters: ${ref.totalChapters}` : ""}
+                        sx={{ width: '100%' }}
+                      />
+                    </Grid>
+                    <Grid item xs={12} sm={6}>
+                      <ScriptureCombobox
+                        id={`chapterSelect${ref.id}`}
+                        label="Chapter"
+                        value={ref.selectedChapter}
+                        onChange={(newValue) => onUpdateScriptureRef(index, { selectedChapter: newValue })}
+                        options={ref.availableChapters}
+                        placeholder={ref.selectedBook ? `Select chapter (1-${ref.totalChapters})` : "Select a book first"}
+                        disabled={!ref.selectedBook}
+                        sx={{ width: '100%' }}
+                      />
+                    </Grid>
                   </Grid>
-                  <Grid item xs={12} sm={6}>
-                    <ScriptureCombobox
-                      id="chapterSelect1"
-                      label="Chapter"
-                      value={selectedChapter1}
-                      onChange={setSelectedChapter1}
-                      options={availableChapters1}
-                      placeholder={selectedBook1 ? `Select chapter (1-${totalChapters1})` : "Select a book first"}
-                      disabled={!selectedBook1}
-                      sx={{ width: '100%' }}
-                    />
-                  </Grid>
-                </Grid>
-              </Box>
+                </Box>
+              ))}
               
-              <Box>
-                <Typography 
-                  variant="subtitle1" 
-                  gutterBottom 
-                  sx={{ 
-                    fontWeight: 500, 
-                    color: 'text.primary', 
-                    mb: 2.5,
-                    fontSize: '1.1rem'
+              <Box sx={{ mt: 3, display: 'flex', justifyContent: 'center' }}>
+                <Button
+                  startIcon={<AddIcon />}
+                  onClick={onAddScriptureRef}
+                  variant="outlined"
+                  color="primary"
+                  sx={{
+                    borderRadius: 2,
+                    textTransform: 'none',
+                    px: 3,
+                    py: 1
                   }}
                 >
-                  Scripture 2 (Optional)
-                </Typography>
-                <Grid container spacing={3}>
-                  <Grid item xs={12} sm={6}>
-                    <ScriptureCombobox
-                      id="bookSelect2"
-                      label="Book"
-                      value={selectedBook2}
-                      onChange={setSelectedBook2}
-                      options={bibleBooks}
-                      placeholder="Select a book..."
-                      helperText={selectedBook2 ? `Total chapters: ${totalChapters2}` : ""}
-                      sx={{ width: '100%' }}
-                    />
-                  </Grid>
-                  <Grid item xs={12} sm={6}>
-                    <ScriptureCombobox
-                      id="chapterSelect2"
-                      label="Chapter"
-                      value={selectedChapter2}
-                      onChange={setSelectedChapter2}
-                      options={availableChapters2}
-                      placeholder={selectedBook2 ? `Select chapter (1-${totalChapters2})` : "Select a book first"}
-                      disabled={!selectedBook2}
-                      sx={{ width: '100%' }}
-                    />
-                  </Grid>
-                </Grid>
+                  Add Scripture Reference
+                </Button>
               </Box>
             </Paper>
             
