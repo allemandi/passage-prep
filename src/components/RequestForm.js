@@ -65,8 +65,15 @@ const RequestForm = ({ onStudyGenerated, isLoading }) => {
         setShowSuccess(true);
       }
     } catch (error) {
+      console.error("Error in study generation:", error);
       setShowError(true);
-      setErrorMessage('An error occurred while generating your study. Please try again.');
+      
+      // Use the specific error message if available
+      if (error.message) {
+        setErrorMessage(error.message);
+      } else {
+        setErrorMessage('An error occurred while generating your study. Please try again.');
+      }
     } finally {
       setIsSubmitting(false);
     }
