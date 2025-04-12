@@ -14,6 +14,7 @@ import {
   Divider
 } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
+import bibleCounts from '../data/bible-counts.json'; // Import the bible counts data
 
 const StudyModal = ({ show, onHide, data }) => {
   const theme = useTheme();
@@ -32,6 +33,22 @@ const StudyModal = ({ show, onHide, data }) => {
     ? 'rgba(255, 255, 255, 0.12)' 
     : 'rgba(0, 0, 0, 0.12)';
   
+  // Create a mapping of book abbreviations to full names
+  const bookMap = bibleCounts.reduce((acc, { book, abbr }) => {
+    acc[book] = abbr; // Map full book names to their abbreviations
+    return acc;
+  }, {});
+
+  // Function to get the book name from a reference
+  const getBookFromReference = (reference) => {
+    for (const { book } of bibleCounts) {
+      if (reference.includes(book)) {
+        return book; // Return the first matching book name
+      }
+    }
+    return null; // Return null if no match found
+  };
+
   return (
     <Dialog
       open={show}
@@ -180,13 +197,37 @@ const StudyModal = ({ show, onHide, data }) => {
 
         {data.filteredQuestions && data.filteredQuestions.length > 0 ? (
           <List disablePadding>
-            {data.filteredQuestions.map((question, index) => (
-              <ListItem key={index}>
-                <Typography variant="body1">
-                  • {question.question}
-                </Typography>
-              </ListItem>
-            ))}
+            {data.refArr.filter(ref => ref).map((reference, index) => {
+              const book = getBookFromReference(reference); // Get the book name from the reference
+              const questionsForBook = data.filteredQuestions.filter(question => question.biblePassage.includes(book));
+
+              return (
+                <React.Fragment key={index}>
+                  {book && (
+                    <>
+                      <Typography variant="h6" sx={{ fontWeight: 600, mt: 2 }}>
+                        {book}
+                      </Typography>
+                      {questionsForBook.length > 0 ? (
+                        questionsForBook.map((question, qIndex) => (
+                          <ListItem key={qIndex}>
+                            <Typography variant="body1">
+                              • {question.question}
+                            </Typography>
+                          </ListItem>
+                        ))
+                      ) : (
+                        <ListItem>
+                          <Typography variant="body1" sx={{ opacity: 0.6 }}>
+                            No questions available for this book.
+                          </Typography>
+                        </ListItem>
+                      )}
+                    </>
+                  )}
+                </React.Fragment>
+              );
+            })}
           </List>
         ) : (
           <Paper>
