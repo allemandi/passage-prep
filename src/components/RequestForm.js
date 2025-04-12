@@ -51,14 +51,11 @@ const RequestForm = ({ onStudyGenerated, isLoading }) => {
     };
     
     try {
-      console.log("Submitting form data:", formData);
       const studyData = await processForm(formData);
-      console.log("Received study data:", studyData);
       
-      // Check if any questions were found
       let totalQuestions = 0;
-      studyData.questionArr.forEach(questions => {
-        totalQuestions += questions.length;
+      studyData.questionArr.forEach(themeQuestions => {
+        totalQuestions += themeQuestions.length;
       });
       
       if (totalQuestions === 0) {
@@ -68,7 +65,6 @@ const RequestForm = ({ onStudyGenerated, isLoading }) => {
         setShowSuccess(true);
       }
     } catch (error) {
-      console.error("Error generating study:", error);
       setShowError(true);
       setErrorMessage('An error occurred while generating your study. Please try again.');
     } finally {

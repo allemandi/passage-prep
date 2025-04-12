@@ -39,9 +39,48 @@ This script will:
 - Install dependencies using Yarn
 - Start the development server
 
+## Environment Variables
+
+The application uses the following environment variables:
+
+- `MONGODB_URI`: The MongoDB connection string. This is required for the application to connect to your database. It should be in the format `mongodb+srv://username:password@hostname/?options`
+- `PORT`: The port number on which the server will run (default: 3001)
+
+Example `.env` file:
+```
+MONGODB_URI=mongodb+srv://myusername:mypassword@cluster0.example.mongodb.net/?retryWrites=true&w=majority
+PORT=3001
+```
+
 ## MongoDB Integration
 
 The application uses MongoDB to store Bible books and questions data.
+
+### Seed Script
+
+The application includes a seed script (`scripts/import-data.js`) that imports data from CSV files in the `data` directory to MongoDB. This script:
+
+1. Connects to your MongoDB database using the connection string from your `.env` file
+2. Reads the CSV files from the `data` directory:
+   - `Books.csv`: Contains Bible book information (Index, Book, Author, Context)
+   - `Questions.csv`: Contains Bible study questions (Theme, Question, Subcategory)
+3. **Completely replaces** existing data in the collections:
+   - Removes all existing records from the Books and Questions collections
+   - Inserts fresh data from the CSV files
+
+To run the seed script:
+
+```bash
+node scripts/import-data.js
+```
+
+Or using the npm script:
+
+```bash
+yarn import-data
+```
+
+**Note**: This operation is destructive - it will delete all existing data in the Books and Questions collections before importing new data.
 
 ### Importing Data to MongoDB
 

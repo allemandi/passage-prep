@@ -17,21 +17,12 @@ app.use(cors());
 app.use(bodyParser.json({ limit: '10mb' }));
 app.use(express.static(path.join(__dirname, 'build')));
 
-// Debug middleware to log all requests
-app.use((req, res, next) => {
-  console.log(`[${new Date().toISOString()}] ${req.method} ${req.url}`);
-  next();
-});
-
 // API endpoint to get all books
 app.get('/api/books', async (req, res) => {
   try {
-    console.log('Fetching books from MongoDB...');
     const books = await Book.find().sort({ Index: 1 });
-    console.log(`Retrieved ${books.length} books from MongoDB`);
     res.status(200).json(books);
   } catch (error) {
-    console.error('Error fetching books:', error);
     res.status(500).json({ error: 'Failed to fetch books', details: error.message });
   }
 });
@@ -39,12 +30,9 @@ app.get('/api/books', async (req, res) => {
 // API endpoint to get all questions
 app.get('/api/questions', async (req, res) => {
   try {
-    console.log('Fetching questions from MongoDB...');
     const questions = await Question.find();
-    console.log(`Retrieved ${questions.length} questions from MongoDB`);
     res.status(200).json(questions);
   } catch (error) {
-    console.error('Error fetching questions:', error);
     res.status(500).json({ error: 'Failed to fetch questions', details: error.message });
   }
 });
@@ -52,15 +40,11 @@ app.get('/api/questions', async (req, res) => {
 // API endpoint to save a question to MongoDB
 app.post('/api/save-question', async (req, res) => {
   try {
-    console.log('Received request to save question. Body:', JSON.stringify(req.body));
     const { newData } = req.body;
     
     if (!newData || !newData.Theme || !newData.Question || !newData.Subcategory) {
-      console.error('Missing required question data:', newData);
       return res.status(400).json({ error: 'Missing required question data' });
     }
-    
-    console.log('Validated request. Saving question:', newData);
     
     // Save to MongoDB
     const savedQuestion = await Question.create({
@@ -69,18 +53,14 @@ app.post('/api/save-question', async (req, res) => {
       Subcategory: newData.Subcategory
     });
     
-    console.log(`Question successfully added to MongoDB with ID: ${savedQuestion._id}`);
-    
     res.status(200).json({ success: true, message: 'Question saved successfully to MongoDB' });
   } catch (error) {
-    console.error('Error saving question:', error);
     res.status(500).json({ error: 'Failed to save question', details: error.message });
   }
 });
 
 // API endpoint to test if the server is reachable
 app.get('/api/health', (req, res) => {
-  console.log('Health check requested');
   res.status(200).json({ status: 'OK', message: 'Server is running' });
 });
 
@@ -90,7 +70,43 @@ app.get('*', (req, res) => {
 });
 
 // Start server
-app.listen(PORT, () => {
+const server = app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
-  console.log(`API endpoint available at http://localhost:${PORT}/api/save-question`);
-}); 
+});
+
+// Handle shutdown signals properly
+process.on('SIGINT', () => {
+  console.log('SIGINT received. Shutting down gracefully...');
+  shutdown();
+});
+
+process.on('SIGTERM', () => {
+  console.log('SIGTERM received. Shutting down gracefully...');
+  shutdown();
+});
+
+// Clean shutdown function
+function shutdown() {
+  console.log('Closing HTTP server...');
+  server.close(() => {
+    console.log('HTTP server closed.');
+    
+    // Close database connection
+    console.log('Closing database connection...');
+    if (connectDB.mongoose && connectDB.mongoose.connection) {
+      connectDB.mongoose.connection.close(false, () => {
+        console.log('MongoDB connection closed.');
+        process.exit(0);
+      });
+    } else {
+      console.log('No active MongoDB connection to close.');
+      process.exit(0);
+    }
+    
+    // Failsafe: if we can't close DB properly, exit after timeout
+    setTimeout(() => {
+      console.log('Could not close connections in time, forcefully shutting down');
+      process.exit(1);
+    }, 1000);
+  });
+} 

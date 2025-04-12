@@ -1,5 +1,16 @@
 #!/bin/bash
 
+# Setup trap for cleanup on exit
+cleanup() {
+  echo "Shutting down..."
+  # Kill any background processes from this script
+  pkill -P $$
+  exit 0
+}
+
+# Trap SIGINT and SIGTERM
+trap cleanup INT TERM
+
 # Install dependencies if they don't exist
 if [ ! -d "node_modules" ]; then
   echo "Installing dependencies..."
@@ -35,9 +46,14 @@ if [ ! -f "public/document/Books.csv" ]; then
   echo "Index,Book,Author,Context" > public/document/Books.csv
 fi
 
-# Make the script executable
+# Make script files executable
 chmod +x run.sh
+chmod +x scripts/*.js
 
-# Start both the React app and the Express server
-echo "Starting development environment..."
-yarn dev 
+# Run cleanup first to kill any existing processes
+echo "Cleaning up any lingering processes..."
+node scripts/cleanup.js
+
+# Start the development environment
+echo "Starting development environment with improved signal handling..."
+exec node scripts/start-dev.js 

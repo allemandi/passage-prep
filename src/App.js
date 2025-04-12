@@ -5,14 +5,12 @@ import './App.css';
 import RequestForm from './components/RequestForm';
 import ContributeForm from './components/ContributeForm';
 import StudyModal from './components/StudyModal';
-import ApiDebug from './components/ApiDebug';
 import { getBooks, getQuestions } from './data/dataService';
 
 function App() {
   const [showModal, setShowModal] = useState(false);
   const [studyData, setStudyData] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [showDebug, setShowDebug] = useState(true); // Set to true to show debug panel
   
   // Load data on component mount
   useEffect(() => {
@@ -32,21 +30,6 @@ function App() {
   return (
     <div className="app-container">
       <Container fluid id="component-container">
-        {showDebug && (
-          <div className="mb-4">
-            <div className="d-flex justify-content-between align-items-center mb-2">
-              <h5>API Debug Panel</h5>
-              <button 
-                className="btn btn-sm btn-outline-secondary"
-                onClick={() => setShowDebug(false)}
-              >
-                Hide
-              </button>
-            </div>
-            <ApiDebug />
-          </div>
-        )}
-        
         <Card className="text-dark bg-light mb-3 mx-auto" id="card-container">
           <Card.Header>Bible Study Preparation</Card.Header>
           <Card.Body>

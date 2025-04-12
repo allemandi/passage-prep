@@ -14,40 +14,25 @@ const ContributeForm = ({ isLoading }) => {
   
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setIsSubmitting(true);
-    setShowSuccess(false);
-    setShowError(false);
-    setShowInvalid(false);
     
-    try {
-      // Validate the reference
+    if (validateForm()) {
+      setIsSubmitting(true);
+      setShowSuccess(false);
+      setShowError(false);
+      
       const reference = subSubmission.trim();
       const question = questSubmission.trim();
       const theme = themeSubmission;
       
-      // Check for empty fields
-      if (!theme || !question || !reference) {
-        setShowError(true);
-        setErrorMessage('All fields are required. Please fill them in and try again.');
-        setIsSubmitting(false);
-        return;
-      }
-      
-      // Basic validation - should be more robust in production
-      if (reference.toLowerCase() === 'general' || validateBibleReference(reference)) {
-        console.log("Saving question with theme:", theme);
-        console.log("Question:", question);
-        console.log("Reference:", reference);
+      if (isValidReference(reference)) {
+        const saved = await saveQuestion(theme, question, reference);
         
-        const success = await saveQuestion(theme, question, reference);
-        
-        if (success) {
+        if (saved) {
           setShowSuccess(true);
-          
-          // Reset form
           setThemeSubmission('');
           setSubSubmission('');
           setQuestSubmission('');
+          setTimeout(() => setShowSuccess(false), 3000);
         } else {
           setShowError(true);
           setErrorMessage('Failed to save question. Please try again or contact the admin.');
@@ -55,11 +40,7 @@ const ContributeForm = ({ isLoading }) => {
       } else {
         setShowInvalid(true);
       }
-    } catch (error) {
-      console.error("Error submitting question:", error);
-      setShowError(true);
-      setErrorMessage(error.message || 'An unexpected error occurred. Please try again.');
-    } finally {
+      
       setIsSubmitting(false);
     }
   };
@@ -83,6 +64,24 @@ const ContributeForm = ({ isLoading }) => {
     
     // Check if the reference starts with a Bible book
     return bibleBooks.some(book => lowercaseRef.startsWith(book));
+  };
+  
+  const validateForm = () => {
+    const reference = subSubmission.trim();
+    const question = questSubmission.trim();
+    const theme = themeSubmission;
+    
+    if (!theme || !question || !reference) {
+      setShowError(true);
+      setErrorMessage('All fields are required. Please fill them in and try again.');
+      return false;
+    }
+    
+    return true;
+  };
+  
+  const isValidReference = (reference) => {
+    return reference.toLowerCase() === 'general' || validateBibleReference(reference);
   };
   
   return (
