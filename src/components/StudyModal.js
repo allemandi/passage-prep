@@ -6,7 +6,6 @@ import {
   DialogActions,
   Typography,
   IconButton,
-  Box,
   Button,
   List,
   ListItem,
@@ -18,8 +17,12 @@ import CloseIcon from '@mui/icons-material/Close';
 
 const StudyModal = ({ show, onHide, data }) => {
   const theme = useTheme();
-  const totalQuestions = data?.questionArr?.reduce((acc, curr) => acc + curr.length, 0) || 0;
   
+  // Safety check for data initialization
+  if (!data || !data.filteredQuestions) {
+    return null; // or you can return a loading state or a message
+  }
+
   // Safety check for theme initialization
   if (!theme?.palette) {
     return null;
@@ -175,68 +178,20 @@ const StudyModal = ({ show, onHide, data }) => {
           Questions
         </Typography>
 
-        {totalQuestions > 0 ? (
-          data.themeArr.filter(theme => theme).map((theme, themeIndex) => (
-            <Box key={themeIndex} sx={{ mb: themeIndex < data.themeArr.filter(t => t).length - 1 ? 4 : 0 }}>
-              <Typography 
-                variant="subtitle1" 
-                sx={{ 
-                  fontWeight: 600, 
-                  mb: 2.5,
-                  color: 'primary.light',
-                  fontSize: '1.1rem'
-                }}
-              >
-                {theme}
-              </Typography>
-              
-              {data.questionArr[themeIndex] && data.questionArr[themeIndex].length > 0 ? (
-                <List disablePadding sx={{ pl: 2 }}>
-                  {data.questionArr[themeIndex].map((question, qIndex) => (
-                    <ListItem 
-                      key={qIndex} 
-                      sx={{ 
-                        py: 1,
-                        px: 0
-                      }}
-                    >
-                      <Typography variant="body1" sx={{ fontWeight: 400 }}>
-                        • {question.question}
-                      </Typography>
-                    </ListItem>
-                  ))}
-                </List>
-              ) : (
-                <Paper 
-                  sx={{ 
-                    p: 2.5, 
-                    bgcolor: theme.palette.mode === 'dark' ? 'rgba(255, 152, 0, 0.12)' : 'warning.light', 
-                    borderRadius: 2,
-                    border: `1px solid ${theme.palette.warning.main}`
-                  }}
-                >
-                  <Typography sx={{ color: 'warning.main' }}>
-                    No questions found for this theme.
-                  </Typography>
-                </Paper>
-              )}
-              
-              {themeIndex < data.themeArr.filter(t => t).length - 1 && (
-                <Divider sx={{ my: 4, borderColor: borderColor }} />
-              )}
-            </Box>
-          ))
+        {data.filteredQuestions && data.filteredQuestions.length > 0 ? (
+          <List disablePadding>
+            {data.filteredQuestions.map((question, index) => (
+              <ListItem key={index}>
+                <Typography variant="body1">
+                  • {question.question}
+                </Typography>
+              </ListItem>
+            ))}
+          </List>
         ) : (
-          <Paper 
-            sx={{ 
-              p: 3, 
-              bgcolor: theme.palette.mode === 'dark' ? 'rgba(255, 152, 0, 0.12)' : 'warning.light', 
-              borderRadius: 2,
-              border: `1px solid ${theme.palette.warning.main}`
-            }}
-          >
-            <Typography sx={{ color: 'warning.main' }}>
-              No questions found that match your criteria. Try selecting different themes or Bible references.
+          <Paper>
+            <Typography>
+              No questions selected from Search Questions table.
             </Typography>
           </Paper>
         )}

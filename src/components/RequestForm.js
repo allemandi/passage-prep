@@ -115,17 +115,13 @@ const RequestForm = ({ onStudyGenerated, isLoading }) => {
     try {
       const studyData = await processForm(formData);
       
-      let totalQuestions = 0;
-      studyData.questionArr.forEach(themeQuestions => {
-        totalQuestions += themeQuestions.length;
-      });
-      
-      if (totalQuestions === 0) {
-        setNoQuestionsFound(true);
-      } else {
-        onStudyGenerated(studyData);
-        setShowSuccess(true);
-      }
+      // Pass the selected questions to the StudyModal
+      const filteredQuestions = selectedQuestions.map(index => {
+        return searchResults[index]; // Get the question based on the selected index from searchResults
+      }).filter(Boolean); // Filter out any undefined values
+
+      onStudyGenerated({ ...studyData, filteredQuestions }); // Pass filtered questions
+      setShowSuccess(true);
     } catch (error) {
       console.error("Error in study generation:", error);
       setShowError(true);
