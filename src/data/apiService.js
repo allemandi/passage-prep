@@ -8,11 +8,19 @@
  */
 const fetchWithErrorHandling = async (url, options = {}, retries = 2) => {
   try {
+    console.log(`Sending ${options.method || 'GET'} request to ${url}`);
     const response = await fetch(url, options);
     
     if (!response.ok) {
-      const errorData = await response.json().catch(() => null);
-      throw new Error(errorData?.error || `HTTP error! Status: ${response.status}`);
+      let errorMessage = `HTTP error! Status: ${response.status}`;
+      try {
+        const errorData = await response.json();
+        errorMessage = errorData?.error || errorMessage;
+        console.error('Error response:', errorData);
+      } catch (e) {
+        console.error('Could not parse error response as JSON');
+      }
+      throw new Error(errorMessage);
     }
     
     return await response.json();
@@ -34,8 +42,11 @@ const fetchWithErrorHandling = async (url, options = {}, retries = 2) => {
  */
 export const checkServerHealth = async () => {
   try {
+    console.log('Checking server health...');
     const result = await fetch('/api/health', { method: 'GET' });
-    return result.ok;
+    const isOk = result.ok;
+    console.log('Health check result:', isOk ? 'OK' : 'Failed');
+    return isOk;
   } catch (error) {
     console.error('Server health check failed:', error);
     return false;
@@ -43,40 +54,41 @@ export const checkServerHealth = async () => {
 };
 
 /**
- * Save a question to the server
- * @param {string} file - Path to the CSV file
+ * Save a question to the server's MongoDB database
  * @param {Object} data - The question data to save
  * @returns {Promise<boolean>} - Whether the save was successful
  */
-export const saveQuestionToServer = async (file, data) => {
+export const saveQuestionToServer = async (_, data) => {
   try {
     // First check if the server is available
     const isServerReachable = await checkServerHealth().catch(() => false);
     if (!isServerReachable) {
-      console.warn('Server is not reachable, falling back to CSV download');
+      console.warn('Server is not reachable');
       return false;
     }
+    
+    console.log('Sending question data to server:', data);
+    
+    const requestBody = JSON.stringify({ newData: data });
+    console.log('Request body:', requestBody);
     
     const result = await fetchWithErrorHandling('/api/save-question', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ 
-        file, 
-        newData: data 
-      }),
+      body: requestBody,
     });
     
     if (result.success) {
-      console.log('Question saved successfully to server');
+      console.log('Question saved successfully to MongoDB');
       return true;
     } else {
       console.warn('Server returned success:false', result);
       return false;
     }
   } catch (error) {
-    console.error('Error saving question to server:', error);
+    console.error('Error saving question to MongoDB:', error);
     return false;
   }
 };

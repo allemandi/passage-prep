@@ -1,8 +1,13 @@
 const express = require('express');
-const fs = require('fs');
 const path = require('path');
 const cors = require('cors');
 const bodyParser = require('body-parser');
+const connectDB = require('./config/db');
+const Book = require('./models/Book');
+const Question = require('./models/Question');
+
+// Connect to MongoDB
+connectDB();
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -12,50 +17,61 @@ app.use(cors());
 app.use(bodyParser.json({ limit: '10mb' }));
 app.use(express.static(path.join(__dirname, 'build')));
 
-// Helper function to escape CSV values
-const escapeCSV = (value) => {
-  // If the value contains commas, quotes, or newlines, wrap it in quotes and escape any quotes
-  if (value.includes(',') || value.includes('"') || value.includes('\n')) {
-    return `"${value.replace(/"/g, '""')}"`;
-  }
-  return value;
-};
+// Debug middleware to log all requests
+app.use((req, res, next) => {
+  console.log(`[${new Date().toISOString()}] ${req.method} ${req.url}`);
+  next();
+});
 
-// API endpoint to save a question to Questions.csv
-app.post('/api/save-question', (req, res) => {
+// API endpoint to get all books
+app.get('/api/books', async (req, res) => {
   try {
-    const { file, newData } = req.body;
+    console.log('Fetching books from MongoDB...');
+    const books = await Book.find().sort({ Index: 1 });
+    console.log(`Retrieved ${books.length} books from MongoDB`);
+    res.status(200).json(books);
+  } catch (error) {
+    console.error('Error fetching books:', error);
+    res.status(500).json({ error: 'Failed to fetch books', details: error.message });
+  }
+});
+
+// API endpoint to get all questions
+app.get('/api/questions', async (req, res) => {
+  try {
+    console.log('Fetching questions from MongoDB...');
+    const questions = await Question.find();
+    console.log(`Retrieved ${questions.length} questions from MongoDB`);
+    res.status(200).json(questions);
+  } catch (error) {
+    console.error('Error fetching questions:', error);
+    res.status(500).json({ error: 'Failed to fetch questions', details: error.message });
+  }
+});
+
+// API endpoint to save a question to MongoDB
+app.post('/api/save-question', async (req, res) => {
+  try {
+    console.log('Received request to save question. Body:', JSON.stringify(req.body));
+    const { newData } = req.body;
     
-    if (!file || !newData || !newData.Theme || !newData.Question || !newData.Subcategory) {
+    if (!newData || !newData.Theme || !newData.Question || !newData.Subcategory) {
+      console.error('Missing required question data:', newData);
       return res.status(400).json({ error: 'Missing required question data' });
     }
     
-    console.log('Received request to save question:', newData);
+    console.log('Validated request. Saving question:', newData);
     
-    // Extract filename from path
-    const filename = file.split('/').pop();
-    const filePath = path.join(__dirname, 'public', 'document', filename);
+    // Save to MongoDB
+    const savedQuestion = await Question.create({
+      Theme: newData.Theme,
+      Question: newData.Question,
+      Subcategory: newData.Subcategory
+    });
     
-    // Check if file exists
-    if (!fs.existsSync(filePath)) {
-      console.error(`File not found: ${filePath}`);
-      return res.status(404).json({ error: `File ${filename} not found` });
-    }
+    console.log(`Question successfully added to MongoDB with ID: ${savedQuestion._id}`);
     
-    // Escape each field to handle special characters in CSV
-    const escapedTheme = escapeCSV(newData.Theme);
-    const escapedQuestion = escapeCSV(newData.Question);
-    const escapedSubcategory = escapeCSV(newData.Subcategory);
-    
-    // Format the new line with proper CSV formatting
-    const newLine = `\n${escapedTheme},${escapedQuestion},${escapedSubcategory}`;
-    
-    // Append new data to the CSV file
-    fs.appendFileSync(filePath, newLine);
-    
-    console.log(`Question successfully added to ${filename}:`, newData);
-    
-    res.status(200).json({ success: true, message: 'Question saved successfully' });
+    res.status(200).json({ success: true, message: 'Question saved successfully to MongoDB' });
   } catch (error) {
     console.error('Error saving question:', error);
     res.status(500).json({ error: 'Failed to save question', details: error.message });
@@ -64,6 +80,7 @@ app.post('/api/save-question', (req, res) => {
 
 // API endpoint to test if the server is reachable
 app.get('/api/health', (req, res) => {
+  console.log('Health check requested');
   res.status(200).json({ status: 'OK', message: 'Server is running' });
 });
 

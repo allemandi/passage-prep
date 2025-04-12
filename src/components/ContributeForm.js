@@ -11,8 +11,6 @@ const ContributeForm = ({ isLoading }) => {
   const [errorMessage, setErrorMessage] = useState('');
   const [showInvalid, setShowInvalid] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [downloadTriggered, setDownloadTriggered] = useState(false);
-  const [saved, setSaved] = useState(false);
   
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -20,8 +18,6 @@ const ContributeForm = ({ isLoading }) => {
     setShowSuccess(false);
     setShowError(false);
     setShowInvalid(false);
-    setDownloadTriggered(false);
-    setSaved(false);
     
     try {
       // Validate the reference
@@ -46,18 +42,12 @@ const ContributeForm = ({ isLoading }) => {
         const success = await saveQuestion(theme, question, reference);
         
         if (success) {
-          setSaved(true);
           setShowSuccess(true);
           
           // Reset form
           setThemeSubmission('');
           setSubSubmission('');
           setQuestSubmission('');
-          
-          // Show info about potential CSV download
-          if (window.location.hostname === 'localhost') {
-            setDownloadTriggered(true);
-          }
         } else {
           setShowError(true);
           setErrorMessage('Failed to save question. Please try again or contact the admin.');
@@ -186,14 +176,6 @@ const ContributeForm = ({ isLoading }) => {
           onClose={() => setShowSuccess(false)}
         >
           <strong>Question Saved!</strong> Thank you for contributing a question to the database.
-          {downloadTriggered && (
-            <div className="mt-2">
-              <small>
-                A CSV file with your question has been downloaded as a backup. 
-                Your question has been {saved ? "successfully added to the database." : "provided as a downloadable file."}
-              </small>
-            </div>
-          )}
         </Alert>
       )}
       
