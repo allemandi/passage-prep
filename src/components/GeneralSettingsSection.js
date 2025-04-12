@@ -13,11 +13,11 @@ const GeneralSettingsSection = ({ subChoice, setSubChoice, maxLimit, setMaxLimit
   
   return (
     <Paper 
-      elevation={theme.palette.mode === 'dark' ? 2 : 0} 
+      elevation={theme.palette.mode === 'dark' ? 2 : 1}
       sx={{ 
-        p: 3, 
+        p: { xs: 2.5, sm: 3.5 }, 
         bgcolor: theme.palette.mode === 'dark' ? 'background.paper' : 'background.default', 
-        borderRadius: 2,
+        borderRadius: 3,
         height: '100%',
         border: `1px solid ${theme.palette.divider}`
       }}
@@ -26,16 +26,17 @@ const GeneralSettingsSection = ({ subChoice, setSubChoice, maxLimit, setMaxLimit
         variant="h6" 
         gutterBottom 
         sx={{ 
-          fontWeight: 'medium', 
+          fontWeight: 500, 
           color: 'primary.main',
-          pb: 1,
-          borderBottom: `2px solid ${theme.palette.primary.main}`
+          pb: 1.5,
+          borderBottom: `2px solid ${theme.palette.primary.main}`,
+          mb: 3.5
         }}
       >
         General Settings
       </Typography>
       
-      <Box sx={{ my: 3 }}>
+      <Box>
         <TextField
           select
           fullWidth
@@ -43,9 +44,29 @@ const GeneralSettingsSection = ({ subChoice, setSubChoice, maxLimit, setMaxLimit
           label="Subcategories"
           value={subChoice}
           onChange={(e) => setSubChoice(e.target.value)}
-          margin="normal"
-          size="small"
-          sx={{ mt: 3 }}
+          size="medium"
+          sx={{ 
+            mb: 3.5,
+            '& .MuiOutlinedInput-root': {
+              borderRadius: 1.5,
+              '& fieldset': {
+                borderColor: theme.palette.mode === 'dark' ? 'rgba(255, 255, 255, 0.23)' : 'rgba(0, 0, 0, 0.23)',
+                borderWidth: 1.5,
+              },
+              '&:hover fieldset': {
+                borderColor: 'primary.main',
+              },
+              '&.Mui-focused fieldset': {
+                borderWidth: 2,
+              }
+            },
+            '& .MuiInputLabel-root': {
+              fontSize: '0.95rem',
+            },
+            '& .MuiMenuItem-root': {
+              fontSize: '0.95rem',
+            }
+          }}
         >
           {subcategories.map((sub, index) => (
             <MenuItem key={index} value={sub}>{sub}</MenuItem>
@@ -59,10 +80,33 @@ const GeneralSettingsSection = ({ subChoice, setSubChoice, maxLimit, setMaxLimit
           label="Max Questions"
           value={maxLimit}
           onChange={(e) => setMaxLimit(e.target.value)}
-          margin="normal"
-          size="small"
+          size="medium"
           helperText="More themes, more questions"
-          sx={{ mt: 3 }}
+          sx={{ 
+            '& .MuiOutlinedInput-root': {
+              borderRadius: 1.5,
+              '& fieldset': {
+                borderColor: theme.palette.mode === 'dark' ? 'rgba(255, 255, 255, 0.23)' : 'rgba(0, 0, 0, 0.23)',
+                borderWidth: 1.5,
+              },
+              '&:hover fieldset': {
+                borderColor: 'primary.main',
+              },
+              '&.Mui-focused fieldset': {
+                borderWidth: 2,
+              }
+            },
+            '& .MuiInputLabel-root': {
+              fontSize: '0.95rem',
+            },
+            '& .MuiMenuItem-root': {
+              fontSize: '0.95rem',
+            },
+            '& .MuiFormHelperText-root': {
+              mt: 1,
+              fontSize: '0.85rem'
+            }
+          }}
         >
           {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((num) => (
             <MenuItem key={num} value={num.toString()}>{num}</MenuItem>
@@ -73,4 +117,4 @@ const GeneralSettingsSection = ({ subChoice, setSubChoice, maxLimit, setMaxLimit
   );
 };
 
-export default GeneralSettingsSection; 
+export default GeneralSettingsSection;

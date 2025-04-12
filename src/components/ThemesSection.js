@@ -13,11 +13,11 @@ const ThemesSection = ({ theme1, setTheme1, theme2, setTheme2, themes }) => {
   
   return (
     <Paper 
-      elevation={theme.palette.mode === 'dark' ? 2 : 0} 
+      elevation={theme.palette.mode === 'dark' ? 2 : 1}
       sx={{ 
-        p: 3, 
+        p: { xs: 2.5, sm: 3.5 }, 
         bgcolor: theme.palette.mode === 'dark' ? 'background.paper' : 'background.default', 
-        borderRadius: 2,
+        borderRadius: 3,
         height: '100%',
         border: `1px solid ${theme.palette.divider}`
       }}
@@ -26,16 +26,17 @@ const ThemesSection = ({ theme1, setTheme1, theme2, setTheme2, themes }) => {
         variant="h6" 
         gutterBottom 
         sx={{ 
-          fontWeight: 'medium', 
+          fontWeight: 500, 
           color: 'primary.main',
-          pb: 1,
-          borderBottom: `2px solid ${theme.palette.primary.main}`
+          pb: 1.5,
+          borderBottom: `2px solid ${theme.palette.primary.main}`,
+          mb: 3.5
         }}
       >
         Themes
       </Typography>
       
-      <Box sx={{ my: 3 }}>
+      <Box>
         <TextField
           select
           fullWidth
@@ -44,9 +45,29 @@ const ThemesSection = ({ theme1, setTheme1, theme2, setTheme2, themes }) => {
           value={theme1}
           onChange={(e) => setTheme1(e.target.value)}
           required
-          margin="normal"
-          size="small"
-          sx={{ mt: 3 }}
+          size="medium"
+          sx={{ 
+            mb: 3.5,
+            '& .MuiOutlinedInput-root': {
+              borderRadius: 1.5,
+              '& fieldset': {
+                borderColor: theme.palette.mode === 'dark' ? 'rgba(255, 255, 255, 0.23)' : 'rgba(0, 0, 0, 0.23)',
+                borderWidth: 1.5,
+              },
+              '&:hover fieldset': {
+                borderColor: 'primary.main',
+              },
+              '&.Mui-focused fieldset': {
+                borderWidth: 2,
+              }
+            },
+            '& .MuiInputLabel-root': {
+              fontSize: '0.95rem',
+            },
+            '& .MuiMenuItem-root': {
+              fontSize: '0.95rem',
+            }
+          }}
         >
           <MenuItem value="">
             <em>Select a theme</em>
@@ -63,9 +84,28 @@ const ThemesSection = ({ theme1, setTheme1, theme2, setTheme2, themes }) => {
           label="Theme 2 (Optional)"
           value={theme2}
           onChange={(e) => setTheme2(e.target.value)}
-          margin="normal"
-          size="small"
-          sx={{ mt: 3 }}
+          size="medium"
+          sx={{ 
+            '& .MuiOutlinedInput-root': {
+              borderRadius: 1.5,
+              '& fieldset': {
+                borderColor: theme.palette.mode === 'dark' ? 'rgba(255, 255, 255, 0.23)' : 'rgba(0, 0, 0, 0.23)',
+                borderWidth: 1.5,
+              },
+              '&:hover fieldset': {
+                borderColor: 'primary.main',
+              },
+              '&.Mui-focused fieldset': {
+                borderWidth: 2,
+              }
+            },
+            '& .MuiInputLabel-root': {
+              fontSize: '0.95rem',
+            },
+            '& .MuiMenuItem-root': {
+              fontSize: '0.95rem',
+            }
+          }}
         >
           <MenuItem value="">
             <em>None</em>
@@ -79,4 +119,4 @@ const ThemesSection = ({ theme1, setTheme1, theme2, setTheme2, themes }) => {
   );
 };
 
-export default ThemesSection; 
+export default ThemesSection;

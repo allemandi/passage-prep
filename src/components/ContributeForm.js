@@ -10,7 +10,8 @@ import {
   Alert, 
   Paper,
   Snackbar,
-  useTheme
+  useTheme,
+  Container
 } from '@mui/material';
 import ScriptureCombobox from './ScriptureCombobox';
 import { themes, saveQuestion } from '../data/dataService';
@@ -118,7 +119,7 @@ const ContributeForm = () => {
   };
   
   return (
-    <Box component="form" onSubmit={handleSubmit} noValidate sx={{ pt: 1, pb: 2 }}>
+    <Container maxWidth="lg" sx={{ pt: 1, pb: 2 }}>
       <Typography 
         variant="h5" 
         component="h2" 
@@ -129,40 +130,134 @@ const ContributeForm = () => {
           color: 'primary.main'
         }}
       >
-        New Questions
+        Add New Question
       </Typography>
       
       <Paper 
+        component="form"
+        onSubmit={handleSubmit}
+        noValidate
         elevation={theme.palette.mode === 'dark' ? 2 : 0} 
         sx={{ 
-          p: 3, 
+          p: { xs: 2.5, sm: 3.5 }, 
           bgcolor: theme.palette.mode === 'dark' ? 'background.paper' : 'background.default', 
           borderRadius: 2,
-          border: `1px solid ${theme.palette.divider}`
+          border: `1px solid ${theme.palette.divider}`,
+          maxWidth: 'min(100%, 900px)',
+          mx: 'auto'
         }}
       >
-        <Typography 
-          variant="h6" 
-          gutterBottom 
-          sx={{ 
-            fontWeight: 'medium', 
-            color: 'primary.main',
-            pb: 1,
-            mb: 3,
-            borderBottom: `2px solid ${theme.palette.primary.main}`
-          }}
-        >
-          Add Questions
-        </Typography>
-        
-        <Grid container spacing={3}>
-          <Grid item xs={12} md={4}>
+        <Grid container spacing={4}>
+          <Grid item xs={12} md={6}>
+            <Box sx={{ mb: 4 }}>
+              <Typography 
+                variant="subtitle1" 
+                gutterBottom 
+                sx={{ 
+                  fontWeight: 500, 
+                  color: 'primary.main',
+                  pb: 1,
+                  borderBottom: `2px solid ${theme.palette.primary.main}`,
+                  mb: 2.5
+                }}
+              >
+                Bible Reference
+              </Typography>
+              
+              <Box sx={{ mb: 3 }}>
+                <ScriptureCombobox
+                  id="bookSelect"
+                  label="Book"
+                  value={selectedBook}
+                  onChange={setSelectedBook}
+                  options={bibleBooks}
+                  placeholder="Select a book..."
+                  isRequired
+                  helperText={selectedBook ? `Total chapters: ${totalChapters}` : ""}
+                />
+              </Box>
+              
+              <Box>
+                <ScriptureCombobox
+                  id="chapterSelect"
+                  label="Chapter"
+                  value={selectedChapter}
+                  onChange={setSelectedChapter}
+                  options={availableChapters}
+                  placeholder={selectedBook ? `Select chapter (1-${totalChapters})` : "Select a book first"}
+                  disabled={!selectedBook}
+                />
+              </Box>
+              
+              <input 
+                id="scripture" 
+                type="hidden" 
+                value={scripture}
+                required
+              />
+            </Box>
+            
+            <Box>
+              <Typography 
+                variant="subtitle1" 
+                gutterBottom 
+                sx={{ 
+                  fontWeight: 500, 
+                  color: 'primary.main',
+                  pb: 1,
+                  borderBottom: `2px solid ${theme.palette.primary.main}`,
+                  mb: 2.5
+                }}
+              >
+                Theme
+              </Typography>
+              
+              <TextField
+                select
+                fullWidth
+                id="themeSelect"
+                label="Theme"
+                value={selectedTheme}
+                onChange={(e) => setSelectedTheme(e.target.value)}
+                required
+                variant="outlined"
+                size="medium"
+                sx={{
+                  '& .MuiOutlinedInput-root': {
+                    borderRadius: 1.5,
+                    '& fieldset': {
+                      borderColor: theme.palette.mode === 'dark' ? 'rgba(255, 255, 255, 0.23)' : 'rgba(0, 0, 0, 0.23)',
+                      borderWidth: 1.5,
+                    },
+                    '&:hover fieldset': {
+                      borderColor: 'primary.main',
+                    },
+                    '&.Mui-focused fieldset': {
+                      borderWidth: 2,
+                    }
+                  }
+                }}
+              >
+                <MenuItem value="">
+                  <em>Select a theme</em>
+                </MenuItem>
+                {themes.map((theme, index) => (
+                  <MenuItem key={index} value={theme}>{theme}</MenuItem>
+                ))}
+              </TextField>
+            </Box>
+          </Grid>
+          
+          <Grid item xs={12} md={6}>
             <Typography 
               variant="subtitle1" 
               gutterBottom 
               sx={{ 
-                fontWeight: 'medium', 
+                fontWeight: 500, 
                 color: 'primary.main',
+                pb: 1,
+                borderBottom: `2px solid ${theme.palette.primary.main}`,
+                mb: 2.5
               }}
             >
               Question Details
@@ -179,85 +274,21 @@ const ContributeForm = () => {
               required
               placeholder="Type your Bible study question here..."
               variant="outlined"
-              sx={{ mb: 2 }}
-            />
-          </Grid>
-          
-          <Grid item xs={12} md={4}>
-            <Typography 
-              variant="subtitle1" 
-              gutterBottom 
-              sx={{ 
-                fontWeight: 'medium', 
-                color: 'primary.main',
+              sx={{
+                '& .MuiOutlinedInput-root': {
+                  borderRadius: 1.5,
+                  '& fieldset': {
+                    borderColor: theme.palette.mode === 'dark' ? 'rgba(255, 255, 255, 0.23)' : 'rgba(0, 0, 0, 0.23)',
+                    borderWidth: 1.5,
+                  },
+                  '&:hover fieldset': {
+                    borderColor: 'primary.main',
+                  },
+                  '&.Mui-focused fieldset': {
+                    borderWidth: 2,
+                  }
+                }
               }}
-            >
-              Theme
-            </Typography>
-            
-            <TextField
-              select
-              fullWidth
-              id="themeSelect"
-              label="Theme"
-              value={selectedTheme}
-              onChange={(e) => setSelectedTheme(e.target.value)}
-              required
-              variant="outlined"
-              size="small"
-            >
-              <MenuItem value="">
-                <em>Select a theme</em>
-              </MenuItem>
-              {themes.map((theme, index) => (
-                <MenuItem key={index} value={theme}>{theme}</MenuItem>
-              ))}
-            </TextField>
-          </Grid>
-          
-          <Grid item xs={12} md={4}>
-            <Typography 
-              variant="subtitle1" 
-              gutterBottom 
-              sx={{ 
-                fontWeight: 'medium', 
-                color: 'primary.main',
-              }}
-            >
-              Bible Reference
-            </Typography>
-            
-            <Grid container spacing={2}>
-              <Grid item xs={12}>
-                <ScriptureCombobox
-                  id="bookSelect"
-                  label="Book"
-                  value={selectedBook}
-                  onChange={setSelectedBook}
-                  options={bibleBooks}
-                  placeholder="Select a book..."
-                  isRequired
-                  helperText={selectedBook ? `Total chapters: ${totalChapters}` : ""}
-                />
-              </Grid>
-              <Grid item xs={12}>
-                <ScriptureCombobox
-                  id="chapterSelect"
-                  label="Chapter"
-                  value={selectedChapter}
-                  onChange={setSelectedChapter}
-                  options={availableChapters}
-                  placeholder={selectedBook ? `Select chapter (1-${totalChapters})` : "Select a book first"}
-                  disabled={!selectedBook}
-                />
-              </Grid>
-            </Grid>
-            
-            <input 
-              id="scripture" 
-              type="hidden" 
-              value={scripture}
-              required
             />
           </Grid>
         </Grid>
@@ -273,15 +304,23 @@ const ContributeForm = () => {
               px: 6, 
               py: 1.5, 
               minWidth: 200,
-              borderRadius: 3,
+              borderRadius: 2,
               fontSize: '1rem',
-              fontWeight: 'medium'
+              fontWeight: 500,
+              textTransform: 'none',
+              boxShadow: theme.palette.mode === 'dark' 
+                ? '0 2px 8px rgba(144, 202, 249, 0.2)' 
+                : '0 2px 8px rgba(25, 118, 210, 0.2)',
+              '&:hover': {
+                boxShadow: theme.palette.mode === 'dark' 
+                  ? '0 4px 12px rgba(144, 202, 249, 0.3)' 
+                  : '0 4px 12px rgba(25, 118, 210, 0.3)'
+              }
             }}
-            disableElevation
           >
             {isSubmitting ? (
               <>
-                <CircularProgress size={24} color="inherit" sx={{ mr: 1 }} />
+                <CircularProgress size={24} color="inherit" sx={{ mr: 1.5 }} />
                 Submitting...
               </>
             ) : 'Submit Question'}
@@ -320,8 +359,8 @@ const ContributeForm = () => {
           {errorMessage}
         </Alert>
       </Snackbar>
-    </Box>
+    </Container>
   );
 };
 
-export default ContributeForm; 
+export default ContributeForm;

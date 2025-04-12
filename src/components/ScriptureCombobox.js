@@ -1,5 +1,5 @@
 import React from 'react';
-import { Autocomplete, TextField, Typography, Box } from '@mui/material';
+import { Autocomplete, TextField, useTheme } from '@mui/material';
 
 const ScriptureCombobox = ({ 
   id, 
@@ -7,61 +7,74 @@ const ScriptureCombobox = ({
   value, 
   onChange, 
   options, 
-  isRequired = false,
-  placeholder = "Select...",
-  disabled = false,
-  helperText
+  placeholder, 
+  disabled, 
+  isRequired, 
+  helperText, 
+  sx 
 }) => {
-  const handleChange = (event, newValue) => {
-    onChange(newValue || '');
-  };
-
+  const theme = useTheme();
+  
   return (
-    <Box sx={{ width: '100%' }}>
-      {label && (
-        <Typography 
-          variant="subtitle2" 
-          sx={{ mb: 0.5, fontWeight: isRequired ? 'medium' : 'regular' }}
-        >
-          {label}{isRequired && <Box component="span" sx={{ color: 'error.main' }}>*</Box>}
-        </Typography>
-      )}
-      
-      <Autocomplete
-        id={id}
-        value={value}
-        onChange={handleChange}
-        options={options}
-        disabled={disabled}
-        fullWidth
-        blurOnSelect
-        clearOnBlur
-        handleHomeEndKeys
-        selectOnFocus
-        autoHighlight
-        renderInput={(params) => (
-          <TextField
-            {...params}
-            placeholder={placeholder}
-            variant="outlined"
-            size="small"
-            fullWidth
-            required={isRequired}
-            helperText={helperText}
-            sx={{
-              '& .MuiOutlinedInput-root': {
-                borderRadius: 1.5,
+    <Autocomplete
+      id={id}
+      options={options}
+      value={value || null}
+      onChange={(_, newValue) => onChange(newValue)}
+      disabled={disabled}
+      renderInput={(params) => (
+        <TextField
+          {...params}
+          label={label}
+          placeholder={placeholder}
+          required={isRequired}
+          helperText={helperText}
+          sx={{
+            '& .MuiOutlinedInput-root': {
+              borderRadius: 1.5,
+              transition: theme.transitions.create(['border-color', 'box-shadow']),
+              '& fieldset': {
+                borderColor: theme.palette.mode === 'dark' ? 'rgba(255, 255, 255, 0.23)' : 'rgba(0, 0, 0, 0.23)',
+                borderWidth: 1.5,
               },
-            }}
-          />
-        )}
-        noOptionsText="No options available"
-        ListboxProps={{
-          style: { maxHeight: 200 }
-        }}
-      />
-    </Box>
+              '&:hover fieldset': {
+                borderColor: 'primary.main',
+              },
+              '&.Mui-focused fieldset': {
+                borderWidth: 2,
+              },
+              '&.Mui-disabled': {
+                backgroundColor: theme.palette.mode === 'dark' ? 'rgba(255, 255, 255, 0.04)' : 'rgba(0, 0, 0, 0.04)',
+              }
+            },
+            '& .MuiInputLabel-root': {
+              fontSize: '0.95rem',
+            },
+            '& .MuiAutocomplete-input': {
+              fontSize: '0.95rem',
+              padding: '7.5px 9px !important',
+            },
+            '& .MuiFormHelperText-root': {
+              mt: 1,
+              fontSize: '0.85rem',
+              ml: 0,
+            },
+            ...sx
+          }}
+        />
+      )}
+      sx={{
+        width: '100%',
+        '& .MuiAutocomplete-listbox': {
+          '& .MuiAutocomplete-option': {
+            fontSize: '0.95rem',
+            paddingTop: 1,
+            paddingBottom: 1,
+          },
+        },
+      }}
+    />
   );
 };
 
-export default ScriptureCombobox; 
+export default ScriptureCombobox;

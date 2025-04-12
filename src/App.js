@@ -31,7 +31,6 @@ function App() {
   
   const prefersDarkMode = useMediaQuery('(prefers-color-scheme: dark)');
   
-  // Initialize with system preference, defaulting to dark mode
   useEffect(() => {
     const savedMode = localStorage.getItem('themeMode');
     if (savedMode) {
@@ -41,22 +40,18 @@ function App() {
     }
   }, []);
   
-  // Save theme preference to localStorage
   useEffect(() => {
     localStorage.setItem('themeMode', mode);
   }, [mode]);
   
-  // Toggle between light and dark mode
   const toggleColorMode = () => {
     setMode((prevMode) => (prevMode === 'light' ? 'dark' : 'light'));
   };
   
-  // Use the appropriate theme based on mode
   const theme = useMemo(() => {
     return mode === 'light' ? lightTheme : darkTheme;
   }, [mode]);
   
-  // Load data on component mount
   useEffect(() => {
     const loadInitialData = async () => {
       await Promise.all([getBooks(), getQuestions()]);
@@ -75,59 +70,81 @@ function App() {
     <ThemeProvider theme={theme}>
       <CssBaseline />
       <Box 
-        className="app-container" 
         sx={{ 
-          bgcolor: 'background.default', 
-          minHeight: '100vh', 
-          pb: 4,
+          minHeight: '100vh',
+          bgcolor: 'background.default',
           backgroundImage: mode === 'dark' 
-            ? 'linear-gradient(rgba(18, 18, 18, 0.97), rgba(18, 18, 18, 0.95)), url("/bg-pattern.png")'
-            : 'linear-gradient(rgba(245, 245, 245, 0.97), rgba(245, 245, 245, 0.95)), url("/bg-pattern.png")',
+            ? 'linear-gradient(rgba(18, 18, 18, 0.97), rgba(18, 18, 18, 0.95))'
+            : 'linear-gradient(rgba(245, 245, 245, 0.97), rgba(245, 245, 245, 0.95))',
           backgroundAttachment: 'fixed',
-          backgroundSize: 'cover'
+          pb: { xs: 8, sm: 10 },
+          position: 'relative'
         }}
       >
-        <Container maxWidth="xl" sx={{ pt: 4 }}>
-          <Box sx={{ display: 'flex', justifyContent: 'flex-end', mb: 2 }}>
+        <Container 
+          maxWidth="xl" 
+          sx={{ 
+            pt: { xs: 3, sm: 4, md: 5 },
+            px: { xs: 2, sm: 3, md: 4 }
+          }}
+        >
+          <Box sx={{ 
+            display: 'flex', 
+            justifyContent: 'flex-end', 
+            mb: { xs: 2, sm: 3 }
+          }}>
             <Tooltip title={mode === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}>
-              <IconButton onClick={toggleColorMode} color="inherit" aria-label="toggle light/dark mode">
+              <IconButton 
+                onClick={toggleColorMode} 
+                color="inherit" 
+                aria-label="toggle light/dark mode"
+                sx={{
+                  bgcolor: 'background.paper',
+                  boxShadow: 1,
+                  '&:hover': {
+                    bgcolor: mode === 'dark' ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.04)'
+                  }
+                }}
+              >
                 {mode === 'dark' ? <Brightness7Icon /> : <Brightness4Icon />}
               </IconButton>
             </Tooltip>
           </Box>
           
           <Card 
-            elevation={3}
+            elevation={mode === 'dark' ? 4 : 2}
             sx={{ 
               mb: 5, 
-              borderRadius: 3, 
-              mx: 'auto', 
-              maxWidth: '100%',
+              borderRadius: 3,
               overflow: 'hidden',
+              bgcolor: 'background.paper',
               boxShadow: mode === 'dark' 
                 ? '0 8px 24px rgba(0, 0, 0, 0.4)' 
                 : '0 8px 24px rgba(0, 0, 0, 0.05)'
             }}
           >
             <CardHeader 
-              title="Bible Study Preparation" 
+              title={
+                <Typography variant="h5" sx={{ fontWeight: 600 }}>
+                  Bible Study Preparation
+                </Typography>
+              }
               sx={{ 
                 bgcolor: 'primary.main', 
-                color: 'white',
-                py: 2
+                color: 'primary.contrastText',
+                py: { xs: 2, sm: 2.5 }
               }}
             />
             <CardContent sx={{ py: 3, px: { xs: 2, sm: 3, md: 4 } }}>
-              <Typography variant="h5" component="div" gutterBottom sx={{ mb: 2 }}>
+              <Typography variant="h6" gutterBottom sx={{ mb: 2, fontWeight: 500 }}>
                 Made with React + Material UI
               </Typography>
-              <Typography variant="body1" paragraph sx={{ mb: 3 }}>
+              <Typography variant="body1" paragraph sx={{ mb: 3, opacity: 0.9 }}>
                 Bible References should be written in the format of Genesis 1:1, John 3:16-18, etc.
-                Please spell correctly, with proper spacing.
+                Please spell correctly, with proper spacing. You must select at least one theme.
               </Typography>
-              <Typography variant="body1">
-                You must select at least one theme. If no questions show up after submission, 
-                there are not enough questions for that theme against your subcategory settings. 
+              <Typography variant="body1" sx={{ opacity: 0.9 }}>
+                If no questions show up after submission, there are not enough questions for that theme against your subcategory settings. 
                 Contribute questions to expand the pool.
               </Typography>
             </CardContent>
@@ -174,11 +191,17 @@ function App() {
         <Box 
           component="footer" 
           sx={{ 
+            position: 'absolute',
+            bottom: 0,
+            left: 0,
+            right: 0,
+            py: 3,
+            px: 2,
             mt: 6, 
             textAlign: 'center',
-            py: 3,
             borderTop: '1px solid',
-            borderColor: 'divider'
+            borderColor: 'divider',
+            bgcolor: 'background.paper'
           }}
         >
           <Typography variant="body2" color="text.secondary">
@@ -190,4 +213,4 @@ function App() {
   );
 }
 
-export default App; 
+export default App;

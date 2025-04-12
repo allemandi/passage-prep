@@ -6,7 +6,8 @@ import {
   CircularProgress, 
   Grid,
   Paper,
-  useTheme
+  useTheme,
+  Container
 } from '@mui/material';
 import ScriptureCombobox from './ScriptureCombobox';
 import ThemesSection from './ThemesSection';
@@ -52,59 +53,79 @@ const StudyFormContainer = ({
   const theme = useTheme();
   
   return (
-    <Paper 
-      elevation={theme.palette.mode === 'dark' ? 2 : 0} 
+    <Container 
+      maxWidth="xl" 
       sx={{ 
-        p: 3, 
-        bgcolor: theme.palette.mode === 'dark' ? 'background.paper' : 'background.default', 
-        borderRadius: 2,
-        border: `1px solid ${theme.palette.divider}`
+        px: { xs: 2, sm: 3, md: 4 },
+        py: { xs: 3, sm: 4 }
       }}
     >
-      <Typography 
-        variant="h5" 
-        gutterBottom 
+      <Paper 
+        elevation={theme.palette.mode === 'dark' ? 4 : 1}
         sx={{ 
-          fontWeight: 'bold', 
-          textAlign: 'center',
-          color: 'primary.main',
-          mb: 3
+          p: { xs: 2.5, sm: 3.5, md: 4.5 }, 
+          bgcolor: theme.palette.mode === 'dark' ? 'background.paper' : 'background.default',
+          borderRadius: 4,
+          border: `1px solid ${theme.palette.divider}`,
+          boxShadow: theme.palette.mode === 'dark' 
+            ? '0 8px 24px rgba(0, 0, 0, 0.3)' 
+            : '0 8px 24px rgba(0, 0, 0, 0.05)'
         }}
       >
-        Request Bible Study
-      </Typography>
-      
-      <Grid container spacing={3}>
-        <Grid item xs={12}>
-          <Box sx={{ mb: 2 }}>
-            <Typography 
-              variant="h6" 
-              gutterBottom 
-              sx={{ 
-                fontWeight: 'medium', 
-                color: 'primary.main',
-                pb: 1,
-                borderBottom: `2px solid ${theme.palette.primary.main}`
-              }}
-            >
-              Bible References
-            </Typography>
+        <Typography 
+          variant="h4" 
+          gutterBottom 
+          sx={{ 
+            fontWeight: 600, 
+            textAlign: 'center',
+            color: 'primary.main',
+            mb: 4,
+            fontSize: { xs: '1.75rem', sm: '2rem', md: '2.25rem' }
+          }}
+        >
+          Request Bible Study
+        </Typography>
+        
+        <Grid container spacing={4}>
+          <Grid item xs={12} md={8}>
             <Paper 
-              elevation={theme.palette.mode === 'dark' ? 2 : 0} 
+              elevation={theme.palette.mode === 'dark' ? 2 : 1}
               sx={{ 
-                p: 2, 
+                p: { xs: 2.5, sm: 3.5 }, 
                 bgcolor: theme.palette.mode === 'dark' ? 'background.paper' : 'background.default', 
-                borderRadius: 2,
-                mb: 3,
-                height: 'auto'
+                borderRadius: 3,
+                border: `1px solid ${theme.palette.divider}`
               }}
             >
-              <Box sx={{ my: 3 }}>
-                <Typography variant="subtitle2" gutterBottom sx={{ fontWeight: 'medium' }}>
+              <Typography 
+                variant="h6" 
+                gutterBottom 
+                sx={{ 
+                  fontWeight: 500, 
+                  color: 'primary.main',
+                  pb: 1.5,
+                  borderBottom: `2px solid ${theme.palette.primary.main}`,
+                  mb: 3.5
+                }}
+              >
+                Bible References
+              </Typography>
+              
+              <Box sx={{ mb: 4 }}>
+                <Typography 
+                  variant="subtitle1" 
+                  gutterBottom 
+                  sx={{ 
+                    fontWeight: 500, 
+                    color: 'text.primary', 
+                    mb: 2.5,
+                    fontSize: '1.1rem'
+                  }}
+                >
                   Scripture 1
                 </Typography>
-                <Grid container spacing={2}>
-                  <Grid item xs={12} md={6}>
+                <Grid container spacing={3}>
+                  <Grid item xs={12} sm={6}>
                     <ScriptureCombobox
                       id="bookSelect1"
                       label="Book"
@@ -114,9 +135,10 @@ const StudyFormContainer = ({
                       placeholder="Select a book..."
                       isRequired
                       helperText={selectedBook1 ? `Total chapters: ${totalChapters1}` : ""}
+                      sx={{ width: '100%' }}
                     />
                   </Grid>
-                  <Grid item xs={12} md={6}>
+                  <Grid item xs={12} sm={6}>
                     <ScriptureCombobox
                       id="chapterSelect1"
                       label="Chapter"
@@ -125,22 +147,27 @@ const StudyFormContainer = ({
                       options={availableChapters1}
                       placeholder={selectedBook1 ? `Select chapter (1-${totalChapters1})` : "Select a book first"}
                       disabled={!selectedBook1}
+                      sx={{ width: '100%' }}
                     />
                   </Grid>
                 </Grid>
-                <input 
-                  id="scripture1" 
-                  type="hidden" 
-                  value={scripture1}
-                  required
-                />
               </Box>
-              <Box sx={{ my: 3 }}>
-                <Typography variant="subtitle2" gutterBottom sx={{ fontWeight: 'medium' }}>
+              
+              <Box>
+                <Typography 
+                  variant="subtitle1" 
+                  gutterBottom 
+                  sx={{ 
+                    fontWeight: 500, 
+                    color: 'text.primary', 
+                    mb: 2.5,
+                    fontSize: '1.1rem'
+                  }}
+                >
                   Scripture 2 (Optional)
                 </Typography>
-                <Grid container spacing={2}>
-                  <Grid item xs={12} md={6}>
+                <Grid container spacing={3}>
+                  <Grid item xs={12} sm={6}>
                     <ScriptureCombobox
                       id="bookSelect2"
                       label="Book"
@@ -149,9 +176,10 @@ const StudyFormContainer = ({
                       options={bibleBooks}
                       placeholder="Select a book..."
                       helperText={selectedBook2 ? `Total chapters: ${totalChapters2}` : ""}
+                      sx={{ width: '100%' }}
                     />
                   </Grid>
-                  <Grid item xs={12} md={6}>
+                  <Grid item xs={12} sm={6}>
                     <ScriptureCombobox
                       id="chapterSelect2"
                       label="Chapter"
@@ -160,86 +188,77 @@ const StudyFormContainer = ({
                       options={availableChapters2}
                       placeholder={selectedBook2 ? `Select chapter (1-${totalChapters2})` : "Select a book first"}
                       disabled={!selectedBook2}
+                      sx={{ width: '100%' }}
                     />
                   </Grid>
                 </Grid>
-                <input 
-                  id="scripture2" 
-                  type="hidden" 
-                  value={scripture2}
-                />
               </Box>
             </Paper>
-          </Box>
-        </Grid>
-
-        <Grid item xs={12}>
-          <Box sx={{ mb: 2 }}>
-            <ThemesSection 
-              theme1={theme1}
-              setTheme1={setTheme1}
-              theme2={theme2}
-              setTheme2={setTheme2}
-              themes={themes}
-              sx={{ 
-                p: 2, 
-                bgcolor: theme.palette.mode === 'dark' ? 'background.paper' : 'background.default', 
-                borderRadius: 2,
-                mb: 3,
-                height: 'auto'
-              }}
-            />
-          </Box>
-        </Grid>
-        
-        <Grid item xs={12}>
-          <Box sx={{ mb: 2 }}>
+            
+            <Box sx={{ mt: 4 }}>
+              <ThemesSection 
+                theme1={theme1}
+                setTheme1={setTheme1}
+                theme2={theme2}
+                setTheme2={setTheme2}
+                themes={themes}
+              />
+            </Box>
+          </Grid>
+          
+          <Grid item xs={12} md={4}>
             <GeneralSettingsSection
               subChoice={subChoice}
               setSubChoice={setSubChoice}
               maxLimit={maxLimit}
               setMaxLimit={setMaxLimit}
               subcategories={subcategories}
-              sx={{ 
-                p: 2, 
-                bgcolor: theme.palette.mode === 'dark' ? 'background.paper' : 'background.default', 
-                borderRadius: 2,
-                mb: 3,
-                height: 'auto'
-              }}
             />
-          </Box>
+          </Grid>
         </Grid>
-      </Grid>
-      
-      {/* Submit Button */}
-      <Box sx={{ mt: 5, display: 'flex', justifyContent: 'center' }}>
-        <Button 
-          variant="contained" 
-          color="primary" 
-          onClick={handleSubmit}
-          disabled={isLoading || isSubmitting}
-          size="large"
+        
+        <Box 
           sx={{ 
-            px: 6, 
-            py: 1.5, 
-            minWidth: 200,
-            borderRadius: 3,
-            fontSize: '1rem',
-            fontWeight: 'medium'
+            mt: { xs: 4, sm: 5, md: 6 }, 
+            display: 'flex', 
+            justifyContent: 'center' 
           }}
-          disableElevation
         >
-          {isSubmitting ? (
-            <>
-              <CircularProgress size={24} color="inherit" sx={{ mr: 1 }} />
-              Submitting...
-            </>
-          ) : 'Generate Study'}
-        </Button>
-      </Box>
-    </Paper>
+          <Button 
+            variant="contained" 
+            color="primary" 
+            onClick={handleSubmit}
+            disabled={isLoading || isSubmitting}
+            size="large"
+            sx={{ 
+              px: { xs: 4, sm: 5, md: 6 }, 
+              py: 1.5, 
+              minWidth: { xs: 200, sm: 240 },
+              borderRadius: 2,
+              fontSize: { xs: '1rem', sm: '1.1rem' },
+              fontWeight: 500,
+              textTransform: 'none',
+              boxShadow: theme.palette.mode === 'dark' 
+                ? '0 2px 8px rgba(144, 202, 249, 0.2)' 
+                : '0 2px 8px rgba(25, 118, 210, 0.2)',
+              '&:hover': {
+                boxShadow: theme.palette.mode === 'dark' 
+                  ? '0 4px 12px rgba(144, 202, 249, 0.3)' 
+                  : '0 4px 12px rgba(25, 118, 210, 0.3)'
+              }
+            }}
+          >
+            {isSubmitting ? (
+              <>
+                <CircularProgress size={24} color="inherit" sx={{ mr: 1.5 }} />
+                Submitting...
+              </>
+            ) : 'Generate Study'}
+          </Button>
+        </Box>
+      </Paper>
+    </Container>
   );
 };
 
-export default StudyFormContainer; 
+export default StudyFormContainer;
