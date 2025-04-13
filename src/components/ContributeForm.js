@@ -14,7 +14,7 @@ import {
   Container
 } from '@mui/material';
 import ScriptureCombobox from './ScriptureCombobox';
-import { getBibleBooks, getChaptersForBook, getChapterCountForBook, formatReference } from '../utils/bibleData';
+import { getBibleBooks, getChaptersForBook, getChapterCountForBook, formatReference, getVerseCountForBookAndChapter } from '../utils/bibleData';
 import {
 	RegExpMatcher,
 	englishDataset,
@@ -33,7 +33,10 @@ const ContributeForm = () => {
   
   const [selectedBook, setSelectedBook] = useState('');
   const [selectedChapter, setSelectedChapter] = useState('');
+  const [startVerse, setStartVerse] = useState('');
+  const [endVerse, setEndVerse] = useState('');
   const [availableChapters, setAvailableChapters] = useState([]);
+  const [availableVerses, setAvailableVerses] = useState([]);
   const [totalChapters, setTotalChapters] = useState(0);
   
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -49,8 +52,8 @@ const ContributeForm = () => {
   // Bible books from the JSON data
   const bibleBooks = getBibleBooks();
   
-  const updateReference = useCallback((book, chapter) => {
-    const reference = formatReference(book, chapter);
+  const updateReference = useCallback((book, chapter, start, end) => {
+    const reference = formatReference(book, chapter, start, end);
     setScripture(reference);
   }, []);
   
@@ -60,27 +63,46 @@ const ContributeForm = () => {
       const chapters = getChaptersForBook(selectedBook);
       setAvailableChapters(chapters);
       
-      // Get and set the total chapter count
       const chapterCount = getChapterCountForBook(selectedBook);
       setTotalChapters(chapterCount);
       
-      // Reset chapter if the book changes
       setSelectedChapter('');
-      
-      // Update the reference
-      updateReference(selectedBook, '');
+      setStartVerse('');
+      setEndVerse('');
+      setAvailableVerses([]);
+      updateReference(selectedBook, '', '', '');
     } else {
       setAvailableChapters([]);
       setSelectedChapter('');
+      setStartVerse('');
+      setEndVerse('');
+      setAvailableVerses([]);
       setScripture('');
       setTotalChapters(0);
     }
   }, [selectedBook, updateReference]);
   
-  // Update reference when chapter changes
+  // Update verses and reference when chapter changes
   React.useEffect(() => {
-    updateReference(selectedBook, selectedChapter);
-  }, [selectedChapter, selectedBook, updateReference]);
+    if (selectedChapter) {
+      const verseCount = getVerseCountForBookAndChapter(selectedBook, selectedChapter);
+      const verses = Array.from({ length: verseCount }, (_, i) => (i + 1).toString());
+      setAvailableVerses(verses);
+      updateReference(selectedBook, selectedChapter, startVerse, endVerse);
+    } else {
+      setAvailableVerses([]);
+      setStartVerse('');
+      setEndVerse('');
+      updateReference(selectedBook, '', '', '');
+    }
+  }, [selectedChapter, selectedBook, startVerse, endVerse, updateReference]);
+  
+  // Update reference when verses change
+  React.useEffect(() => {
+    if (selectedChapter) {
+      updateReference(selectedBook, selectedChapter, startVerse, endVerse);
+    }
+  }, [startVerse, endVerse, selectedBook, selectedChapter, updateReference]);
   
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -136,6 +158,8 @@ const ContributeForm = () => {
       setSelectedTheme('');
       setSelectedBook('');
       setSelectedChapter('');
+      setStartVerse('');
+      setEndVerse('');
       setScripture('');
     } catch (error) {
       console.error('Error submitting question:', error);
@@ -210,7 +234,7 @@ const ContributeForm = () => {
                 />
               </Box>
               
-              <Box>
+              <Box sx={{ mb: 3 }}>
                 <ScriptureCombobox
                   id="chapterSelect"
                   label="Chapter"
@@ -219,6 +243,30 @@ const ContributeForm = () => {
                   options={availableChapters}
                   placeholder={selectedBook ? `Select chapter (1-${totalChapters})` : "Select a book first"}
                   disabled={!selectedBook}
+                />
+              </Box>
+              
+              <Box sx={{ mb: 3 }}>
+                <ScriptureCombobox
+                  id="verseStartSelect"
+                  label="Start Verse"
+                  value={startVerse}
+                  onChange={setStartVerse}
+                  options={availableVerses}
+                  placeholder={selectedChapter ? "Select start verse" : "Select a chapter first"}
+                  disabled={!selectedChapter}
+                />
+              </Box>
+              
+              <Box sx={{ mb: 3 }}>
+                <ScriptureCombobox
+                  id="verseEndSelect"
+                  label="End Verse"
+                  value={endVerse}
+                  onChange={setEndVerse}
+                  options={availableVerses}
+                  placeholder={selectedChapter ? "Select end verse (optional)" : "Select a chapter first"}
+                  disabled={!selectedChapter}
                 />
               </Box>
               
