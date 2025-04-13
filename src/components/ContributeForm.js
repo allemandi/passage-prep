@@ -247,8 +247,8 @@ const ContributeForm = () => {
           mx: 'auto'
         }}
       >
-        <Grid container spacing={4}>
-          <Grid item xs={12} md={6}>
+        <Grid container spacing={4} sx={{ width: '100%', maxWidth: '900px', mx: 'auto' }}>
+          <Grid item xs={12} md={6} sx={{ minWidth: '300px' }}>
             <Box sx={{ mb: 4 }}>
               <Typography 
                 variant="subtitle1" 
@@ -377,7 +377,7 @@ const ContributeForm = () => {
             </Box>
           </Grid>
           
-          <Grid item xs={12} md={6}>
+          <Grid item xs={12} md={6} sx={{ minWidth: '300px' }}>
             <Typography 
               variant="subtitle1" 
               gutterBottom 

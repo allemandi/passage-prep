@@ -32,7 +32,7 @@ const ScriptureCombobox = ({
           sx={{
             '& .MuiOutlinedInput-root': {
               borderRadius: 1.5,
-              transition: theme.transitions.create(['border-color', 'box-shadow']),
+              transition: 'none',
               '& fieldset': {
                 borderColor: theme.palette.mode === 'dark' ? 'rgba(255, 255, 255, 0.23)' : 'rgba(0, 0, 0, 0.23)',
                 borderWidth: 1.5,
@@ -49,16 +49,22 @@ const ScriptureCombobox = ({
             },
             '& .MuiInputLabel-root': {
               fontSize: '0.95rem',
+              transform: 'translate(14px, 16px) scale(1)',
+              '&.Mui-focused, &.MuiFormLabel-filled': {
+                transform: 'translate(14px, -9px) scale(0.75)'
+              }
             },
             '& .MuiAutocomplete-input': {
-              fontSize: '0.95rem',
-              padding: '7.5px 9px !important',
+              fontSize: '1rem',
+              padding: '12.5px 14px !important',
+              minWidth: '120px'
             },
             '& .MuiFormHelperText-root': {
               mt: 1,
               fontSize: '0.85rem',
               ml: 0,
             },
+            width: '100%',
             ...sx
           }}
         />
@@ -67,7 +73,7 @@ const ScriptureCombobox = ({
         width: '100%',
         '& .MuiAutocomplete-listbox': {
           '& .MuiAutocomplete-option': {
-            fontSize: '0.95rem',
+            fontSize: '1rem',
             paddingTop: 1,
             paddingBottom: 1,
           },
