@@ -14,7 +14,7 @@ import {
   Container
 } from '@mui/material';
 import ScriptureCombobox from './ScriptureCombobox';
-import { getBibleBooks, getChaptersForBook, getChapterCountForBook, formatReference, getVerseCountForBookAndChapter } from '../utils/bibleData';
+import { getBibleBooks, getChaptersForBook, getChapterCountForBook, getVerseCountForBookAndChapter } from '../utils/bibleData';
 import {
 	RegExpMatcher,
 	englishDataset,
@@ -121,7 +121,7 @@ const ContributeForm = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     
-    // Generate a unique identifier for the current session/tab
+    // Rate limiting
     const userIdentifier = getUserIdentifier();
     try {
       await rateLimiter.consume(userIdentifier);
@@ -131,38 +131,42 @@ const ContributeForm = () => {
       return;
     }
 
-    // Sanitize and validate all inputs
-    const { sanitizedValue: sanitizedQuestionText, error: questionError } = processInput(questionText, 'question');
-    if (questionError) {
-      setShowError(true);
-      setErrorMessage(questionError);
-      return;
-    }
-    
-    const { sanitizedValue: sanitizedTheme, error: themeError } = processInput(selectedTheme, 'theme');
-    if (themeError) {
-      setShowError(true);
-      setErrorMessage(themeError);
-      return;
-    }
-    
-    const { sanitizedValue: sanitizedScripture, error: scriptureError } = processInput(reference.book + ' ' + reference.chapter + ':' + reference.verseStart + '-' + reference.verseEnd, 'scripture reference');
-    if (scriptureError) {
-      setShowError(true);
-      setErrorMessage(scriptureError);
-      return;
-    }
-
-    // Check for profanity
-    if (matcher.hasMatch(sanitizedQuestionText)) {
-      setShowError(true);
-      setErrorMessage('Possible profanity detected. Please revise your question.');
-      return;
-    }
-
+    // Validate required fields first (no sanitization overhead if missing)
     if (!reference.book || !reference.chapter || !reference.verseStart) {
       setShowError(true);
       setErrorMessage('Please complete all scripture fields (book, chapter, verse).');
+      return;
+    }
+
+    // Sanitize and validate inputs in parallel (non-blocking)
+    const [
+      { error: bookError },
+      { error: chapterError },
+      { error: verseStartError },
+      { error: verseEndError },
+      { sanitizedValue: sanitizedQuestionText, error: questionError },
+      { sanitizedValue: sanitizedTheme, error: themeError }
+    ] = await Promise.all([
+      processInput(reference.book, 'book'),
+      processInput(reference.chapter, 'chapter'),
+      processInput(reference.verseStart, 'start verse'),
+      processInput(reference.verseEnd || reference.verseStart, 'end verse'), // Fallback to start verse if empty
+      processInput(questionText, 'question'),
+      processInput(selectedTheme, 'theme')
+    ]);
+
+    // Check for errors (priority: scripture > question > theme)
+    const error = bookError || chapterError || verseStartError || verseEndError || questionError || themeError;
+    if (error) {
+      setShowError(true);
+      setErrorMessage(error);
+      return;
+    }
+
+    // Profanity check (non-blocking)
+    if (matcher.hasMatch(sanitizedQuestionText)) {
+      setShowError(true);
+      setErrorMessage('Possible profanity detected. Please revise your question.');
       return;
     }
 
@@ -182,20 +186,7 @@ const ContributeForm = () => {
       );
       if (saved) {
         setShowSuccess(true);
-        
-        // Reset the form
-        setQuestionText('');
-        setSelectedTheme('');
-        setSelectedBook('');
-        setSelectedChapter('');
-        setStartVerse('');
-        setEndVerse('');
-        setReference({
-          book: '',
-          chapter: '',
-          verseStart: '',
-          verseEnd: '',
-        });
+        resetForm();
       }
     } catch (error) {
       console.error('Error submitting question:', error);
@@ -204,6 +195,22 @@ const ContributeForm = () => {
     } finally {
       setIsSubmitting(false);
     }
+  };
+  
+  // Helper to reset form (extracted for clarity)
+  const resetForm = () => {
+    setQuestionText('');
+    setSelectedTheme('');
+    setSelectedBook('');
+    setSelectedChapter('');
+    setStartVerse('');
+    setEndVerse('');
+    setReference({
+      book: '',
+      chapter: '',
+      verseStart: '',
+      verseEnd: '',
+    });
   };
   
   const closeAlert = (alertType) => {

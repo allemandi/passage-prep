@@ -41,7 +41,6 @@ const RequestForm = ({ onStudyGenerated, isLoading }) => {
   const [showSearchResults, setShowSearchResults] = useState(false);
   const [searchResults, setSearchResults] = useState([]);
   const [selectedQuestions, setSelectedQuestions] = useState([]);
-  const [refRows, setRefRows] = useState([""]); // Array of reference strings
 
   // Bible books from the JSON data
   const bibleBooks = getBibleBooks();
@@ -105,6 +104,17 @@ const RequestForm = ({ onStudyGenerated, isLoading }) => {
 
   const handleSubmit = async (e) => {
     if (e) e.preventDefault();
+    
+    // Rate limiting
+    const userIdentifier = getUserIdentifier();
+    try {
+      await rateLimiter.consume(userIdentifier);
+    } catch (rejRes) {
+      setShowError(true);
+      setErrorMessage('Too many requests. Please slow down.');
+      return;
+    }
+
     setIsSubmitting(true);
     setShowSuccess(false);
     setShowError(false);
@@ -157,6 +167,16 @@ const RequestForm = ({ onStudyGenerated, isLoading }) => {
   };
 
   const handleSearch = async () => {
+    // Rate limiting
+    const userIdentifier = getUserIdentifier();
+    try {
+      await rateLimiter.consume(userIdentifier);
+    } catch (rejRes) {
+      setShowError(true);
+      setErrorMessage('Too many requests. Please slow down.');
+      return;
+    }
+
     try {
       // Ensure at least one reference has a book selected
       const hasValidRef = scriptureRefs.some(ref => ref.selectedBook);
