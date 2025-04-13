@@ -394,10 +394,11 @@ const RequestForm = ({ onStudyGenerated, isLoading }) => {
                     value={ref.endVerse}
                     onChange={(verse) => updateScriptureRef(index, { endVerse: verse })}
                     options={ref.availableVerses}
-                    placeholder={ref.selectedChapter ? "Select end verse (optional)" : "Select a chapter first"}
+                    isEndVerse
+                    startVerseValue={ref.startVerse}
                     disabled={!ref.selectedChapter}
                     sx={{ 
-                      minWidth: 240, 
+                      minWidth: 240,
                       width: '100%',
                       '& .MuiOutlinedInput-root': {
                         padding: '6px 12px'
@@ -454,6 +455,16 @@ const RequestForm = ({ onStudyGenerated, isLoading }) => {
               }}
               variant="outlined"
               size="medium"
+              sx={{
+                minWidth: 240,
+                width: 240,
+                '& .MuiOutlinedInput-root': {
+                  padding: '6px 12px',
+                  whiteSpace: 'nowrap',
+                  overflow: 'hidden',
+                  textOverflow: 'ellipsis'
+                }
+              }}
             >
               {themes.map((theme) => (
                 <MenuItem key={theme} value={theme}>
@@ -502,13 +513,6 @@ const RequestForm = ({ onStudyGenerated, isLoading }) => {
             />
           </Box>
         )}
-
-        {/* No Questions Found Alert */}
-        {noQuestionsFound && (
-          <Alert severity="warning" sx={{ mt: 2 }}>
-            No questions found that match your criteria. Try different themes or contribute more questions.
-          </Alert>
-        )}
       </Paper>
       
       <Snackbar
@@ -540,6 +544,22 @@ const RequestForm = ({ onStudyGenerated, isLoading }) => {
           sx={{ borderRadius: 2 }}
         >
           {errorMessage}
+        </Alert>
+      </Snackbar>
+
+      <Snackbar
+        open={noQuestionsFound}
+        autoHideDuration={6000}
+        onClose={() => closeAlert('noQuestions')}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+      >
+        <Alert 
+          onClose={() => closeAlert('noQuestions')} 
+          severity="warning" 
+          variant="filled"
+          sx={{ borderRadius: 2 }}
+        >
+          No questions found that match your criteria. Try different themes or contribute more questions.
         </Alert>
       </Snackbar>
     </Container>

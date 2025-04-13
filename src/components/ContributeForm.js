@@ -109,12 +109,13 @@ const ContributeForm = () => {
       setEndVerse('');
       updateReference(selectedBook, '', '', '');
     }
-  }, [selectedChapter, selectedBook, startVerse, endVerse, updateReference]);
+  }, [selectedChapter, selectedBook, updateReference]);
   
-  // Update reference when verses change
+  // Update end verse when start verse changes
   React.useEffect(() => {
-    if (selectedChapter) {
-      updateReference(selectedBook, selectedChapter, startVerse, endVerse);
+    if (startVerse && endVerse && parseInt(startVerse) > parseInt(endVerse)) {
+      setEndVerse(startVerse);
+      updateReference(selectedBook, selectedChapter, startVerse, startVerse);
     }
   }, [startVerse, endVerse, selectedBook, selectedChapter, updateReference]);
   
@@ -131,10 +132,10 @@ const ContributeForm = () => {
       return;
     }
 
-    // Validate required fields first (no sanitization overhead if missing)
-    if (!reference.book || !reference.chapter || !reference.verseStart) {
+    // Validate required fields
+    if (!reference.book || !reference.chapter || !reference.verseStart || !reference.verseEnd) {
       setShowError(true);
-      setErrorMessage('Please complete all scripture fields (book, chapter, verse).');
+      setErrorMessage('Please complete all required fields.');
       return;
     }
 
@@ -312,6 +313,7 @@ const ContributeForm = () => {
                 options={availableChapters}
                 placeholder={selectedBook ? `Select chapter (1-${totalChapters})` : "Select a book first"}
                 disabled={!selectedBook}
+                isRequired
                 sx={{
                   minWidth: 240,
                   width: '100%',
@@ -333,6 +335,7 @@ const ContributeForm = () => {
                 options={availableVerses}
                 placeholder={selectedChapter ? "Select start verse" : "Select a chapter first"}
                 disabled={!selectedChapter}
+                isRequired
                 sx={{ 
                   minWidth: 240,
                   width: '100%',
@@ -351,8 +354,10 @@ const ContributeForm = () => {
                   updateReference(selectedBook, selectedChapter, startVerse, verse);
                 }}
                 options={availableVerses}
-                placeholder={selectedChapter ? "Select end verse (optional)" : "Select a chapter first"}
+                isEndVerse
+                startVerseValue={startVerse}
                 disabled={!selectedChapter}
+                isRequired
                 sx={{ 
                   minWidth: 240,
                   width: '100%',
@@ -368,7 +373,8 @@ const ContributeForm = () => {
             <Box sx={{ 
               display: 'flex',
               flexDirection: 'column',
-              height: '100%'
+              height: '100%',
+              justifyContent: 'flex-end'
             }}>
               <Box sx={{ 
                 flex: '0 0 auto',
@@ -402,7 +408,7 @@ const ContributeForm = () => {
                   sx={{
                     minWidth: 240,
                     '& .MuiOutlinedInput-root': {
-                      padding: '6px 12px'
+                      padding: '3px 10px'
                     }
                   }}
                 >
@@ -440,18 +446,23 @@ const ContributeForm = () => {
                   id="questionText"
                   label="Question"
                   multiline
-                  rows={4}
+                  rows={3}
                   value={questionText}
                   onChange={(e) => setQuestionText(e.target.value)}
                   required
                   placeholder="Type your Bible study question here..."
                   variant="outlined"
                   sx={{
-                    flex: 1,
                     '& .MuiOutlinedInput-root': {
-                      padding: '8px 12px',
+                      padding: '6px 12px',
                       height: '100%',
-                      alignItems: 'flex-start'
+                      '& textarea': {
+                        minHeight: '66px',
+                        width: '100%',
+                        padding: 0,
+                        margin: 0,
+                        boxSizing: 'border-box'
+                      }
                     }
                   }}
                 />

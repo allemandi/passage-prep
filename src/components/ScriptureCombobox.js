@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Autocomplete, TextField, useTheme } from '@mui/material';
 
 const ScriptureCombobox = ({ 
@@ -11,22 +11,39 @@ const ScriptureCombobox = ({
   disabled, 
   isRequired, 
   helperText, 
-  sx 
+  sx,
+  isEndVerse = false,
+  startVerseValue = ''
 }) => {
   const theme = useTheme();
   
+  // Filter options for end verse to be >= start verse
+  const filteredOptions = isEndVerse && startVerseValue 
+    ? options.filter(v => parseInt(v) >= parseInt(startVerseValue))
+    : options;
+
+  // Disable end verse if no start verse selected
+  const isDisabled = disabled || (isEndVerse && !startVerseValue);
+
+  // Placeholder text logic
+  const getPlaceholder = () => {
+    if (disabled) return placeholder || "Select previous field first";
+    if (isEndVerse && !startVerseValue) return "Select start verse first";
+    return placeholder || `Select ${label.toLowerCase()}...`;
+  };
+
   return (
     <Autocomplete
       id={id}
-      options={options}
+      options={filteredOptions}
       value={value || null}
       onChange={(_, newValue) => onChange(newValue)}
-      disabled={disabled}
+      disabled={isDisabled}
       renderInput={(params) => (
         <TextField
           {...params}
           label={label}
-          placeholder={placeholder}
+          placeholder={getPlaceholder()}
           required={isRequired}
           helperText={helperText}
           sx={{
