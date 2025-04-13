@@ -8,7 +8,12 @@ import {
   Button,
   Stack,
   Container,
-  Paper
+  Paper,
+  Grid,
+  TextField,
+  MenuItem,
+  Checkbox,
+  ListItemText
 } from '@mui/material';
 import { processForm, searchQuestions } from '../data/dataService';
 import { getBibleBooks, getChaptersForBook, getChapterCountForBook, formatReference, getVerseCountForBookAndChapter } from '../utils/bibleData';
@@ -17,6 +22,7 @@ import QuestionTable from './QuestionTable';
 import { rateLimiter, getUserIdentifier } from '../utils/rateLimit';
 import { processInput } from '../utils/inputUtils';
 import themes from '../data/themes.json';
+import ScriptureCombobox from './ScriptureCombobox';
 
 const RequestForm = ({ onStudyGenerated, isLoading }) => {
   const theme = useTheme();
@@ -249,8 +255,6 @@ const RequestForm = ({ onStudyGenerated, isLoading }) => {
       </Typography>
       
       <Paper 
-        component="form" 
-        noValidate 
         elevation={theme.palette.mode === 'dark' ? 2 : 0}
         sx={{ 
           p: { xs: 2.5, sm: 3.5 },
@@ -261,18 +265,133 @@ const RequestForm = ({ onStudyGenerated, isLoading }) => {
           mx: 'auto'
         }}
       >
-        <StudyFormContainer
-          bibleBooks={bibleBooks}
-          scriptureRefs={scriptureRefs}
-          onUpdateScriptureRef={updateScriptureRef}
-          onAddScriptureRef={addScriptureReference}
-          selectedThemes={selectedThemes}
-          setSelectedThemes={setSelectedThemes}
-          themes={themes}
-          isLoading={isLoading}
-          isSubmitting={isSubmitting}
-          handleSubmit={handleSubmit}
-        />
+        <Grid container spacing={4}>
+          <Grid item xs={12} md={6}>
+            <Typography 
+              variant="subtitle1" 
+              gutterBottom 
+              sx={{ 
+                fontWeight: 500, 
+                color: 'primary.main',
+                pb: 1,
+                borderBottom: `2px solid ${theme.palette.primary.main}`,
+                mb: 2.5
+              }}
+            >
+              Bible References
+            </Typography>
+            
+            {scriptureRefs.map((ref, index) => (
+              <Box key={ref.id} sx={{ mb: 3 }}>
+                <ScriptureCombobox
+                  id={`bookSelect-${index}`}
+                  label="Book"
+                  value={ref.selectedBook}
+                  onChange={(book) => updateScriptureRef(index, { selectedBook: book })}
+                  options={bibleBooks}
+                  placeholder="Select a book..."
+                  isRequired
+                  helperText={ref.selectedBook ? `Total chapters: ${ref.totalChapters}` : ""}
+                />
+                
+                <Box sx={{ mt: 2 }}>
+                  <ScriptureCombobox
+                    id={`chapterSelect-${index}`}
+                    label="Chapter"
+                    value={ref.selectedChapter}
+                    onChange={(chapter) => updateScriptureRef(index, { selectedChapter: chapter })}
+                    options={ref.availableChapters}
+                    placeholder={ref.selectedBook ? `Select chapter (1-${ref.totalChapters})` : "Select a book first"}
+                    disabled={!ref.selectedBook}
+                  />
+                </Box>
+                
+                <Box sx={{ mt: 2 }}>
+                  <ScriptureCombobox
+                    id={`verseStartSelect-${index}`}
+                    label="Start Verse"
+                    value={ref.startVerse}
+                    onChange={(verse) => updateScriptureRef(index, { startVerse: verse })}
+                    options={ref.availableVerses}
+                    placeholder={ref.selectedChapter ? "Select start verse" : "Select a chapter first"}
+                    disabled={!ref.selectedChapter}
+                  />
+                </Box>
+                
+                <Box sx={{ mt: 2 }}>
+                  <ScriptureCombobox
+                    id={`verseEndSelect-${index}`}
+                    label="End Verse"
+                    value={ref.endVerse}
+                    onChange={(verse) => updateScriptureRef(index, { endVerse: verse })}
+                    options={ref.availableVerses}
+                    placeholder={ref.selectedChapter ? "Select end verse (optional)" : "Select a chapter first"}
+                    disabled={!ref.selectedChapter}
+                  />
+                </Box>
+              </Box>
+            ))}
+            
+            <Button 
+              variant="text" 
+              onClick={addScriptureReference}
+              sx={{ mt: 1 }}
+            >
+              + Add Another Reference
+            </Button>
+          </Grid>
+
+          <Grid item xs={12} md={6}>
+            <Typography 
+              variant="subtitle1" 
+              gutterBottom 
+              sx={{ 
+                fontWeight: 500, 
+                color: 'primary.main',
+                pb: 1,
+                borderBottom: `2px solid ${theme.palette.primary.main}`,
+                mb: 2.5
+              }}
+            >
+              Themes
+            </Typography>
+            
+            <TextField
+              select
+              fullWidth
+              SelectProps={{
+                multiple: true,
+                value: selectedThemes,
+                onChange: (e) => setSelectedThemes(e.target.value),
+                renderValue: (selected) => selected.join(', ')
+              }}
+              variant="outlined"
+              size="medium"
+              sx={{
+                '& .MuiOutlinedInput-root': {
+                  borderRadius: 1.5,
+                  '& fieldset': {
+                    borderColor: theme.palette.mode === 'dark' ? 'rgba(255, 255, 255, 0.23)' : 'rgba(0, 0, 0, 0.23)',
+                    borderWidth: 1.5,
+                  },
+                  '&:hover fieldset': {
+                    borderColor: 'primary.main',
+                  },
+                  '&.Mui-focused fieldset': {
+                    borderWidth: 2,
+                  }
+                }
+              }}
+            >
+              {themes.map((theme) => (
+                <MenuItem key={theme} value={theme}>
+                  <Checkbox checked={selectedThemes.indexOf(theme) > -1} />
+                  <ListItemText primary={theme} />
+                </MenuItem>
+              ))}
+            </TextField>
+          </Grid>
+        </Grid>
 
         <Stack direction="row" spacing={2} justifyContent="center" sx={{ mt: 4 }}>
           <Button 
