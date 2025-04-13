@@ -4,9 +4,11 @@ import {
   Typography, 
   Alert, 
   Snackbar,
-  // useTheme,
+  useTheme,
   Button,
-  Stack
+  Stack,
+  Container,
+  Paper
 } from '@mui/material';
 import { processForm, searchQuestions } from '../data/dataService';
 import { getBibleBooks, getChaptersForBook, getChapterCountForBook, formatReference, getVerseCountForBookAndChapter } from '../utils/bibleData';
@@ -17,7 +19,7 @@ import { processInput } from '../utils/inputUtils';
 import themes from '../data/themes.json';
 
 const RequestForm = ({ onStudyGenerated, isLoading }) => {
-  // const theme = useTheme();
+  const theme = useTheme();
   const [scriptureRefs, setScriptureRefs] = useState([
     {
       id: 1,
@@ -232,7 +234,7 @@ const RequestForm = ({ onStudyGenerated, isLoading }) => {
   };
   
   return (
-    <Box component="form" noValidate sx={{ pt: 1, pb: 2 }}>
+    <Container maxWidth="lg" sx={{ pt: 1, pb: 2 }}>
       <Typography 
         variant="h5" 
         component="h2" 
@@ -246,63 +248,92 @@ const RequestForm = ({ onStudyGenerated, isLoading }) => {
         Request Bible Study
       </Typography>
       
-      <StudyFormContainer
-        // Bible References props
-        bibleBooks={bibleBooks}
-        scriptureRefs={scriptureRefs}
-        onUpdateScriptureRef={updateScriptureRef}
-        onAddScriptureRef={addScriptureReference}
-        
-        // Themes props
-        selectedThemes={selectedThemes}
-        setSelectedThemes={setSelectedThemes}
-        themes={themes}
-        
-        // Form submission props
-        isLoading={isLoading}
-        isSubmitting={isSubmitting}
-        handleSubmit={handleSubmit}
-      />
-
-      <Stack direction="row" spacing={2} justifyContent="center" sx={{ mt: 4 }}>
-      <Button 
-          variant="contained"
-          color="primary" 
-          onClick={handleSearch}
-          disabled={isLoading || isSubmitting}
-          size="large"
-          sx={{ 
-            px: { xs: 4, sm: 5, md: 6 }, 
-            py: 1.5, 
-            minWidth: { xs: 200, sm: 240 }
-          }}
-        >
-          Search Questions
-        </Button>
-        <Button 
-          variant="outlined" 
-          color="primary" 
-          onClick={handleSubmit}
-          disabled={isLoading || isSubmitting}
-          size="large"
-          sx={{ 
-            px: { xs: 4, sm: 5, md: 6 }, 
-            py: 1.5, 
-            minWidth: { xs: 200, sm: 240 }
-          }}
-        >
-          Generate Study
-        </Button>
-      </Stack>
-
-      {showSearchResults && (
-        <QuestionTable 
-          questions={searchResults}
-          selectedQuestions={selectedQuestions}
-          onQuestionSelect={handleQuestionSelect}
+      <Paper 
+        component="form" 
+        noValidate 
+        elevation={theme.palette.mode === 'dark' ? 2 : 0}
+        sx={{ 
+          p: { xs: 2.5, sm: 3.5 },
+          bgcolor: theme.palette.mode === 'dark' ? 'background.paper' : 'background.default',
+          borderRadius: 2,
+          border: `1px solid ${theme.palette.divider}`,
+          maxWidth: 'min(100%, 900px)',
+          mx: 'auto'
+        }}
+      >
+        <StudyFormContainer
+          bibleBooks={bibleBooks}
+          scriptureRefs={scriptureRefs}
+          onUpdateScriptureRef={updateScriptureRef}
+          onAddScriptureRef={addScriptureReference}
+          selectedThemes={selectedThemes}
+          setSelectedThemes={setSelectedThemes}
+          themes={themes}
+          isLoading={isLoading}
+          isSubmitting={isSubmitting}
+          handleSubmit={handleSubmit}
         />
-      )}
-      
+
+        <Stack direction="row" spacing={2} justifyContent="center" sx={{ mt: 4 }}>
+          <Button 
+            variant="contained"
+            color="primary" 
+            onClick={handleSearch}
+            disabled={isLoading || isSubmitting}
+            size="large"
+            sx={{ 
+              px: 6, 
+              py: 1.5, 
+              minWidth: 200,
+              borderRadius: 2,
+              fontSize: '1rem',
+              fontWeight: 500,
+              textTransform: 'none',
+              boxShadow: theme.palette.mode === 'dark' 
+                ? '0 2px 8px rgba(144, 202, 249, 0.2)' 
+                : '0 2px 8px rgba(25, 118, 210, 0.2)',
+              '&:hover': {
+                boxShadow: theme.palette.mode === 'dark' 
+                  ? '0 4px 12px rgba(144, 202, 249, 0.3)' 
+                  : '0 4px 12px rgba(25, 118, 210, 0.3)'
+              }
+            }}
+          >
+            Search Questions
+          </Button>
+          <Button 
+            variant="outlined" 
+            color="primary" 
+            onClick={handleSubmit}
+            disabled={isLoading || isSubmitting}
+            size="large"
+            sx={{ 
+              px: 6, 
+              py: 1.5, 
+              minWidth: 200,
+              borderRadius: 2,
+              fontSize: '1rem',
+              fontWeight: 500,
+              textTransform: 'none',
+              borderWidth: 1.5,
+              '&:hover': {
+                borderWidth: 1.5
+              }
+            }}
+          >
+            Generate Study
+          </Button>
+        </Stack>
+
+        {showSearchResults && (
+          <QuestionTable 
+            questions={searchResults}
+            selectedQuestions={selectedQuestions}
+            onQuestionSelect={handleQuestionSelect}
+          />
+        )}
+      </Paper>
+
       <Snackbar
         open={showSuccess}
         autoHideDuration={6000}
@@ -350,7 +381,7 @@ const RequestForm = ({ onStudyGenerated, isLoading }) => {
           No questions found that match your criteria. Try different themes or contribute more questions to expand the pool.
         </Alert>
       </Snackbar>
-    </Box>
+    </Container>
   );
 };
 
