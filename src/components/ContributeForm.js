@@ -111,6 +111,14 @@ const ContributeForm = () => {
     }
   }, [selectedChapter, selectedBook, updateReference, startVerse, endVerse]);
   
+  // Add this right after the state declarations
+  React.useEffect(() => {
+    if (startVerse && endVerse && parseInt(endVerse) < parseInt(startVerse)) {
+      setEndVerse(startVerse);
+      updateReference(selectedBook, selectedChapter, startVerse, startVerse);
+    }
+  }, [startVerse, endVerse, selectedBook, selectedChapter, updateReference]);
+  
   const handleSubmit = async (e) => {
     e.preventDefault();
     
@@ -209,6 +217,11 @@ const ContributeForm = () => {
   const closeAlert = (alertType) => {
     if (alertType === 'success') setShowSuccess(false);
     if (alertType === 'error') setShowError(false);
+  };
+  
+  const handleEndVerseChange = (verse) => {
+    setEndVerse(verse);
+    updateReference(selectedBook, selectedChapter, startVerse, verse);
   };
   
   return (
@@ -341,10 +354,7 @@ const ContributeForm = () => {
                 id="verseEndSelect"
                 label="End Verse"
                 value={endVerse}
-                onChange={(verse) => {
-                  setEndVerse(verse);
-                  updateReference(selectedBook, selectedChapter, startVerse, verse);
-                }}
+                onChange={handleEndVerseChange}
                 options={availableVerses}
                 isEndVerse
                 startVerseValue={startVerse}

@@ -84,6 +84,13 @@ const RequestForm = ({ onStudyGenerated, isLoading }) => {
       const newRefs = [...prev];
       const currentRef = newRefs[index];
       
+      // Handle verse validation before any other updates
+      if (updates.startVerse !== undefined && currentRef.endVerse) {
+        if (parseInt(currentRef.endVerse) < parseInt(updates.startVerse)) {
+          updates.endVerse = updates.startVerse;
+        }
+      }
+
       // If updating the book, reset the chapter and recalculate chapters
       if (updates.selectedBook !== undefined && updates.selectedBook !== currentRef.selectedBook) {
         const chapters = getChaptersForBook(updates.selectedBook);
@@ -116,6 +123,16 @@ const RequestForm = ({ onStudyGenerated, isLoading }) => {
       // For any other updates (e.g., startVerse, endVerse)
       else {
         newRefs[index] = { ...currentRef, ...updates };
+      }
+      
+      // Ensure scripture reference is updated when verses change
+      if (updates.startVerse !== undefined || updates.endVerse !== undefined) {
+        newRefs[index].scripture = formatReference(
+          newRefs[index].selectedBook,
+          newRefs[index].selectedChapter,
+          updates.startVerse ?? currentRef.startVerse,
+          updates.endVerse ?? currentRef.endVerse
+        );
       }
       
       return newRefs;
