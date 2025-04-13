@@ -132,6 +132,28 @@ const StudyFormContainer = ({
                         sx={{ width: '100%' }}
                       />
                     </Grid>
+                    <Grid item xs={12} sm={6}>
+                      <ScriptureCombobox
+                        id={`verse-start-${ref.id}`}
+                        label="Start Verse"
+                        value={ref.startVerse}
+                        onChange={(value) => onUpdateScriptureRef(index, { startVerse: value })}
+                        options={ref.availableVerses}
+                        placeholder="Select start verse"
+                        disabled={!ref.selectedChapter}
+                      />
+                    </Grid>
+                    <Grid item xs={12} sm={6}>
+                      <ScriptureCombobox
+                        id={`verse-end-${ref.id}`}
+                        label="End Verse"
+                        value={ref.endVerse}
+                        onChange={(value) => onUpdateScriptureRef(index, { endVerse: value })}
+                        options={ref.availableVerses}
+                        placeholder="Select end verse"
+                        disabled={!ref.selectedChapter}
+                      />
+                    </Grid>
                   </Grid>
                 </Box>
               ))}
