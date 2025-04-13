@@ -33,7 +33,6 @@ const RequestForm = ({ onStudyGenerated, isLoading }) => {
   ]);
   
   const [selectedThemes, setSelectedThemes] = useState(themes); // Default to all themes selected
-  const [maxLimit, setMaxLimit] = useState('5');
   const [showSuccess, setShowSuccess] = useState(false);
   const [showError, setShowError] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
@@ -131,7 +130,6 @@ const RequestForm = ({ onStudyGenerated, isLoading }) => {
     const formData = {
       refArr,
       themeArr,
-      maxLimit: parseInt(maxLimit, 10)
     };
     
     try {
@@ -160,28 +158,35 @@ const RequestForm = ({ onStudyGenerated, isLoading }) => {
 
   const handleSearch = async () => {
     try {
-      const ref = scriptureRefs[0]; // Get first reference
-      
-      // Ensure we have at least a book selected
-      if (!ref.selectedBook) {
+      // Ensure at least one reference has a book selected
+      const hasValidRef = scriptureRefs.some(ref => ref.selectedBook);
+      if (!hasValidRef) {
         setShowError(true);
-        setErrorMessage('Please select a book');
+        setErrorMessage('Please select a book in at least one reference');
         return;
       }
 
-      const searchData = {
-        book: ref.selectedBook,
-        chapter: ref.selectedChapter || null,
-        startVerse: ref.startVerse || null,
-        endVerse: ref.endVerse || null,
-        themeArr: selectedThemes.length === themes.length ? [] : selectedThemes
-      };
+      // Process all references
+      const searchPromises = scriptureRefs
+        .filter(ref => ref.selectedBook) // Only include references with a book selected
+        .map(ref => {
+          const searchData = {
+            book: ref.selectedBook,
+            chapter: ref.selectedChapter || null,
+            startVerse: ref.startVerse || null,
+            endVerse: ref.endVerse || null,
+            themeArr: selectedThemes.length === themes.length ? [] : selectedThemes
+          };
+          return searchQuestions(searchData);
+        });
 
-      const results = await searchQuestions(searchData);
-      setSearchResults(results);
+      const results = await Promise.all(searchPromises);
+      const combinedResults = results.flat(); // Flatten the array of arrays
+
+      setSearchResults(combinedResults);
       setShowSearchResults(true);
-      
-      if (results.length === 0) {
+
+      if (combinedResults.length === 0) {
         setNoQuestionsFound(true);
       }
     } catch (error) {
@@ -232,10 +237,6 @@ const RequestForm = ({ onStudyGenerated, isLoading }) => {
         selectedThemes={selectedThemes}
         setSelectedThemes={setSelectedThemes}
         themes={themes}
-        
-        // General Settings props
-        maxLimit={maxLimit}
-        setMaxLimit={setMaxLimit}
         
         // Form submission props
         isLoading={isLoading}

@@ -100,17 +100,15 @@ export const processForm = async (formData) => {
     const books = await getBooks();
     
     if (!Array.isArray(questions) || !Array.isArray(books)) {
-      throw new Error("Failed to load necessary data: database response format error");
+      throw new Error("Failed to load necessary data");
     }
-    
-    if (questions.length === 0 || books.length === 0) {
-      throw new Error("Missing data: Check your database connection or data import");
-    }
-    
-    const refArr = [...new Set(formData.refArr)].filter(n => n);
-    const themeArr = formData.themeArr.length === 0 ? themes : [...new Set(formData.themeArr)].filter(n => n);
-    
-    const scriptureRefs = refArr.map(ref => {
+
+    const { refArr, themeArr } = formData;
+
+    const refArrFiltered = [...new Set(refArr)].filter(n => n);
+    const themeArrFiltered = formData.themeArr.length === themes.length ? [] : [...new Set(themeArr)].filter(n => n);
+
+    const scriptureRefs = refArrFiltered.map(ref => {
       const match = ref.match(/^((?:\d\s+)?[A-Za-z]+(?:\s+[A-Za-z]+)*)\s*(\d+)?(?::(\d+)(?:-(\d+))?)?/i);
       if (!match) return null;
       
@@ -122,55 +120,45 @@ export const processForm = async (formData) => {
         verseEnd: verseEnd ? parseInt(verseEnd, 10) : null
       };
     }).filter(Boolean);
-    
+
+    // Get context for matching books
     const contextArr = books
-      .filter(book => {
-        if (!book.Book) return false;
-        return scriptureRefs.some(ref => book.Book.toLowerCase().includes(ref.book));
-      })
-      .map(book => `${book.Book} is about ${book.Context} The author is ${book.Author}.`);
-    
-    const questionsByTheme = themeArr.map(theme => {
-      let filteredQuestions = questions.filter(q => q.theme === theme);
+      .filter(book => scriptureRefs.some(ref => book.Book.toLowerCase().includes(ref.book)))
+      .map(book => `${book.Book} is about ${book.Context}. The author is ${book.Author}.`);
+
+    // Filter questions without max limit
+    const questionArr = questions.filter(q => {
+      if (!q.book) return false;
       
-      filteredQuestions = filteredQuestions.filter(q => {
-        if (!q.book) return false;
-        const bookLower = q.book.toLowerCase();
+      return scriptureRefs.some(ref => {
+        const bookMatch = q.book.toLowerCase().includes(ref.book);
+        const chapterMatch = ref.chapter === null || q.chapter === ref.chapter;
         
-        return scriptureRefs.some(ref => {
-          if (!bookLower.includes(ref.book)) return false;
-          
-          if (ref.chapter !== null && q.chapter !== ref.chapter) return false;
-          
-          // Check verse range overlap
-          if (ref.verseStart !== null && ref.verseEnd !== null) {
-            const qVerseStart = parseInt(q.verseStart, 10);
-            const qVerseEnd = parseInt(q.verseEnd || q.verseStart, 10);
-            return (
-              (qVerseStart >= ref.verseStart && qVerseStart <= ref.verseEnd) ||
-              (qVerseEnd >= ref.verseStart && qVerseEnd <= ref.verseEnd) ||
-              (qVerseStart <= ref.verseStart && qVerseEnd >= ref.verseEnd)
-            );
-          }
-          
-          return true;
-        });
+        // Check verse range overlap if specified
+        let verseMatch = true;
+        if (ref.verseStart !== null && ref.verseEnd !== null) {
+          const qStart = parseInt(q.verseStart, 10);
+          const qEnd = parseInt(q.verseEnd || q.verseStart, 10);
+          verseMatch = (
+            (qStart >= ref.verseStart && qStart <= ref.verseEnd) ||
+            (qEnd >= ref.verseStart && qEnd <= ref.verseEnd) ||
+            (qStart <= ref.verseStart && qEnd >= ref.verseEnd)
+          );
+        }
+        
+        return bookMatch && chapterMatch && verseMatch;
       });
-      
-      return filteredQuestions.slice(0, formData.maxLimit);
     });
-    
-    const finalQuestionArr = questionsByTheme.filter(questions => questions.length > 0);
-    
+
     return {
-      refArr,
-      themeArr: themeArr.filter((_, index) => finalQuestionArr[index]?.length > 0),
+      refArr: refArrFiltered,
+      themeArr: themeArrFiltered,
       contextArr,
-      questionArr: finalQuestionArr
+      questionArr
     };
   } catch (error) {
     console.error("Study generation error:", error);
-    throw new Error(`An error occurred while generating your study: ${error.message}`);
+    throw error;
   }
 };
 
