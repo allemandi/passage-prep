@@ -13,6 +13,8 @@ import { getBibleBooks, getChaptersForBook, getChapterCountForBook, formatRefere
 import StudyFormContainer from './StudyFormContainer';
 import QuestionTable from './QuestionTable';
 import { rateLimiter, getUserIdentifier } from '../utils/rateLimit';
+import { processInput } from '../utils/inputUtils';
+
 const RequestForm = ({ onStudyGenerated, isLoading }) => {
   // const theme = useTheme();
   const [scriptureRefs, setScriptureRefs] = useState([
@@ -94,7 +96,11 @@ const RequestForm = ({ onStudyGenerated, isLoading }) => {
     setNoQuestionsFound(false);
     
     // Gather all scripture references and themes
-    const refArr = scriptureRefs.map(ref => ref.scripture).filter(Boolean);
+    const refArr = scriptureRefs.map(ref => {
+      const { sanitizedValue: sanitizedScripture } = processInput(ref.scripture, 'scripture reference');
+      return sanitizedScripture;
+    }).filter(Boolean);
+    
     const themeArr = selectedThemes.length === themes.length ? [] : selectedThemes; // Empty array means all themes
     
     // Check if at least one scripture reference is selected
@@ -149,7 +155,10 @@ const RequestForm = ({ onStudyGenerated, isLoading }) => {
     setShowError(false);
     
     // Gather all scripture references and themes
-    const refArr = scriptureRefs.map(ref => ref.scripture).filter(Boolean);
+    const refArr = scriptureRefs.map(ref => {
+      const { sanitizedValue: sanitizedScripture } = processInput(ref.scripture, 'scripture reference');
+      return sanitizedScripture;
+    }).filter(Boolean);
     const themeArr = selectedThemes.length === themes.length ? [] : selectedThemes;
     
     if (!refArr.length) {
