@@ -247,9 +247,15 @@ const ContributeForm = () => {
           mx: 'auto'
         }}
       >
-        <Grid container spacing={4} sx={{ width: '100%', maxWidth: '900px', mx: 'auto' }}>
-          <Grid item xs={12} md={6} sx={{ minWidth: '300px' }}>
-            <Box sx={{ mb: 4 }}>
+        <Grid container spacing={2} justifyContent="center" sx={{ width: '100%', maxWidth: '600px', mx: 'auto' }}>
+          <Grid item xs={12} md={6}>
+            <Box sx={{ 
+              display: 'flex',
+              flexDirection: 'column',
+              gap: 1,
+              p: { xs: 2, sm: 0 },
+              mb: { xs: 3, md: 0 }
+            }}>
               <Typography 
                 variant="subtitle1" 
                 gutterBottom 
@@ -264,161 +270,193 @@ const ContributeForm = () => {
                 Bible Reference
               </Typography>
               
-              <Box sx={{ mb: 3 }}>
-                <ScriptureCombobox
-                  id="bookSelect"
-                  label="Book"
-                  value={selectedBook}
-                  onChange={(book) => {
-                    setSelectedBook(book);
-                    updateReference(book, '', '', '');
-                  }}
-                  options={bibleBooks}
-                  placeholder="Select a book..."
-                  isRequired
-                  helperText={selectedBook ? `Total chapters: ${totalChapters}` : ""}
-                />
-              </Box>
-              
-              <Box sx={{ mb: 3 }}>
-                <ScriptureCombobox
-                  id="chapterSelect"
-                  label="Chapter"
-                  value={selectedChapter}
-                  onChange={(chapter) => {
-                    setSelectedChapter(chapter);
-                    updateReference(selectedBook, chapter, '', '');
-                  }}
-                  options={availableChapters}
-                  placeholder={selectedBook ? `Select chapter (1-${totalChapters})` : "Select a book first"}
-                  disabled={!selectedBook}
-                />
-              </Box>
-              
-              <Box sx={{ mb: 3 }}>
-                <ScriptureCombobox
-                  id="verseStartSelect"
-                  label="Start Verse"
-                  value={startVerse}
-                  onChange={(verse) => {
-                    setStartVerse(verse);
-                    updateReference(selectedBook, selectedChapter, verse, endVerse);
-                  }}
-                  options={availableVerses}
-                  placeholder={selectedChapter ? "Select start verse" : "Select a chapter first"}
-                  disabled={!selectedChapter}
-                />
-              </Box>
-              
-              <Box sx={{ mb: 3 }}>
-                <ScriptureCombobox
-                  id="verseEndSelect"
-                  label="End Verse"
-                  value={endVerse}
-                  onChange={(verse) => {
-                    setEndVerse(verse);
-                    updateReference(selectedBook, selectedChapter, startVerse, verse);
-                  }}
-                  options={availableVerses}
-                  placeholder={selectedChapter ? "Select end verse (optional)" : "Select a chapter first"}
-                  disabled={!selectedChapter}
-                />
-              </Box>
-            </Box>
-            
-            <Box>
-              <Typography 
-                variant="subtitle1" 
-                gutterBottom 
-                sx={{ 
-                  fontWeight: 500, 
-                  color: 'primary.main',
-                  pb: 1,
-                  borderBottom: `2px solid ${theme.palette.primary.main}`,
-                  mb: 2.5
+              <ScriptureCombobox
+                id="bookSelect"
+                label="Book"
+                value={selectedBook}
+                onChange={(book) => {
+                  setSelectedBook(book);
+                  updateReference(book, '', '', '');
                 }}
-              >
-                Theme
-              </Typography>
-              
-              <TextField
-                select
-                fullWidth
-                id="themeSelect"
-                label="Theme"
-                value={selectedTheme}
-                onChange={(e) => setSelectedTheme(e.target.value)}
-                required
-                variant="outlined"
-                size="medium"
-                sx={{
+                options={bibleBooks}
+                placeholder="Select a book..."
+                isRequired
+                helperText={selectedBook ? `Total chapters: ${totalChapters}` : " "}
+                sx={{ 
+                  minWidth: 240,
+                  width: '100%',
+                  mb: 0,
+                  '& .MuiFormHelperText-root': {
+                    visibility: selectedBook ? 'visible' : 'hidden',
+                    height: '16px',
+                    mt: 0,
+                    mb: 0,
+                    lineHeight: 1,
+                    fontSize: '0.7rem'
+                  },
                   '& .MuiOutlinedInput-root': {
-                    borderRadius: 1.5,
-                    '& fieldset': {
-                      borderColor: theme.palette.mode === 'dark' ? 'rgba(255, 255, 255, 0.23)' : 'rgba(0, 0, 0, 0.23)',
-                      borderWidth: 1.5,
-                    },
-                    '&:hover fieldset': {
-                      borderColor: 'primary.main',
-                    },
-                    '&.Mui-focused fieldset': {
-                      borderWidth: 2,
-                    }
+                    padding: '6px 12px',
+                    marginBottom: '0px'
                   }
                 }}
-              >
-                <MenuItem value="">
-                  <em>Select a theme</em>
-                </MenuItem>
-                {themes.map((theme, index) => (
-                  <MenuItem key={index} value={theme}>{theme}</MenuItem>
-                ))}
-              </TextField>
+              />
+              
+              <ScriptureCombobox
+                id="chapterSelect"
+                label="Chapter"
+                value={selectedChapter}
+                onChange={(chapter) => {
+                  setSelectedChapter(chapter);
+                  updateReference(selectedBook, chapter, '', '');
+                }}
+                options={availableChapters}
+                placeholder={selectedBook ? `Select chapter (1-${totalChapters})` : "Select a book first"}
+                disabled={!selectedBook}
+                sx={{
+                  minWidth: 240,
+                  width: '100%',
+                  mt: 0,
+                  '& .MuiOutlinedInput-root': {
+                    padding: '6px 12px'
+                  }
+                }}
+              />
+              
+              <ScriptureCombobox
+                id="verseStartSelect"
+                label="Start Verse"
+                value={startVerse}
+                onChange={(verse) => {
+                  setStartVerse(verse);
+                  updateReference(selectedBook, selectedChapter, verse, endVerse);
+                }}
+                options={availableVerses}
+                placeholder={selectedChapter ? "Select start verse" : "Select a chapter first"}
+                disabled={!selectedChapter}
+                sx={{ 
+                  minWidth: 240,
+                  width: '100%',
+                  '& .MuiOutlinedInput-root': {
+                    padding: '6px 12px'
+                  }
+                }}
+              />
+              
+              <ScriptureCombobox
+                id="verseEndSelect"
+                label="End Verse"
+                value={endVerse}
+                onChange={(verse) => {
+                  setEndVerse(verse);
+                  updateReference(selectedBook, selectedChapter, startVerse, verse);
+                }}
+                options={availableVerses}
+                placeholder={selectedChapter ? "Select end verse (optional)" : "Select a chapter first"}
+                disabled={!selectedChapter}
+                sx={{ 
+                  minWidth: 240,
+                  width: '100%',
+                  '& .MuiOutlinedInput-root': {
+                    padding: '6px 12px'
+                  }
+                }}
+              />
             </Box>
           </Grid>
           
-          <Grid item xs={12} md={6} sx={{ minWidth: '300px' }}>
-            <Typography 
-              variant="subtitle1" 
-              gutterBottom 
-              sx={{ 
-                fontWeight: 500, 
-                color: 'primary.main',
-                pb: 1,
-                borderBottom: `2px solid ${theme.palette.primary.main}`,
-                mb: 2.5
-              }}
-            >
-              Question Details
-            </Typography>
-            
-            <TextField
-              fullWidth
-              id="questionText"
-              label="Question"
-              multiline
-              rows={4}
-              value={questionText}
-              onChange={(e) => setQuestionText(e.target.value)}
-              required
-              placeholder="Type your Bible study question here..."
-              variant="outlined"
-              sx={{
-                '& .MuiOutlinedInput-root': {
-                  borderRadius: 1.5,
-                  '& fieldset': {
-                    borderColor: theme.palette.mode === 'dark' ? 'rgba(255, 255, 255, 0.23)' : 'rgba(0, 0, 0, 0.23)',
-                    borderWidth: 1.5,
-                  },
-                  '&:hover fieldset': {
-                    borderColor: 'primary.main',
-                  },
-                  '&.Mui-focused fieldset': {
-                    borderWidth: 2,
-                  }
-                }
-              }}
-            />
+          <Grid item xs={12} md={6}>
+            <Box sx={{ 
+              display: 'flex',
+              flexDirection: 'column',
+              height: '100%'
+            }}>
+              <Box sx={{ 
+                flex: '0 0 auto',
+                p: { xs: 2, sm: 0 },
+                mb: 2
+              }}>
+                <Typography 
+                  variant="subtitle1" 
+                  gutterBottom 
+                  sx={{ 
+                    fontWeight: 500, 
+                    color: 'primary.main',
+                    pb: 1,
+                    borderBottom: `2px solid ${theme.palette.primary.main}`,
+                    mb: 2.5
+                  }}
+                >
+                  Theme
+                </Typography>
+                
+                <TextField
+                  select
+                  fullWidth
+                  id="themeSelect"
+                  label="Theme"
+                  value={selectedTheme}
+                  onChange={(e) => setSelectedTheme(e.target.value)}
+                  required
+                  variant="outlined"
+                  size="medium"
+                  sx={{
+                    minWidth: 240,
+                    '& .MuiOutlinedInput-root': {
+                      padding: '6px 12px'
+                    }
+                  }}
+                >
+                  <MenuItem value="">
+                    <em>Select a theme</em>
+                  </MenuItem>
+                  {themes.map((theme, index) => (
+                    <MenuItem key={index} value={theme}>{theme}</MenuItem>
+                  ))}
+                </TextField>
+              </Box>
+              
+              <Box sx={{ 
+                flex: 1,
+                p: { xs: 2, sm: 0 },
+                display: 'flex',
+                flexDirection: 'column'
+              }}>
+                <Typography 
+                  variant="subtitle1" 
+                  gutterBottom 
+                  sx={{ 
+                    fontWeight: 500, 
+                    color: 'primary.main',
+                    pb: 1,
+                    borderBottom: `2px solid ${theme.palette.primary.main}`,
+                    mb: 2.5
+                  }}
+                >
+                  Question Details
+                </Typography>
+                
+                <TextField
+                  fullWidth
+                  id="questionText"
+                  label="Question"
+                  multiline
+                  rows={4}
+                  value={questionText}
+                  onChange={(e) => setQuestionText(e.target.value)}
+                  required
+                  placeholder="Type your Bible study question here..."
+                  variant="outlined"
+                  sx={{
+                    flex: 1,
+                    '& .MuiOutlinedInput-root': {
+                      padding: '8px 12px',
+                      height: '100%',
+                      alignItems: 'flex-start'
+                    }
+                  }}
+                />
+              </Box>
+            </Box>
           </Grid>
         </Grid>
         
