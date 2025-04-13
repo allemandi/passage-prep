@@ -21,7 +21,7 @@ import {
 	englishDataset,
 	englishRecommendedTransformers,
 } from 'obscenity';
-
+import { rateLimiter, getUserIdentifier } from '../utils/rateLimit';
 
 const ContributeForm = () => {
   const theme = useTheme();
@@ -83,6 +83,16 @@ const ContributeForm = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     
+    // Generate a unique identifier for the current session/tab
+    const userIdentifier = getUserIdentifier();
+    try {
+      await rateLimiter.consume(userIdentifier);
+    } catch (rejRes) {
+      setShowError(true);
+      setErrorMessage('Too many requests. Please slow down.');
+      return;
+    }
+
     // Validation
     if (!questionText.trim()) {
       setShowError(true);

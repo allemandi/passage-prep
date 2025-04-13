@@ -12,7 +12,7 @@ import { themes, processForm, searchQuestions } from '../data/dataService';
 import { getBibleBooks, getChaptersForBook, getChapterCountForBook, formatReference } from '../utils/bibleData';
 import StudyFormContainer from './StudyFormContainer';
 import QuestionTable from './QuestionTable';
-
+import { rateLimiter, getUserIdentifier } from '../utils/rateLimit';
 const RequestForm = ({ onStudyGenerated, isLoading }) => {
   // const theme = useTheme();
   const [scriptureRefs, setScriptureRefs] = useState([
@@ -137,6 +137,14 @@ const RequestForm = ({ onStudyGenerated, isLoading }) => {
   };
 
   const handleSearch = async () => {
+    const userIdentifier = getUserIdentifier();
+    try {
+      await rateLimiter.consume(userIdentifier);
+    } catch (rejRes) {
+      setShowError(true);
+      setErrorMessage('Too many requests. Please slow down.');
+      return;
+    }
     setIsSubmitting(true);
     setShowError(false);
     
