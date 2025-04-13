@@ -16,40 +16,6 @@ const getApiUrl = (endpoint) => {
 };
 
 /**
- * Generic fetch wrapper with error handling
- * @param {string} endpoint - The API endpoint
- * @param {Object} options - Fetch options
- * @returns {Promise<any>} - The response data
- */
-const fetchWithErrorHandling = async (endpoint, options = {}, retries = 2) => {
-  const url = getApiUrl(endpoint);
-  
-  try {
-    const response = await fetch(url, options);
-    
-    if (!response.ok) {
-      let errorMessage = `HTTP error! Status: ${response.status}`;
-      try {
-        const errorData = await response.json();
-        errorMessage = errorData?.error || errorMessage;
-      } catch (e) {
-        // Could not parse error response as JSON
-      }
-      throw new Error(errorMessage);
-    }
-    
-    return await response.json();
-  } catch (error) {
-    if (retries > 0) {
-      // Wait a bit before retrying
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      return fetchWithErrorHandling(endpoint, options, retries - 1);
-    }
-    throw error;
-  }
-};
-
-/**
  * Check if server is available
  * @returns {Promise<boolean>} - Whether the server is reachable
  */
@@ -57,35 +23,6 @@ export const checkServerHealth = async () => {
   try {
     const result = await fetch(getApiUrl('health'), { method: 'GET' });
     return result.ok;
-  } catch (error) {
-    return false;
-  }
-};
-
-/**
- * Save a question to the server's MongoDB database
- * @param {Object} data - The question data to save
- * @returns {Promise<boolean>} - Whether the save was successful
- */
-export const saveQuestionToServer = async (_, data) => {
-  try {
-    // First check if the server is available
-    const isServerReachable = await checkServerHealth().catch(() => false);
-    if (!isServerReachable) {
-      return false;
-    }
-    
-    const requestBody = JSON.stringify({ newData: data });
-    
-    const result = await fetchWithErrorHandling('save-question', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: requestBody,
-    });
-    
-    return result.success === true;
   } catch (error) {
     return false;
   }

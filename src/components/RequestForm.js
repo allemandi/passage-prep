@@ -6,7 +6,6 @@ import {
   Snackbar,
   useTheme,
   Button,
-  Stack,
   Container,
   Paper,
   Grid,
@@ -17,7 +16,6 @@ import {
 } from '@mui/material';
 import { processForm, searchQuestions } from '../data/dataService';
 import { getBibleBooks, getChaptersForBook, getChapterCountForBook, formatReference, getVerseCountForBookAndChapter } from '../utils/bibleData';
-import StudyFormContainer from './StudyFormContainer';
 import QuestionTable from './QuestionTable';
 import { rateLimiter, getUserIdentifier } from '../utils/rateLimit';
 import { processInput } from '../utils/inputUtils';

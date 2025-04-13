@@ -1,4 +1,3 @@
-import React, { useEffect } from 'react';
 import { Autocomplete, TextField, useTheme } from '@mui/material';
 
 const ScriptureCombobox = ({ 
@@ -32,6 +31,7 @@ const ScriptureCombobox = ({
     return placeholder || `Select ${label.toLowerCase()}...`;
   };
 
+  
   return (
     <Autocomplete
       id={id}

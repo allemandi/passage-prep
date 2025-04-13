@@ -109,15 +109,7 @@ const ContributeForm = () => {
       setEndVerse('');
       updateReference(selectedBook, '', '', '');
     }
-  }, [selectedChapter, selectedBook, updateReference]);
-  
-  // Update end verse when start verse changes
-  React.useEffect(() => {
-    if (startVerse && endVerse && parseInt(startVerse) > parseInt(endVerse)) {
-      setEndVerse(startVerse);
-      updateReference(selectedBook, selectedChapter, startVerse, startVerse);
-    }
-  }, [startVerse, endVerse, selectedBook, selectedChapter, updateReference]);
+  }, [selectedChapter, selectedBook, updateReference, startVerse, endVerse]);
   
   const handleSubmit = async (e) => {
     e.preventDefault();

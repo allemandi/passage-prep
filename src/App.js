@@ -1,12 +1,8 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 import { 
-  Container, 
-  Card, 
-  CardHeader, 
-  CardContent, 
+  Container,
   Typography, 
-  // Grid, 
   Box,
   CssBaseline,
   IconButton,
@@ -88,77 +84,98 @@ function App() {
             : 'linear-gradient(rgba(245, 245, 245, 0.97), rgba(245, 245, 245, 0.95))',
           backgroundAttachment: 'fixed',
           pb: { xs: 8, sm: 10 },
-          position: 'relative'
         }}
       >
-        <Container 
-          maxWidth="xl" 
-          sx={{ 
-            pt: { xs: 3, sm: 4, md: 5 },
-            px: { xs: 2, sm: 3, md: 4 }
+        {/* Modern Header Section */}
+        <Box 
+          component="header"
+          sx={{
+            bgcolor: 'primary.main',
+            color: 'primary.contrastText',
+            py: { xs: 3, sm: 4 },
+            px: { xs: 2, sm: 3, md: 4 },
+            mb: 4,
+            boxShadow: mode === 'dark' 
+              ? '0 4px 12px rgba(0, 0, 0, 0.3)' 
+              : '0 4px 12px rgba(0, 0, 0, 0.1)'
           }}
         >
-          <Box sx={{ 
-            display: 'flex', 
-            justifyContent: 'flex-end', 
-            mb: { xs: 2, sm: 3 }
-          }}>
+          <Container maxWidth="xl" sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <Box>
+              <Typography variant="h4" component="h1" sx={{ 
+                fontWeight: 700,
+                mb: 1,
+                letterSpacing: '-0.5px'
+              }}>
+                Bible Study Companion
+              </Typography>
+              <Typography variant="subtitle1" sx={{ 
+                opacity: 0.9,
+                fontSize: '1.05rem',
+                lineHeight: 1.3
+              }}>
+                Generate and contribute Bible study questions
+              </Typography>
+            </Box>
+            
             <Tooltip title={mode === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}>
               <IconButton 
                 onClick={toggleColorMode} 
                 color="inherit" 
                 aria-label="toggle light/dark mode"
                 sx={{
-                  bgcolor: 'background.paper',
-                  boxShadow: 1,
+                  bgcolor: mode === 'dark' ? 'rgba(255, 255, 255, 0.9)' : 'rgba(0, 0, 0, 0.9)',
+                  width: 50,
+                  height: 50,
+                  borderRadius: '12px',
+                  transition: 'all 0.3s ease',
+                  boxShadow: 3,
                   '&:hover': {
-                    bgcolor: mode === 'dark' ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.04)'
+                    bgcolor: mode === 'dark' ? '#ffffff' : '#000000',
+                    transform: 'scale(1.1)',
+                    boxShadow: 4
+                  },
+                  '& .MuiSvgIcon-root': {
+                    fontSize: '1.6rem',
+                    color: mode === 'dark' ? theme.palette.getContrastText('#ffffff') 
+                                          : theme.palette.getContrastText('#000000')
                   }
                 }}
               >
                 {mode === 'dark' ? <Brightness7Icon /> : <Brightness4Icon />}
               </IconButton>
             </Tooltip>
-          </Box>
-          
-          <Card 
-            elevation={mode === 'dark' ? 4 : 2}
+          </Container>
+        </Box>
+
+        <Container 
+          maxWidth="xl" 
+          sx={{ 
+            px: { xs: 2, sm: 3, md: 4 }
+          }}
+        >
+          {/* App Description Card */}
+          <Paper 
+            elevation={0}
             sx={{ 
-              mb: 5, 
-              borderRadius: 3,
-              overflow: 'hidden',
+              p: { xs: 2, sm: 3 },
+              mb: 4,
               bgcolor: 'background.paper',
-              boxShadow: mode === 'dark' 
-                ? '0 8px 24px rgba(0, 0, 0, 0.4)' 
-                : '0 8px 24px rgba(0, 0, 0, 0.05)'
+              borderRadius: 2,
+              border: `1px solid ${theme.palette.divider}`
             }}
           >
-            <CardHeader 
-              title={
-                <Typography variant="h5" sx={{ fontWeight: 600 }}>
-                  Bible Study Preparation
-                </Typography>
-              }
-              sx={{ 
-                bgcolor: 'primary.main', 
-                color: 'primary.contrastText',
-                py: { xs: 2, sm: 2.5 }
-              }}
-            />
-            <CardContent sx={{ py: 3, px: { xs: 2, sm: 3, md: 4 } }}>
-              <Typography variant="h6" gutterBottom sx={{ mb: 2, fontWeight: 500 }}>
-                Made with React + Material UI
-              </Typography>
-              <Typography variant="body1" paragraph sx={{ mb: 3, opacity: 0.9 }}>
-                Bible References should be written in the format of Genesis 1:1, John 3:16-18, etc.
-                Please spell correctly, with proper spacing. You must select at least one theme.
-              </Typography>
-              <Typography variant="body1" sx={{ opacity: 0.9 }}>
-                If no questions show up after submission, there are not enough questions for those themes and references. 
-                Contribute questions to expand the pool.
-              </Typography>
-            </CardContent>
-          </Card>
+            <Typography variant="body1" paragraph sx={{ mb: 2 }}>
+              Create personalized Bible studies by selecting scripture references and themes. 
+              The app will generate relevant questions to deepen your understanding.
+            </Typography>
+            <Typography variant="body2" paragraph sx={{ mb: 2, fontStyle: 'italic' }}>
+              Format examples: Genesis 1:1, John 3:16-18, Psalm 23
+            </Typography>
+            <Typography variant="body2">
+              Contribute your own questions to help build our growing database.
+            </Typography>
+          </Paper>
           
           <Paper 
             elevation={mode === 'dark' ? 4 : 1}
@@ -201,22 +218,36 @@ function App() {
         <Box 
           component="footer" 
           sx={{ 
-            position: 'absolute',
+            position: 'fixed',
             bottom: 0,
             left: 0,
             right: 0,
-            py: 3,
-            px: 2,
-            mt: 6, 
-            textAlign: 'center',
-            borderTop: '1px solid',
-            borderColor: 'divider',
-            bgcolor: 'background.paper'
+            py: 2,
+            px: { xs: 2, sm: 3 },
+            bgcolor: 'background.paper',
+            borderTop: `1px solid ${theme.palette.divider}`,
+            boxShadow: mode === 'dark' 
+              ? '0 -2px 8px rgba(0, 0, 0, 0.3)' 
+              : '0 -2px 8px rgba(0, 0, 0, 0.05)',
+            zIndex: 1
           }}
         >
-          <Typography variant="body2" color="text.secondary">
-            Copyright &copy; {new Date().getFullYear()} allemandi, All Rights Reserved
-          </Typography>
+          <Container maxWidth="xl" sx={{ 
+            display: 'flex', 
+            justifyContent: 'center',
+            alignItems: 'center'
+          }}>
+            <Typography 
+              variant="body2" 
+              color="text.secondary"
+              sx={{ 
+                fontSize: '0.875rem',
+                opacity: 0.8
+              }}
+            >
+              Copyright &copy; {new Date().getFullYear()} allemandi, All Rights Reserved
+            </Typography>
+          </Container>
         </Box>
       </Box>
     </ThemeProvider>

@@ -1,4 +1,3 @@
-import { saveQuestionToServer } from './apiService';
 import themes from './themes.json'; // Replace hardcoded array
 
 // Helper to get the correct API URL based on environment
@@ -62,6 +61,7 @@ export const getQuestions = async () => {
 // Save a new question to MongoDB
 export const saveQuestion = async (theme, question, reference) => {
   try {
+    // Validate required fields
     if (!theme || !question || !reference?.book || !reference?.chapter || !reference?.verseStart) {
       throw new Error("Missing required fields: theme, question, book, chapter, or verseStart");
     }
@@ -72,24 +72,24 @@ export const saveQuestion = async (theme, question, reference) => {
       book: reference.book,
       chapter: reference.chapter,
       verseStart: reference.verseStart,
-      verseEnd: reference.verseEnd || reference.verseStart, // Default to verseStart if missing
+      verseEnd: reference.verseEnd || reference.verseStart,
     };
 
     const response = await fetch(getApiUrl('save-question'), {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ newData: newQuestion }), // Ensure this matches the server's expected format
+      body: JSON.stringify({ newData: newQuestion }),
     });
 
     if (!response.ok) {
-      const errorData = await response.json(); // Parse error response
-      throw new Error(errorData.error || "Server error");
+      const errorData = await response.json();
+      throw new Error(errorData.error || "Failed to save question");
     }
 
     return true;
   } catch (error) {
-    console.error("Failed to save question:", error);
-    throw error; // Propagate to UI
+    console.error("Question save error:", error);
+    throw error;
   }
 };
 
@@ -124,7 +124,7 @@ export const processForm = async (formData) => {
     // Get context for matching books
     const contextArr = books
       .filter(book => scriptureRefs.some(ref => book.Book.toLowerCase().includes(ref.book)))
-      .map(book => `${book.Book} is about ${book.Context}. The author is ${book.Author}.`);
+      .map(book => `${book.Book} is about ${book.Context} The author is ${book.Author}.`);
 
     // Filter questions without max limit
     const questionArr = questions.filter(q => {
