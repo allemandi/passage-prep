@@ -37,6 +37,17 @@ const RequestForm = ({ onStudyGenerated, isLoading }) => {
       availableChapters: [],
       totalChapters: 0,
       availableVerses: []
+    },
+    {
+      id: 2,
+      scripture: '',
+      selectedBook: '',
+      selectedChapter: '',
+      startVerse: '',
+      endVerse: '',
+      availableChapters: [],
+      totalChapters: 0,
+      availableVerses: []
     }
   ]);
   
@@ -52,6 +63,9 @@ const RequestForm = ({ onStudyGenerated, isLoading }) => {
 
   // Bible books from the JSON data
   const bibleBooks = getBibleBooks();
+
+  // Helper to check if all themes are selected
+  const allThemesSelected = selectedThemes.length === themes.length;
 
   const addScriptureReference = () => {
     setScriptureRefs(prev => [...prev, {
@@ -238,7 +252,17 @@ const RequestForm = ({ onStudyGenerated, isLoading }) => {
     if (alertType === 'error') setShowError(false);
     if (alertType === 'noQuestions') setNoQuestionsFound(false);
   };
-  
+
+  const handleThemeChange = (e) => {
+    const value = e.target.value;
+    // If "Select All" was clicked
+    if (value[value.length - 1] === "select-all") {
+      setSelectedThemes(allThemesSelected ? [] : themes);
+    } else {
+      setSelectedThemes(value);
+    }
+  };
+
   return (
     <Container maxWidth="lg" sx={{ pt: 1, pb: 2 }}>
       <Typography 
@@ -261,28 +285,29 @@ const RequestForm = ({ onStudyGenerated, isLoading }) => {
           bgcolor: theme.palette.mode === 'dark' ? 'background.paper' : 'background.default',
           borderRadius: 2,
           border: `1px solid ${theme.palette.divider}`,
-          maxWidth: 'min(100%, 900px)',
+          maxWidth: 'min(100%, 1200px)',
           mx: 'auto'
         }}
       >
         <Grid container spacing={4}>
-          <Grid item xs={12} md={6}>
-            <Typography 
-              variant="subtitle1" 
-              gutterBottom 
-              sx={{ 
-                fontWeight: 500, 
-                color: 'primary.main',
-                pb: 1,
-                borderBottom: `2px solid ${theme.palette.primary.main}`,
-                mb: 2.5
-              }}
-            >
-              Bible References
-            </Typography>
-            
-            {scriptureRefs.map((ref, index) => (
-              <Box key={ref.id} sx={{ mb: 3 }}>
+          {/* Independent Bible Reference Sections */}
+          {scriptureRefs.map((ref, index) => (
+            <Grid item xs={12} md={6} key={ref.id}>
+              <Typography 
+                variant="subtitle1" 
+                gutterBottom 
+                sx={{ 
+                  fontWeight: 500, 
+                  color: 'primary.main',
+                  pb: 1,
+                  borderBottom: `2px solid ${theme.palette.primary.main}`,
+                  mb: 2.5
+                }}
+              >
+                Bible Reference {index + 1}
+              </Typography>
+              
+              <Box sx={{ mb: 3 }}>
                 <ScriptureCombobox
                   id={`bookSelect-${index}`}
                   label="Book"
@@ -330,8 +355,11 @@ const RequestForm = ({ onStudyGenerated, isLoading }) => {
                   />
                 </Box>
               </Box>
-            ))}
-            
+            </Grid>
+          ))}
+
+          {/* Add Reference Button */}
+          <Grid item xs={12}>
             <Button 
               variant="text" 
               onClick={addScriptureReference}
@@ -341,7 +369,8 @@ const RequestForm = ({ onStudyGenerated, isLoading }) => {
             </Button>
           </Grid>
 
-          <Grid item xs={12} md={6}>
+          {/* Themes Section */}
+          <Grid item xs={12}>
             <Typography 
               variant="subtitle1" 
               gutterBottom 
@@ -356,40 +385,49 @@ const RequestForm = ({ onStudyGenerated, isLoading }) => {
               Themes
             </Typography>
             
-            <TextField
-              select
-              fullWidth
-              SelectProps={{
-                multiple: true,
-                value: selectedThemes,
-                onChange: (e) => setSelectedThemes(e.target.value),
-                renderValue: (selected) => selected.join(', ')
-              }}
-              variant="outlined"
-              size="medium"
-              sx={{
-                '& .MuiOutlinedInput-root': {
-                  borderRadius: 1.5,
-                  '& fieldset': {
-                    borderColor: theme.palette.mode === 'dark' ? 'rgba(255, 255, 255, 0.23)' : 'rgba(0, 0, 0, 0.23)',
-                    borderWidth: 1.5,
+            <Box sx={{ width: '400px' }}>
+              <TextField
+                select
+                fullWidth
+                SelectProps={{
+                  multiple: true,
+                  value: selectedThemes,
+                  onChange: (e) => setSelectedThemes(e.target.value),
+                  renderValue: (selected) => allThemesSelected ? "All" : selected.join(', ')
+                }}
+                variant="outlined"
+                size="medium"
+                sx={{
+                  '& .MuiOutlinedInput-root': {
+                    borderRadius: 1.5,
+                    '& fieldset': {
+                      borderColor: theme.palette.mode === 'dark' ? 'rgba(255, 255, 255, 0.23)' : 'rgba(0, 0, 0, 0.23)',
+                      borderWidth: 1.5,
+                    },
+                    '&:hover fieldset': {
+                      borderColor: 'primary.main',
+                    },
+                    '&.Mui-focused fieldset': {
+                      borderWidth: 2,
+                    }
                   },
-                  '&:hover fieldset': {
-                    borderColor: 'primary.main',
-                  },
-                  '&.Mui-focused fieldset': {
-                    borderWidth: 2,
+                  '& .MuiSelect-select': {
+                    minHeight: '1.4375em',
+                    whiteSpace: 'nowrap',
+                    overflow: 'hidden',
+                    textOverflow: 'ellipsis',
+                    padding: '12.5px 14px'
                   }
-                }
-              }}
-            >
-              {themes.map((theme) => (
-                <MenuItem key={theme} value={theme}>
-                  <Checkbox checked={selectedThemes.indexOf(theme) > -1} />
-                  <ListItemText primary={theme} />
-                </MenuItem>
-              ))}
-            </TextField>
+                }}
+              >
+                {themes.map((theme) => (
+                  <MenuItem key={theme} value={theme}>
+                    <Checkbox checked={selectedThemes.includes(theme)} />
+                    <ListItemText primary={theme} />
+                  </MenuItem>
+                ))}
+              </TextField>
+            </Box>
           </Grid>
         </Grid>
 
