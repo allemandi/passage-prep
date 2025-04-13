@@ -21,7 +21,8 @@ import {
 	englishDataset,
 	englishRecommendedTransformers,
 } from 'obscenity';
-
+import { rateLimiter, getUserIdentifier } from '../utils/rateLimit';
+import { processInput } from '../utils/inputUtils';
 
 const ContributeForm = () => {
   const theme = useTheme();
@@ -83,27 +84,40 @@ const ContributeForm = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     
-    // Validation
-    if (!questionText.trim()) {
+    // Generate a unique identifier for the current session/tab
+    const userIdentifier = getUserIdentifier();
+    try {
+      await rateLimiter.consume(userIdentifier);
+    } catch (rejRes) {
       setShowError(true);
-      setErrorMessage('Please enter a question.');
+      setErrorMessage('Too many requests. Please slow down.');
+      return;
+    }
+
+    // Sanitize and validate all inputs
+    const { sanitizedValue: sanitizedQuestionText, error: questionError } = processInput(questionText, 'question');
+    if (questionError) {
+      setShowError(true);
+      setErrorMessage(questionError);
       return;
     }
     
-    if (!selectedTheme) {
+    const { sanitizedValue: sanitizedTheme, error: themeError } = processInput(selectedTheme, 'theme');
+    if (themeError) {
       setShowError(true);
-      setErrorMessage('Please select a theme.');
+      setErrorMessage(themeError);
       return;
     }
     
-    if (!scripture) {
+    const { sanitizedValue: sanitizedScripture, error: scriptureError } = processInput(scripture, 'scripture reference');
+    if (scriptureError) {
       setShowError(true);
-      setErrorMessage('Please select a scripture reference.');
+      setErrorMessage(scriptureError);
       return;
     }
 
     // Check for profanity
-    if (matcher.hasMatch(questionText)) {
+    if (matcher.hasMatch(sanitizedQuestionText)) {
       setShowError(true);
       setErrorMessage('Possible profanity detected. Please revise your question.');
       return;
@@ -113,7 +127,7 @@ const ContributeForm = () => {
     setShowError(false);
     
     try {
-      await saveQuestion(selectedTheme, questionText, scripture);
+      await saveQuestion(sanitizedTheme, sanitizedQuestionText, sanitizedScripture);
       setShowSuccess(true);
       
       // Reset the form

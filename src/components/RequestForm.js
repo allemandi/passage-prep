@@ -12,6 +12,8 @@ import { themes, processForm, searchQuestions } from '../data/dataService';
 import { getBibleBooks, getChaptersForBook, getChapterCountForBook, formatReference } from '../utils/bibleData';
 import StudyFormContainer from './StudyFormContainer';
 import QuestionTable from './QuestionTable';
+import { rateLimiter, getUserIdentifier } from '../utils/rateLimit';
+import { processInput } from '../utils/inputUtils';
 
 const RequestForm = ({ onStudyGenerated, isLoading }) => {
   // const theme = useTheme();
@@ -94,7 +96,11 @@ const RequestForm = ({ onStudyGenerated, isLoading }) => {
     setNoQuestionsFound(false);
     
     // Gather all scripture references and themes
-    const refArr = scriptureRefs.map(ref => ref.scripture).filter(Boolean);
+    const refArr = scriptureRefs.map(ref => {
+      const { sanitizedValue: sanitizedScripture } = processInput(ref.scripture, 'scripture reference');
+      return sanitizedScripture;
+    }).filter(Boolean);
+    
     const themeArr = selectedThemes.length === themes.length ? [] : selectedThemes; // Empty array means all themes
     
     // Check if at least one scripture reference is selected
@@ -137,11 +143,22 @@ const RequestForm = ({ onStudyGenerated, isLoading }) => {
   };
 
   const handleSearch = async () => {
+    const userIdentifier = getUserIdentifier();
+    try {
+      await rateLimiter.consume(userIdentifier);
+    } catch (rejRes) {
+      setShowError(true);
+      setErrorMessage('Too many requests. Please slow down.');
+      return;
+    }
     setIsSubmitting(true);
     setShowError(false);
     
     // Gather all scripture references and themes
-    const refArr = scriptureRefs.map(ref => ref.scripture).filter(Boolean);
+    const refArr = scriptureRefs.map(ref => {
+      const { sanitizedValue: sanitizedScripture } = processInput(ref.scripture, 'scripture reference');
+      return sanitizedScripture;
+    }).filter(Boolean);
     const themeArr = selectedThemes.length === themes.length ? [] : selectedThemes;
     
     if (!refArr.length) {
