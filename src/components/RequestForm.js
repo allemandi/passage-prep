@@ -252,17 +252,7 @@ const RequestForm = ({ onStudyGenerated, isLoading }) => {
     if (alertType === 'error') setShowError(false);
     if (alertType === 'noQuestions') setNoQuestionsFound(false);
   };
-
-  const handleThemeChange = (e) => {
-    const value = e.target.value;
-    // If "Select All" was clicked
-    if (value[value.length - 1] === "select-all") {
-      setSelectedThemes(allThemesSelected ? [] : themes);
-    } else {
-      setSelectedThemes(value);
-    }
-  };
-
+  
   return (
     <Container maxWidth="lg" sx={{ pt: 1, pb: 2 }}>
       <Typography 
@@ -272,7 +262,9 @@ const RequestForm = ({ onStudyGenerated, isLoading }) => {
           mb: 4, 
           fontWeight: 'bold', 
           textAlign: 'center',
-          color: 'primary.main'
+          color: 'primary.main',
+          maxWidth: 240,
+          mx: 'auto'
         }}
       >
         Request Bible Study
@@ -285,41 +277,42 @@ const RequestForm = ({ onStudyGenerated, isLoading }) => {
           bgcolor: theme.palette.mode === 'dark' ? 'background.paper' : 'background.default',
           borderRadius: 2,
           border: `1px solid ${theme.palette.divider}`,
-          maxWidth: 'min(100%, 1200px)',
+          maxWidth: 600,
           mx: 'auto'
         }}
       >
-        <Grid container spacing={4}>
-          {/* Independent Bible Reference Sections */}
-          {scriptureRefs.map((ref, index) => (
-            <Grid item xs={12} md={6} key={ref.id}>
-              <Typography 
-                variant="subtitle1" 
-                gutterBottom 
-                sx={{ 
-                  fontWeight: 500, 
-                  color: 'primary.main',
-                  pb: 1,
-                  borderBottom: `2px solid ${theme.palette.primary.main}`,
-                  mb: 2.5
-                }}
-              >
-                Bible Reference {index + 1}
-              </Typography>
-              
-              <Box sx={{ mb: 3 }}>
-                <ScriptureCombobox
-                  id={`bookSelect-${index}`}
-                  label="Book"
-                  value={ref.selectedBook}
-                  onChange={(book) => updateScriptureRef(index, { selectedBook: book })}
-                  options={bibleBooks}
-                  placeholder="Select a book..."
-                  isRequired
-                  helperText={ref.selectedBook ? `Total chapters: ${ref.totalChapters}` : ""}
-                />
-                
-                <Box sx={{ mt: 2 }}>
+        {/* Bible References Section */}
+        <Box sx={{ mb: 4 }}>
+          <Typography 
+            variant="h6" 
+            gutterBottom 
+            sx={{ 
+              fontWeight: 500, 
+              color: 'primary.main',
+              pb: 1,
+              borderBottom: `2px solid ${theme.palette.primary.main}`,
+              mb: 2.5
+            }}
+          >
+            Bible References
+          </Typography>
+          
+          <Grid container spacing={4} justifyContent="center">
+            {scriptureRefs.map((ref, index) => (
+              <Grid item xs={12} md={5} key={ref.id}>
+                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                  <ScriptureCombobox
+                    id={`bookSelect-${index}`}
+                    label="Book"
+                    value={ref.selectedBook}
+                    onChange={(book) => updateScriptureRef(index, { selectedBook: book })}
+                    options={bibleBooks}
+                    placeholder="Select a book..."
+                    isRequired
+                    helperText={ref.selectedBook ? `Total chapters: ${ref.totalChapters}` : ""}
+                    sx={{ minWidth: 240, width: '100%' }}
+                  />
+                  
                   <ScriptureCombobox
                     id={`chapterSelect-${index}`}
                     label="Chapter"
@@ -328,10 +321,9 @@ const RequestForm = ({ onStudyGenerated, isLoading }) => {
                     options={ref.availableChapters}
                     placeholder={ref.selectedBook ? `Select chapter (1-${ref.totalChapters})` : "Select a book first"}
                     disabled={!ref.selectedBook}
+                    sx={{ minWidth: 240, width: '100%' }}
                   />
-                </Box>
-                
-                <Box sx={{ mt: 2 }}>
+                  
                   <ScriptureCombobox
                     id={`verseStartSelect-${index}`}
                     label="Start Verse"
@@ -340,10 +332,9 @@ const RequestForm = ({ onStudyGenerated, isLoading }) => {
                     options={ref.availableVerses}
                     placeholder={ref.selectedChapter ? "Select start verse" : "Select a chapter first"}
                     disabled={!ref.selectedChapter}
+                    sx={{ minWidth: 240, width: '100%' }}
                   />
-                </Box>
-                
-                <Box sx={{ mt: 2 }}>
+                  
                   <ScriptureCombobox
                     id={`verseEndSelect-${index}`}
                     label="End Verse"
@@ -352,109 +343,75 @@ const RequestForm = ({ onStudyGenerated, isLoading }) => {
                     options={ref.availableVerses}
                     placeholder={ref.selectedChapter ? "Select end verse (optional)" : "Select a chapter first"}
                     disabled={!ref.selectedChapter}
+                    sx={{ minWidth: 240, width: '100%' }}
                   />
                 </Box>
-              </Box>
-            </Grid>
-          ))}
-
-          {/* Add Reference Button */}
-          <Grid item xs={12}>
+              </Grid>
+            ))}
+          </Grid>
+          
+          <Box sx={{ display: 'flex', justifyContent: 'center', mt: 2 }}>
             <Button 
-              variant="text" 
+              variant="outlined" 
               onClick={addScriptureReference}
-              sx={{ mt: 1 }}
+              sx={{ width: 240 }}
             >
               + Add Another Reference
             </Button>
-          </Grid>
+          </Box>
+        </Box>
 
-          {/* Themes Section */}
-          <Grid item xs={12}>
-            <Typography 
-              variant="subtitle1" 
-              gutterBottom 
-              sx={{ 
-                fontWeight: 500, 
-                color: 'primary.main',
-                pb: 1,
-                borderBottom: `2px solid ${theme.palette.primary.main}`,
-                mb: 2.5
-              }}
-            >
-              Themes
-            </Typography>
-            
-            <Box sx={{ width: '400px' }}>
-              <TextField
-                select
-                fullWidth
-                SelectProps={{
-                  multiple: true,
-                  value: selectedThemes,
-                  onChange: (e) => setSelectedThemes(e.target.value),
-                  renderValue: (selected) => allThemesSelected ? "All" : selected.join(', ')
-                }}
-                variant="outlined"
-                size="medium"
-                sx={{
-                  '& .MuiOutlinedInput-root': {
-                    borderRadius: 1.5,
-                    '& fieldset': {
-                      borderColor: theme.palette.mode === 'dark' ? 'rgba(255, 255, 255, 0.23)' : 'rgba(0, 0, 0, 0.23)',
-                      borderWidth: 1.5,
-                    },
-                    '&:hover fieldset': {
-                      borderColor: 'primary.main',
-                    },
-                    '&.Mui-focused fieldset': {
-                      borderWidth: 2,
-                    }
-                  },
-                  '& .MuiSelect-select': {
-                    minHeight: '1.4375em',
-                    whiteSpace: 'nowrap',
-                    overflow: 'hidden',
-                    textOverflow: 'ellipsis',
-                    padding: '12.5px 14px'
-                  }
-                }}
-              >
-                {themes.map((theme) => (
-                  <MenuItem key={theme} value={theme}>
-                    <Checkbox checked={selectedThemes.includes(theme)} />
-                    <ListItemText primary={theme} />
-                  </MenuItem>
-                ))}
-              </TextField>
-            </Box>
-          </Grid>
-        </Grid>
+        {/* Themes Section */}
+        <Box sx={{ mb: 4 }}>
+          <Typography 
+            variant="h6" 
+            gutterBottom 
+            sx={{ 
+              fontWeight: 500, 
+              color: 'primary.main',
+              pb: 1,
+              borderBottom: `2px solid ${theme.palette.primary.main}`,
+              mb: 2.5
+            }}
+          >
+            Themes
+          </Typography>
+          
+          <TextField
+            select
+            fullWidth
+            SelectProps={{
+              multiple: true,
+              value: selectedThemes,
+              onChange: (e) => setSelectedThemes(e.target.value),
+              renderValue: (selected) => allThemesSelected ? "All" : selected.join(', ')
+            }}
+            variant="outlined"
+            size="medium"
+            sx={{ maxWidth: 400, mx: 'auto' }}
+          >
+            {themes.map((theme) => (
+              <MenuItem key={theme} value={theme}>
+                <Checkbox checked={selectedThemes.includes(theme)} />
+                <ListItemText primary={theme} />
+              </MenuItem>
+            ))}
+          </TextField>
+        </Box>
 
-        <Stack direction="row" spacing={2} justifyContent="center" sx={{ mt: 4 }}>
+        {/* Action Buttons */}
+        <Box sx={{ 
+          display: 'flex', 
+          gap: 2, 
+          justifyContent: 'center',
+          mt: 4
+        }}>
           <Button 
             variant="contained"
             color="primary" 
             onClick={handleSearch}
             disabled={isLoading || isSubmitting}
-            size="large"
-            sx={{ 
-              px: 6, 
-              py: 1.5, 
-              minWidth: 200,
-              borderRadius: 2,
-              fontSize: '1rem',
-              fontWeight: 500,
-              textTransform: 'none',
-              boxShadow: theme.palette.mode === 'dark' 
-                ? '0 2px 8px rgba(144, 202, 249, 0.2)' 
-                : '0 2px 8px rgba(25, 118, 210, 0.2)',
-              '&:hover': {
-                boxShadow: theme.palette.mode === 'dark' 
-                  ? '0 4px 12px rgba(144, 202, 249, 0.3)' 
-                  : '0 4px 12px rgba(25, 118, 210, 0.3)'
-              }
-            }}
+            sx={{ width: 200 }}
           >
             Search Questions
           </Button>
@@ -463,34 +420,31 @@ const RequestForm = ({ onStudyGenerated, isLoading }) => {
             color="primary" 
             onClick={handleSubmit}
             disabled={isLoading || isSubmitting}
-            size="large"
-            sx={{ 
-              px: 6, 
-              py: 1.5, 
-              minWidth: 200,
-              borderRadius: 2,
-              fontSize: '1rem',
-              fontWeight: 500,
-              textTransform: 'none',
-              borderWidth: 1.5,
-              '&:hover': {
-                borderWidth: 1.5
-              }
-            }}
+            sx={{ width: 200 }}
           >
             Generate Study
           </Button>
-        </Stack>
+        </Box>
 
+        {/* Question Table */}
         {showSearchResults && (
-          <QuestionTable 
-            questions={searchResults}
-            selectedQuestions={selectedQuestions}
-            onQuestionSelect={handleQuestionSelect}
-          />
+          <Box sx={{ mt: 4 }}>
+            <QuestionTable 
+              questions={searchResults}
+              selectedQuestions={selectedQuestions}
+              onQuestionSelect={handleQuestionSelect}
+            />
+          </Box>
+        )}
+
+        {/* No Questions Found Alert */}
+        {noQuestionsFound && (
+          <Alert severity="warning" sx={{ mt: 2 }}>
+            No questions found that match your criteria. Try different themes or contribute more questions.
+          </Alert>
         )}
       </Paper>
-
+      
       <Snackbar
         open={showSuccess}
         autoHideDuration={6000}
@@ -520,22 +474,6 @@ const RequestForm = ({ onStudyGenerated, isLoading }) => {
           sx={{ borderRadius: 2 }}
         >
           {errorMessage}
-        </Alert>
-      </Snackbar>
-      
-      <Snackbar
-        open={noQuestionsFound}
-        autoHideDuration={6000}
-        onClose={() => closeAlert('noQuestions')}
-        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
-      >
-        <Alert 
-          onClose={() => closeAlert('noQuestions')} 
-          severity="warning" 
-          variant="filled"
-          sx={{ borderRadius: 2 }}
-        >
-          No questions found that match your criteria. Try different themes or contribute more questions to expand the pool.
         </Alert>
       </Snackbar>
     </Container>
