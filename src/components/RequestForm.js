@@ -8,12 +8,13 @@ import {
   Button,
   Stack
 } from '@mui/material';
-import { themes, processForm, searchQuestions } from '../data/dataService';
+import { processForm, searchQuestions } from '../data/dataService';
 import { getBibleBooks, getChaptersForBook, getChapterCountForBook, formatReference } from '../utils/bibleData';
 import StudyFormContainer from './StudyFormContainer';
 import QuestionTable from './QuestionTable';
 import { rateLimiter, getUserIdentifier } from '../utils/rateLimit';
 import { processInput } from '../utils/inputUtils';
+import themes from '../data/themes.json';
 
 const RequestForm = ({ onStudyGenerated, isLoading }) => {
   // const theme = useTheme();

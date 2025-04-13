@@ -14,7 +14,6 @@ import {
   Container
 } from '@mui/material';
 import ScriptureCombobox from './ScriptureCombobox';
-import { themes, saveQuestion } from '../data/dataService';
 import { getBibleBooks, getChaptersForBook, getChapterCountForBook, formatReference } from '../utils/bibleData';
 import {
 	RegExpMatcher,
@@ -23,6 +22,8 @@ import {
 } from 'obscenity';
 import { rateLimiter, getUserIdentifier } from '../utils/rateLimit';
 import { processInput } from '../utils/inputUtils';
+import { saveQuestion } from '../data/dataService';
+import themes from '../data/themes.json';
 
 const ContributeForm = () => {
   const theme = useTheme();

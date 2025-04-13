@@ -1,4 +1,5 @@
 import { saveQuestionToServer } from './apiService';
+import themes from './themes.json'; // Replace hardcoded array
 
 // Helper to get the correct API URL based on environment
 const getApiUrl = (endpoint) => {
@@ -11,17 +12,6 @@ const getApiUrl = (endpoint) => {
   return `${base}/${endpoint}`;
 };
 
-// Constants
-export const themes = [
-  "God's Love",
-  "Forgiveness",
-  "Faith",
-  "Prayer",
-  "Salvation",
-  "Spiritual Gifts",
-  "Identity",
-  "Healing"
-];
 
 // Load books data from MongoDB
 let booksCache = null;
