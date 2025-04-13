@@ -42,6 +42,7 @@ const RequestForm = ({ onStudyGenerated, isLoading }) => {
   const [showSearchResults, setShowSearchResults] = useState(false);
   const [searchResults, setSearchResults] = useState([]);
   const [selectedQuestions, setSelectedQuestions] = useState([]);
+  const [refRows, setRefRows] = useState([""]); // Array of reference strings
 
   // Bible books from the JSON data
   const bibleBooks = getBibleBooks();
@@ -158,50 +159,34 @@ const RequestForm = ({ onStudyGenerated, isLoading }) => {
   };
 
   const handleSearch = async () => {
-    const userIdentifier = getUserIdentifier();
     try {
-      await rateLimiter.consume(userIdentifier);
-    } catch (rejRes) {
-      setShowError(true);
-      setErrorMessage('Too many requests. Please slow down.');
-      return;
-    }
-    setIsSubmitting(true);
-    setShowError(false);
-    
-    // Gather all scripture references and themes
-    const refArr = scriptureRefs.map(ref => {
-      const { sanitizedValue: sanitizedScripture } = processInput(ref.scripture, 'scripture reference');
-      return sanitizedScripture;
-    }).filter(Boolean);
-    const themeArr = selectedThemes.length === themes.length ? [] : selectedThemes;
-    
-    if (!refArr.length) {
-      setShowError(true);
-      setErrorMessage('Please select at least one scripture reference.');
-      setIsSubmitting(false);
-      return;
-    }
-    
-    try {
-      const questions = await searchQuestions({
-        refArr,
-        themeArr,
-        maxLimit: parseInt(maxLimit, 10)
-      });
+      const ref = scriptureRefs[0]; // Get first reference
       
-      setSearchResults(questions);
+      // Ensure we have at least a book selected
+      if (!ref.selectedBook) {
+        setShowError(true);
+        setErrorMessage('Please select a book');
+        return;
+      }
+
+      const searchData = {
+        book: ref.selectedBook,
+        chapter: ref.selectedChapter || null,
+        startVerse: ref.startVerse || null,
+        endVerse: ref.endVerse || null,
+        themeArr: selectedThemes.length === themes.length ? [] : selectedThemes
+      };
+
+      const results = await searchQuestions(searchData);
+      setSearchResults(results);
       setShowSearchResults(true);
       
-      if (questions.length === 0) {
+      if (results.length === 0) {
         setNoQuestionsFound(true);
       }
     } catch (error) {
-      console.error("Error in question search:", error);
       setShowError(true);
-      setErrorMessage(error.message || 'An error occurred while searching questions.');
-    } finally {
-      setIsSubmitting(false);
+      setErrorMessage(error.message || 'Search failed');
     }
   };
 

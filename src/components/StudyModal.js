@@ -38,12 +38,9 @@ const StudyModal = ({ show, onHide, data }) => {
 
   // Function to get the book name from a reference
   const getBookFromReference = (reference) => {
-    for (const { book } of bibleCounts) {
-      if (reference.includes(book)) {
-        return book; // Return the first matching book name
-      }
-    }
-    return null; // Return null if no match found
+    // Parse the reference (e.g., "John 3:16-17" => "John")
+    const bookMatch = reference.match(/^([A-Za-z]+(?:\s+[A-Za-z]+)*)/);
+    return bookMatch ? bookMatch[1] : null;
   };
 
   return (
@@ -197,7 +194,9 @@ const StudyModal = ({ show, onHide, data }) => {
           <List disablePadding>
             {data.refArr.filter(ref => ref).map((reference, index) => {
               const book = getBookFromReference(reference);
-              const questionsForBook = data.filteredQuestions.filter(question => question.biblePassage.includes(book));
+              const questionsForBook = data.filteredQuestions.filter(question => 
+                question.book === book
+              );
 
               return (
                 <React.Fragment key={index}>

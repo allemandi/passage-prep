@@ -42,20 +42,24 @@ app.post('/api/save-question', async (req, res) => {
   try {
     const { newData } = req.body;
     
-    if (!newData || !newData.theme || !newData.question || !newData.biblePassage) {
-      return res.status(400).json({ error: 'Missing required question data' });
+    // Validate all required fields
+    if (!newData?.theme || !newData?.question || !newData?.book || !newData?.chapter || !newData?.verseStart) {
+      return res.status(400).json({ error: "Missing required fields" });
     }
-    
+
     // Save to MongoDB
-    const savedQuestion = await Question.create({
+    await Question.create({
       theme: newData.theme,
       question: newData.question,
-      biblePassage: newData.biblePassage
+      book: newData.book,
+      chapter: newData.chapter,
+      verseStart: newData.verseStart,
+      verseEnd: newData.verseEnd || newData.verseStart, // Default to verseStart
     });
-    
-    res.status(200).json({ success: true, message: 'Question saved successfully to MongoDB' });
+
+    res.status(200).json({ success: true });
   } catch (error) {
-    res.status(500).json({ error: 'Failed to save question', details: error.message });
+    res.status(500).json({ error: error.message });
   }
 });
 
@@ -63,6 +67,70 @@ app.post('/api/save-question', async (req, res) => {
 app.get('/api/health', (req, res) => {
   res.status(200).json({ status: 'OK', message: 'Server is running' });
 });
+
+// New endpoint in server.js
+app.post('/api/search-questions', async (req, res) => {
+  try {
+    console.log('Received raw body:', JSON.stringify(req.body, null, 2));
+
+    const { book, chapter, verseStart, verseEnd, theme } = req.body;
+
+    // Validate required fields
+    if (!book) {
+      return res.status(400).json({ error: "Book is required" });
+    }
+
+    // Build query with proper type conversion
+    const query = {
+      book: book.trim(),
+      ...(chapter && { chapter: parseInt(chapter, 10) })
+    };
+
+    // Handle verse range
+    if (verseStart !== undefined) {
+      const start = parseInt(verseStart, 10);
+      const end = verseEnd !== undefined ? parseInt(verseEnd, 10) : start;
+      
+      query.$and = [
+        { verseStart: { $lte: end } },
+        { verseEnd: { $gte: start } }
+      ];
+    }
+
+    // Add theme filter
+    if (theme?.length) {
+      query.theme = { $in: Array.isArray(theme) ? theme : [theme] };
+    }
+
+    console.log('Executing MongoDB query:', JSON.stringify(query, null, 2));
+
+    const results = await Question.find(query)
+      .sort({ book: 1, chapter: 1, verseStart: 1 })
+      .lean();
+
+    console.log(`Found ${results.length} matching questions`);
+    res.status(200).json(results);
+  } catch (error) {
+    console.error("Search failed:", error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Helper function to parse scripture references
+function parseScriptureReference(ref) {
+  const match = ref.match(/^(\d*\s*[A-Za-z]+)\s*(\d+)?(?::(\d+)(?:-(\d+))?)?$/i);
+  if (!match) return null;
+
+  const verseStart = match[3] ? parseInt(match[3]) : null;
+  const verseEnd = match[4] ? parseInt(match[4]) : verseStart; // Default to verseStart if not specified
+
+  return {
+    book: match[1].trim(),
+    chapter: match[2] ? parseInt(match[2]) : null,
+    verseStart,
+    verseEnd
+  };
+}
 
 // Serve React app for all other routes
 app.get('*', (req, res) => {

@@ -29,7 +29,12 @@ const ContributeForm = () => {
   const theme = useTheme();
   const [questionText, setQuestionText] = useState('');
   const [selectedTheme, setSelectedTheme] = useState('');
-  const [scripture, setScripture] = useState('');
+  const [reference, setReference] = useState({
+    book: '',
+    chapter: '',
+    verseStart: '',
+    verseEnd: '',
+  });
   
   const [selectedBook, setSelectedBook] = useState('');
   const [selectedChapter, setSelectedChapter] = useState('');
@@ -52,9 +57,13 @@ const ContributeForm = () => {
   // Bible books from the JSON data
   const bibleBooks = getBibleBooks();
   
-  const updateReference = useCallback((book, chapter, start, end) => {
-    const reference = formatReference(book, chapter, start, end);
-    setScripture(reference);
+  const updateReference = useCallback((book, chapter, verseStart, verseEnd) => {
+    setReference({
+      book: book || '',
+      chapter: chapter || '',
+      verseStart: verseStart || '',
+      verseEnd: verseEnd || verseStart || '',
+    });
   }, []);
   
   // Update chapters when book changes
@@ -77,7 +86,12 @@ const ContributeForm = () => {
       setStartVerse('');
       setEndVerse('');
       setAvailableVerses([]);
-      setScripture('');
+      setReference({
+        book: '',
+        chapter: '',
+        verseStart: '',
+        verseEnd: '',
+      });
       setTotalChapters(0);
     }
   }, [selectedBook, updateReference]);
@@ -132,7 +146,7 @@ const ContributeForm = () => {
       return;
     }
     
-    const { sanitizedValue: sanitizedScripture, error: scriptureError } = processInput(scripture, 'scripture reference');
+    const { sanitizedValue: sanitizedScripture, error: scriptureError } = processInput(reference.book + ' ' + reference.chapter + ':' + reference.verseStart + '-' + reference.verseEnd, 'scripture reference');
     if (scriptureError) {
       setShowError(true);
       setErrorMessage(scriptureError);
@@ -146,21 +160,43 @@ const ContributeForm = () => {
       return;
     }
 
+    if (!reference.book || !reference.chapter || !reference.verseStart) {
+      setShowError(true);
+      setErrorMessage('Please complete all scripture fields (book, chapter, verse).');
+      return;
+    }
+
     setIsSubmitting(true);
     setShowError(false);
     
     try {
-      await saveQuestion(sanitizedTheme, sanitizedQuestionText, sanitizedScripture);
-      setShowSuccess(true);
-      
-      // Reset the form
-      setQuestionText('');
-      setSelectedTheme('');
-      setSelectedBook('');
-      setSelectedChapter('');
-      setStartVerse('');
-      setEndVerse('');
-      setScripture('');
+      const saved = await saveQuestion(
+        sanitizedTheme,
+        sanitizedQuestionText,
+        {
+          book: reference.book,
+          chapter: reference.chapter,
+          verseStart: reference.verseStart,
+          verseEnd: reference.verseEnd || reference.verseStart,
+        }
+      );
+      if (saved) {
+        setShowSuccess(true);
+        
+        // Reset the form
+        setQuestionText('');
+        setSelectedTheme('');
+        setSelectedBook('');
+        setSelectedChapter('');
+        setStartVerse('');
+        setEndVerse('');
+        setReference({
+          book: '',
+          chapter: '',
+          verseStart: '',
+          verseEnd: '',
+        });
+      }
     } catch (error) {
       console.error('Error submitting question:', error);
       setShowError(true);
@@ -226,7 +262,10 @@ const ContributeForm = () => {
                   id="bookSelect"
                   label="Book"
                   value={selectedBook}
-                  onChange={setSelectedBook}
+                  onChange={(book) => {
+                    setSelectedBook(book);
+                    updateReference(book, '', '', '');
+                  }}
                   options={bibleBooks}
                   placeholder="Select a book..."
                   isRequired
@@ -239,7 +278,10 @@ const ContributeForm = () => {
                   id="chapterSelect"
                   label="Chapter"
                   value={selectedChapter}
-                  onChange={setSelectedChapter}
+                  onChange={(chapter) => {
+                    setSelectedChapter(chapter);
+                    updateReference(selectedBook, chapter, '', '');
+                  }}
                   options={availableChapters}
                   placeholder={selectedBook ? `Select chapter (1-${totalChapters})` : "Select a book first"}
                   disabled={!selectedBook}
@@ -251,7 +293,10 @@ const ContributeForm = () => {
                   id="verseStartSelect"
                   label="Start Verse"
                   value={startVerse}
-                  onChange={setStartVerse}
+                  onChange={(verse) => {
+                    setStartVerse(verse);
+                    updateReference(selectedBook, selectedChapter, verse, endVerse);
+                  }}
                   options={availableVerses}
                   placeholder={selectedChapter ? "Select start verse" : "Select a chapter first"}
                   disabled={!selectedChapter}
@@ -263,19 +308,15 @@ const ContributeForm = () => {
                   id="verseEndSelect"
                   label="End Verse"
                   value={endVerse}
-                  onChange={setEndVerse}
+                  onChange={(verse) => {
+                    setEndVerse(verse);
+                    updateReference(selectedBook, selectedChapter, startVerse, verse);
+                  }}
                   options={availableVerses}
                   placeholder={selectedChapter ? "Select end verse (optional)" : "Select a chapter first"}
                   disabled={!selectedChapter}
                 />
               </Box>
-              
-              <input 
-                id="scripture" 
-                type="hidden" 
-                value={scripture}
-                required
-              />
             </Box>
             
             <Box>

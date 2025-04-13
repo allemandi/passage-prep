@@ -14,14 +14,13 @@ import bibleCounts from '../data/bible-counts.json'; // Adjust the path as neces
 const QuestionTable = ({ questions, selectedQuestions, onQuestionSelect }) => {
   // Sort questions by book index and then by chapter
   const sortedQuestions = questions.sort((a, b) => {
-    const bookAIndex = bibleCounts[a.biblePassage.split(' ')[0]] || Infinity; // Get index of book or Infinity if not found
-    const bookBIndex = bibleCounts[b.biblePassage.split(' ')[0]] || Infinity;
+    const bookAIndex = bibleCounts[a.book] || Infinity;
+    const bookBIndex = bibleCounts[b.book] || Infinity;
 
     if (bookAIndex === bookBIndex) {
-      // If books are the same, sort by chapter
-      return (parseInt(a.biblePassage.split(' ')[1]) || 0) - (parseInt(b.biblePassage.split(' ')[1]) || 0);
+      return (parseInt(a.chapter) || 0) - (parseInt(b.chapter) || 0);
     }
-    return bookAIndex - bookBIndex; // Sort by book index
+    return bookAIndex - bookBIndex;
   });
 
   return (
@@ -44,7 +43,7 @@ const QuestionTable = ({ questions, selectedQuestions, onQuestionSelect }) => {
                   onChange={(event) => onQuestionSelect(index, event.target.checked)}
                 />
               </TableCell>
-              <TableCell>{question.biblePassage}</TableCell>
+              <TableCell>{`${question.book} ${question.chapter}:${question.verseStart}-${question.verseEnd}`}</TableCell>
               <TableCell>{question.theme}</TableCell>
               <TableCell>{question.question}</TableCell>
             </TableRow>

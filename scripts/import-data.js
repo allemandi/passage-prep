@@ -75,18 +75,52 @@ const importQuestions = async () => {
     // Clear existing questions
     await Question.deleteMany({});
     
-    // Import questions - map old field names to new ones
+    // Import questions with all specified columns
     for (const question of questions) {
       await Question.create({
         theme: question.theme,
         question: question.question,
-        biblePassage: question.biblePassage
+        book: question.book,
+        chapter: question.chapter,
+        verseStart: question.verseStart,
+        verseEnd: question.verseEnd
       });
     }
     
     console.log(`Successfully imported ${questions.length} questions to MongoDB`);
   } catch (error) {
     console.error('Error importing questions:', error);
+  }
+};
+
+// Add this right after your import functions in import-data.js
+const createIndexesIfNeeded = async () => {
+  try {
+    const requiredIndexes = [
+      { key: { book: 1 }, name: 'book_1' },
+      { key: { chapter: 1 }, name: 'chapter_1' },
+      { key: { verseStart: 1 }, name: 'verseStart_1' },
+      { key: { verseEnd: 1 }, name: 'verseEnd_1' },
+      { key: { theme: 1 }, name: 'theme_1' },
+      { 
+        key: { book: 1, chapter: 1, verseStart: 1, verseEnd: 1 },
+        name: 'compound_scripture_ref' 
+      }
+    ];
+
+    const existingIndexes = await Question.collection.indexes();
+    const existingIndexNames = existingIndexes.map(idx => idx.name);
+
+    for (const indexSpec of requiredIndexes) {
+      if (!existingIndexNames.includes(indexSpec.name)) {
+        await Question.collection.createIndex(indexSpec.key, { name: indexSpec.name });
+        console.log(`Created index: ${indexSpec.name}`);
+      }
+    }
+    
+    console.log('Index verification complete');
+  } catch (error) {
+    console.error('Index management error:', error);
   }
 };
 
@@ -99,6 +133,9 @@ const importAll = async () => {
     
     await importBooks();
     await importQuestions();
+    
+    // Call this after your import functions
+    await createIndexesIfNeeded();
     
     console.log('Data import completed');
     process.exit(0);
