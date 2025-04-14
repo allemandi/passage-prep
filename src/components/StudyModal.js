@@ -396,7 +396,7 @@ const StudyModal = ({ show, onHide, data }) => {
               fontWeight: 500
             }}
           >
-            Copy as Markdown
+            Copy Markdown
           </Button>
           <Button 
             onClick={copyRichText}
@@ -410,7 +410,7 @@ const StudyModal = ({ show, onHide, data }) => {
               fontWeight: 500
             }}
           >
-            Copy as Rich Text
+            Copy Rich Text
           </Button>
         </Box>
       </DialogActions>
