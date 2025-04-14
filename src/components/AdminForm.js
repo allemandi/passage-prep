@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { 
   Box, 
   TextField, 
@@ -9,8 +9,6 @@ import {
   Snackbar,
   Container,
   Grid,
-  ToggleButtonGroup,
-  ToggleButton,
   Checkbox,
   ListItemText,
   MenuItem,
@@ -21,10 +19,14 @@ import ScriptureCombobox from './ScriptureCombobox';
 import { getBibleBooks, getChaptersForBook, getVerseCountForBookAndChapter } from '../utils/bibleData';
 import themes from '../data/themes.json';
 
+const authChannel = new BroadcastChannel('auth');
+
 const AdminForm = () => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(
+    localStorage.getItem('isLoggedIn') === 'true'
+  );
   const [showError, setShowError] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
   const [activeButton, setActiveButton] = useState(null);
@@ -40,6 +42,79 @@ const AdminForm = () => {
   }]);
   const [selectedThemes, setSelectedThemes] = useState(themes);
   const [filteredQuestions, setFilteredQuestions] = useState([]);
+  const [showSuccess, setShowSuccess] = useState(false);
+  const [successMessage, setSuccessMessage] = useState('');
+
+  // Use ref for logoutTimer to avoid dependency issues
+  const logoutTimerRef = useRef(null);
+
+  const handleLogout = useCallback(() => {
+    authChannel.postMessage({ type: 'LOGOUT' });
+    setIsLoggedIn(false);
+    localStorage.removeItem('isLoggedIn');
+    if (logoutTimerRef.current) {
+      clearTimeout(logoutTimerRef.current);
+      logoutTimerRef.current = null;
+    }
+    setUsername('');
+    setPassword('');
+    setActiveButton(null);
+  }, []);
+
+  const resetLogoutTimer = useCallback(() => {
+    if (logoutTimerRef.current) {
+      clearTimeout(logoutTimerRef.current);
+    }
+    logoutTimerRef.current = setTimeout(() => {
+      handleLogout();
+      authChannel.postMessage({ 
+        type: 'NOTIFICATION',
+        message: "Logged out due to inactivity." 
+      });
+    }, 0.1 * 60 * 1000); // 30 minutes
+  }, [handleLogout]);
+
+  // Main effect with all required dependencies
+  useEffect(() => {
+    if (isLoggedIn) {
+      resetLogoutTimer();
+      const handleActivity = () => resetLogoutTimer();
+      window.addEventListener('mousemove', handleActivity);
+      window.addEventListener('keydown', handleActivity);
+      
+      return () => {
+        if (logoutTimerRef.current) {
+          clearTimeout(logoutTimerRef.current);
+        }
+        window.removeEventListener('mousemove', handleActivity);
+        window.removeEventListener('keydown', handleActivity);
+      };
+    }
+  }, [isLoggedIn, resetLogoutTimer]); // Added `resetLogoutTimer` to the dependency array
+
+  useEffect(() => {
+    const handleAuthMessage = (event) => {
+      if (event.data.type === 'LOGIN') {
+        setIsLoggedIn(true);
+        localStorage.setItem('isLoggedIn', 'true');
+        resetLogoutTimer();
+      } else if (event.data.type === 'LOGOUT') {
+        setIsLoggedIn(false);
+        localStorage.removeItem('isLoggedIn');
+        if (logoutTimerRef.current) {
+          clearTimeout(logoutTimerRef.current);
+          logoutTimerRef.current = null;
+        }
+      } else if (event.data.type === 'NOTIFICATION') {
+        setSuccessMessage(event.data.message);
+        setShowSuccess(true);
+      }
+    };
+
+    authChannel.addEventListener('message', handleAuthMessage);
+    return () => authChannel.removeEventListener('message', handleAuthMessage);
+  }, [resetLogoutTimer]); 
+
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -49,21 +124,15 @@ const AdminForm = () => {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ username, password }),
       });
-      if (!response.ok) {
-        throw new Error('Invalid credentials');
-      }
+      if (!response.ok) throw new Error('Invalid credentials');
+      
       setIsLoggedIn(true);
+      localStorage.setItem('isLoggedIn', 'true');
+      authChannel.postMessage({ type: 'LOGIN' });
     } catch (error) {
       setShowError(true);
       setErrorMessage(error.message);
     }
-  };
-
-  const handleLogout = () => {
-    setIsLoggedIn(false);
-    setUsername('');
-    setPassword('');
-    setActiveButton(null);
   };
 
   const closeError = () => {
@@ -344,6 +413,15 @@ const AdminForm = () => {
         <Alert onClose={closeError} severity="error">
           {errorMessage}
         </Alert>
+      </Snackbar>
+
+      <Snackbar
+        open={showSuccess}
+        autoHideDuration={6000}
+        onClose={() => setShowSuccess(false)}
+        anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+      >
+        <Alert severity="success">{successMessage}</Alert>
       </Snackbar>
     </Container>
   );

@@ -36,7 +36,7 @@ const QuestionTable = ({ questions, selectedQuestions, onQuestionSelect }) => {
         </TableHead>
         <TableBody>
           {sortedQuestions.map((question, index) => (
-            <TableRow key={index}>
+            <TableRow key={question._id || index}>
               <TableCell padding="checkbox">
                 <Checkbox
                   checked={selectedQuestions.includes(index)}

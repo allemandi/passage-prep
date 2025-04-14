@@ -191,3 +191,22 @@ export const searchQuestions = async ({ book, chapter, startVerse, endVerse, the
     throw error;
   }
 };
+
+export const deleteQuestions = async (questionIds) => {
+  try {
+    const response = await fetch(getApiUrl('delete-questions'), {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ questionIds }),
+    });
+
+    if (!response.ok) {
+      const error = await response.text();
+      throw new Error(error || 'Failed to delete questions');
+    }
+    return true;
+  } catch (error) {
+    console.error("Delete error:", error);
+    throw error;
+  }
+};

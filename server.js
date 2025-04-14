@@ -204,3 +204,18 @@ app.post('/api/login', async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 });
+
+// Add this endpoint to server.js
+app.post('/api/delete-questions', async (req, res) => {
+  try {
+    const { questionIds } = req.body;
+    if (!Array.isArray(questionIds) || questionIds.length === 0) {
+      return res.status(400).json({ error: "No question IDs provided" });
+    }
+
+    await Question.deleteMany({ _id: { $in: questionIds } });
+    res.status(200).json({ success: true });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
