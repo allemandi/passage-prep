@@ -6,7 +6,7 @@ const getApiUrl = (endpoint) => {
   // In development, use /api/
   const base = process.env.NODE_ENV === 'production' 
     ? '/.netlify/functions'
-    : 'http://localhost:3001/api'; // Adjust port if needed
+    : '/api';
   
   return `${base}/${endpoint}`;
 };
@@ -216,14 +216,11 @@ export const fetchAllQuestions = async () => {
     const response = await fetch(`${getApiUrl('questions')}?${Date.now()}`, {
       headers: { 'Accept': 'application/json' }
     });
-
+    
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-    
-    const data = await response.json();
-    return data.map(({ _id, __v, ...rest }) => rest); // Remove MongoDB internal fields
-    
+    return await response.json();
   } catch (error) {
     console.error("Fetch error:", error);
-    throw new Error('Failed to load questions. Please try again.');
+    throw error;
   }
 };

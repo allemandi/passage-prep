@@ -21,6 +21,11 @@ import themes from '../data/themes.json';
 
 const authChannel = new BroadcastChannel('auth');
 
+const excludeFields = ['_id', '__v'];
+
+const SESSION_TIMEOUT_MINUTES = 30; // Adjustable timeout in minutes
+const SESSION_TIMEOUT_MS = SESSION_TIMEOUT_MINUTES * 60 * 1000; // Convert to milliseconds
+
 const AdminForm = () => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
@@ -65,10 +70,11 @@ const AdminForm = () => {
     sessionStorage.removeItem('isLoggedIn');
     
     if (reason === 'inactivity') {
-      authChannel.postMessage({
-        type: 'NOTIFICATION',
-        message: 'Logged out due to inactivity'
-      });
+      setShowError(true);
+      setErrorMessage('Logged out due to inactivity');
+    } else if (reason === 'manual') {
+      setShowSuccess(true);
+      setErrorMessage('Logged out successfully');
     }
   }, []);
 
@@ -78,7 +84,7 @@ const AdminForm = () => {
     }
     logoutTimerRef.current = setTimeout(() => {
       handleLogout('inactivity');
-    }, 30 * 60 * 1000); //30 mins
+    }, SESSION_TIMEOUT_MS);
   }, [handleLogout]);
 
   useEffect(() => {
@@ -127,7 +133,7 @@ const AdminForm = () => {
       const checkInactivity = () => {
         const lastActivity = sessionStorage.getItem('lastActivity');
         const now = Date.now();
-        if (lastActivity && (now - parseInt(lastActivity) > 0.1 * 60 * 1000)) {
+        if (lastActivity && (now - parseInt(lastActivity) > SESSION_TIMEOUT_MS)) {
           handleLogout('inactivity');
         }
       };
@@ -329,15 +335,20 @@ const AdminForm = () => {
         return;
       }
 
-      // Exclude _id and __v
-      const excludeFields = ['_id', '__v'];
-      const headers = Object.keys(results[0] || {}).filter(
-        key => !excludeFields.includes(key)
-      );
+      const filteredResults = results.map(item => {
+        const filtered = {};
+        Object.keys(item).forEach(key => {
+          if (!excludeFields.includes(key)) {
+            filtered[key] = item[key];
+          }
+        });
+        return filtered;
+      });
 
+      const headers = Object.keys(filteredResults[0] || {});
       const csvContent = [
         headers,
-        ...results.map(q => headers.map(header => q[header] || ''))
+        ...filteredResults.map(q => headers.map(header => q[header] || ''))
       ].map(row => row.join(',')).join('\n');
 
       const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
@@ -365,18 +376,22 @@ const AdminForm = () => {
         return;
       }
 
-      // Define CSV columns (match your MongoDB schema)
-      const columns = ['theme', 'question', 'book', 'chapter', 'verseStart', 'verseEnd'];
-      
-      // Create CSV content
-      const header = columns.join(',');
-      const rows = results.map(item =>
-        columns.map(field => `"${String(item[field] || '').replace(/"/g, '""')}"`).join(',')
-      );
-      
-      const csvContent = [header, ...rows].join('\r\n');
+      const filteredResults = results.map(item => {
+        const filtered = {};
+        Object.keys(item).forEach(key => {
+          if (!excludeFields.includes(key)) {
+            filtered[key] = item[key];
+          }
+        });
+        return filtered;
+      });
 
-      // Trigger download
+      const headers = Object.keys(filteredResults[0] || {});
+      const csvContent = [
+        headers,
+        ...filteredResults.map(item => headers.map(field => `"${String(item[field] || '').replace(/"/g, '""')}"`).join(','))
+      ].join('\r\n');
+
       const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
       const url = URL.createObjectURL(blob);
       const link = document.createElement('a');
@@ -385,7 +400,6 @@ const AdminForm = () => {
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
-
     } catch (error) {
       setShowError(true);
       setErrorMessage(error.message || 'Download failed');
@@ -659,7 +673,7 @@ const AdminForm = () => {
         onClose={() => setShowSuccess(false)}
         anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
       >
-        <Alert severity="success">Operation successful</Alert>
+        <Alert severity="success">Logged out successfully</Alert>
       </Snackbar>
     </Container>
   );
