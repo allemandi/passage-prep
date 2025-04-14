@@ -10,9 +10,16 @@ import {
   Container,
   Grid,
   ToggleButtonGroup,
-  ToggleButton
+  ToggleButton,
+  Checkbox,
+  ListItemText,
+  MenuItem,
 } from '@mui/material';
 import QuestionTable from './QuestionTable';
+import { searchQuestions } from '../data/dataService';
+import ScriptureCombobox from './ScriptureCombobox';
+import { getBibleBooks, getChaptersForBook, getVerseCountForBookAndChapter } from '../utils/bibleData';
+import themes from '../data/themes.json';
 
 const AdminForm = () => {
   const [username, setUsername] = useState('');
@@ -22,6 +29,17 @@ const AdminForm = () => {
   const [errorMessage, setErrorMessage] = useState('');
   const [activeButton, setActiveButton] = useState(null);
   const [selectedQuestions, setSelectedQuestions] = useState([]);
+  const [scriptureRefs, setScriptureRefs] = useState([{
+    id: 1,
+    selectedBook: '',
+    selectedChapter: '',
+    startVerse: '',
+    endVerse: '',
+    availableChapters: [],
+    availableVerses: [],
+  }]);
+  const [selectedThemes, setSelectedThemes] = useState(themes);
+  const [filteredQuestions, setFilteredQuestions] = useState([]);
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -62,11 +80,71 @@ const AdminForm = () => {
     );
   };
 
-  // Mock data for demonstration
-  const mockQuestions = [
-    { book: 'Genesis', chapter: 1, verseStart: 1, verseEnd: 1, theme: 'Creation', question: 'Who created the heavens and the earth?' },
-    { book: 'John', chapter: 3, verseStart: 16, verseEnd: 16, theme: 'Salvation', question: 'What does John 3:16 say about salvation?' },
-  ];
+  const updateScriptureRef = (index, updates) => {
+    setScriptureRefs(prev => {
+      const newRefs = [...prev];
+      const currentRef = newRefs[index];
+
+      // Handle verse validation
+      if (updates.startVerse !== undefined && currentRef.endVerse) {
+        if (parseInt(updates.startVerse) > parseInt(currentRef.endVerse)) {
+          updates.endVerse = updates.startVerse;
+        }
+      }
+
+      // Update book and reset dependent fields
+      if (updates.selectedBook !== undefined) {
+        const chapters = getChaptersForBook(updates.selectedBook);
+        newRefs[index] = {
+          ...currentRef,
+          ...updates,
+          selectedChapter: '',
+          startVerse: '',
+          endVerse: '',
+          availableChapters: chapters,
+          availableVerses: [],
+        };
+      } 
+      // Update chapter and reset verses
+      else if (updates.selectedChapter !== undefined) {
+        const verses = Array.from(
+          { length: getVerseCountForBookAndChapter(currentRef.selectedBook, updates.selectedChapter) },
+          (_, i) => (i + 1).toString()
+        );
+        newRefs[index] = {
+          ...currentRef,
+          ...updates,
+          startVerse: '',
+          endVerse: '',
+          availableVerses: verses,
+        };
+      } 
+      // Other updates (e.g., startVerse, endVerse)
+      else {
+        newRefs[index] = { ...currentRef, ...updates };
+      }
+
+      return newRefs;
+    });
+  };
+
+  const applyFilters = async () => {
+    try {
+      const ref = scriptureRefs[0]; // Use the first reference
+      const results = await searchQuestions({
+        book: ref.selectedBook,
+        chapter: ref.selectedChapter,
+        startVerse: ref.startVerse,
+        endVerse: ref.endVerse,
+        themeArr: selectedThemes.length === themes.length ? [] : selectedThemes,
+      });
+      setFilteredQuestions(results);
+    } catch (error) {
+      setShowError(true);
+      setErrorMessage(error.message);
+      setFilteredQuestions([]); // Clear results on error
+    }
+  };
 
   return (
     <Container maxWidth="sm" sx={{ mt: 4 }}>
@@ -133,13 +211,77 @@ const AdminForm = () => {
                 <Typography variant="subtitle1" sx={{ mb: 1 }}>
                   Filter for Editing/Deleting Questions
                 </Typography>
+                <Grid container spacing={2}>
+                  <Grid item xs={12} sm={3}>
+                    <ScriptureCombobox
+                      label="Book"
+                      value={scriptureRefs[0].selectedBook}
+                      onChange={(book) => updateScriptureRef(0, { selectedBook: book })}
+                      options={getBibleBooks()}
+                      placeholder="Select a book"
+                    />
+                  </Grid>
+                  <Grid item xs={12} sm={3}>
+                    <ScriptureCombobox
+                      label="Chapter"
+                      value={scriptureRefs[0].selectedChapter}
+                      onChange={(chapter) => updateScriptureRef(0, { selectedChapter: chapter })}
+                      options={scriptureRefs[0].availableChapters}
+                      disabled={!scriptureRefs[0].selectedBook}
+                      placeholder={scriptureRefs[0].selectedBook ? "Select chapter" : "Select book first"}
+                    />
+                  </Grid>
+                  <Grid item xs={12} sm={3}>
+                    <ScriptureCombobox
+                      label="Start Verse"
+                      value={scriptureRefs[0].startVerse}
+                      onChange={(verse) => updateScriptureRef(0, { startVerse: verse })}
+                      options={scriptureRefs[0].availableVerses}
+                      disabled={!scriptureRefs[0].selectedChapter}
+                      placeholder={scriptureRefs[0].selectedChapter ? "Select start verse" : "Select chapter first"}
+                    />
+                  </Grid>
+                  <Grid item xs={12} sm={3}>
+                    <ScriptureCombobox
+                      label="End Verse"
+                      value={scriptureRefs[0].endVerse}
+                      onChange={(verse) => updateScriptureRef(0, { endVerse: verse })}
+                      options={scriptureRefs[0].availableVerses}
+                      disabled={!scriptureRefs[0].selectedChapter}
+                      placeholder={scriptureRefs[0].selectedChapter ? "Select end verse" : "Select chapter first"}
+                      isEndVerse
+                      startVerseValue={scriptureRefs[0].startVerse}
+                    />
+                  </Grid>
+                </Grid>
                 <TextField
-                  label="Search by Theme"
+                  select
                   fullWidth
-                  sx={{ mb: 2 }}
-                />
+                  label="Themes"
+                  value={selectedThemes}
+                  onChange={(e) => setSelectedThemes(e.target.value)}
+                  SelectProps={{
+                    multiple: true,
+                    renderValue: (selected) => selected.length === themes.length ? "All" : selected.join(", "),
+                  }}
+                  sx={{ mt: 2 }}
+                >
+                  {themes.map((theme) => (
+                    <MenuItem key={theme} value={theme}>
+                      <Checkbox checked={selectedThemes.includes(theme)} />
+                      <ListItemText primary={theme} />
+                    </MenuItem>
+                  ))}
+                </TextField>
+                <Button
+                  variant="contained"
+                  onClick={applyFilters}
+                  sx={{ mt: 2 }}
+                >
+                  Apply Filters
+                </Button>
                 <QuestionTable
-                  questions={mockQuestions}
+                  questions={filteredQuestions}
                   selectedQuestions={selectedQuestions}
                   onQuestionSelect={handleQuestionSelect}
                   showActions
@@ -161,7 +303,7 @@ const AdminForm = () => {
                   sx={{ mb: 2 }}
                 />
                 <QuestionTable
-                  questions={mockQuestions}
+                  questions={filteredQuestions}
                   selectedQuestions={selectedQuestions}
                   onQuestionSelect={handleQuestionSelect}
                   showActions
