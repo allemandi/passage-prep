@@ -219,3 +219,27 @@ app.post('/api/delete-questions', async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 });
+
+app.post('/api/update-question', async (req, res) => {
+  try {
+    const { questionId, updatedData } = req.body;
+    
+    if (!questionId || !updatedData) {
+      return res.status(400).json({ error: "Missing question ID or update data" });
+    }
+
+    const updatedQuestion = await Question.findByIdAndUpdate(
+      questionId,
+      { $set: updatedData },
+      { new: true }
+    );
+
+    if (!updatedQuestion) {
+      return res.status(404).json({ error: "Question not found" });
+    }
+
+    res.status(200).json(updatedQuestion);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});

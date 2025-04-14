@@ -24,9 +24,7 @@ const authChannel = new BroadcastChannel('auth');
 const AdminForm = () => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
-  const [isLoggedIn, setIsLoggedIn] = useState(
-    localStorage.getItem('isLoggedIn') === 'true'
-  );
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [showError, setShowError] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
   const [activeButton, setActiveButton] = useState(null);
@@ -43,22 +41,25 @@ const AdminForm = () => {
   const [selectedThemes, setSelectedThemes] = useState(themes);
   const [filteredQuestions, setFilteredQuestions] = useState([]);
   const [showSuccess, setShowSuccess] = useState(false);
-  const [successMessage, setSuccessMessage] = useState('');
 
   // Use ref for logoutTimer to avoid dependency issues
   const logoutTimerRef = useRef(null);
 
-  const handleLogout = useCallback(() => {
-    authChannel.postMessage({ type: 'LOGOUT' });
-    setIsLoggedIn(false);
-    localStorage.removeItem('isLoggedIn');
+  const handleLogout = useCallback((reason) => {
     if (logoutTimerRef.current) {
       clearTimeout(logoutTimerRef.current);
-      logoutTimerRef.current = null;
     }
-    setUsername('');
-    setPassword('');
-    setActiveButton(null);
+    
+    authChannel.postMessage({ type: 'LOGOUT' });
+    setIsLoggedIn(false);
+    sessionStorage.removeItem('isLoggedIn');
+    
+    if (reason === 'inactivity') {
+      authChannel.postMessage({
+        type: 'NOTIFICATION',
+        message: 'Logged out due to inactivity'
+      });
+    }
   }, []);
 
   const resetLogoutTimer = useCallback(() => {
@@ -66,15 +67,10 @@ const AdminForm = () => {
       clearTimeout(logoutTimerRef.current);
     }
     logoutTimerRef.current = setTimeout(() => {
-      handleLogout();
-      authChannel.postMessage({ 
-        type: 'NOTIFICATION',
-        message: "Logged out due to inactivity." 
-      });
-    }, 0.1 * 60 * 1000); // 30 minutes
+      handleLogout('inactivity');
+    }, 30 * 60 * 1000); //30 mins
   }, [handleLogout]);
 
-  // Main effect with all required dependencies
   useEffect(() => {
     if (isLoggedIn) {
       resetLogoutTimer();
@@ -90,31 +86,54 @@ const AdminForm = () => {
         window.removeEventListener('keydown', handleActivity);
       };
     }
-  }, [isLoggedIn, resetLogoutTimer]); // Added `resetLogoutTimer` to the dependency array
+  }, [isLoggedIn, resetLogoutTimer]);
 
   useEffect(() => {
     const handleAuthMessage = (event) => {
       if (event.data.type === 'LOGIN') {
         setIsLoggedIn(true);
-        localStorage.setItem('isLoggedIn', 'true');
+        sessionStorage.setItem('isLoggedIn', 'true');
         resetLogoutTimer();
       } else if (event.data.type === 'LOGOUT') {
         setIsLoggedIn(false);
-        localStorage.removeItem('isLoggedIn');
+        sessionStorage.removeItem('isLoggedIn');
         if (logoutTimerRef.current) {
           clearTimeout(logoutTimerRef.current);
           logoutTimerRef.current = null;
         }
-      } else if (event.data.type === 'NOTIFICATION') {
-        setSuccessMessage(event.data.message);
-        setShowSuccess(true);
       }
     };
 
     authChannel.addEventListener('message', handleAuthMessage);
     return () => authChannel.removeEventListener('message', handleAuthMessage);
-  }, [resetLogoutTimer]); 
+  }, [resetLogoutTimer]);
 
+  useEffect(() => {
+    if (isLoggedIn) {
+      const updateLastActivity = () => {
+        sessionStorage.setItem('lastActivity', Date.now().toString());
+      };
+
+      const checkInactivity = () => {
+        const lastActivity = sessionStorage.getItem('lastActivity');
+        const now = Date.now();
+        if (lastActivity && (now - parseInt(lastActivity) > 0.1 * 60 * 1000)) {
+          handleLogout('inactivity');
+        }
+      };
+
+      window.addEventListener('mousemove', updateLastActivity);
+      window.addEventListener('keydown', updateLastActivity);
+
+      const intervalId = setInterval(checkInactivity, 60000);
+
+      return () => {
+        clearInterval(intervalId);
+        window.removeEventListener('mousemove', updateLastActivity);
+        window.removeEventListener('keydown', updateLastActivity);
+      };
+    }
+  }, [isLoggedIn, handleLogout]);
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -127,8 +146,7 @@ const AdminForm = () => {
       if (!response.ok) throw new Error('Invalid credentials');
       
       setIsLoggedIn(true);
-      localStorage.setItem('isLoggedIn', 'true');
-      authChannel.postMessage({ type: 'LOGIN' });
+      sessionStorage.setItem('isLoggedIn', 'true');
     } catch (error) {
       setShowError(true);
       setErrorMessage(error.message);
@@ -214,6 +232,46 @@ const AdminForm = () => {
       setFilteredQuestions([]); // Clear results on error
     }
   };
+
+  const handleDeleteSelected = useCallback(async () => {
+    if (selectedQuestions.length === 0) return;
+
+    try {
+      const questionIds = selectedQuestions.map(index => filteredQuestions[index]._id);
+      const response = await fetch('/api/delete-questions', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ questionIds }),
+      });
+
+      if (!response.ok) throw new Error('Failed to delete questions');
+
+      setShowSuccess(true);
+      setSelectedQuestions([]);
+      await applyFilters(); // Refresh the question list
+    } catch (error) {
+      setShowError(true);
+      setErrorMessage(error.message);
+    }
+  }, [selectedQuestions, filteredQuestions, applyFilters]);
+
+  const handleQuestionUpdate = useCallback(async (questionId, updatedData) => {
+    try {
+      const response = await fetch('/api/update-question', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ questionId, updatedData }),
+      });
+
+      if (!response.ok) throw new Error('Failed to update question');
+
+      setShowSuccess(true);
+      await applyFilters(); // Refresh the data
+    } catch (error) {
+      setShowError(true);
+      setErrorMessage(error.message);
+    }
+  }, [applyFilters]);
 
   return (
     <Container maxWidth="sm" sx={{ mt: 4 }}>
@@ -353,9 +411,16 @@ const AdminForm = () => {
                   questions={filteredQuestions}
                   selectedQuestions={selectedQuestions}
                   onQuestionSelect={handleQuestionSelect}
-                  showActions
+                  showActions={activeButton === 'edit'}
+                  onQuestionUpdate={handleQuestionUpdate}
                 />
-                <Button variant="contained" color="error" sx={{ mt: 2 }}>
+                <Button 
+                  variant="contained" 
+                  color="error" 
+                  sx={{ mt: 2 }}
+                  onClick={handleDeleteSelected}
+                  disabled={selectedQuestions.length === 0}
+                >
                   Delete Selected
                 </Button>
               </Box>
@@ -397,7 +462,7 @@ const AdminForm = () => {
               </Box>
             )}
 
-            <Button variant="outlined" onClick={handleLogout} fullWidth>
+            <Button variant="outlined" onClick={() => handleLogout('manual')} fullWidth>
               Logout
             </Button>
           </Box>
@@ -421,7 +486,7 @@ const AdminForm = () => {
         onClose={() => setShowSuccess(false)}
         anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
       >
-        <Alert severity="success">{successMessage}</Alert>
+        <Alert severity="success">Operation successful</Alert>
       </Snackbar>
     </Container>
   );
