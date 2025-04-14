@@ -14,7 +14,7 @@ import {
   MenuItem,
 } from '@mui/material';
 import QuestionTable from './QuestionTable';
-import { searchQuestions } from '../data/dataService';
+import { searchQuestions, fetchAllQuestions } from '../data/dataService';
 import ScriptureCombobox from './ScriptureCombobox';
 import { getBibleBooks, getChaptersForBook, getVerseCountForBookAndChapter } from '../utils/bibleData';
 import themes from '../data/themes.json';
@@ -44,6 +44,16 @@ const AdminForm = () => {
 
   // Use ref for logoutTimer to avoid dependency issues
   const logoutTimerRef = useRef(null);
+
+  // Add state for download filters
+  const [downloadRef, setDownloadRef] = useState({
+    selectedBook: '',
+    selectedChapter: '',
+    startVerse: '',
+    endVerse: '',
+    availableChapters: [],
+    availableVerses: [],
+  });
 
   const handleLogout = useCallback((reason) => {
     if (logoutTimerRef.current) {
@@ -215,7 +225,8 @@ const AdminForm = () => {
     });
   };
 
-  const applyFilters = async () => {
+  // Memoize applyFilters to avoid dependency issues
+  const applyFilters = useCallback(async () => {
     try {
       const ref = scriptureRefs[0]; // Use the first reference
       const results = await searchQuestions({
@@ -231,7 +242,7 @@ const AdminForm = () => {
       setErrorMessage(error.message);
       setFilteredQuestions([]); // Clear results on error
     }
-  };
+  }, [scriptureRefs, selectedThemes]);
 
   const handleDeleteSelected = useCallback(async () => {
     if (selectedQuestions.length === 0) return;
@@ -272,6 +283,115 @@ const AdminForm = () => {
       setErrorMessage(error.message);
     }
   }, [applyFilters]);
+
+  // Update downloadRef when book or chapter changes
+  const updateDownloadRef = (updates) => {
+    setDownloadRef(prev => {
+      const newRef = { ...prev, ...updates };
+
+      // Handle book change
+      if (updates.selectedBook !== undefined) {
+        newRef.availableChapters = getChaptersForBook(updates.selectedBook);
+        newRef.selectedChapter = '';
+        newRef.startVerse = '';
+        newRef.endVerse = '';
+        newRef.availableVerses = [];
+      }
+
+      // Handle chapter change
+      if (updates.selectedChapter !== undefined) {
+        newRef.availableVerses = Array.from(
+          { length: getVerseCountForBookAndChapter(prev.selectedBook, updates.selectedChapter) },
+          (_, i) => (i + 1).toString()
+        );
+        newRef.startVerse = '';
+        newRef.endVerse = '';
+      }
+
+      return newRef;
+    });
+  };
+
+  // Function to download filtered questions as CSV with dynamic headers
+  const downloadFilteredCSV = async () => {
+    try {
+      const results = await searchQuestions({
+        book: downloadRef.selectedBook || '',
+        chapter: downloadRef.selectedChapter || '',
+        startVerse: downloadRef.startVerse || '',
+        endVerse: downloadRef.endVerse || '',
+        themeArr: [],
+      });
+
+      if (results.length === 0) {
+        setShowError(true);
+        setErrorMessage('No questions match the selected filters.');
+        return;
+      }
+
+      // Exclude _id and __v
+      const excludeFields = ['_id', '__v'];
+      const headers = Object.keys(results[0] || {}).filter(
+        key => !excludeFields.includes(key)
+      );
+
+      const csvContent = [
+        headers,
+        ...results.map(q => headers.map(header => q[header] || ''))
+      ].map(row => row.join(',')).join('\n');
+
+      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', 'filtered_questions.csv');
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    } catch (error) {
+      setShowError(true);
+      setErrorMessage(error.message);
+    }
+  };
+
+  // Function to download all questions as CSV with dynamic headers
+  const downloadAllCSV = async () => {
+    try {
+      const results = await fetchAllQuestions();
+      
+      if (!results?.length) {
+        setShowError(true);
+        setErrorMessage('No questions available to download');
+        return;
+      }
+
+      // Define CSV columns (match your MongoDB schema)
+      const columns = ['theme', 'question', 'book', 'chapter', 'verseStart', 'verseEnd'];
+      
+      // Create CSV content
+      const header = columns.join(',');
+      const rows = results.map(item =>
+        columns.map(field => `"${String(item[field] || '').replace(/"/g, '""')}"`).join(',')
+      );
+      
+      const csvContent = [header, ...rows].join('\r\n');
+
+      // Trigger download
+      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `questions_${new Date().toISOString().slice(0,10)}.csv`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+
+    } catch (error) {
+      setShowError(true);
+      setErrorMessage(error.message || 'Download failed');
+      console.error('Download error:', error);
+    }
+  };
 
   return (
     <Container maxWidth="sm" sx={{ mt: 4 }}>
@@ -453,11 +573,64 @@ const AdminForm = () => {
                 <Typography variant="subtitle1" sx={{ mb: 1 }}>
                   Download Options
                 </Typography>
-                <Button variant="contained" color="primary" fullWidth sx={{ mb: 2 }}>
-                  Download All Questions
+                <Grid container spacing={2}>
+                  <Grid item xs={12} sm={3}>
+                    <ScriptureCombobox
+                      label="Book"
+                      value={downloadRef.selectedBook}
+                      onChange={(book) => updateDownloadRef({ selectedBook: book })}
+                      options={getBibleBooks()}
+                      placeholder="Select a book"
+                    />
+                  </Grid>
+                  <Grid item xs={12} sm={3}>
+                    <ScriptureCombobox
+                      label="Chapter"
+                      value={downloadRef.selectedChapter}
+                      onChange={(chapter) => updateDownloadRef({ selectedChapter: chapter })}
+                      options={downloadRef.availableChapters}
+                      disabled={!downloadRef.selectedBook}
+                      placeholder={downloadRef.selectedBook ? "Select chapter" : "Select book first"}
+                    />
+                  </Grid>
+                  <Grid item xs={12} sm={3}>
+                    <ScriptureCombobox
+                      label="Start Verse"
+                      value={downloadRef.startVerse}
+                      onChange={(verse) => updateDownloadRef({ startVerse: verse })}
+                      options={downloadRef.availableVerses}
+                      disabled={!downloadRef.selectedChapter}
+                      placeholder={downloadRef.selectedChapter ? "Select start verse" : "Select chapter first"}
+                    />
+                  </Grid>
+                  <Grid item xs={12} sm={3}>
+                    <ScriptureCombobox
+                      label="End Verse"
+                      value={downloadRef.endVerse}
+                      onChange={(verse) => updateDownloadRef({ endVerse: verse })}
+                      options={downloadRef.availableVerses}
+                      disabled={!downloadRef.selectedChapter}
+                      placeholder={downloadRef.selectedChapter ? "Select end verse" : "Select chapter first"}
+                      isEndVerse
+                      startVerseValue={downloadRef.startVerse}
+                    />
+                  </Grid>
+                </Grid>
+                <Button
+                  variant="contained"
+                  onClick={downloadFilteredCSV}
+                  sx={{ mt: 2 }}
+                  disabled={!downloadRef.selectedBook}
+                >
+                  Download Filtered Questions
                 </Button>
-                <Button variant="contained" color="secondary" fullWidth>
-                  Download Selected Questions
+                <Button
+                  variant="contained"
+                  color="secondary"
+                  onClick={downloadAllCSV}
+                  sx={{ mt: 2, ml: 2 }}
+                >
+                  Download All Questions
                 </Button>
               </Box>
             )}

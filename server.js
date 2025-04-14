@@ -243,3 +243,13 @@ app.post('/api/update-question', async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 });
+
+// Add this endpoint in server.js
+app.get('/api/all-questions', async (req, res) => {
+  try {
+    const results = await Question.find().select('-_id -__v').lean(); // Exclude _id and __v
+    res.status(200).json(results);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
