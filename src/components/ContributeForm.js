@@ -14,8 +14,7 @@ import {
   Container
 } from '@mui/material';
 import ScriptureCombobox from './ScriptureCombobox';
-import { themes, saveQuestion } from '../data/dataService';
-import { getBibleBooks, getChaptersForBook, getChapterCountForBook, formatReference } from '../utils/bibleData';
+import { getBibleBooks, getChaptersForBook, getChapterCountForBook, getVerseCountForBookAndChapter } from '../utils/bibleData';
 import {
 	RegExpMatcher,
 	englishDataset,
@@ -23,16 +22,26 @@ import {
 } from 'obscenity';
 import { rateLimiter, getUserIdentifier } from '../utils/rateLimit';
 import { processInput } from '../utils/inputUtils';
+import { saveQuestion } from '../data/dataService';
+import themes from '../data/themes.json';
 
 const ContributeForm = () => {
   const theme = useTheme();
   const [questionText, setQuestionText] = useState('');
   const [selectedTheme, setSelectedTheme] = useState('');
-  const [scripture, setScripture] = useState('');
+  const [reference, setReference] = useState({
+    book: '',
+    chapter: '',
+    verseStart: '',
+    verseEnd: '',
+  });
   
   const [selectedBook, setSelectedBook] = useState('');
   const [selectedChapter, setSelectedChapter] = useState('');
+  const [startVerse, setStartVerse] = useState('');
+  const [endVerse, setEndVerse] = useState('');
   const [availableChapters, setAvailableChapters] = useState([]);
+  const [availableVerses, setAvailableVerses] = useState([]);
   const [totalChapters, setTotalChapters] = useState(0);
   
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -48,9 +57,13 @@ const ContributeForm = () => {
   // Bible books from the JSON data
   const bibleBooks = getBibleBooks();
   
-  const updateReference = useCallback((book, chapter) => {
-    const reference = formatReference(book, chapter);
-    setScripture(reference);
+  const updateReference = useCallback((book, chapter, verseStart, verseEnd) => {
+    setReference({
+      book: book || '',
+      chapter: chapter || '',
+      verseStart: verseStart || '',
+      verseEnd: verseEnd || verseStart || '',
+    });
   }, []);
   
   // Update chapters when book changes
@@ -59,32 +72,57 @@ const ContributeForm = () => {
       const chapters = getChaptersForBook(selectedBook);
       setAvailableChapters(chapters);
       
-      // Get and set the total chapter count
       const chapterCount = getChapterCountForBook(selectedBook);
       setTotalChapters(chapterCount);
       
-      // Reset chapter if the book changes
       setSelectedChapter('');
-      
-      // Update the reference
-      updateReference(selectedBook, '');
+      setStartVerse('');
+      setEndVerse('');
+      setAvailableVerses([]);
+      updateReference(selectedBook, '', '', '');
     } else {
       setAvailableChapters([]);
       setSelectedChapter('');
-      setScripture('');
+      setStartVerse('');
+      setEndVerse('');
+      setAvailableVerses([]);
+      setReference({
+        book: '',
+        chapter: '',
+        verseStart: '',
+        verseEnd: '',
+      });
       setTotalChapters(0);
     }
   }, [selectedBook, updateReference]);
   
-  // Update reference when chapter changes
+  // Update verses and reference when chapter changes
   React.useEffect(() => {
-    updateReference(selectedBook, selectedChapter);
-  }, [selectedChapter, selectedBook, updateReference]);
+    if (selectedChapter) {
+      const verseCount = getVerseCountForBookAndChapter(selectedBook, selectedChapter);
+      const verses = Array.from({ length: verseCount }, (_, i) => (i + 1).toString());
+      setAvailableVerses(verses);
+      updateReference(selectedBook, selectedChapter, startVerse, endVerse);
+    } else {
+      setAvailableVerses([]);
+      setStartVerse('');
+      setEndVerse('');
+      updateReference(selectedBook, '', '', '');
+    }
+  }, [selectedChapter, selectedBook, updateReference, startVerse, endVerse]);
+  
+  // Add this right after the state declarations
+  React.useEffect(() => {
+    if (startVerse && endVerse && parseInt(endVerse) < parseInt(startVerse)) {
+      setEndVerse(startVerse);
+      updateReference(selectedBook, selectedChapter, startVerse, startVerse);
+    }
+  }, [startVerse, endVerse, selectedBook, selectedChapter, updateReference]);
   
   const handleSubmit = async (e) => {
     e.preventDefault();
     
-    // Generate a unique identifier for the current session/tab
+    // Rate limiting
     const userIdentifier = getUserIdentifier();
     try {
       await rateLimiter.consume(userIdentifier);
@@ -94,29 +132,39 @@ const ContributeForm = () => {
       return;
     }
 
-    // Sanitize and validate all inputs
-    const { sanitizedValue: sanitizedQuestionText, error: questionError } = processInput(questionText, 'question');
-    if (questionError) {
+    // Validate required fields
+    if (!reference.book || !reference.chapter || !reference.verseStart || !reference.verseEnd) {
       setShowError(true);
-      setErrorMessage(questionError);
-      return;
-    }
-    
-    const { sanitizedValue: sanitizedTheme, error: themeError } = processInput(selectedTheme, 'theme');
-    if (themeError) {
-      setShowError(true);
-      setErrorMessage(themeError);
-      return;
-    }
-    
-    const { sanitizedValue: sanitizedScripture, error: scriptureError } = processInput(scripture, 'scripture reference');
-    if (scriptureError) {
-      setShowError(true);
-      setErrorMessage(scriptureError);
+      setErrorMessage('Please complete all required fields.');
       return;
     }
 
-    // Check for profanity
+    // Sanitize and validate inputs in parallel (non-blocking)
+    const [
+      { error: bookError },
+      { error: chapterError },
+      { error: verseStartError },
+      { error: verseEndError },
+      { sanitizedValue: sanitizedQuestionText, error: questionError },
+      { sanitizedValue: sanitizedTheme, error: themeError }
+    ] = await Promise.all([
+      processInput(reference.book, 'book'),
+      processInput(reference.chapter, 'chapter'),
+      processInput(reference.verseStart, 'start verse'),
+      processInput(reference.verseEnd || reference.verseStart, 'end verse'), // Fallback to start verse if empty
+      processInput(questionText, 'question'),
+      processInput(selectedTheme, 'theme')
+    ]);
+
+    // Check for errors (priority: scripture > question > theme)
+    const error = bookError || chapterError || verseStartError || verseEndError || questionError || themeError;
+    if (error) {
+      setShowError(true);
+      setErrorMessage(error);
+      return;
+    }
+
+    // Profanity check (non-blocking)
     if (matcher.hasMatch(sanitizedQuestionText)) {
       setShowError(true);
       setErrorMessage('Possible profanity detected. Please revise your question.');
@@ -127,15 +175,20 @@ const ContributeForm = () => {
     setShowError(false);
     
     try {
-      await saveQuestion(sanitizedTheme, sanitizedQuestionText, sanitizedScripture);
-      setShowSuccess(true);
-      
-      // Reset the form
-      setQuestionText('');
-      setSelectedTheme('');
-      setSelectedBook('');
-      setSelectedChapter('');
-      setScripture('');
+      const saved = await saveQuestion(
+        sanitizedTheme,
+        sanitizedQuestionText,
+        {
+          book: reference.book,
+          chapter: reference.chapter,
+          verseStart: reference.verseStart,
+          verseEnd: reference.verseEnd || reference.verseStart,
+        }
+      );
+      if (saved) {
+        setShowSuccess(true);
+        resetForm();
+      }
     } catch (error) {
       console.error('Error submitting question:', error);
       setShowError(true);
@@ -145,9 +198,30 @@ const ContributeForm = () => {
     }
   };
   
+  // Helper to reset form (extracted for clarity)
+  const resetForm = () => {
+    setQuestionText('');
+    setSelectedTheme('');
+    setSelectedBook('');
+    setSelectedChapter('');
+    setStartVerse('');
+    setEndVerse('');
+    setReference({
+      book: '',
+      chapter: '',
+      verseStart: '',
+      verseEnd: '',
+    });
+  };
+  
   const closeAlert = (alertType) => {
     if (alertType === 'success') setShowSuccess(false);
     if (alertType === 'error') setShowError(false);
+  };
+  
+  const handleEndVerseChange = (verse) => {
+    setEndVerse(verse);
+    updateReference(selectedBook, selectedChapter, startVerse, verse);
   };
   
   return (
@@ -179,9 +253,15 @@ const ContributeForm = () => {
           mx: 'auto'
         }}
       >
-        <Grid container spacing={4}>
+        <Grid container spacing={2} justifyContent="center" sx={{ width: '100%', maxWidth: '600px', mx: 'auto' }}>
           <Grid item xs={12} md={6}>
-            <Box sx={{ mb: 4 }}>
+            <Box sx={{ 
+              display: 'flex',
+              flexDirection: 'column',
+              gap: 1,
+              p: { xs: 2, sm: 0 },
+              mb: { xs: 3, md: 0 }
+            }}>
               <Typography 
                 variant="subtitle1" 
                 gutterBottom 
@@ -196,132 +276,200 @@ const ContributeForm = () => {
                 Bible Reference
               </Typography>
               
-              <Box sx={{ mb: 3 }}>
-                <ScriptureCombobox
-                  id="bookSelect"
-                  label="Book"
-                  value={selectedBook}
-                  onChange={setSelectedBook}
-                  options={bibleBooks}
-                  placeholder="Select a book..."
-                  isRequired
-                  helperText={selectedBook ? `Total chapters: ${totalChapters}` : ""}
-                />
-              </Box>
-              
-              <Box>
-                <ScriptureCombobox
-                  id="chapterSelect"
-                  label="Chapter"
-                  value={selectedChapter}
-                  onChange={setSelectedChapter}
-                  options={availableChapters}
-                  placeholder={selectedBook ? `Select chapter (1-${totalChapters})` : "Select a book first"}
-                  disabled={!selectedBook}
-                />
-              </Box>
-              
-              <input 
-                id="scripture" 
-                type="hidden" 
-                value={scripture}
-                required
-              />
-            </Box>
-            
-            <Box>
-              <Typography 
-                variant="subtitle1" 
-                gutterBottom 
-                sx={{ 
-                  fontWeight: 500, 
-                  color: 'primary.main',
-                  pb: 1,
-                  borderBottom: `2px solid ${theme.palette.primary.main}`,
-                  mb: 2.5
+              <ScriptureCombobox
+                id="bookSelect"
+                label="Book"
+                value={selectedBook}
+                onChange={(book) => {
+                  setSelectedBook(book);
+                  updateReference(book, '', '', '');
                 }}
-              >
-                Theme
-              </Typography>
-              
-              <TextField
-                select
-                fullWidth
-                id="themeSelect"
-                label="Theme"
-                value={selectedTheme}
-                onChange={(e) => setSelectedTheme(e.target.value)}
-                required
-                variant="outlined"
-                size="medium"
-                sx={{
+                options={bibleBooks}
+                placeholder="Select a book..."
+                isRequired
+                helperText={selectedBook ? `Total chapters: ${totalChapters}` : " "}
+                sx={{ 
+                  minWidth: 240,
+                  width: '100%',
+                  mb: 0,
+                  '& .MuiFormHelperText-root': {
+                    visibility: selectedBook ? 'visible' : 'hidden',
+                    height: '16px',
+                    mt: 0,
+                    mb: 0,
+                    lineHeight: 1,
+                    fontSize: '0.7rem'
+                  },
                   '& .MuiOutlinedInput-root': {
-                    borderRadius: 1.5,
-                    '& fieldset': {
-                      borderColor: theme.palette.mode === 'dark' ? 'rgba(255, 255, 255, 0.23)' : 'rgba(0, 0, 0, 0.23)',
-                      borderWidth: 1.5,
-                    },
-                    '&:hover fieldset': {
-                      borderColor: 'primary.main',
-                    },
-                    '&.Mui-focused fieldset': {
-                      borderWidth: 2,
-                    }
+                    padding: '6px 12px',
+                    marginBottom: '0px'
                   }
                 }}
-              >
-                <MenuItem value="">
-                  <em>Select a theme</em>
-                </MenuItem>
-                {themes.map((theme, index) => (
-                  <MenuItem key={index} value={theme}>{theme}</MenuItem>
-                ))}
-              </TextField>
+              />
+              
+              <ScriptureCombobox
+                id="chapterSelect"
+                label="Chapter"
+                value={selectedChapter}
+                onChange={(chapter) => {
+                  setSelectedChapter(chapter);
+                  updateReference(selectedBook, chapter, '', '');
+                }}
+                options={availableChapters}
+                placeholder={selectedBook ? `Select chapter (1-${totalChapters})` : "Select a book first"}
+                disabled={!selectedBook}
+                isRequired
+                sx={{
+                  minWidth: 240,
+                  width: '100%',
+                  mt: 0,
+                  '& .MuiOutlinedInput-root': {
+                    padding: '6px 12px'
+                  }
+                }}
+              />
+              
+              <ScriptureCombobox
+                id="verseStartSelect"
+                label="Start Verse"
+                value={startVerse}
+                onChange={(verse) => {
+                  setStartVerse(verse);
+                  updateReference(selectedBook, selectedChapter, verse, endVerse);
+                }}
+                options={availableVerses}
+                placeholder={selectedChapter ? "Select start verse" : "Select a chapter first"}
+                disabled={!selectedChapter}
+                isRequired
+                sx={{ 
+                  minWidth: 240,
+                  width: '100%',
+                  '& .MuiOutlinedInput-root': {
+                    padding: '6px 12px'
+                  }
+                }}
+              />
+              
+              <ScriptureCombobox
+                id="verseEndSelect"
+                label="End Verse"
+                value={endVerse}
+                onChange={handleEndVerseChange}
+                options={availableVerses}
+                isEndVerse
+                startVerseValue={startVerse}
+                disabled={!selectedChapter}
+                isRequired
+                sx={{ 
+                  minWidth: 240,
+                  width: '100%',
+                  '& .MuiOutlinedInput-root': {
+                    padding: '6px 12px'
+                  }
+                }}
+              />
             </Box>
           </Grid>
           
           <Grid item xs={12} md={6}>
-            <Typography 
-              variant="subtitle1" 
-              gutterBottom 
-              sx={{ 
-                fontWeight: 500, 
-                color: 'primary.main',
-                pb: 1,
-                borderBottom: `2px solid ${theme.palette.primary.main}`,
-                mb: 2.5
-              }}
-            >
-              Question Details
-            </Typography>
-            
-            <TextField
-              fullWidth
-              id="questionText"
-              label="Question"
-              multiline
-              rows={4}
-              value={questionText}
-              onChange={(e) => setQuestionText(e.target.value)}
-              required
-              placeholder="Type your Bible study question here..."
-              variant="outlined"
-              sx={{
-                '& .MuiOutlinedInput-root': {
-                  borderRadius: 1.5,
-                  '& fieldset': {
-                    borderColor: theme.palette.mode === 'dark' ? 'rgba(255, 255, 255, 0.23)' : 'rgba(0, 0, 0, 0.23)',
-                    borderWidth: 1.5,
-                  },
-                  '&:hover fieldset': {
-                    borderColor: 'primary.main',
-                  },
-                  '&.Mui-focused fieldset': {
-                    borderWidth: 2,
-                  }
-                }
-              }}
-            />
+            <Box sx={{ 
+              display: 'flex',
+              flexDirection: 'column',
+              height: '100%',
+              justifyContent: 'flex-end'
+            }}>
+              <Box sx={{ 
+                flex: '0 0 auto',
+                p: { xs: 2, sm: 0 },
+                mb: 2
+              }}>
+                <Typography 
+                  variant="subtitle1" 
+                  gutterBottom 
+                  sx={{ 
+                    fontWeight: 500, 
+                    color: 'primary.main',
+                    pb: 1,
+                    borderBottom: `2px solid ${theme.palette.primary.main}`,
+                    mb: 2.5
+                  }}
+                >
+                  Theme
+                </Typography>
+                
+                <TextField
+                  select
+                  fullWidth
+                  id="themeSelect"
+                  label="Theme"
+                  value={selectedTheme}
+                  onChange={(e) => setSelectedTheme(e.target.value)}
+                  required
+                  variant="outlined"
+                  size="medium"
+                  sx={{
+                    minWidth: 240,
+                    '& .MuiOutlinedInput-root': {
+                      padding: '3px 10px'
+                    }
+                  }}
+                >
+                  <MenuItem value="">
+                    <em>Select a theme</em>
+                  </MenuItem>
+                  {themes.map((theme, index) => (
+                    <MenuItem key={index} value={theme}>{theme}</MenuItem>
+                  ))}
+                </TextField>
+              </Box>
+              
+              <Box sx={{ 
+                flex: 1,
+                p: { xs: 2, sm: 0 },
+                display: 'flex',
+                flexDirection: 'column'
+              }}>
+                <Typography 
+                  variant="subtitle1" 
+                  gutterBottom 
+                  sx={{ 
+                    fontWeight: 500, 
+                    color: 'primary.main',
+                    pb: 1,
+                    borderBottom: `2px solid ${theme.palette.primary.main}`,
+                    mb: 2.5
+                  }}
+                >
+                  Question Details
+                </Typography>
+                
+                <TextField
+                  fullWidth
+                  id="questionText"
+                  label="Question"
+                  multiline
+                  rows={3}
+                  value={questionText}
+                  onChange={(e) => setQuestionText(e.target.value)}
+                  required
+                  placeholder="Type your Bible study question here..."
+                  variant="outlined"
+                  sx={{
+                    '& .MuiOutlinedInput-root': {
+                      padding: '6px 12px',
+                      height: '100%',
+                      '& textarea': {
+                        minHeight: '66px',
+                        width: '100%',
+                        padding: 0,
+                        margin: 0,
+                        boxSizing: 'border-box'
+                      }
+                    }
+                  }}
+                />
+              </Box>
+            </Box>
           </Grid>
         </Grid>
         

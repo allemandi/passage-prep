@@ -4,18 +4,33 @@ const QuestionSchema = new mongoose.Schema({
   theme: {
     type: String,
     required: true,
-    trim: true
+    trim: true,
   },
   question: {
     type: String,
     required: true,
-    trim: true
+    trim: true,
   },
-  biblePassage: {
+  book: {
     type: String,
     required: true,
-    trim: true
-  }
+    trim: true,
+  },
+  chapter: {
+    type: Number,
+    required: true,
+    trim: true,
+  },
+  verseStart: {
+    type: Number,
+    required: true,
+    trim: true,
+  },
+  verseEnd: {
+    type: Number,
+    required: true,
+    trim: true,
+  },
 });
 
 module.exports = mongoose.model('Question', QuestionSchema);

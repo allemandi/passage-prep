@@ -11,7 +11,6 @@ import {
 import AddIcon from '@mui/icons-material/Add';
 import ScriptureCombobox from './ScriptureCombobox';
 import ThemesSection from './ThemesSection';
-import GeneralSettingsSection from './GeneralSettingsSection';
 
 const StudyFormContainer = ({ 
   // Bible References props
@@ -24,10 +23,6 @@ const StudyFormContainer = ({
   selectedThemes,
   setSelectedThemes,
   themes,
-  
-  // General Settings props
-  maxLimit,
-  setMaxLimit,
   
   // Form submission props
   isLoading,
@@ -66,14 +61,13 @@ const StudyFormContainer = ({
         }}
       >
         <Typography 
-          variant="h4" 
-          gutterBottom 
+          variant="h2"
+          gutterBottom
           sx={{ 
             fontWeight: 600, 
             textAlign: 'center',
             color: 'primary.main',
-            mb: 4,
-            fontSize: { xs: '1.75rem', sm: '2rem', md: '2.25rem' }
+            mb: 4
           }}
         >
           Request Bible Study
@@ -132,6 +126,28 @@ const StudyFormContainer = ({
                         sx={{ width: '100%' }}
                       />
                     </Grid>
+                    <Grid item xs={12} sm={6}>
+                      <ScriptureCombobox
+                        id={`verse-start-${ref.id}`}
+                        label="Start Verse"
+                        value={ref.startVerse}
+                        onChange={(value) => onUpdateScriptureRef(index, { startVerse: value })}
+                        options={ref.availableVerses}
+                        placeholder="Select start verse"
+                        disabled={!ref.selectedChapter}
+                      />
+                    </Grid>
+                    <Grid item xs={12} sm={6}>
+                      <ScriptureCombobox
+                        id={`verse-end-${ref.id}`}
+                        label="End Verse"
+                        value={ref.endVerse}
+                        onChange={(value) => onUpdateScriptureRef(index, { endVerse: value })}
+                        options={ref.availableVerses}
+                        placeholder="Select end verse"
+                        disabled={!ref.selectedChapter}
+                      />
+                    </Grid>
                   </Grid>
                 </Box>
               ))}
@@ -163,12 +179,7 @@ const StudyFormContainer = ({
             </Box>
           </Grid>
           
-          <Grid item xs={12} md={4}>
-            <GeneralSettingsSection
-              maxLimit={maxLimit}
-              setMaxLimit={setMaxLimit}
-            />
-          </Grid>
+      
         </Grid>
         
         <Box 

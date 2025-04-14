@@ -44,10 +44,11 @@ export const getVersesForChapter = (bookName, chapterNum) => {
 };
 
 // Format reference based on selected book and chapter
-export const formatReference = (book, chapter) => {
-  if (!book) return '';
-  if (!chapter) return book;
-  return `${book} ${chapter}`;
+export const formatReference = (book, chapter, startVerse = '', endVerse = '') => {
+  let reference = `${book} ${chapter}`;
+  if (startVerse) reference += `:${startVerse}`;
+  if (endVerse && endVerse !== startVerse) reference += `-${endVerse}`;
+  return reference;
 };
 
 // Export all functions as a named object
@@ -57,6 +58,22 @@ const bibleDataUtils = {
   getChapterCountForBook,
   getVersesForChapter,
   formatReference
+};
+
+export const getVerseCountForBookAndChapter = (bookName, chapterNum) => {
+  if (!bookName || !chapterNum) return 0;
+
+  const book = bibleData.find(
+    b => b.book.toLowerCase() === bookName.toLowerCase()
+  );
+
+  if (!book) return 0;
+
+  const chapter = book.chapters.find(
+    ch => ch.chapter === chapterNum.toString()
+  );
+
+  return chapter ? parseInt(chapter.verses, 10) : 0;
 };
 
 export default bibleDataUtils;

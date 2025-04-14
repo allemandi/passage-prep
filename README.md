@@ -1,16 +1,28 @@
-# Bible Study Preparation Application
+# 📖 PassagePrep
+**Build reusable Bible studies in seconds.**
 
-A React-based web application for generating Bible study questions and managing study materials.
+A React-powered tool to organize, format, and export your study questions with contextual notes.
 
-## Features
+🚀 Live Demo: [https://your-app-url.here]
 
-- Generate Bible study questions based on scripture references and themes
-- Contribute new questions to the database
-- View study materials in a modal dialog
-- Print study materials
-- MongoDB integration for data storage
-- Dark/Light mode support
-- Responsive design
+## Why this exists
+- 🏗️ Wanted clean, simple formatting for group studies
+- 📚 Needed quick study outlines with contextual notes
+- ♻️ Needed a personal repository of reusable questions
+
+## ✨ Key Features
+- Question Memory Bank - Save your best questions
+- Smart Formatting - Copy and paste outlines in Rich Text or Markdown
+- Book Context - Automatic authorship/theme notes for each passage
+- Fetch & Filter - "Just the best Genesis passages about forgiveness, please"
+- Collaborative - Add new questions to shared database
+
+## 🚀 Getting Started
+
+### Prerequisites
+- Node.js 16+
+- Yarn 1.22+
+- MongoDB Atlas account + cluster
 
 ## Setup and Installation
 
@@ -19,34 +31,41 @@ A React-based web application for generating Bible study questions and managing 
 2. Clone this repository:
 ```bash
 git clone <repository-url>
-cd bible-study-app
+cd passage-prep
+yarn install
 ```
 
 3. Configure MongoDB:
+   - Create an account 
    - Create a `.env` file in the root directory
    - Add your MongoDB connection string:
    ```
-   MONGODB_URI=mongodb+srv://username:<password>@yourcluster.mongodb.net/?retryWrites=true&w=majority
+   MONGODB_URI=<your_mongodb_connection_string>
    PORT=3001
    ```
-   - Replace `<password>` with your actual database password
+   - Replace `<your_mongodb_connection_string>` with your actual MongoDB cluster details
 
-4. Install dependencies and start the application:
+4. Preload MongoDB with questions and context
+   ```
+   # Importing file information from /data
+   # Run:
+   node ./data/import-data
+   ```
+
+5. Start the application locally:
 ```bash
-yarn install
 yarn dev
 ```
+or consider deploying to your own website like Netlify
 
-## Using the Application
+## 🖥️ Usage
+### Requesting Studies
 
-### Requesting a Bible Study
-
-1. Enter Bible references in the "Bible References" section 
-2. Select themes in the "Themes" section
-3. Choose maximum number of questions per theme
-4. Click "Generate Study"
-5. View your study in the modal that appears
-6. Use the "Print" button to print the study
+1. Add scripture references (multiple supported)
+2. Toggle themes to exclude
+3. Click Search Questions to generate the table
+4. Tick checkboxes on questions
+5. Click Generate Study to preview and copy study
 
 ### Contributing Questions
 
@@ -56,64 +75,23 @@ yarn dev
 4. Click "Submit"
 5. The question will be added to the MongoDB database
 
-## Project Structure
-
-The application follows a modular structure:
-
-- `/src` - React application source code
-  - `/components` - React components
-  - `/data` - Data services and API integration
-  - `/theme` - Theme configuration
-  - `/utils` - Utility functions
-- `/models` - MongoDB schemas
-- `/netlify/functions` - Serverless functions for API endpoints
-
-## MongoDB Integration
-
-The application uses MongoDB to store Bible books and questions data.
-
-### Database Collections
-
-- `books` - Bible book information and context
-- `questions` - Study questions with themes and references
-
-## Development
-
-### Local Development
-
-1. Start the development server:
-```bash
-yarn dev
-```
-
-2. The application will be available at `http://localhost:3000`
-
+## 🌐 Deployment
 ### Building for Production
-
-1. Build the application:
 ```bash
 yarn build
 ```
 
-2. The build output will be in the `build` directory
+### Netlify (Recommended)
+1. Connect your GitHub repository
+2. Set `MONGODB_URI` environment variable
+3. Deploy!
 
-## Deployment
 
-The application is configured for deployment on Netlify with serverless functions.
-
-### Environment Variables
-
-Make sure to set these environment variables in your deployment platform:
-
-- `MONGODB_URI` - MongoDB connection string
-- `NODE_ENV` - Set to 'production' in production environment
-
-## Contributing
-
-1. Fork the repository
-2. Create a feature branch
-3. Commit your changes
-4. Push to the branch
+## 🤝 Contributing
+1. Fork the project
+2. Create your feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add some amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
 5. Open a Pull Request
 
 ## License

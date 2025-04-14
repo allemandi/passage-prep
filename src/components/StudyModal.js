@@ -9,12 +9,11 @@ import {
   Button,
   List,
   ListItem,
-  Paper,
   useTheme,
-  Divider
+  Divider,
+  Box
 } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
-import bibleCounts from '../data/bible-counts.json'; // Import the bible counts data
 import Snackbar from '@mui/material/Snackbar';
 import MuiAlert from '@mui/material/Alert';
 
@@ -36,14 +35,140 @@ const StudyModal = ({ show, onHide, data }) => {
     ? 'rgba(255, 255, 255, 0.12)' 
     : 'rgba(0, 0, 0, 0.12)';
 
-  // Function to get the book name from a reference
-  const getBookFromReference = (reference) => {
-    for (const { book } of bibleCounts) {
-      if (reference.includes(book)) {
-        return book; // Return the first matching book name
+  // Function to group questions by book and theme
+  const groupQuestionsByBookAndTheme = (questions) => {
+    const grouped = {};
+    
+    questions.forEach(question => {
+      if (!grouped[question.book]) {
+        grouped[question.book] = {};
       }
+      
+      if (!grouped[question.book][question.theme]) {
+        grouped[question.book][question.theme] = [];
+      }
+      
+      grouped[question.book][question.theme].push(question);
+    });
+    
+    return grouped;
+  };
+
+  const groupedQuestions = groupQuestionsByBookAndTheme(data.filteredQuestions || []);
+
+  // Function to generate markdown content
+  const generateMarkdownContent = () => {
+    let markdown = '';
+
+    // Bible References
+    markdown += '## Bible References\n';
+    if (data?.refArr && data.refArr.filter(ref => ref).length > 0) {
+      data.refArr.filter(ref => ref).forEach(reference => {
+        markdown += `- ${reference}\n`;
+      });
+    } else {
+      markdown += 'No Bible references specified.\n';
     }
-    return null; // Return null if no match found
+    markdown += '\n';
+
+    // General Context
+    markdown += '## General Context\n';
+    if (data?.contextArr && data.contextArr.length > 0) {
+      data.contextArr.forEach(context => {
+        markdown += `- ${context}\n`;
+      });
+    } else {
+      markdown += 'No context information available.\n';
+    }
+    markdown += '\n';
+
+    // Questions by Book and Theme
+    markdown += '## Questions by Book and Theme\n';
+    if (Object.keys(groupedQuestions).length > 0) {
+      Object.entries(groupedQuestions).forEach(([book, themes]) => {
+        markdown += `### ${book}\n`;
+        Object.entries(themes).forEach(([theme, questions]) => {
+          markdown += `- **${theme}**\n`;
+          questions.forEach(question => {
+            markdown += `  - ${question.question}\n`;
+          });
+        });
+        markdown += '\n';
+      });
+    } else {
+      markdown += 'No questions available.\n';
+    }
+
+    return markdown;
+  };
+
+  // Function to generate HTML content for rich text
+  const generateRichTextContent = () => {
+    let html = '<div style="font-family: Arial, sans-serif; font-size: 12pt; line-height: 1.4;">';
+
+    // Bible References
+    html += '<h3 style="color: #1976d2; font-size: 1rem; font-weight: 600; margin: 0.7rem 0 0.3rem; border-bottom: 1px solid #e0e0e0; padding-bottom: 0.2rem;">Bible References</h3>';
+    if (data?.refArr && data.refArr.filter(ref => ref).length > 0) {
+      html += '<ul style="margin: 0.3rem 0 0.7rem; padding-left: 1rem;">';
+      data.refArr.filter(ref => ref).forEach(reference => {
+        html += `<li style="margin-bottom: 0.15rem; font-size: 0.9rem;">${reference}</li>`;
+      });
+      html += '</ul>';
+    } else {
+      html += '<p style="margin: 0.3rem 0 0.7rem; font-size: 0.9rem;">No Bible references specified.</p>';
+    }
+
+    // General Context
+    html += '<h3 style="color: #1976d2; font-size: 1rem; font-weight: 600; margin: 0.7rem 0 0.3rem; border-bottom: 1px solid #e0e0e0; padding-bottom: 0.2rem;">General Context</h3>';
+    if (data?.contextArr && data.contextArr.length > 0) {
+      html += '<ul style="margin: 0.3rem 0 0.7rem; padding-left: 1rem;">';
+      data.contextArr.forEach(context => {
+        html += `<li style="margin-bottom: 0.15rem; font-size: 0.9rem;">${context}</li>`;
+      });
+      html += '</ul>';
+    } else {
+      html += '<p style="margin: 0.3rem 0 0.7rem; font-size: 0.9rem;">No context information available.</p>';
+    }
+
+    // Questions by Book and Theme
+    html += '<h3 style="color: #1976d2; font-size: 1rem; font-weight: 600; margin: 0.7rem 0 0.3rem; border-bottom: 1px solid #e0e0e0; padding-bottom: 0.2rem;">Questions by Book and Theme</h3>';
+    if (Object.keys(groupedQuestions).length > 0) {
+      Object.entries(groupedQuestions).forEach(([book, themes]) => {
+        html += `<h4 style="font-size: 0.95rem; font-weight: 500; margin: 0.6rem 0 0.25rem; color: #1976d2;">${book}</h4>`;
+        Object.entries(themes).forEach(([theme, questions]) => {
+          html += `<p style="margin: 0.4rem 0 0.15rem 0.6rem; font-weight: 500; font-size: 0.9rem;">${theme}</p>`;
+          html += '<ul style="margin: 0.15rem 0 0.6rem 1.2rem; padding-left: 0.6rem;">';
+          questions.forEach(question => {
+            html += `<li style="margin-bottom: 0.15rem; list-style-type: circle; font-size: 0.9rem;">${question.question}</li>`;
+          });
+          html += '</ul>';
+        });
+      });
+    } else {
+      html += '<p style="margin: 0.3rem 0 0.7rem; font-size: 0.9rem;">No questions available.</p>';
+    }
+
+    html += '</div>';
+    return html;
+  };
+
+  // Function to copy rich text to clipboard
+  const copyRichText = async () => {
+    const html = generateRichTextContent();
+    const blob = new Blob([html], { type: 'text/html' });
+    const clipboardItem = new ClipboardItem({ 'text/html': blob });
+    
+    try {
+      await navigator.clipboard.write([clipboardItem]);
+      setShowSnackbar(true);
+    } catch (err) {
+      console.error('Failed to copy rich text:', err);
+      // Fallback to plain text if rich text fails
+      const plainText = generateMarkdownContent();
+      navigator.clipboard.writeText(plainText).then(() => {
+        setShowSnackbar(true);
+      });
+    }
   };
 
   return (
@@ -128,11 +253,13 @@ const StudyModal = ({ show, onHide, data }) => {
                 key={index} 
                 sx={{ 
                   py: 1,
-                  px: 0
+                  px: 0,
+                  display: 'list-item',
+                  listStyleType: 'disc'
                 }}
               >
                 <Typography variant="body1" sx={{ fontWeight: 400 }}>
-                  - {reference}
+                  {reference}
                 </Typography>
               </ListItem>
             ))}
@@ -164,11 +291,13 @@ const StudyModal = ({ show, onHide, data }) => {
                 key={index} 
                 sx={{ 
                   py: 1,
-                  px: 0
+                  px: 0,
+                  display: 'list-item',
+                  listStyleType: 'disc'
                 }}
               >
                 <Typography variant="body1" sx={{ fontWeight: 400 }}>
-                  - {context}
+                  {context}
                 </Typography>
               </ListItem>
             ))}
@@ -190,49 +319,39 @@ const StudyModal = ({ show, onHide, data }) => {
             mb: 3.5
           }}
         >
-          Questions
+          Questions by Book and Theme
         </Typography>
 
-        {data.filteredQuestions && data.filteredQuestions.length > 0 ? (
+        {Object.keys(groupedQuestions).length > 0 ? (
           <List disablePadding>
-            {data.refArr.filter(ref => ref).map((reference, index) => {
-              const book = getBookFromReference(reference);
-              const questionsForBook = data.filteredQuestions.filter(question => question.biblePassage.includes(book));
-
-              return (
-                <React.Fragment key={index}>
-                  {book && (
-                    <>
-                      <Typography variant="h6" sx={{ fontWeight: 600, mt: 2 }}>
-                        {reference}
-                      </Typography>
-                      {questionsForBook.length > 0 ? (
-                        questionsForBook.map((question, qIndex) => (
-                          <ListItem key={qIndex}>
-                            <Typography variant="body1">
-                            - {question.question}
-                            </Typography>
-                          </ListItem>
-                        ))
-                      ) : (
-                        <ListItem>
-                          <Typography variant="body1" sx={{ opacity: 0.6 }}>
-                            No questions available for this book.
+            {Object.entries(groupedQuestions).map(([book, themes]) => (
+              <React.Fragment key={book}>
+                <Typography variant="h6" sx={{ mt: 3, mb: 1.5 }}>
+                  {book}
+                </Typography>
+                {Object.entries(themes).map(([theme, questions]) => (
+                  <Box key={theme} sx={{ ml: 2, mb: 1.5 }}>
+                    <Typography variant="subtitle1" sx={{ mb: 1 }}>
+                      {theme}
+                    </Typography>
+                    <List disablePadding sx={{ ml: 2 }}>
+                      {questions.map((question, qIndex) => (
+                        <ListItem key={qIndex} sx={{ py: 0.5, px: 0, display: 'list-item', listStyleType: 'circle' }}>
+                          <Typography variant="body2">
+                            {question.question}
                           </Typography>
                         </ListItem>
-                      )}
-                    </>
-                  )}
-                </React.Fragment>
-              );
-            })}
+                      ))}
+                    </List>
+                  </Box>
+                ))}
+              </React.Fragment>
+            ))}
           </List>
         ) : (
-          <Paper>
-            <Typography>
-              No questions selected from Search Questions table.
-            </Typography>
-          </Paper>
+          <Typography variant="body1" sx={{ opacity: 0.8 }}>
+            No questions available.
+          </Typography>
         )}
       </DialogContent>
       
@@ -259,33 +378,41 @@ const StudyModal = ({ show, onHide, data }) => {
         >
           Close
         </Button>
-        <Button 
-          onClick={() => {
-            const content = document.getElementById('study-modal-content').innerText; // Get the content to copy
-            navigator.clipboard.writeText(content).then(() => {
-              setShowSnackbar(true); // Show the Snackbar alert
-            });
-          }} 
-          variant="contained" 
-          color="primary"
-          sx={{ 
-            px: 3,
-            py: 1,
-            borderRadius: 2,
-            textTransform: 'none',
-            fontWeight: 500,
-            boxShadow: theme.palette.mode === 'dark' 
-              ? '0 2px 8px rgba(144, 202, 249, 0.2)' 
-              : '0 2px 8px rgba(25, 118, 210, 0.2)',
-            '&:hover': {
-              boxShadow: theme.palette.mode === 'dark' 
-                ? '0 4px 12px rgba(144, 202, 249, 0.3)' 
-                : '0 4px 12px rgba(25, 118, 210, 0.3)'
-            }
-          }}
-        >
-          Copy
-        </Button>
+        <Box sx={{ display: 'flex', gap: 2 }}>
+          <Button 
+            onClick={() => {
+              const markdownContent = generateMarkdownContent();
+              navigator.clipboard.writeText(markdownContent).then(() => {
+                setShowSnackbar(true);
+              });
+            }}
+            variant="outlined"
+            color="primary"
+            sx={{ 
+              px: 3,
+              py: 1,
+              borderRadius: 2,
+              textTransform: 'none',
+              fontWeight: 500
+            }}
+          >
+            Copy as Markdown
+          </Button>
+          <Button 
+            onClick={copyRichText}
+            variant="contained"
+            color="primary"
+            sx={{ 
+              px: 3,
+              py: 1,
+              borderRadius: 2,
+              textTransform: 'none',
+              fontWeight: 500
+            }}
+          >
+            Copy as Rich Text
+          </Button>
+        </Box>
       </DialogActions>
 
       <Snackbar
