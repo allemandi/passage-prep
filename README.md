@@ -17,6 +17,9 @@ A React-powered tool to organize, format, and export your study questions with c
 - Fetch & Filter - "Just the best Genesis passages about forgiveness, please"
 - Collaborative - Add new questions to shared database
 
+## 🖥️ Acknowledgments
+This project was developed with the help of AI tools (e.g., GitHub Copilot, Cursor) for code suggestions, debugging, and optimizations.
+
 ## 🚀 Getting Started
 
 ### Prerequisites
