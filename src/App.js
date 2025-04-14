@@ -1,20 +1,11 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { ThemeProvider, createTheme } from '@mui/material/styles';
-import { 
-  Container,
-  Typography, 
-  Box,
-  CssBaseline,
-  IconButton,
-  Tooltip,
-  useMediaQuery,
-  Paper
-} from '@mui/material';
+import { ThemeProvider, createTheme, Tabs, Tab, Box, Container, CssBaseline, IconButton, Tooltip, useMediaQuery, Paper, Typography } from '@mui/material';
 import Brightness4Icon from '@mui/icons-material/Brightness4';
 import Brightness7Icon from '@mui/icons-material/Brightness7';
 import './App.css';
 import RequestForm from './components/RequestForm';
 import ContributeForm from './components/ContributeForm';
+import AdminForm from './components/AdminForm';
 import StudyModal from './components/StudyModal';
 import { getBooks, getQuestions } from './data/dataService';
 import { createAppTheme } from './theme/theme';
@@ -23,6 +14,7 @@ function App() {
   const [showModal, setShowModal] = useState(false);
   const [studyData, setStudyData] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [tabValue, setTabValue] = useState(0);
   const prefersDarkMode = useMediaQuery('(prefers-color-scheme: dark)');
   const [mode, setMode] = useState(prefersDarkMode ? 'dark' : 'light');
   
@@ -70,6 +62,10 @@ function App() {
   const handleShowStudy = (data) => {
     setStudyData(data);
     setShowModal(true);
+  };
+
+  const handleTabChange = (event, newValue) => {
+    setTabValue(newValue);
   };
   
   return (
@@ -154,59 +150,67 @@ function App() {
             px: { xs: 2, sm: 3, md: 4 }
           }}
         >
-          {/* App Description Card */}
-          <Paper 
-            elevation={0}
-            sx={{ 
-              p: { xs: 2, sm: 3 },
-              mb: 4,
-              bgcolor: 'background.paper',
-              borderRadius: 2,
-              border: `1px solid ${theme.palette.divider}`
-            }}
+          <Tabs
+            value={tabValue}
+            onChange={handleTabChange}
+            variant="fullWidth"
+            sx={{ mb: 4 }}
           >
-            <Typography variant="body1" paragraph sx={{ mb: 2 }}>
-            Add scripture references, click Search Questions.
-            </Typography>
-            <Typography variant="body1" paragraph sx={{ mb: 2 }}>
-             Select questions with checkboxes, click Generate Study.
-            </Typography>
-            <Typography variant="body2" sx={{ fontStyle: 'italic' }}>
-              Contribute your own questions to help build our growing database.
-            </Typography>
-          </Paper>
-          
-          <Paper 
-            elevation={mode === 'dark' ? 4 : 1}
-            sx={{ 
-              p: { xs: 2, sm: 3, md: 4 }, 
-              bgcolor: 'background.paper', 
-              borderRadius: 3,
-              boxShadow: mode === 'dark' 
-                ? '0 6px 20px rgba(0, 0, 0, 0.3)' 
-                : '0 6px 20px rgba(0, 0, 0, 0.05)',
-              mb: 4,
-              width: '100%'
-            }}
-          >
-            <RequestForm onStudyGenerated={handleShowStudy} isLoading={isLoading} />
-          </Paper>
-          
-          <Paper 
-            elevation={mode === 'dark' ? 4 : 1}
-            sx={{ 
-              p: { xs: 2, sm: 3, md: 4 }, 
-              bgcolor: 'background.paper', 
-              borderRadius: 3,
-              boxShadow: mode === 'dark' 
-                ? '0 6px 20px rgba(0, 0, 0, 0.3)' 
-                : '0 6px 20px rgba(0, 0, 0, 0.05)',
-              width: '100%'
-            }}
-          >
-            <ContributeForm isLoading={isLoading} />
-          </Paper>
-          
+            <Tab label="Search & Format" />
+            <Tab label="Contribute" />
+            <Tab label="Admin" />
+          </Tabs>
+
+          {tabValue === 0 && (
+            <Paper 
+              elevation={mode === 'dark' ? 4 : 1}
+              sx={{ 
+                p: { xs: 2, sm: 3, md: 4 }, 
+                bgcolor: 'background.paper', 
+                borderRadius: 3,
+                boxShadow: mode === 'dark' 
+                  ? '0 6px 20px rgba(0, 0, 0, 0.3)' 
+                  : '0 6px 20px rgba(0, 0, 0, 0.05)',
+                mb: 4,
+                width: '100%'
+              }}
+            >
+              <RequestForm onStudyGenerated={handleShowStudy} isLoading={isLoading} />
+            </Paper>
+          )}
+          {tabValue === 1 && (
+            <Paper 
+              elevation={mode === 'dark' ? 4 : 1}
+              sx={{ 
+                p: { xs: 2, sm: 3, md: 4 }, 
+                bgcolor: 'background.paper', 
+                borderRadius: 3,
+                boxShadow: mode === 'dark' 
+                  ? '0 6px 20px rgba(0, 0, 0, 0.3)' 
+                  : '0 6px 20px rgba(0, 0, 0, 0.05)',
+                width: '100%'
+              }}
+            >
+              <ContributeForm isLoading={isLoading} />
+            </Paper>
+          )}
+          {tabValue === 2 && (
+            <Paper 
+              elevation={mode === 'dark' ? 4 : 1}
+              sx={{ 
+                p: { xs: 2, sm: 3, md: 4 }, 
+                bgcolor: 'background.paper', 
+                borderRadius: 3,
+                boxShadow: mode === 'dark' 
+                  ? '0 6px 20px rgba(0, 0, 0, 0.3)' 
+                  : '0 6px 20px rgba(0, 0, 0, 0.05)',
+                width: '100%'
+              }}
+            >
+              <AdminForm />
+            </Paper>
+          )}
+
           <StudyModal 
             show={showModal} 
             onHide={() => setShowModal(false)} 
