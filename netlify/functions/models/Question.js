@@ -11,11 +11,26 @@ const QuestionSchema = new mongoose.Schema({
     required: true,
     trim: true
   },
-  biblePassage: {
+  book: {
     type: String,
     required: true,
-    trim: true
-  }
+    trim: true,
+  },
+  chapter: {
+    type: Number,
+    required: true,
+    trim: true,
+  },
+  verseStart: {
+    type: Number,
+    required: true,
+    trim: true,
+  },
+  verseEnd: {
+    type: Number,
+    required: true,
+    trim: true,
+  },
 });
 
 // Prevent model recompilation error in serverless context

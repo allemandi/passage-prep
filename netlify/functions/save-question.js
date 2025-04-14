@@ -22,7 +22,7 @@ exports.handler = async function(event, context) {
     const { newData } = data;
     
     // Validate the data
-    if (!newData || !newData.theme || !newData.question || !newData.biblePassage) {
+    if (!newData || !newData.theme || !newData.question || !newData.book || !newData.chapter || !newData.verseStart || !newData.verseEnd ) {
       return {
         statusCode: 400,
         headers: {
@@ -39,7 +39,10 @@ exports.handler = async function(event, context) {
     await Question.create({
       theme: newData.theme,
       question: newData.question,
-      biblePassage: newData.biblePassage
+      book: newData.book,
+      chapter: newData.chapter,
+      verseStart: newData.verseStart,
+      verseEnd: newData.verseEnd,
     });
     
     return {
