@@ -179,20 +179,26 @@ const AdminForm = () => {
 
   const handleQuestionSelect = (indices, isSelected) => {
     setSelectedQuestions(prev => {
-      // Ensure indices is always an array
-      if (!Array.isArray(indices)) {
-        indices = [indices];
+      // Normalize to array if single index
+      if (!Array.isArray(indices)) indices = [indices];
+
+      // Check if this is a "Select All" action (indices contains all visible items)
+      if (indices.length === filteredQuestions.length) {
+        // Toggle behavior - deselect all if all were selected, select all otherwise
+        return prev.length === filteredQuestions.length ? [] : indices;
       }
 
-      if (isSelected) {
-        // Add new indices, avoiding duplicates
-        return [...new Set([...prev, ...indices])];
-      } else {
-        // Clear all if empty array is passed
-        if (indices.length === 0) return [];
-        // Remove specified indices
-        return prev.filter(i => !indices.includes(i));
+      // Check if this is a header checkbox click (indices is empty array)
+      if (indices.length === 0) {
+        // Toggle behavior based on current selection state
+        return prev.length === filteredQuestions.length ? [] : 
+               Array.from({length: filteredQuestions.length}, (_, i) => i);
       }
+
+      // Regular selection/deselection
+      return isSelected
+        ? [...new Set([...prev, ...indices])]
+        : prev.filter(i => !indices.includes(i));
     });
   };
 

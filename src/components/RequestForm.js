@@ -257,14 +257,23 @@ const RequestForm = ({ onStudyGenerated, isLoading }) => {
 
   const handleQuestionSelect = (indices, isSelected) => {
     setSelectedQuestions(prev => {
-      if (isSelected) {
-        // Add new indices, avoiding duplicates
-        const newSelections = new Set([...prev, ...indices]);
-        return Array.from(newSelections);
-      } else {
-        // Remove all specified indices
-        return prev.filter(i => !indices.includes(i));
+      // Check if this is a "Select All" action (indices contains all visible items)
+      if (indices.length === searchResults.length) {
+        // Toggle behavior - deselect all if all were selected, select all otherwise
+        return prev.length === searchResults.length ? [] : indices;
       }
+      
+      // Check if this is a header checkbox click (indices is empty array)
+      if (indices.length === 0) {
+        // Toggle behavior based on current selection state
+        return prev.length === searchResults.length ? [] : 
+               Array.from({length: searchResults.length}, (_, i) => i);
+      }
+
+      // Regular selection/deselection
+      return isSelected
+        ? [...new Set([...prev, ...indices])]
+        : prev.filter(i => !indices.includes(i));
     });
   };
 
