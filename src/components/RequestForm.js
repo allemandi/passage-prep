@@ -51,6 +51,7 @@ const RequestForm = ({ onStudyGenerated, isLoading }) => {
   
   const [selectedThemes, setSelectedThemes] = useState(themes); // Default to all themes selected
   const [showSuccess, setShowSuccess] = useState(false);
+  const [showSearchSuccess, setShowSearchSuccess] = useState(false);
   const [showError, setShowError] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -245,6 +246,8 @@ const RequestForm = ({ onStudyGenerated, isLoading }) => {
 
       if (combinedResults.length === 0) {
         setNoQuestionsFound(true);
+      } else {
+        setShowSearchSuccess(true);
       }
     } catch (error) {
       setShowError(true);
@@ -264,6 +267,7 @@ const RequestForm = ({ onStudyGenerated, isLoading }) => {
 
   const closeAlert = (alertType) => {
     if (alertType === 'success') setShowSuccess(false);
+    if (alertType === 'searchSuccess') setShowSearchSuccess(false);
     if (alertType === 'error') setShowError(false);
     if (alertType === 'noQuestions') setNoQuestionsFound(false);
   };
@@ -534,6 +538,22 @@ const RequestForm = ({ onStudyGenerated, isLoading }) => {
           </Box>
         )}
       </Paper>
+      
+      <Snackbar
+        open={showSearchSuccess}
+        autoHideDuration={6000}
+        onClose={() => closeAlert('searchSuccess')}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+      >
+        <Alert 
+          onClose={() => closeAlert('searchSuccess')} 
+          severity="success" 
+          variant="filled"
+          sx={{ borderRadius: 2 }}
+        >
+          Questions found! Select the ones you'd like to include in your study.
+        </Alert>
+      </Snackbar>
       
       <Snackbar
         open={showSuccess}

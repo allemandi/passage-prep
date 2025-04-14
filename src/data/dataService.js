@@ -175,10 +175,10 @@ export const searchQuestions = async ({ book, chapter, startVerse, endVerse, the
 
     console.log('Sending payload:', JSON.stringify(payload, null, 2));
 
-    const response = await fetch('/api/search-questions', {
+    const response = await fetch(getApiUrl('search-questions'), {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload) // Send flat structure
+      body: JSON.stringify(payload)
     });
 
     if (!response.ok) {
