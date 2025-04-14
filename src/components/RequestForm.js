@@ -436,15 +436,19 @@ const RequestForm = ({ onStudyGenerated, isLoading }) => {
           </Box>
         </Box>
 
-        {/* Themes and Actions Section */}
+        {/* Themes and Actions Section - Modified for mobile */}
         <Box sx={{ 
           display: 'flex', 
+          flexDirection: { xs: 'column', sm: 'row' }, // Column on mobile, row on desktop
           gap: 4, 
           mb: 4,
-          alignItems: 'flex-end'
+          alignItems: { sm: 'flex-end' } // Align only on desktop
         }}>
-          {/* Themes Dropdown */}
-          <Box sx={{ flex: 1 }}>
+          {/* Themes Dropdown - Full width on mobile */}
+          <Box sx={{ 
+            flex: 1,
+            width: { xs: '100%', sm: 'auto' } // Full width on mobile
+          }}>
             <Typography 
               variant="h6" 
               gutterBottom 
@@ -490,12 +494,13 @@ const RequestForm = ({ onStudyGenerated, isLoading }) => {
             </TextField>
           </Box>
 
-          {/* Action Buttons */}
+          {/* Action Buttons - Stacked below on mobile */}
           <Box sx={{ 
             display: 'flex',
             flexDirection: 'column',
             gap: 2,
-            width: 240
+            width: { xs: '100%', sm: 240 }, // Full width on mobile
+            order: { xs: 1, sm: 0 } // Move below on mobile
           }}>
             <Button 
               variant="contained"
