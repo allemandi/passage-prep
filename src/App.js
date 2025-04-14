@@ -107,14 +107,14 @@ function App() {
                 mb: 1,
                 letterSpacing: '-0.5px'
               }}>
-                Bible Study Companion
+                PassagePrep
               </Typography>
               <Typography variant="subtitle1" sx={{ 
                 opacity: 0.9,
                 fontSize: '1.05rem',
                 lineHeight: 1.3
               }}>
-                Generate and contribute Bible study questions
+                Build reusable Bible studies in seconds.
               </Typography>
             </Box>
             
@@ -166,13 +166,12 @@ function App() {
             }}
           >
             <Typography variant="body1" paragraph sx={{ mb: 2 }}>
-              Create personalized Bible studies by selecting scripture references and themes. 
-              The app will generate relevant questions to deepen your understanding.
+            Add scripture references, click Search Questions.
             </Typography>
-            <Typography variant="body2" paragraph sx={{ mb: 2, fontStyle: 'italic' }}>
-              Format examples: Genesis 1:1, John 3:16-18, Psalm 23
+            <Typography variant="body1" paragraph sx={{ mb: 2 }}>
+             Select questions with checkboxes, click Generate Study.
             </Typography>
-            <Typography variant="body2">
+            <Typography variant="body2" sx={{ fontStyle: 'italic' }}>
               Contribute your own questions to help build our growing database.
             </Typography>
           </Paper>
