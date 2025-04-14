@@ -189,9 +189,16 @@ app.post('/api/login', async (req, res) => {
   const { username, password } = req.body;
   try {
     const admin = await Admin.findOne({ username });
-    if (!admin || !(await bcrypt.compare(password, admin.password))) {
+    if (!admin) {
       return res.status(401).json({ error: 'Invalid credentials' });
     }
+
+    // Compare the plain-text password with the hashed password in MongoDB
+    const isMatch = await bcrypt.compare(password, admin.password);
+    if (!isMatch) {
+      return res.status(401).json({ error: 'Invalid credentials' });
+    }
+
     res.status(200).json({ success: true });
   } catch (error) {
     res.status(500).json({ error: error.message });
