@@ -534,6 +534,7 @@ const RequestForm = ({ onStudyGenerated, isLoading }) => {
               questions={searchResults}
               selectedQuestions={selectedQuestions}
               onQuestionSelect={handleQuestionSelect}
+              showActions={true}
             />
           </Box>
         )}

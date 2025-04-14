@@ -46,6 +46,7 @@ const AdminForm = () => {
   const [selectedThemes, setSelectedThemes] = useState(themes);
   const [filteredQuestions, setFilteredQuestions] = useState([]);
   const [showSuccess, setShowSuccess] = useState(false);
+  const [logoutSuccess, setLogoutSuccess] = useState(false);
 
   // Use ref for logoutTimer to avoid dependency issues
   const logoutTimerRef = useRef(null);
@@ -73,8 +74,7 @@ const AdminForm = () => {
       setShowError(true);
       setErrorMessage('Logged out due to inactivity');
     } else if (reason === 'manual') {
-      setShowSuccess(true);
-      setErrorMessage('Logged out successfully');
+      setLogoutSuccess(true);
     }
   }, []);
 
@@ -265,7 +265,7 @@ const AdminForm = () => {
 
       setShowSuccess(true);
       setSelectedQuestions([]);
-      await applyFilters(); // Refresh the question list
+      await applyFilters();
     } catch (error) {
       setShowError(true);
       setErrorMessage(error.message);
@@ -283,7 +283,7 @@ const AdminForm = () => {
       if (!response.ok) throw new Error('Failed to update question');
 
       setShowSuccess(true);
-      await applyFilters(); // Refresh the data
+      await applyFilters();
     } catch (error) {
       setShowError(true);
       setErrorMessage(error.message);
@@ -668,12 +668,21 @@ const AdminForm = () => {
       </Snackbar>
 
       <Snackbar
+        open={logoutSuccess}
+        autoHideDuration={6000}
+        onClose={() => setLogoutSuccess(false)}
+        anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+      >
+        <Alert severity="success">Logged out successfully</Alert>
+      </Snackbar>
+
+      <Snackbar
         open={showSuccess}
         autoHideDuration={6000}
         onClose={() => setShowSuccess(false)}
         anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
       >
-        <Alert severity="success">Logged out successfully</Alert>
+        <Alert severity="success">Operation successful</Alert>
       </Snackbar>
     </Container>
   );

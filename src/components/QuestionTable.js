@@ -12,9 +12,14 @@ import {
   IconButton,
   Box,
   Button,
-  Autocomplete
+  Autocomplete,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  Typography
 } from '@mui/material';
-import { Save, Cancel } from '@mui/icons-material';
+import { Save, Cancel, Edit } from '@mui/icons-material';
 import bibleCounts from '../data/bible-counts.json'; // Adjust the path as necessary
 import { getBibleBooks, getChaptersForBook, getVerseCountForBookAndChapter } from '../utils/bibleData';
 import themes from '../data/themes.json';
@@ -106,178 +111,199 @@ const QuestionTable = ({
   });
 
   return (
-    <TableContainer component={Paper} sx={{ mt: 2, maxHeight: 400 }}>
-      <Table stickyHeader>
-        <TableHead>
-          <TableRow>
-            {showActions && <TableCell padding="checkbox" />}
-            <TableCell>Bible Passage</TableCell>
-            <TableCell>Theme</TableCell>
-            <TableCell>Question</TableCell>
-            {showActions && <TableCell>Actions</TableCell>}
-          </TableRow>
-        </TableHead>
-        <TableBody>
-          {sortedQuestions.map((question, index) => (
-            <TableRow key={question._id || index}>
+    <>
+      <TableContainer component={Paper} sx={{ mt: 2, maxHeight: 400 }}>
+        <Table stickyHeader>
+          <TableHead>
+            <TableRow>
               {showActions && (
                 <TableCell padding="checkbox">
                   <Checkbox
-                    checked={selectedQuestions.includes(index)}
-                    onChange={(e) => onQuestionSelect(index, e.target.checked)}
+                    indeterminate={
+                      selectedQuestions.length > 0 && 
+                      selectedQuestions.length < questions.length
+                    }
+                    checked={
+                      questions.length > 0 && 
+                      selectedQuestions.length === questions.length
+                    }
+                    onChange={(e) => {
+                      if (e.target.checked) {
+                        const allIndices = Array.from(
+                          { length: questions.length },
+                          (_, i) => i
+                        );
+                        onQuestionSelect(allIndices, true);
+                      } else {
+                        onQuestionSelect([], false);
+                      }
+                    }}
                   />
                 </TableCell>
               )}
-              
-              <TableCell>
-                {editingId === question._id ? (
-                  <Box sx={{ display: 'flex', gap: 1 }}>
-                    <Autocomplete
-                      value={editData.book}
-                      onChange={(_, newValue) => setEditData({
-                        ...editData,
-                        book: newValue,
-                        chapter: '',
-                        verseStart: '',
-                        verseEnd: ''
-                      })}
-                      options={availableBooks}
-                      renderInput={(params) => (
-                        <TextField
-                          {...params}
-                          size="small"
-                          label="Book"
-                          required
-                        />
-                      )}
-                      fullWidth
-                    />
-                    <Autocomplete
-                      value={editData.chapter}
-                      onChange={(_, newValue) => setEditData({
-                        ...editData,
-                        chapter: newValue,
-                        verseStart: '',
-                        verseEnd: ''
-                      })}
-                      options={availableChapters}
-                      disabled={!editData.book}
-                      renderInput={(params) => (
-                        <TextField
-                          {...params}
-                          size="small"
-                          label="Chapter"
-                          required
-                          sx={{ width: 100 }}
-                        />
-                      )}
-                    />
-                    <Autocomplete
-                      value={editData.verseStart}
-                      onChange={(_, newValue) => {
-                        const newData = { ...editData, verseStart: newValue };
-                        if (newValue && editData.verseEnd && parseInt(newValue) > parseInt(editData.verseEnd)) {
-                          newData.verseEnd = newValue;
-                        }
-                        setEditData(newData);
-                      }}
-                      options={availableVerses}
-                      disabled={!editData.chapter}
-                      renderInput={(params) => (
-                        <TextField
-                          {...params}
-                          size="small"
-                          label="Start"
-                          required
-                          sx={{ width: 80 }}
-                        />
-                      )}
-                    />
-                    <Autocomplete
-                      value={editData.verseEnd}
-                      onChange={(_, newValue) => setEditData({
-                        ...editData,
-                        verseEnd: newValue
-                      })}
-                      options={availableVerses.filter(v => 
-                        !editData.verseStart || parseInt(v) >= parseInt(editData.verseStart)
-                      )}
-                      disabled={!editData.verseStart}
-                      renderInput={(params) => (
-                        <TextField
-                          {...params}
-                          size="small"
-                          label="End"
-                          required
-                          sx={{ width: 80 }}
-                        />
-                      )}
-                    />
-                  </Box>
-                ) : (
-                  `${question.book} ${question.chapter}:${question.verseStart}-${question.verseEnd}`
-                )}
-              </TableCell>
-
-              <TableCell>
-                {editingId === question._id ? (
-                  <Autocomplete
-                    value={editData.theme}
-                    onChange={(_, newValue) => setEditData({
-                      ...editData,
-                      theme: newValue
-                    })}
-                    options={themes}
-                    renderInput={(params) => (
-                      <TextField
-                        {...params}
-                        size="small"
-                        label="Theme"
-                        required
-                        fullWidth
-                      />
-                    )}
-                  />
-                ) : (
-                  question.theme
-                )}
-              </TableCell>
-
-              <TableCell>
-                {editingId === question._id ? (
-                  <TextField
-                    size="small"
-                    value={editData.question}
-                    onChange={(e) => setEditData({...editData, question: e.target.value})}
-                    fullWidth
-                    multiline
-                  />
-                ) : (
-                  question.question
-                )}
-              </TableCell>
-
-              {showActions && (
-                <TableCell>
-                  {editingId === question._id ? (
-                    <>
-                      <IconButton onClick={handleSave} disabled={isSaving}>
-                        <Save />
-                      </IconButton>
-                      <IconButton onClick={handleCancel} disabled={isSaving}>
-                        <Cancel />
-                      </IconButton>
-                    </>
-                  ) : (
-                    <Button onClick={() => handleEdit(question)}>Edit</Button>
-                  )}
-                </TableCell>
-              )}
+              <TableCell>Bible Passage</TableCell>
+              <TableCell>Theme</TableCell>
+              <TableCell>Question</TableCell>
+              {showActions && <TableCell>Actions</TableCell>}
             </TableRow>
-          ))}
-        </TableBody>
-      </Table>
-    </TableContainer>
+          </TableHead>
+          <TableBody>
+            {sortedQuestions.map((question, index) => (
+              <TableRow key={question._id || index}>
+                {showActions && (
+                  <TableCell padding="checkbox">
+                    <Checkbox
+                      checked={selectedQuestions.includes(index)}
+                      onChange={(e) => onQuestionSelect(index, e.target.checked)}
+                    />
+                  </TableCell>
+                )}
+                <TableCell>
+                  {`${question.book} ${question.chapter}:${question.verseStart}-${question.verseEnd}`}
+                </TableCell>
+                <TableCell>{question.theme}</TableCell>
+                <TableCell>{question.question}</TableCell>
+                {showActions && (
+                  <TableCell>
+                    <IconButton onClick={() => handleEdit(question)}>
+                      <Edit />
+                    </IconButton>
+                  </TableCell>
+                )}
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </TableContainer>
+
+      {/* Edit Modal */}
+      <Dialog open={!!editingId} onClose={handleCancel} maxWidth="md" fullWidth>
+        <DialogTitle>Edit Question</DialogTitle>
+        <DialogContent>
+          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3, pt: 2 }}>
+            {/* Book and Chapter */}
+            <Box sx={{ display: 'flex', gap: 2, alignItems: 'flex-start' }}>
+              <Autocomplete
+                value={editData.book}
+                onChange={(_, newValue) => setEditData({
+                  ...editData,
+                  book: newValue,
+                  chapter: '',
+                  verseStart: '',
+                  verseEnd: ''
+                })}
+                options={availableBooks}
+                sx={{ width: 300 }}  // Wider for book names
+                renderInput={(params) => (
+                  <TextField
+                    {...params}
+                    label="Book"
+                    required
+                  />
+                )}
+              />
+              <Autocomplete
+                value={editData.chapter}
+                onChange={(_, newValue) => setEditData({
+                  ...editData,
+                  chapter: newValue,
+                  verseStart: '',
+                  verseEnd: ''
+                })}
+                options={availableChapters}
+                disabled={!editData.book}
+                sx={{ width: 120 }}  // Narrower for chapters
+                renderInput={(params) => (
+                  <TextField
+                    {...params}
+                    label="Chapter"
+                    required
+                  />
+                )}
+              />
+            </Box>
+
+            {/* Start and End Verse */}
+            <Box sx={{ display: 'flex', gap: 2 }}>
+              <Autocomplete
+                value={editData.verseStart}
+                onChange={(_, newValue) => {
+                  const newData = { ...editData, verseStart: newValue };
+                  if (newValue && editData.verseEnd && parseInt(newValue) > parseInt(editData.verseEnd)) {
+                    newData.verseEnd = newValue;
+                  }
+                  setEditData(newData);
+                }}
+                options={availableVerses}
+                disabled={!editData.chapter}
+                sx={{ width: 120 }}
+                renderInput={(params) => (
+                  <TextField
+                    {...params}
+                    label="Start Verse"
+                    required
+                  />
+                )}
+              />
+              <Autocomplete
+                value={editData.verseEnd}
+                onChange={(_, newValue) => setEditData({
+                  ...editData,
+                  verseEnd: newValue
+                })}
+                options={availableVerses.filter(v => 
+                  !editData.verseStart || parseInt(v) >= parseInt(editData.verseStart)
+                )}
+                disabled={!editData.verseStart}
+                sx={{ width: 120 }}
+                renderInput={(params) => (
+                  <TextField
+                    {...params}
+                    label="End Verse"
+                    required
+                  />
+                )}
+              />
+            </Box>
+
+            {/* Theme and Question (full-width) */}
+            <Autocomplete
+              value={editData.theme}
+              onChange={(_, newValue) => setEditData({
+                ...editData,
+                theme: newValue
+              })}
+              options={themes}
+              fullWidth
+              renderInput={(params) => (
+                <TextField
+                  {...params}
+                  label="Theme"
+                  required
+                />
+              )}
+            />
+            <TextField
+              value={editData.question}
+              onChange={(e) => setEditData({...editData, question: e.target.value})}
+              label="Question"
+              required
+              fullWidth
+              multiline
+              rows={4}
+            />
+          </Box>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleCancel} color="secondary">
+            Cancel
+          </Button>
+          <Button onClick={handleSave} color="primary" disabled={isSaving}>
+            Save
+          </Button>
+        </DialogActions>
+      </Dialog>
+    </>
   );
 };
 
