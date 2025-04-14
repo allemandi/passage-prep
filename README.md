@@ -78,6 +78,15 @@ or consider deploying to your own website like Netlify
 4. Click "Submit"
 5. The question will be added to the MongoDB database
 
+### Admin Functionality
+
+1. Add the following to your .env file variables
+   ```
+   ADMINUSER=<desired admin username>
+   ADMINPASSWORD=<desired admin password>
+   ```
+2. Run yarn setup-admin to generate accounts
+
 ## 🌐 Deployment
 ### Building for Production
 ```bash
@@ -86,7 +95,7 @@ yarn build
 
 ### Netlify (Recommended)
 1. Connect your GitHub repository
-2. Set `MONGODB_URI` environment variable
+2. Set `MONGODB_URI` environment variable (and `ADMINUSER`, `ADMINPASSWORD` if using admin functionality)
 3. Deploy!
 
 
@@ -96,6 +105,14 @@ yarn build
 3. Commit your changes (`git commit -m 'Add some amazing feature'`)
 4. Push to the branch (`git push origin feature/amazing-feature`)
 5. Open a Pull Request
+
+## Future Ideas
+
+- Update UI elements to use tabbed layouts
+- Fully implement admin functionality
+  - admin tab to download, delete, and review questions
+- Approval / Reviewer functionality
+- Migrate to Vite 
 
 ## License
 
