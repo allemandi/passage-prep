@@ -3,7 +3,7 @@
 
 A React-powered tool to organize, format, and export your study questions with contextual notes.
 
-🚀 Live Demo: [https://your-app-url.here]
+🚀 [Live Demo](musical-pithivier-1e4b9d.netlify.app)
 
 ## Why this exists
 - 🏗️ Wanted clean, simple formatting for group studies
