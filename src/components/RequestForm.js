@@ -285,30 +285,17 @@ const RequestForm = ({ onStudyGenerated, isLoading }) => {
   };
   
   return (
-    <Container maxWidth="lg" sx={{ pt: 1, pb: 2 }}>
-      <Typography 
-        variant="h5" 
-        component="h2" 
-        sx={{ 
-          mb: 4, 
-          fontWeight: 'bold', 
-          textAlign: 'center',
-          color: 'primary.main',
-          maxWidth: 240,
-          mx: 'auto'
-        }}
-      >
-        Request Bible Study
-      </Typography>
+    <Container maxWidth="xl" sx={{ pt: 3, pb: 4 }}>
+    
       
       <Paper 
-        elevation={theme.palette.mode === 'dark' ? 2 : 0}
+        elevation={1}
         sx={{ 
-          p: { xs: 2.5, sm: 3.5 },
-          bgcolor: theme.palette.mode === 'dark' ? 'background.paper' : 'background.default',
+          p: 3,
+          bgcolor: 'background.paper',
           borderRadius: 2,
           border: `1px solid ${theme.palette.divider}`,
-          maxWidth: 600,
+          maxWidth: 1200,
           mx: 'auto'
         }}
       >

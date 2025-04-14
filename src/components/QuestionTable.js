@@ -176,7 +176,7 @@ const QuestionTable = ({
       </TableContainer>
 
       {/* Edit Modal */}
-      <Dialog open={!!editingId} onClose={handleCancel} maxWidth="md" fullWidth>
+      <Dialog open={!!editingId} onClose={handleCancel} maxWidth="xl" fullWidth>
         <DialogTitle>Edit Question</DialogTitle>
         <DialogContent>
           <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3, pt: 2 }}>

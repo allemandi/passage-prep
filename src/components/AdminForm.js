@@ -18,6 +18,7 @@ import { searchQuestions, fetchAllQuestions } from '../data/dataService';
 import ScriptureCombobox from './ScriptureCombobox';
 import { getBibleBooks, getChaptersForBook, getVerseCountForBookAndChapter } from '../utils/bibleData';
 import themes from '../data/themes.json';
+import { useTheme } from '@mui/material/styles';
 
 const authChannel = new BroadcastChannel('auth');
 
@@ -60,6 +61,8 @@ const AdminForm = () => {
     availableChapters: [],
     availableVerses: [],
   });
+
+  const theme = useTheme();
 
   const handleLogout = useCallback((reason) => {
     if (logoutTimerRef.current) {
@@ -427,12 +430,20 @@ const AdminForm = () => {
   };
 
   return (
-    <Container maxWidth="sm" sx={{ mt: 4 }}>
-      <Paper elevation={3} sx={{ p: 4 }}>
-        <Typography variant="h5" component="h2" sx={{ mb: 3, textAlign: 'center' }}>
-          Admin Login
-        </Typography>
-
+    <Container maxWidth="xl" sx={{ pt: 3, pb: 4 }}>
+   
+      
+      <Paper 
+        elevation={1}
+        sx={{ 
+          p: 3,
+          bgcolor: 'background.paper',
+          borderRadius: 2,
+          border: `1px solid ${theme.palette.divider}`,
+          maxWidth: 1200,
+          mx: 'auto'
+        }}
+      >
         {!isLoggedIn ? (
           <Box component="form" onSubmit={handleLogin} sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
             <TextField
