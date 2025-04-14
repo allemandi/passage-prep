@@ -17,13 +17,21 @@ const AdminForm = () => {
   const [showError, setShowError] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
 
-  const handleLogin = (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
-    if (username === 'admin' && password === 'admin123') {
+    try {
+      const response = await fetch('/api/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, password }),
+      });
+      if (!response.ok) {
+        throw new Error('Invalid credentials');
+      }
       setIsLoggedIn(true);
-    } else {
+    } catch (error) {
       setShowError(true);
-      setErrorMessage('Invalid username or password.');
+      setErrorMessage(error.message);
     }
   };
 
@@ -68,7 +76,7 @@ const AdminForm = () => {
         ) : (
           <Box sx={{ textAlign: 'center' }}>
             <Typography variant="h6" sx={{ mb: 2 }}>
-              Welcome, Admin!
+              Admin Mode
             </Typography>
             <Button variant="outlined" onClick={handleLogout}>
               Logout

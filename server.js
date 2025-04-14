@@ -5,6 +5,8 @@ const bodyParser = require('body-parser');
 const connectDB = require('./config/db');
 const Book = require('./models/Book');
 const Question = require('./models/Question');
+const Admin = require('./models/Admin');
+const bcrypt = require('bcryptjs');
 
 // Connect to MongoDB
 connectDB();
@@ -182,3 +184,16 @@ function shutdown() {
     process.exit(1);
   }, 5000);
 }
+
+app.post('/api/login', async (req, res) => {
+  const { username, password } = req.body;
+  try {
+    const admin = await Admin.findOne({ username });
+    if (!admin || !(await bcrypt.compare(password, admin.password))) {
+      return res.status(401).json({ error: 'Invalid credentials' });
+    }
+    res.status(200).json({ success: true });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
