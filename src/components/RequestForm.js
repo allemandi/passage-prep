@@ -255,12 +255,15 @@ const RequestForm = ({ onStudyGenerated, isLoading }) => {
     }
   };
 
-  const handleQuestionSelect = (index, isSelected) => {
+  const handleQuestionSelect = (indices, isSelected) => {
     setSelectedQuestions(prev => {
       if (isSelected) {
-        return [...prev, index];
+        // Add new indices, avoiding duplicates
+        const newSelections = new Set([...prev, ...indices]);
+        return Array.from(newSelections);
       } else {
-        return prev.filter(i => i !== index);
+        // Remove all specified indices
+        return prev.filter(i => !indices.includes(i));
       }
     });
   };

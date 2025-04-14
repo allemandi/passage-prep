@@ -129,12 +129,11 @@ const QuestionTable = ({
                     }
                     onChange={(e) => {
                       if (e.target.checked) {
-                        const allIndices = Array.from(
-                          { length: questions.length },
-                          (_, i) => i
-                        );
+                        // Select all
+                        const allIndices = questions.map((_, index) => index);
                         onQuestionSelect(allIndices, true);
                       } else {
+                        // Deselect all
                         onQuestionSelect([], false);
                       }
                     }}
@@ -154,7 +153,7 @@ const QuestionTable = ({
                   <TableCell padding="checkbox">
                     <Checkbox
                       checked={selectedQuestions.includes(index)}
-                      onChange={(e) => onQuestionSelect(index, e.target.checked)}
+                      onChange={(e) => onQuestionSelect([index], e.target.checked)}
                     />
                   </TableCell>
                 )}

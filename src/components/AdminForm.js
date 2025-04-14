@@ -177,10 +177,23 @@ const AdminForm = () => {
     setActiveButton(buttonName);
   };
 
-  const handleQuestionSelect = (index, isSelected) => {
-    setSelectedQuestions(prev => 
-      isSelected ? [...prev, index] : prev.filter(i => i !== index)
-    );
+  const handleQuestionSelect = (indices, isSelected) => {
+    setSelectedQuestions(prev => {
+      // Ensure indices is always an array
+      if (!Array.isArray(indices)) {
+        indices = [indices];
+      }
+
+      if (isSelected) {
+        // Add new indices, avoiding duplicates
+        return [...new Set([...prev, ...indices])];
+      } else {
+        // Clear all if empty array is passed
+        if (indices.length === 0) return [];
+        // Remove specified indices
+        return prev.filter(i => !indices.includes(i));
+      }
+    });
   };
 
   const updateScriptureRef = (index, updates) => {
