@@ -7,13 +7,14 @@ const {
   getAllBooks,
   getAllQuestions,
   saveQuestion,
+  updateQuestion,
   searchQuestions,
   approveQuestions,
   getUnapprovedQuestions,
-  loginHandler
+  loginHandler,
+  deleteQuestions
 } = require('./src/utils/server');
 const Question = require('./models/Question');
-const Admin = require('./models/Admin');
 
 // Connect to MongoDB
 connectDB();
@@ -172,40 +173,29 @@ app.get('/api/all-questions', async (req, res) => {
   }
 });
 
-// Add this endpoint to server.js
+// Delete questions endpoint
 app.post('/api/delete-questions', async (req, res) => {
   try {
     const { questionIds } = req.body;
-    if (!Array.isArray(questionIds) || questionIds.length === 0) {
-      return res.status(400).json({ error: "No question IDs provided" });
+    const result = await deleteQuestions(questionIds);
+    if (!result.success) {
+      return res.status(400).json({ error: result.error });
     }
-
-    await Question.deleteMany({ _id: { $in: questionIds } });
     res.status(200).json({ success: true });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
 });
 
+// Update question endpoint
 app.post('/api/update-question', async (req, res) => {
   try {
     const { questionId, updatedData } = req.body;
-    
-    if (!questionId || !updatedData) {
-      return res.status(400).json({ error: "Missing question ID or update data" });
+    const result = await updateQuestion(questionId, updatedData);
+    if (!result.success) {
+      return res.status(400).json({ error: result.error });
     }
-
-    const updatedQuestion = await Question.findByIdAndUpdate(
-      questionId,
-      { $set: updatedData },
-      { new: true }
-    );
-
-    if (!updatedQuestion) {
-      return res.status(404).json({ error: "Question not found" });
-    }
-
-    res.status(200).json(updatedQuestion);
+    res.status(200).json(result.updatedQuestion);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
