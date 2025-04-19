@@ -31,6 +31,10 @@ const QuestionSchema = new mongoose.Schema({
     required: true,
     trim: true,
   },
+  isApproved: {
+    type: Boolean,
+    default: false,
+  },
 });
 
 module.exports = mongoose.model('Question', QuestionSchema);

@@ -52,7 +52,7 @@ yarn install
    ```
    # Importing file information from /data
    # Run:
-   node ./data/import-data
+   node ./scripts/import-data
    ```
 
 5. Start the application locally:

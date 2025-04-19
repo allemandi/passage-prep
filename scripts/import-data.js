@@ -83,7 +83,8 @@ const importQuestions = async () => {
         book: question.book,
         chapter: question.chapter,
         verseStart: question.verseStart,
-        verseEnd: question.verseEnd
+        verseEnd: question.verseEnd,
+        isApproved: question.isApproved,
       });
     }
     
@@ -117,7 +118,6 @@ const createIndexesIfNeeded = async () => {
         console.log(`Created index: ${indexSpec.name}`);
       }
     }
-    
     console.log('Index verification complete');
   } catch (error) {
     console.error('Index management error:', error);
