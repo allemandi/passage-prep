@@ -8,7 +8,7 @@
 const getApiUrl = (endpoint) => {
   // In production with Netlify, use /.netlify/functions/
   // In development, use /api/
-  const base = process.env.NODE_ENV === 'production' 
+  const base = import.meta.env.MODE === 'production' 
     ? '/.netlify/functions'
     : '/api';
   

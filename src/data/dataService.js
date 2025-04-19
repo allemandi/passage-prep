@@ -4,7 +4,7 @@ import themes from './themes.json'; // Replace hardcoded array
 const getApiUrl = (endpoint) => {
   // In production with Netlify, use /.netlify/functions/
   // In development, use /api/
-  const base = process.env.NODE_ENV === 'production' 
+  const base = import.meta.env.MODE === 'production' 
     ? '/.netlify/functions'
     : '/api';
   
@@ -140,9 +140,7 @@ export const processForm = async (formData) => {
           const qStart = parseInt(q.verseStart, 10);
           const qEnd = parseInt(q.verseEnd || q.verseStart, 10);
           verseMatch = (
-            (qStart >= ref.verseStart && qStart <= ref.verseEnd) ||
-            (qEnd >= ref.verseStart && qEnd <= ref.verseEnd) ||
-            (qStart <= ref.verseStart && qEnd >= ref.verseEnd)
+            qStart <= ref.verseEnd && qEnd >= ref.verseStart
           );
         }
         
@@ -229,7 +227,7 @@ export const fetchAllQuestions = async () => {
 export const fetchUnapprovedQuestions = async () => {
   try {
     let url;
-    if (process.env.NODE_ENV === 'production') {
+    if (import.meta.env.MODE === 'production') {
       url = '/.netlify/functions/unapproved-questions';
     } else {
       url = '/api/unapproved-questions';
@@ -241,7 +239,7 @@ export const fetchUnapprovedQuestions = async () => {
     // If dev server returns HTML (not found), fallback to fetchAllQuestions and filter client-side
     if (!response.ok || !(contentType && contentType.includes('application/json'))) {
       // Try fallback only in dev
-      if (process.env.NODE_ENV !== 'production') {
+      if (import.meta.env.MODE !== 'production') {
         const all = await fetchAllQuestions();
         return all.filter(q => q.isApproved === false);
       }
@@ -257,7 +255,7 @@ export const fetchUnapprovedQuestions = async () => {
 
 export const approveQuestions = async (questionIds) => {
   try {
-    const url = process.env.NODE_ENV === 'production'
+    const url = import.meta.env.MODE === 'production'
       ? '/.netlify/functions/approve-questions'
       : '/api/approve-questions';
     const response = await fetch(url, {

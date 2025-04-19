@@ -87,9 +87,13 @@ const RequestForm = ({ onStudyGenerated, isLoading }) => {
       const currentRef = newRefs[index];
       
       // Handle verse validation before any other updates
-      if (updates.startVerse !== undefined && currentRef.endVerse) {
-        if (parseInt(currentRef.endVerse) < parseInt(updates.startVerse)) {
-          updates.endVerse = updates.startVerse;
+      if (updates.startVerse !== undefined) {
+        const newStart = updates.startVerse;
+        const currentEnd = updates.endVerse !== undefined ? updates.endVerse : currentRef.endVerse;
+        if (currentEnd === undefined || currentEnd === '' || isNaN(Number(currentEnd))) {
+          updates.endVerse = newStart;
+        } else if (parseInt(currentEnd) < parseInt(newStart)) {
+          updates.endVerse = newStart;
         }
       }
 
