@@ -82,7 +82,7 @@ async function approveQuestions(questionIds) {
 }
 
 async function getUnapprovedQuestions() {
-  return await Question.find({ isApproved: false }).select('-_id -__v').lean();
+  return await Question.find({ isApproved: false }).lean();
 }
 
 // --- Login Logic ---

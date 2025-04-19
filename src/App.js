@@ -2,6 +2,7 @@ import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { ThemeProvider, createTheme, Tabs, Tab, Box, Container, CssBaseline, IconButton, Tooltip, useMediaQuery, Typography } from '@mui/material';
 import Brightness4Icon from '@mui/icons-material/Brightness4';
 import Brightness7Icon from '@mui/icons-material/Brightness7';
+import AutoStoriesIcon from '@mui/icons-material/AutoStories';
 import './App.css';
 import RequestForm from './components/RequestForm';
 import ContributeForm from './components/ContributeForm';
@@ -77,16 +78,26 @@ function App() {
           mb: 4,
           boxShadow: 3
         }}>
-          <Container maxWidth="xl" sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <Box>
-              <Typography variant="h4" component="h1" sx={{ fontWeight: 700, mb: 1 }}>
-                PassagePrep
-              </Typography>
-              <Typography variant="subtitle1">
-                Build reusable Bible studies in seconds.
-              </Typography>
+          <Container maxWidth="xl" sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexDirection: { xs: 'column', sm: 'row' }, textAlign: { xs: 'center', sm: 'left' }, gap: { xs: 2, sm: 0 } }}>
+            <Box
+              sx={{
+                display: 'flex',
+                flexDirection: { xs: 'column', sm: 'row' },
+                alignItems: 'center',
+                mb: { xs: 1, sm: 0 },
+                gap: { xs: 0.5, sm: 1 },
+              }}
+            >
+              <AutoStoriesIcon sx={{ fontSize: { xs: 40, sm: 60 }, color: 'inherit', mb: { xs: 0.5, sm: 0 }, mr: { xs: 0, sm: 1 } }} />
+              <Box>
+                <Typography variant="h4" component="h1" sx={{ fontWeight: 600, fontSize: { xs: '1.5rem', sm: '2rem' }, mb: 0 }}>
+                  PassagePrep
+                </Typography>
+                <Typography variant="subtitle1" sx={{ mt: 0, fontSize: { xs: '0.9rem', sm: '1.10rem' } }}>
+                  Build reusable Bible studies in seconds.
+                </Typography>
+              </Box>
             </Box>
-            
             <Tooltip title={mode === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}>
               <IconButton 
                 onClick={() => setMode(prev => prev === 'light' ? 'dark' : 'light')} 
@@ -105,7 +116,8 @@ function App() {
                       ? '0 0 0 3px rgba(144,202,249,0.18)'
                       : '0 0 0 3px rgba(25,118,210,0.12)',
                   },
-                  p: 1.2
+                  p: 1.2,
+                  mt: { xs: 1, sm: 0 }
                 }}
               >
                 {mode === 'dark' ? <Brightness7Icon /> : <Brightness4Icon />}

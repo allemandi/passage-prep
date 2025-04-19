@@ -1,4 +1,4 @@
-# 📖 PassagePrep
+# 📖 Passage Prep
 **Build reusable Bible studies in seconds.**
 
 A React-powered tool to organize, format, and export your study questions with contextual notes.
