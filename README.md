@@ -56,7 +56,7 @@ yarn install
 
 5. Start the application locally:
 ```
-# This will run both the React frontend and the backend server.
+# This will run both the Vite frontend and the backend server.
 yarn dev
 ```
 or consider deploying to your own website like Netlify
