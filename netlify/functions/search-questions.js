@@ -1,5 +1,4 @@
-const { connectToDatabase } = require('./utils/db');
-const Question = require('./models/Question');
+const { connectToDatabase, searchQuestions } = require('../../src/utils/server');
 
 exports.handler = async function(event, context) {
   // Make the database connection reusable to avoid cold starts
@@ -14,24 +13,14 @@ exports.handler = async function(event, context) {
       };
     }
 
-    // Parse the request body
-    const { book, chapter, verseStart, verseEnd, theme } = JSON.parse(event.body);
-
-    // Build the query
-    const query = {};
-    if (book) query.book = new RegExp(book, 'i');
-    if (chapter) query.chapter = parseInt(chapter, 10);
-    if (verseStart) query.verseStart = parseInt(verseStart, 10);
-    if (verseEnd) query.verseEnd = parseInt(verseEnd, 10);
-    if (theme && theme.length > 0) {
-      query.theme = { $in: theme };
-    }
-
     // Connect to the database
     await connectToDatabase();
     
+    // Parse the request body
+    const params = JSON.parse(event.body);
+    
     // Search for questions
-    const questions = await Question.find(query);
+    const questions = await searchQuestions(params);
     
     return {
       statusCode: 200,

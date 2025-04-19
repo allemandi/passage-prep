@@ -1,5 +1,4 @@
-const { connectToDatabase } = require('./utils/db');
-const Book = require('./models/Book');
+const { connectToDatabase, getAllBooks } = require('../../src/utils/server');
 
 exports.handler = async function(event, context) {
   // Make the database connection reusable to avoid cold starts
@@ -10,7 +9,7 @@ exports.handler = async function(event, context) {
     await connectToDatabase();
     
     // Get all books, sorted by Index
-    const books = await Book.find().sort({ Index: 1 });
+    const books = await getAllBooks();
     
     return {
       statusCode: 200,

@@ -1,5 +1,5 @@
 [build]
-  command = "node scripts/netlify-build.js"
+  command = "yarn build"
   publish = "build"
   functions = "netlify/functions"
 

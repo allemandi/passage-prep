@@ -133,7 +133,7 @@ const ContributeForm = () => {
     }
 
     // Validate required fields
-    if (!reference.book || !reference.chapter || !reference.verseStart || !reference.verseEnd) {
+    if (!reference.book || !reference.chapter || !reference.verseStart) {
       setShowError(true);
       setErrorMessage('Please complete all required fields.');
       return;
@@ -225,40 +225,29 @@ const ContributeForm = () => {
   };
   
   return (
-    <Container maxWidth="lg" sx={{ pt: 1, pb: 2 }}>
-      <Typography 
-        variant="h5" 
-        component="h2" 
-        sx={{ 
-          mb: 4, 
-          fontWeight: 'bold', 
-          textAlign: 'center',
-          color: 'primary.main'
-        }}
-      >
-        Add New Question
-      </Typography>
+    <Container maxWidth="xl" sx={{ pt: 3, pb: 4 }}>
+     
       
       <Paper 
         component="form"
         onSubmit={handleSubmit}
-        noValidate
-        elevation={theme.palette.mode === 'dark' ? 2 : 0} 
+        elevation={1}
         sx={{ 
-          p: { xs: 2.5, sm: 3.5 }, 
-          bgcolor: theme.palette.mode === 'dark' ? 'background.paper' : 'background.default', 
+          p: 3,
+          bgcolor: 'background.paper',
           borderRadius: 2,
           border: `1px solid ${theme.palette.divider}`,
-          maxWidth: 'min(100%, 900px)',
+          maxWidth: 1200,
           mx: 'auto'
         }}
       >
-        <Grid container spacing={2} justifyContent="center" sx={{ width: '100%', maxWidth: '600px', mx: 'auto' }}>
+        <Grid container spacing={4} justifyContent="center" sx={{ width: '100%', maxWidth: '900px', mx: 'auto' }}>
           <Grid item xs={12} md={6}>
             <Box sx={{ 
               display: 'flex',
               flexDirection: 'column',
-              gap: 1,
+              gap: 2,
+              alignItems: 'center',
               p: { xs: 2, sm: 0 },
               mb: { xs: 3, md: 0 }
             }}>
@@ -270,118 +259,88 @@ const ContributeForm = () => {
                   color: 'primary.main',
                   pb: 1,
                   borderBottom: `2px solid ${theme.palette.primary.main}`,
-                  mb: 2.5
+                  mb: 2.5,
+                  width: '100%',
+                  textAlign: 'center'
                 }}
               >
                 Bible Reference
               </Typography>
-              
-              <ScriptureCombobox
-                id="bookSelect"
-                label="Book"
-                value={selectedBook}
-                onChange={(book) => {
-                  setSelectedBook(book);
-                  updateReference(book, '', '', '');
-                }}
-                options={bibleBooks}
-                placeholder="Select a book..."
-                isRequired
-                helperText={selectedBook ? `Total chapters: ${totalChapters}` : " "}
-                sx={{ 
-                  minWidth: 240,
-                  width: '100%',
-                  mb: 0,
-                  '& .MuiFormHelperText-root': {
-                    visibility: selectedBook ? 'visible' : 'hidden',
-                    height: '16px',
-                    mt: 0,
-                    mb: 0,
-                    lineHeight: 1,
-                    fontSize: '0.7rem'
-                  },
-                  '& .MuiOutlinedInput-root': {
-                    padding: '6px 12px',
-                    marginBottom: '0px'
-                  }
-                }}
-              />
-              
-              <ScriptureCombobox
-                id="chapterSelect"
-                label="Chapter"
-                value={selectedChapter}
-                onChange={(chapter) => {
-                  setSelectedChapter(chapter);
-                  updateReference(selectedBook, chapter, '', '');
-                }}
-                options={availableChapters}
-                placeholder={selectedBook ? `Select chapter (1-${totalChapters})` : "Select a book first"}
-                disabled={!selectedBook}
-                isRequired
-                sx={{
-                  minWidth: 240,
-                  width: '100%',
-                  mt: 0,
-                  '& .MuiOutlinedInput-root': {
-                    padding: '6px 12px'
-                  }
-                }}
-              />
-              
-              <ScriptureCombobox
-                id="verseStartSelect"
-                label="Start Verse"
-                value={startVerse}
-                onChange={(verse) => {
-                  setStartVerse(verse);
-                  updateReference(selectedBook, selectedChapter, verse, endVerse);
-                }}
-                options={availableVerses}
-                placeholder={selectedChapter ? "Select start verse" : "Select a chapter first"}
-                disabled={!selectedChapter}
-                isRequired
-                sx={{ 
-                  minWidth: 240,
-                  width: '100%',
-                  '& .MuiOutlinedInput-root': {
-                    padding: '6px 12px'
-                  }
-                }}
-              />
-              
-              <ScriptureCombobox
-                id="verseEndSelect"
-                label="End Verse"
-                value={endVerse}
-                onChange={handleEndVerseChange}
-                options={availableVerses}
-                isEndVerse
-                startVerseValue={startVerse}
-                disabled={!selectedChapter}
-                isRequired
-                sx={{ 
-                  minWidth: 240,
-                  width: '100%',
-                  '& .MuiOutlinedInput-root': {
-                    padding: '6px 12px'
-                  }
-                }}
-              />
+              <Box sx={{ width: { xs: '100%', sm: 260 }, mb: 1 }}>
+                <ScriptureCombobox
+                  id="bookSelect"
+                  label="Book"
+                  value={selectedBook}
+                  onChange={(book) => {
+                    setSelectedBook(book);
+                    updateReference(book, '', '', '');
+                  }}
+                  options={bibleBooks}
+                  placeholder="Select a book..."
+                  isRequired
+                  sx={{ minWidth: 0, width: '100%' }}
+                />
+              </Box>
+              <Box sx={{ width: { xs: '100%', sm: 260 }, mb: 1 }}>
+                <ScriptureCombobox
+                  id="chapterSelect"
+                  label="Chapter"
+                  value={selectedChapter}
+                  onChange={(chapter) => {
+                    setSelectedChapter(chapter);
+                    updateReference(selectedBook, chapter, '', '');
+                  }}
+                  options={availableChapters}
+                  placeholder={selectedBook ? `Select chapter (1-${totalChapters})` : "Select a book first"}
+                  disabled={!selectedBook}
+                  isRequired
+                  sx={{ minWidth: 0, width: '100%' }}
+                />
+              </Box>
+              <Box sx={{ width: { xs: '100%', sm: 260 }, mb: 1 }}>
+                <ScriptureCombobox
+                  id="verseStartSelect"
+                  label="Start Verse"
+                  value={startVerse}
+                  onChange={(verse) => {
+                    setStartVerse(verse);
+                    updateReference(selectedBook, selectedChapter, verse, endVerse);
+                  }}
+                  options={availableVerses}
+                  placeholder={selectedChapter ? "Select start verse" : "Select a chapter first"}
+                  disabled={!selectedChapter}
+                  isRequired
+                  sx={{ minWidth: 0, width: '100%' }}
+                />
+              </Box>
+              <Box sx={{ width: { xs: '100%', sm: 260 } }}>
+                <ScriptureCombobox
+                  id="verseEndSelect"
+                  label="End Verse"
+                  value={endVerse}
+                  onChange={handleEndVerseChange}
+                  options={availableVerses}
+                  isEndVerse
+                  startVerseValue={startVerse}
+                  disabled={!selectedChapter}
+                  sx={{ minWidth: 0, width: '100%' }}
+                />
+              </Box>
             </Box>
           </Grid>
-          
           <Grid item xs={12} md={6}>
             <Box sx={{ 
               display: 'flex',
               flexDirection: 'column',
               height: '100%',
-              justifyContent: 'flex-end'
+              justifyContent: 'flex-end',
+              alignItems: 'center',
+              gap: 2
             }}>
               <Box sx={{ 
                 flex: '0 0 auto',
-                p: { xs: 2, sm: 0 },
-                mb: 2
+                mb: 2,
+                width: { xs: '100%', sm: 260 }
               }}>
                 <Typography 
                   variant="subtitle1" 
@@ -391,12 +350,12 @@ const ContributeForm = () => {
                     color: 'primary.main',
                     pb: 1,
                     borderBottom: `2px solid ${theme.palette.primary.main}`,
-                    mb: 2.5
+                    mb: 2.5,
+                    textAlign: 'center'
                   }}
                 >
                   Theme
                 </Typography>
-                
                 <TextField
                   select
                   fullWidth
@@ -407,12 +366,7 @@ const ContributeForm = () => {
                   required
                   variant="outlined"
                   size="medium"
-                  sx={{
-                    minWidth: 240,
-                    '& .MuiOutlinedInput-root': {
-                      padding: '3px 10px'
-                    }
-                  }}
+                  sx={{ minWidth: 0, width: '100%' }}
                 >
                   <MenuItem value="">
                     <em>Select a theme</em>
@@ -422,12 +376,12 @@ const ContributeForm = () => {
                   ))}
                 </TextField>
               </Box>
-              
               <Box sx={{ 
                 flex: 1,
-                p: { xs: 2, sm: 0 },
+                width: { xs: '100%', sm: 260 },
                 display: 'flex',
-                flexDirection: 'column'
+                flexDirection: 'column',
+                justifyContent: 'flex-end'
               }}>
                 <Typography 
                   variant="subtitle1" 
@@ -437,12 +391,12 @@ const ContributeForm = () => {
                     color: 'primary.main',
                     pb: 1,
                     borderBottom: `2px solid ${theme.palette.primary.main}`,
-                    mb: 2.5
+                    mb: 2.5,
+                    textAlign: 'center'
                   }}
                 >
                   Question Details
                 </Typography>
-                
                 <TextField
                   fullWidth
                   id="questionText"
@@ -454,49 +408,20 @@ const ContributeForm = () => {
                   required
                   placeholder="Type your Bible study question here..."
                   variant="outlined"
-                  sx={{
-                    '& .MuiOutlinedInput-root': {
-                      padding: '6px 12px',
-                      height: '100%',
-                      '& textarea': {
-                        minHeight: '66px',
-                        width: '100%',
-                        padding: 0,
-                        margin: 0,
-                        boxSizing: 'border-box'
-                      }
-                    }
-                  }}
+                  sx={{ minWidth: 0, width: '100%' }}
                 />
               </Box>
             </Box>
           </Grid>
         </Grid>
-        
-        <Box sx={{ mt: 4, display: 'flex', justifyContent: 'center' }}>
+        <Box sx={{ mt: 4, display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, gap: 2, justifyContent: 'center', alignItems: 'center' }}>
           <Button 
             variant="contained" 
             color="primary" 
             type="submit" 
             disabled={isSubmitting}
             size="large"
-            sx={{ 
-              px: 6, 
-              py: 1.5, 
-              minWidth: 200,
-              borderRadius: 2,
-              fontSize: '1rem',
-              fontWeight: 500,
-              textTransform: 'none',
-              boxShadow: theme.palette.mode === 'dark' 
-                ? '0 2px 8px rgba(144, 202, 249, 0.2)' 
-                : '0 2px 8px rgba(25, 118, 210, 0.2)',
-              '&:hover': {
-                boxShadow: theme.palette.mode === 'dark' 
-                  ? '0 4px 12px rgba(144, 202, 249, 0.3)' 
-                  : '0 4px 12px rgba(25, 118, 210, 0.3)'
-              }
-            }}
+            sx={{ px: 6, py: 1.5, minWidth: { xs: '100%', sm: 260 }, borderRadius: 2, fontSize: '1rem', fontWeight: 500, textTransform: 'none', boxShadow: theme.palette.mode === 'dark' ? '0 2px 8px rgba(144, 202, 249, 0.2)' : '0 2px 8px rgba(25, 118, 210, 0.2)', '&:hover': { boxShadow: theme.palette.mode === 'dark' ? '0 4px 12px rgba(144, 202, 249, 0.3)' : '0 4px 12px rgba(25, 118, 210, 0.3)' } }}
           >
             {isSubmitting ? (
               <>

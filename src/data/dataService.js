@@ -162,15 +162,16 @@ export const processForm = async (formData) => {
   }
 };
 
-export const searchQuestions = async ({ book, chapter, startVerse, endVerse, themeArr }) => {
+export const searchQuestions = async ({ book, chapter, startVerse, endVerse, themeArr, isApproved }) => {
   try {
     // Build the query object with direct field mapping
     const payload = {
-      book: book.trim(),
+      ...(typeof book === 'string' && book.trim() && { book: book.trim() }),
       ...(chapter && { chapter: parseInt(chapter, 10) }),
       ...(startVerse && { verseStart: parseInt(startVerse, 10) }),
       ...(endVerse && { verseEnd: parseInt(endVerse, 10) }),
-      ...(themeArr?.length && { theme: themeArr })
+      ...(themeArr?.length && { theme: themeArr }),
+      ...(typeof isApproved === 'boolean' ? { isApproved } : {})
     };
 
     console.log('Sending payload:', JSON.stringify(payload, null, 2));
@@ -188,6 +189,89 @@ export const searchQuestions = async ({ book, chapter, startVerse, endVerse, the
     return await response.json();
   } catch (error) {
     console.error("Search error:", error);
+    throw error;
+  }
+};
+
+export const deleteQuestions = async (questionIds) => {
+  try {
+    const response = await fetch(getApiUrl('delete-questions'), {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ questionIds }),
+    });
+
+    if (!response.ok) {
+      const error = await response.text();
+      throw new Error(error || 'Failed to delete questions');
+    }
+    return true;
+  } catch (error) {
+    console.error("Delete error:", error);
+    throw error;
+  }
+};
+
+export const fetchAllQuestions = async () => {
+  try {
+    const response = await fetch(`${getApiUrl('questions')}?${Date.now()}`, {
+      headers: { 'Accept': 'application/json' }
+    });
+    
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    return await response.json();
+  } catch (error) {
+    console.error("Fetch error:", error);
+    throw error;
+  }
+};
+
+export const fetchUnapprovedQuestions = async () => {
+  try {
+    let url;
+    if (process.env.NODE_ENV === 'production') {
+      url = '/.netlify/functions/unapproved-questions';
+    } else {
+      url = '/api/unapproved-questions';
+    }
+    let response = await fetch(url, {
+      headers: { 'Accept': 'application/json' }
+    });
+    let contentType = response.headers.get('content-type');
+    // If dev server returns HTML (not found), fallback to fetchAllQuestions and filter client-side
+    if (!response.ok || !(contentType && contentType.includes('application/json'))) {
+      // Try fallback only in dev
+      if (process.env.NODE_ENV !== 'production') {
+        const all = await fetchAllQuestions();
+        return all.filter(q => q.isApproved === false);
+      }
+      let errorText = contentType && contentType.includes('text') ? await response.text() : '';
+      throw new Error(`HTTP error! status: ${response.status} - ${errorText}`);
+    }
+    return await response.json();
+  } catch (error) {
+    console.error('Fetch unapproved error:', error);
+    throw error;
+  }
+};
+
+export const approveQuestions = async (questionIds) => {
+  try {
+    const url = process.env.NODE_ENV === 'production'
+      ? '/.netlify/functions/approve-questions'
+      : '/api/approve-questions';
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ questionIds }),
+    });
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(errorText || 'Failed to approve questions');
+    }
+    return await response.json();
+  } catch (error) {
+    console.error('Approve questions error:', error);
     throw error;
   }
 };

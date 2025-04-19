@@ -1,5 +1,4 @@
-const { connectToDatabase } = require('./utils/db');
-const Question = require('./models/Question');
+const { connectToDatabase, saveQuestion } = require('../../src/utils/server');
 
 exports.handler = async function(event, context) {
   // Make the database connection reusable to avoid cold starts
@@ -17,6 +16,9 @@ exports.handler = async function(event, context) {
   }
   
   try {
+    // Connect to the database
+    await connectToDatabase();
+    
     // Parse the request body
     const data = JSON.parse(event.body);
     const { newData } = data;
@@ -32,18 +34,16 @@ exports.handler = async function(event, context) {
       };
     }
     
-    // Connect to the database
-    await connectToDatabase();
-    
-    // Save to MongoDB
-    await Question.create({
-      theme: newData.theme,
-      question: newData.question,
-      book: newData.book,
-      chapter: newData.chapter,
-      verseStart: newData.verseStart,
-      verseEnd: newData.verseEnd,
-    });
+    const result = await saveQuestion(newData);
+    if (!result.success) {
+      return {
+        statusCode: 400,
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ error: result.error })
+      };
+    }
     
     return {
       statusCode: 200,

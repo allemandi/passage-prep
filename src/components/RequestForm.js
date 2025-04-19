@@ -59,6 +59,7 @@ const RequestForm = ({ onStudyGenerated, isLoading }) => {
   const [showSearchResults, setShowSearchResults] = useState(false);
   const [searchResults, setSearchResults] = useState([]);
   const [selectedQuestions, setSelectedQuestions] = useState([]);
+  const [hideUnapproved, setHideUnapproved] = useState(false);
 
   // Bible books from the JSON data
   const bibleBooks = getBibleBooks();
@@ -255,13 +256,25 @@ const RequestForm = ({ onStudyGenerated, isLoading }) => {
     }
   };
 
-  const handleQuestionSelect = (index, isSelected) => {
+  const handleQuestionSelect = (indices, isSelected) => {
     setSelectedQuestions(prev => {
-      if (isSelected) {
-        return [...prev, index];
-      } else {
-        return prev.filter(i => i !== index);
+      // Check if this is a "Select All" action (indices contains all visible items)
+      if (indices.length === searchResults.length) {
+        // Toggle behavior - deselect all if all were selected, select all otherwise
+        return prev.length === searchResults.length ? [] : indices;
       }
+      
+      // Check if this is a header checkbox click (indices is empty array)
+      if (indices.length === 0) {
+        // Toggle behavior based on current selection state
+        return prev.length === searchResults.length ? [] : 
+               Array.from({length: searchResults.length}, (_, i) => i);
+      }
+
+      // Regular selection/deselection
+      return isSelected
+        ? [...new Set([...prev, ...indices])]
+        : prev.filter(i => !indices.includes(i));
     });
   };
 
@@ -273,30 +286,17 @@ const RequestForm = ({ onStudyGenerated, isLoading }) => {
   };
   
   return (
-    <Container maxWidth="lg" sx={{ pt: 1, pb: 2 }}>
-      <Typography 
-        variant="h5" 
-        component="h2" 
-        sx={{ 
-          mb: 4, 
-          fontWeight: 'bold', 
-          textAlign: 'center',
-          color: 'primary.main',
-          maxWidth: 240,
-          mx: 'auto'
-        }}
-      >
-        Request Bible Study
-      </Typography>
+    <Container maxWidth="xl" sx={{ pt: 3, pb: 4 }}>
+    
       
       <Paper 
-        elevation={theme.palette.mode === 'dark' ? 2 : 0}
+        elevation={1}
         sx={{ 
-          p: { xs: 2.5, sm: 3.5 },
-          bgcolor: theme.palette.mode === 'dark' ? 'background.paper' : 'background.default',
+          p: 3,
+          bgcolor: 'background.paper',
           borderRadius: 2,
           border: `1px solid ${theme.palette.divider}`,
-          maxWidth: 600,
+          maxWidth: 1200,
           mx: 'auto'
         }}
       >
@@ -315,14 +315,15 @@ const RequestForm = ({ onStudyGenerated, isLoading }) => {
           >
             Bible References
           </Typography>
-          
-          <Grid container spacing={2} justifyContent="center">
+          <Grid container spacing={3} justifyContent="center">
             {scriptureRefs.map((ref, index) => (
               <Grid item xs={12} md={5} key={ref.id}>
                 <Box sx={{ 
+                  position: 'relative',
                   display: 'flex', 
                   flexDirection: 'column', 
-                  gap: 1,
+                  gap: 2,
+                  alignItems: 'center',
                   p: { xs: 2, sm: 0 },
                   mb: { xs: 3, md: 0 },
                   borderBottom: { xs: `1px solid ${theme.palette.divider}`, md: 'none' },
@@ -340,100 +341,74 @@ const RequestForm = ({ onStudyGenerated, isLoading }) => {
                   >
                     Reference {index + 1}
                   </Typography>
-                  
-                  <ScriptureCombobox
-                    id={`bookSelect-${index}`}
-                    label="Book"
-                    value={ref.selectedBook}
-                    onChange={(book) => updateScriptureRef(index, { selectedBook: book })}
-                    options={bibleBooks}
-                    placeholder="Select a book..."
-                    isRequired
-                    helperText={ref.selectedBook ? `Total chapters: ${ref.totalChapters}` : " "}
-                    sx={{ 
-                      minWidth: 240, 
-                      width: '100%',
-                      mb: 0,
-                      '& .MuiInputLabel-root': {
-                        fontSize: { xs: '0.875rem', md: '1rem' }
-                      },
-                      '& .MuiOutlinedInput-root': {
-                        padding: '6px 12px',
-                        marginBottom: '0px'
-                      },
-                      '& .MuiFormHelperText-root': {
-                        visibility: ref.selectedBook ? 'visible' : 'hidden',
-                        height: '16px',  // Minimal height
-                        mt: 0,          // No top margin
-                        mb: 0,          // No bottom margin
-                        lineHeight: 1,
-                        fontSize: '0.7rem'  // Smaller font
-                      }
-                    }}
-                  />
-                  
-                  <ScriptureCombobox
-                    id={`chapterSelect-${index}`}
-                    label="Chapter"
-                    value={ref.selectedChapter}
-                    onChange={(chapter) => updateScriptureRef(index, { selectedChapter: chapter })}
-                    options={ref.availableChapters}
-                    placeholder={ref.selectedBook ? `Select chapter (1-${ref.totalChapters})` : "Select a book first"}
-                    disabled={!ref.selectedBook}
-                    sx={{ 
-                      minWidth: 240, 
-                      width: '100%',
-                      mt: 0,
-                      '& .MuiOutlinedInput-root': {
-                        padding: '6px 12px'
-                      }
-                    }}
-                  />
-                  
-                  <ScriptureCombobox
-                    id={`verseStartSelect-${index}`}
-                    label="Start Verse"
-                    value={ref.startVerse}
-                    onChange={(verse) => updateScriptureRef(index, { startVerse: verse })}
-                    options={ref.availableVerses}
-                    placeholder={ref.selectedChapter ? "Select start verse" : "Select a chapter first"}
-                    disabled={!ref.selectedChapter}
-                    sx={{ 
-                      minWidth: 240, 
-                      width: '100%',
-                      '& .MuiOutlinedInput-root': {
-                        padding: '6px 12px'
-                      }
-                    }}
-                  />
-                  
-                  <ScriptureCombobox
-                    id={`verseEndSelect-${index}`}
-                    label="End Verse"
-                    value={ref.endVerse}
-                    onChange={(verse) => updateScriptureRef(index, { endVerse: verse })}
-                    options={ref.availableVerses}
-                    isEndVerse
-                    startVerseValue={ref.startVerse}
-                    disabled={!ref.selectedChapter}
-                    sx={{ 
-                      minWidth: 240,
-                      width: '100%',
-                      '& .MuiOutlinedInput-root': {
-                        padding: '6px 12px'
-                      }
-                    }}
-                  />
+                  {index > 0 && (
+                    <Button
+                      size="small"
+                      color="error"
+                      onClick={() => setScriptureRefs(prev => prev.filter((_, i) => i !== index))}
+                      sx={{ position: 'absolute', top: 0, right: 0, minWidth: 0, p: 0.5, zIndex: 1 }}
+                    >
+                      ✕
+                    </Button>
+                  )}
+                  <Box sx={{ width: { xs: '100%', sm: 260 }, mb: 1 }}>
+                    <ScriptureCombobox
+                      id={`bookSelect-${index}`}
+                      label="Book"
+                      value={ref.selectedBook}
+                      onChange={(book) => updateScriptureRef(index, { selectedBook: book })}
+                      options={bibleBooks}
+                      placeholder="Select a book..."
+                      isRequired={index === 0}
+                      sx={{ minWidth: 0, width: '100%' }}
+                    />
+                  </Box>
+                  <Box sx={{ width: { xs: '100%', sm: 260 }, mb: 1 }}>
+                    <ScriptureCombobox
+                      id={`chapterSelect-${index}`}
+                      label="Chapter"
+                      value={ref.selectedChapter}
+                      onChange={(chapter) => updateScriptureRef(index, { selectedChapter: chapter })}
+                      options={ref.availableChapters}
+                      placeholder={ref.selectedBook ? `Select chapter (1-${ref.totalChapters})` : "Select a book first"}
+                      disabled={!ref.selectedBook}
+                      sx={{ minWidth: 0, width: '100%' }}
+                    />
+                  </Box>
+                  <Box sx={{ width: { xs: '100%', sm: 260 }, mb: 1 }}>
+                    <ScriptureCombobox
+                      id={`verseStartSelect-${index}`}
+                      label="Start Verse"
+                      value={ref.startVerse}
+                      onChange={(verse) => updateScriptureRef(index, { startVerse: verse })}
+                      options={ref.availableVerses}
+                      placeholder={ref.selectedChapter ? "Select start verse" : "Select a chapter first"}
+                      disabled={!ref.selectedChapter}
+                      sx={{ minWidth: 0, width: '100%' }}
+                    />
+                  </Box>
+                  <Box sx={{ width: { xs: '100%', sm: 260 } }}>
+                    <ScriptureCombobox
+                      id={`verseEndSelect-${index}`}
+                      label="End Verse"
+                      value={ref.endVerse}
+                      onChange={(verse) => updateScriptureRef(index, { endVerse: verse })}
+                      options={ref.availableVerses}
+                      isEndVerse
+                      startVerseValue={ref.startVerse}
+                      disabled={!ref.selectedChapter}
+                      sx={{ minWidth: 0, width: '100%' }}
+                    />
+                  </Box>
                 </Box>
               </Grid>
             ))}
           </Grid>
-          
           <Box sx={{ display: 'flex', justifyContent: 'center', mt: 2 }}>
             <Button 
               variant="outlined" 
               onClick={addScriptureReference}
-              sx={{ width: 240 }}
+              sx={{ width: { xs: '100%', sm: 260 } }}
             >
               + Add Another Reference
             </Button>
@@ -441,18 +416,8 @@ const RequestForm = ({ onStudyGenerated, isLoading }) => {
         </Box>
 
         {/* Themes and Actions Section - Modified for mobile */}
-        <Box sx={{ 
-          display: 'flex', 
-          flexDirection: { xs: 'column', sm: 'row' }, // Column on mobile, row on desktop
-          gap: 4, 
-          mb: 4,
-          alignItems: { sm: 'flex-end' } // Align only on desktop
-        }}>
-          {/* Themes Dropdown - Full width on mobile */}
-          <Box sx={{ 
-            flex: 1,
-            width: { xs: '100%', sm: 'auto' } // Full width on mobile
-          }}>
+        <Grid container spacing={3} alignItems="flex-end" justifyContent="center" sx={{ mb: 4 }}>
+          <Grid item xs={12} sm={6} md={3} sx={{ maxWidth: 260, flexBasis: 260, flexGrow: 0, flexShrink: 0, width: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'flex-end', p: 0 }}>
             <Typography 
               variant="h6" 
               gutterBottom 
@@ -466,10 +431,8 @@ const RequestForm = ({ onStudyGenerated, isLoading }) => {
             >
               Themes
             </Typography>
-            
             <TextField
               select
-              fullWidth
               SelectProps={{
                 multiple: true,
                 value: selectedThemes,
@@ -478,16 +441,7 @@ const RequestForm = ({ onStudyGenerated, isLoading }) => {
               }}
               variant="outlined"
               size="medium"
-              sx={{
-                minWidth: 240,
-                width: 240,
-                '& .MuiOutlinedInput-root': {
-                  padding: '6px 12px',
-                  whiteSpace: 'nowrap',
-                  overflow: 'hidden',
-                  textOverflow: 'ellipsis'
-                }
-              }}
+              sx={{ minWidth: 0, width: '100%' }}
             >
               {themes.map((theme) => (
                 <MenuItem key={theme} value={theme}>
@@ -496,36 +450,39 @@ const RequestForm = ({ onStudyGenerated, isLoading }) => {
                 </MenuItem>
               ))}
             </TextField>
-          </Box>
-
-          {/* Action Buttons - Stacked below on mobile */}
-          <Box sx={{ 
-            display: 'flex',
-            flexDirection: 'column',
-            gap: 2,
-            width: { xs: '100%', sm: 240 }, // Full width on mobile
-            order: { xs: 1, sm: 0 } // Move below on mobile
-          }}>
+          </Grid>
+          <Grid item xs={12} sm={6} md={3} sx={{ maxWidth: 260, flexBasis: 260, flexGrow: 0, flexShrink: 0, width: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'flex-end', p: 0 }}>
             <Button 
               variant="contained"
               color="primary" 
               onClick={handleSearch}
               disabled={isLoading || isSubmitting}
-              fullWidth
+              sx={{ minWidth: 120, px: 2, py: 1, fontWeight: 500, mb: 1 }}
             >
-              Search Questions
+              Search
+            </Button>
+          </Grid>
+          <Grid item xs={12} sm={6} md={3} sx={{ maxWidth: 260, flexBasis: 260, flexGrow: 0, flexShrink: 0, width: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'flex-end', p: 0 }}>
+            <Button
+              variant={hideUnapproved ? 'contained' : 'outlined'}
+              color="secondary"
+              size="small"
+              sx={{ mb: 1, fontWeight: 500, minWidth: 120, width: '100%' }}
+              onClick={() => setHideUnapproved(v => !v)}
+            >
+              {hideUnapproved ? 'Show Unapproved' : 'Hide Unapproved'}
             </Button>
             <Button 
               variant="outlined" 
               color="primary" 
               onClick={handleSubmit}
               disabled={isLoading || isSubmitting}
-              fullWidth
+              sx={{ minWidth: 120, px: 2, py: 1, fontWeight: 500, width: '100%' }}
             >
               Generate Study
             </Button>
-          </Box>
-        </Box>
+          </Grid>
+        </Grid>
 
         {/* Question Table */}
         {showSearchResults && (
@@ -534,10 +491,15 @@ const RequestForm = ({ onStudyGenerated, isLoading }) => {
               questions={searchResults}
               selectedQuestions={selectedQuestions}
               onQuestionSelect={handleQuestionSelect}
+              showActions={true}
+              hideUnapproved={hideUnapproved}
+              hideEditActions={true}
             />
           </Box>
         )}
       </Paper>
+      
+
       
       <Snackbar
         open={showSearchSuccess}
@@ -602,6 +564,8 @@ const RequestForm = ({ onStudyGenerated, isLoading }) => {
           No questions found that match your criteria. Try different themes or contribute more questions.
         </Alert>
       </Snackbar>
+
+      
     </Container>
   );
 };

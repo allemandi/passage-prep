@@ -6,9 +6,9 @@ A React-powered tool to organize, format, and export your study questions with c
 🚀 [Live Demo](musical-pithivier-1e4b9d.netlify.app)
 
 ## Why this exists
-- 🏗️ Wanted clean, simple formatting for group studies
-- 📚 Needed quick study outlines with contextual notes
-- ♻️ Needed a personal repository of reusable questions
+- 🏗️ Clean, simple formatting for group studies
+- 📚 Quick study outlines with contextual notes
+- ♻️ Personal repository of reusable questions
 
 ## ✨ Key Features
 - Question Memory Bank - Save your best questions
@@ -44,7 +44,6 @@ yarn install
    - Add your MongoDB connection string:
    ```
    MONGODB_URI=<your_mongodb_connection_string>
-   PORT=3001
    ```
    - Replace `<your_mongodb_connection_string>` with your actual MongoDB cluster details
 
@@ -52,11 +51,12 @@ yarn install
    ```
    # Importing file information from /data
    # Run:
-   node ./data/import-data
+   yarn import-data
    ```
 
 5. Start the application locally:
-```bash
+```
+# This will run both the React frontend and the backend server.
 yarn dev
 ```
 or consider deploying to your own website like Netlify
@@ -78,9 +78,18 @@ or consider deploying to your own website like Netlify
 4. Click "Submit"
 5. The question will be added to the MongoDB database
 
+### Admin Functionality
+
+1. Add the following to your .env file variables
+   ```
+   ADMINUSER=<desired admin username>
+   ADMINPASSWORD=<desired admin password>
+   ```
+2. Run yarn setup-admin to generate accounts
+
 ## 🌐 Deployment
 ### Building for Production
-```bash
+```
 yarn build
 ```
 
@@ -96,6 +105,9 @@ yarn build
 3. Commit your changes (`git commit -m 'Add some amazing feature'`)
 4. Push to the branch (`git push origin feature/amazing-feature`)
 5. Open a Pull Request
+
+## Future Ideas
+- Migrate to Vite 
 
 ## License
 

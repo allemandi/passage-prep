@@ -176,7 +176,7 @@ const StudyModal = ({ show, onHide, data }) => {
       open={show}
       onClose={onHide}
       fullWidth
-      maxWidth="md"
+      maxWidth="xl"
       scroll="paper"
       aria-labelledby="study-modal-title"
       PaperProps={{
