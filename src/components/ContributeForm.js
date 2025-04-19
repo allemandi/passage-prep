@@ -133,7 +133,7 @@ const ContributeForm = () => {
     }
 
     // Validate required fields
-    if (!reference.book || !reference.chapter || !reference.verseStart || !reference.verseEnd) {
+    if (!reference.book || !reference.chapter || !reference.verseStart) {
       setShowError(true);
       setErrorMessage('Please complete all required fields.');
       return;
@@ -347,7 +347,6 @@ const ContributeForm = () => {
                 isEndVerse
                 startVerseValue={startVerse}
                 disabled={!selectedChapter}
-                isRequired
                 sx={{ 
                   minWidth: 240,
                   width: '100%',
