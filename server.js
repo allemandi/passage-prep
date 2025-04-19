@@ -3,10 +3,17 @@ const path = require('path');
 const cors = require('cors');
 const bodyParser = require('body-parser');
 const connectDB = require('./config/db');
-const Book = require('./models/Book');
+const {
+  getAllBooks,
+  getAllQuestions,
+  saveQuestion,
+  searchQuestions,
+  approveQuestions,
+  getUnapprovedQuestions,
+  loginHandler
+} = require('./src/utils/server');
 const Question = require('./models/Question');
 const Admin = require('./models/Admin');
-const bcrypt = require('bcryptjs');
 
 // Connect to MongoDB
 connectDB();
@@ -22,7 +29,7 @@ app.use(express.static(path.join(__dirname, 'build')));
 // API endpoint to get all books
 app.get('/api/books', async (req, res) => {
   try {
-    const books = await Book.find().sort({ Index: 1 });
+    const books = await getAllBooks();
     res.status(200).json(books);
   } catch (error) {
     res.status(500).json({ error: 'Failed to fetch books', details: error.message });
@@ -32,7 +39,7 @@ app.get('/api/books', async (req, res) => {
 // API endpoint to get all questions
 app.get('/api/questions', async (req, res) => {
   try {
-    const questions = await Question.find();
+    const questions = await getAllQuestions();
     res.status(200).json(questions);
   } catch (error) {
     res.status(500).json({ error: 'Failed to fetch questions', details: error.message });
@@ -43,22 +50,10 @@ app.get('/api/questions', async (req, res) => {
 app.post('/api/save-question', async (req, res) => {
   try {
     const { newData } = req.body;
-    
-    // Validate all required fields
-    if (!newData?.theme || !newData?.question || !newData?.book || !newData?.chapter || !newData?.verseStart) {
-      return res.status(400).json({ error: "Missing required fields" });
+    const result = await saveQuestion(newData);
+    if (!result.success) {
+      return res.status(400).json({ error: result.error });
     }
-
-    // Save to MongoDB
-    await Question.create({
-      theme: newData.theme,
-      question: newData.question,
-      book: newData.book,
-      chapter: newData.chapter,
-      verseStart: newData.verseStart,
-      verseEnd: newData.verseEnd || newData.verseStart, // Default to verseStart
-    });
-
     res.status(200).json({ success: true });
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -73,66 +68,12 @@ app.get('/api/health', (req, res) => {
 // New endpoint in server.js
 app.post('/api/search-questions', async (req, res) => {
   try {
-    console.log('Received raw body:', JSON.stringify(req.body, null, 2));
-
-    const { book, chapter, verseStart, verseEnd, theme } = req.body;
-
-    // Validate required fields
-    if (!book) {
-      return res.status(400).json({ error: "Book is required" });
-    }
-
-    // Build query with proper type conversion
-    const query = {
-      book: book.trim(),
-      ...(chapter && { chapter: parseInt(chapter, 10) })
-    };
-
-    // Handle verse range
-    if (verseStart !== undefined) {
-      const start = parseInt(verseStart, 10);
-      const end = verseEnd !== undefined ? parseInt(verseEnd, 10) : start;
-      
-      query.$and = [
-        { verseStart: { $lte: end } },
-        { verseEnd: { $gte: start } }
-      ];
-    }
-
-    // Add theme filter
-    if (theme?.length) {
-      query.theme = { $in: Array.isArray(theme) ? theme : [theme] };
-    }
-
-    console.log('Executing MongoDB query:', JSON.stringify(query, null, 2));
-
-    const results = await Question.find(query)
-      .sort({ book: 1, chapter: 1, verseStart: 1 })
-      .lean();
-
-    console.log(`Found ${results.length} matching questions`);
+    const results = await searchQuestions(req.body);
     res.status(200).json(results);
   } catch (error) {
-    console.error("Search failed:", error);
     res.status(500).json({ error: error.message });
   }
 });
-
-// Helper function to parse scripture references
-function parseScriptureReference(ref) {
-  const match = ref.match(/^(\d*\s*[A-Za-z]+)\s*(\d+)?(?::(\d+)(?:-(\d+))?)?$/i);
-  if (!match) return null;
-
-  const verseStart = match[3] ? parseInt(match[3]) : null;
-  const verseEnd = match[4] ? parseInt(match[4]) : verseStart; // Default to verseStart if not specified
-
-  return {
-    book: match[1].trim(),
-    chapter: match[2] ? parseInt(match[2]) : null,
-    verseStart,
-    verseEnd
-  };
-}
 
 // Serve React app for all other routes
 app.get('*', (req, res) => {
@@ -160,7 +101,6 @@ function shutdown() {
   console.log('Closing HTTP server...');
   server.close(() => {
     console.log('HTTP server closed.');
-    
     // Close database connection
     console.log('Closing database connection...');
     if (connectDB.mongoose && connectDB.mongoose.connection) {
@@ -177,7 +117,6 @@ function shutdown() {
       process.exit(0);
     }
   });
-  
   // Failsafe: if we can't close connections in time, forcefully shut down
   setTimeout(() => {
     console.log('Could not close connections in time, forcefully shutting down');
@@ -185,21 +124,49 @@ function shutdown() {
   }, 5000);
 }
 
+// Login endpoint
 app.post('/api/login', async (req, res) => {
-  const { username, password } = req.body;
   try {
-    const admin = await Admin.findOne({ username });
-    if (!admin) {
-      return res.status(401).json({ error: 'Invalid credentials' });
+    const { username, password } = req.body;
+    const result = await loginHandler({ username, password });
+    if (!result.success) {
+      return res.status(401).json({ error: result.error });
     }
-
-    // Compare the plain-text password with the hashed password in MongoDB
-    const isMatch = await bcrypt.compare(password, admin.password);
-    if (!isMatch) {
-      return res.status(401).json({ error: 'Invalid credentials' });
-    }
-
     res.status(200).json({ success: true });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Approve questions endpoint
+app.post('/api/approve-questions', async (req, res) => {
+  try {
+    const { questionIds } = req.body;
+    const result = await approveQuestions(questionIds);
+    if (!result.success) {
+      return res.status(400).json({ error: result.error });
+    }
+    res.status(200).json({ success: true });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Get all unapproved questions
+app.get('/api/unapproved-questions', async (req, res) => {
+  try {
+    const results = await getUnapprovedQuestions();
+    res.status(200).json(results);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Add this endpoint in server.js
+app.get('/api/all-questions', async (req, res) => {
+  try {
+    const results = await Question.find().select('-_id -__v').lean(); // Exclude _id and __v
+    res.status(200).json(results);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -239,43 +206,6 @@ app.post('/api/update-question', async (req, res) => {
     }
 
     res.status(200).json(updatedQuestion);
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-});
-
-// Add this endpoint in server.js
-app.get('/api/all-questions', async (req, res) => {
-  try {
-    const results = await Question.find().select('-_id -__v').lean(); // Exclude _id and __v
-    res.status(200).json(results);
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-});
-
-// Add this endpoint to server.js
-app.get('/api/unapproved-questions', async (req, res) => {
-  try {
-    const results = await Question.find({ isApproved: false }).select('-_id -__v').lean();
-    res.status(200).json(results);
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-});
-
-// Approve questions endpoint
-app.post('/api/approve-questions', async (req, res) => {
-  try {
-    const { questionIds } = req.body;
-    if (!Array.isArray(questionIds) || questionIds.length === 0) {
-      return res.status(400).json({ error: 'No question IDs provided' });
-    }
-    await Question.updateMany(
-      { _id: { $in: questionIds } },
-      { $set: { isApproved: true } }
-    );
-    res.status(200).json({ success: true });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }

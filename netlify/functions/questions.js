@@ -1,5 +1,4 @@
-const { connectToDatabase } = require('./utils/db');
-const Question = require('../../models/Question');
+const { connectToDatabase, getAllQuestions } = require('../../src/utils/server');
 
 exports.handler = async function(event, context) {
   // Make the database connection reusable to avoid cold starts
@@ -10,7 +9,7 @@ exports.handler = async function(event, context) {
     await connectToDatabase();
     
     // Get all questions
-    const questions = await Question.find();
+    const questions = await getAllQuestions();
     
     return {
       statusCode: 200,

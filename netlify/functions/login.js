@@ -1,4 +1,4 @@
-const { connectToDatabase, approveQuestions } = require('../../src/utils/server');
+const { connectToDatabase, loginHandler } = require('../../src/utils/server');
 
 exports.handler = async function(event, context) {
   context.callbackWaitsForEmptyEventLoop = false;
@@ -11,11 +11,11 @@ exports.handler = async function(event, context) {
   }
   try {
     await connectToDatabase();
-    const { questionIds } = JSON.parse(event.body);
-    const result = await approveQuestions(questionIds);
+    const { username, password } = JSON.parse(event.body);
+    const result = await loginHandler({ username, password });
     if (!result.success) {
       return {
-        statusCode: 400,
+        statusCode: 401,
         body: JSON.stringify({ error: result.error }),
         headers: { 'Content-Type': 'application/json' },
       };

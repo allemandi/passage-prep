@@ -6,9 +6,9 @@ A React-powered tool to organize, format, and export your study questions with c
 🚀 [Live Demo](musical-pithivier-1e4b9d.netlify.app)
 
 ## Why this exists
-- 🏗️ Wanted clean, simple formatting for group studies
-- 📚 Needed quick study outlines with contextual notes
-- ♻️ Needed a personal repository of reusable questions
+- 🏗️ Clean, simple formatting for group studies
+- 📚 Quick study outlines with contextual notes
+- ♻️ Personal repository of reusable questions
 
 ## ✨ Key Features
 - Question Memory Bank - Save your best questions
@@ -44,7 +44,6 @@ yarn install
    - Add your MongoDB connection string:
    ```
    MONGODB_URI=<your_mongodb_connection_string>
-   PORT=3001
    ```
    - Replace `<your_mongodb_connection_string>` with your actual MongoDB cluster details
 
@@ -52,11 +51,12 @@ yarn install
    ```
    # Importing file information from /data
    # Run:
-   node ./scripts/import-data
+   yarn import-data
    ```
 
 5. Start the application locally:
-```bash
+```
+# This will run both the React frontend and the backend server.
 yarn dev
 ```
 or consider deploying to your own website like Netlify
@@ -89,13 +89,13 @@ or consider deploying to your own website like Netlify
 
 ## 🌐 Deployment
 ### Building for Production
-```bash
+```
 yarn build
 ```
 
 ### Netlify (Recommended)
 1. Connect your GitHub repository
-2. Set `MONGODB_URI` environment variable (and `ADMINUSER`, `ADMINPASSWORD` if using admin functionality)
+2. Set `MONGODB_URI` environment variable
 3. Deploy!
 
 
@@ -107,11 +107,6 @@ yarn build
 5. Open a Pull Request
 
 ## Future Ideas
-
-- Update UI elements to use tabbed layouts
-- Fully implement admin functionality
-  - admin tab to download, delete, and review questions
-- Approval / Reviewer functionality
 - Migrate to Vite 
 
 ## License
