@@ -210,14 +210,16 @@ const AdminForm = () => {
     setScriptureRefs(prev => {
       const newRefs = [...prev];
       const currentRef = newRefs[index];
-
-      // Handle verse validation
-      if (updates.startVerse !== undefined && currentRef.endVerse) {
-        if (parseInt(updates.startVerse) > parseInt(currentRef.endVerse)) {
-          updates.endVerse = updates.startVerse;
+      // Handle verse validation before any other updates
+      if (updates.startVerse !== undefined) {
+        const newStart = updates.startVerse;
+        const currentEnd = updates.endVerse !== undefined ? updates.endVerse : currentRef.endVerse;
+        if (currentEnd === undefined || currentEnd === '' || isNaN(Number(currentEnd))) {
+          updates.endVerse = newStart;
+        } else if (parseInt(currentEnd) < parseInt(newStart)) {
+          updates.endVerse = newStart;
         }
       }
-
       // Update book and reset dependent fields
       if (updates.selectedBook !== undefined) {
         const chapters = getChaptersForBook(updates.selectedBook);
@@ -288,11 +290,18 @@ const AdminForm = () => {
         if (ref.selectedChapter) {
           filtered = filtered.filter(q => String(q.chapter) === String(ref.selectedChapter));
         }
-        if (ref.startVerse) {
-          filtered = filtered.filter(q => parseInt(q.verseStart) >= parseInt(ref.startVerse));
-        }
-        if (ref.endVerse) {
-          filtered = filtered.filter(q => parseInt(q.verseEnd || q.verseStart) <= parseInt(ref.endVerse));
+        if (ref.startVerse && ref.endVerse && !isNaN(Number(ref.startVerse)) && !isNaN(Number(ref.endVerse))) {
+          filtered = filtered.filter(q =>
+            parseInt(q.verseStart) <= Number(ref.endVerse) &&
+            parseInt(q.verseEnd || q.verseStart) >= Number(ref.startVerse)
+          );
+        } else {
+          if (ref.startVerse && !isNaN(Number(ref.startVerse))) {
+            filtered = filtered.filter(q => parseInt(q.verseStart) >= Number(ref.startVerse));
+          }
+          if (ref.endVerse && !isNaN(Number(ref.endVerse))) {
+            filtered = filtered.filter(q => parseInt(q.verseEnd || q.verseStart) <= Number(ref.endVerse));
+          }
         }
         if (selectedThemes.length !== themes.length) {
           filtered = filtered.filter(q => selectedThemes.includes(q.theme));
@@ -301,11 +310,16 @@ const AdminForm = () => {
         return;
       }
       // Edit/Delete: use API
+      let startVerseNum = ref.startVerse && !isNaN(Number(ref.startVerse)) ? Number(ref.startVerse) : undefined;
+      let endVerseNum = ref.endVerse && !isNaN(Number(ref.endVerse)) ? Number(ref.endVerse) : undefined;
+      if (startVerseNum !== undefined && (endVerseNum === undefined || endVerseNum === null)) {
+        endVerseNum = startVerseNum;
+      }
       const filter = {};
       if (ref.selectedBook) filter.book = ref.selectedBook;
       if (ref.selectedChapter) filter.chapter = ref.selectedChapter;
-      if (ref.startVerse) filter.startVerse = ref.startVerse;
-      if (ref.endVerse) filter.endVerse = ref.endVerse;
+      if (startVerseNum !== undefined) filter.startVerse = startVerseNum;
+      if (endVerseNum !== undefined) filter.endVerse = endVerseNum;
       if (selectedThemes.length !== themes.length) filter.themeArr = selectedThemes;
       const results = await searchQuestions(filter);
       setFilteredQuestions(results);

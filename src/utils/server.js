@@ -63,9 +63,22 @@ async function searchQuestions({ book, chapter, verseStart, verseEnd, theme }) {
   const query = {};
   if (book) query.book = new RegExp(book, 'i');
   if (chapter) query.chapter = parseInt(chapter, 10);
-  if (verseStart) query.verseStart = parseInt(verseStart, 10);
-  if (verseEnd) query.verseEnd = parseInt(verseEnd, 10);
   if (theme && theme.length > 0) query.theme = { $in: theme };
+
+  // Coerce to numbers, or undefined if not a valid number
+  const vStart = Number(verseStart);
+  const vEnd = Number(verseEnd);
+  const hasVStart = !isNaN(vStart);
+  const hasVEnd = !isNaN(vEnd);
+
+  if (hasVStart && hasVEnd) {
+    query.verseStart = { $lte: vEnd };
+    query.verseEnd = { $gte: vStart };
+  } else {
+    if (hasVStart) query.verseStart = vStart;
+    if (hasVEnd) query.verseEnd = vEnd;
+  }
+
   const questions = await Question.find(query);
   return questions;
 }

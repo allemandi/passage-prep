@@ -140,9 +140,7 @@ export const processForm = async (formData) => {
           const qStart = parseInt(q.verseStart, 10);
           const qEnd = parseInt(q.verseEnd || q.verseStart, 10);
           verseMatch = (
-            (qStart >= ref.verseStart && qStart <= ref.verseEnd) ||
-            (qEnd >= ref.verseStart && qEnd <= ref.verseEnd) ||
-            (qStart <= ref.verseStart && qEnd >= ref.verseEnd)
+            qStart <= ref.verseEnd && qEnd >= ref.verseStart
           );
         }
         
