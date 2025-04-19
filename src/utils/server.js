@@ -85,6 +85,14 @@ async function getUnapprovedQuestions() {
   return await Question.find({ isApproved: false }).lean();
 }
 
+async function deleteQuestions(questionIds) {
+  if (!Array.isArray(questionIds) || questionIds.length === 0) {
+    return { success: false, error: 'No question IDs provided' };
+  }
+  await Question.deleteMany({ _id: { $in: questionIds } });
+  return { success: true };
+}
+
 // --- Login Logic ---
 async function loginHandler({ username, password }) {
   const admin = await Admin.findOne({ username });
@@ -103,5 +111,6 @@ module.exports = {
   searchQuestions,
   approveQuestions,
   getUnapprovedQuestions,
+  deleteQuestions,
   loginHandler,
 }; 
