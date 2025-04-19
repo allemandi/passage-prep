@@ -62,6 +62,9 @@ const AdminForm = () => {
     availableVerses: [],
   });
 
+  // Store all unapproved questions for Review/Approve
+  const [unapprovedQuestions, setUnapprovedQuestions] = useState([]);
+
   const theme = useTheme();
 
   const handleLogout = useCallback((reason) => {
@@ -253,10 +256,52 @@ const AdminForm = () => {
     });
   };
 
-  // Memoize applyFilters to avoid dependency issues
-  const applyFilters = useCallback(async () => {
+  // Fetch unapproved questions when entering Review/Approve
+  useEffect(() => {
+    if (activeButton === 'review' && isLoggedIn) {
+      (async () => {
+        try {
+          const allQuestions = await fetchAllQuestions();
+          const unapproved = allQuestions.filter(q => q.isApproved === false);
+          setUnapprovedQuestions(unapproved);
+          setFilteredQuestions(unapproved);
+        } catch (error) {
+          setShowError(true);
+          setErrorMessage(error.message);
+        }
+      })();
+    }
+    if (activeButton === 'edit') {
+      setFilteredQuestions([]);
+    }
+  }, [activeButton, isLoggedIn]);
+
+  // Custom filter for Review/Approve
+  const applyReviewFilters = useCallback(() => {
+    const ref = scriptureRefs[0];
+    let filtered = unapprovedQuestions;
+    if (ref.selectedBook) {
+      filtered = filtered.filter(q => q.book === ref.selectedBook);
+    }
+    if (ref.selectedChapter) {
+      filtered = filtered.filter(q => String(q.chapter) === String(ref.selectedChapter));
+    }
+    if (ref.startVerse) {
+      filtered = filtered.filter(q => parseInt(q.verseStart) >= parseInt(ref.startVerse));
+    }
+    if (ref.endVerse) {
+      filtered = filtered.filter(q => parseInt(q.verseEnd || q.verseStart) <= parseInt(ref.endVerse));
+    }
+    if (selectedThemes.length !== themes.length) {
+      filtered = filtered.filter(q => selectedThemes.includes(q.theme));
+    }
+    setFilteredQuestions(filtered);
+  }, [scriptureRefs, selectedThemes, unapprovedQuestions]);
+
+  // Edit/Delete: API filter as before
+  const applyEditFilters = useCallback(async () => {
     try {
-      const ref = scriptureRefs[0]; // Use the first reference
+      const ref = scriptureRefs[0];
       const results = await searchQuestions({
         book: ref.selectedBook,
         chapter: ref.selectedChapter,
@@ -268,7 +313,7 @@ const AdminForm = () => {
     } catch (error) {
       setShowError(true);
       setErrorMessage(error.message);
-      setFilteredQuestions([]); // Clear results on error
+      setFilteredQuestions([]);
     }
   }, [scriptureRefs, selectedThemes]);
 
@@ -287,12 +332,12 @@ const AdminForm = () => {
 
       setShowSuccess(true);
       setSelectedQuestions([]);
-      await applyFilters();
+      await applyEditFilters();
     } catch (error) {
       setShowError(true);
       setErrorMessage(error.message);
     }
-  }, [selectedQuestions, filteredQuestions, applyFilters]);
+  }, [selectedQuestions, filteredQuestions, applyEditFilters]);
 
   const handleQuestionUpdate = useCallback(async (questionId, updatedData) => {
     try {
@@ -305,12 +350,12 @@ const AdminForm = () => {
       if (!response.ok) throw new Error('Failed to update question');
 
       setShowSuccess(true);
-      await applyFilters();
+      await applyEditFilters();
     } catch (error) {
       setShowError(true);
       setErrorMessage(error.message);
     }
-  }, [applyFilters]);
+  }, [applyEditFilters]);
 
   // Update downloadRef when book or chapter changes
   const updateDownloadRef = (updates) => {
@@ -566,7 +611,7 @@ const AdminForm = () => {
                 </TextField>
                 <Button
                   variant="contained"
-                  onClick={applyFilters}
+                  onClick={activeButton === 'edit' ? applyEditFilters : applyReviewFilters}
                   sx={{ mt: 2 }}
                 >
                   Apply Filters
@@ -595,18 +640,88 @@ const AdminForm = () => {
                 <Typography variant="subtitle1" sx={{ mb: 1 }}>
                   Filter for Reviewing/Approving Questions
                 </Typography>
+                <Grid container spacing={2}>
+                  <Grid item xs={12} sm={3}>
+                    <ScriptureCombobox
+                      label="Book"
+                      value={scriptureRefs[0].selectedBook}
+                      onChange={(book) => updateScriptureRef(0, { selectedBook: book })}
+                      options={getBibleBooks()}
+                      placeholder="Select a book"
+                    />
+                  </Grid>
+                  <Grid item xs={12} sm={3}>
+                    <ScriptureCombobox
+                      label="Chapter"
+                      value={scriptureRefs[0].selectedChapter}
+                      onChange={(chapter) => updateScriptureRef(0, { selectedChapter: chapter })}
+                      options={scriptureRefs[0].availableChapters}
+                      disabled={!scriptureRefs[0].selectedBook}
+                      placeholder={scriptureRefs[0].selectedBook ? "Select chapter" : "Select book first"}
+                    />
+                  </Grid>
+                  <Grid item xs={12} sm={3}>
+                    <ScriptureCombobox
+                      label="Start Verse"
+                      value={scriptureRefs[0].startVerse}
+                      onChange={(verse) => updateScriptureRef(0, { startVerse: verse })}
+                      options={scriptureRefs[0].availableVerses}
+                      disabled={!scriptureRefs[0].selectedChapter}
+                      placeholder={scriptureRefs[0].selectedChapter ? "Select start verse" : "Select chapter first"}
+                    />
+                  </Grid>
+                  <Grid item xs={12} sm={3}>
+                    <ScriptureCombobox
+                      label="End Verse"
+                      value={scriptureRefs[0].endVerse}
+                      onChange={(verse) => updateScriptureRef(0, { endVerse: verse })}
+                      options={scriptureRefs[0].availableVerses}
+                      disabled={!scriptureRefs[0].selectedChapter}
+                      placeholder={scriptureRefs[0].selectedChapter ? "Select end verse" : "Select chapter first"}
+                      isEndVerse
+                      startVerseValue={scriptureRefs[0].startVerse}
+                    />
+                  </Grid>
+                </Grid>
                 <TextField
-                  label="Search by Status"
+                  select
                   fullWidth
-                  sx={{ mb: 2 }}
-                />
+                  label="Themes"
+                  value={selectedThemes}
+                  onChange={(e) => setSelectedThemes(e.target.value)}
+                  SelectProps={{
+                    multiple: true,
+                    renderValue: (selected) => selected.length === themes.length ? "All" : selected.join(", "),
+                  }}
+                  sx={{ mt: 2 }}
+                >
+                  {themes.map((theme) => (
+                    <MenuItem key={theme} value={theme}>
+                      <Checkbox checked={selectedThemes.includes(theme)} />
+                      <ListItemText primary={theme} />
+                    </MenuItem>
+                  ))}
+                </TextField>
+                <Button
+                  variant="contained"
+                  onClick={activeButton === 'edit' ? applyEditFilters : applyReviewFilters}
+                  sx={{ mt: 2 }}
+                >
+                  Apply Filters
+                </Button>
                 <QuestionTable
                   questions={filteredQuestions}
                   selectedQuestions={selectedQuestions}
                   onQuestionSelect={handleQuestionSelect}
-                  showActions
+                  showActions={activeButton === 'review'}
+                  onQuestionUpdate={handleQuestionUpdate}
                 />
-                <Button variant="contained" color="success" sx={{ mt: 2 }}>
+                <Button 
+                  variant="contained" 
+                  color="success" 
+                  sx={{ mt: 2 }}
+                  disabled={selectedQuestions.length === 0}
+                >
                   Approve Selected
                 </Button>
               </Box>

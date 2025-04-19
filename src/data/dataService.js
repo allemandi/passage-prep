@@ -162,15 +162,16 @@ export const processForm = async (formData) => {
   }
 };
 
-export const searchQuestions = async ({ book, chapter, startVerse, endVerse, themeArr }) => {
+export const searchQuestions = async ({ book, chapter, startVerse, endVerse, themeArr, isApproved }) => {
   try {
     // Build the query object with direct field mapping
     const payload = {
-      book: book.trim(),
+      ...(typeof book === 'string' && book.trim() && { book: book.trim() }),
       ...(chapter && { chapter: parseInt(chapter, 10) }),
       ...(startVerse && { verseStart: parseInt(startVerse, 10) }),
       ...(endVerse && { verseEnd: parseInt(endVerse, 10) }),
-      ...(themeArr?.length && { theme: themeArr })
+      ...(themeArr?.length && { theme: themeArr }),
+      ...(typeof isApproved === 'boolean' ? { isApproved } : {})
     };
 
     console.log('Sending payload:', JSON.stringify(payload, null, 2));
