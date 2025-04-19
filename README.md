@@ -1,11 +1,14 @@
 # 📖 Passage Prep
+
 **Build reusable Bible studies in seconds.**
 
-A React-powered tool to organize, format, and export your study questions with contextual notes.
+A modern React + Vite tool to organize, format, and export Bible study questions with contextual notes.
 
-🚀 [Live Demo](musical-pithivier-1e4b9d.netlify.app)
+🚀 [Live Demo](passage-prep.netlify.app)
 
-## Why this exists
+[![Netlify Status](https://api.netlify.com/api/v1/badges/fe91a7ea-558d-48ea-8e25-f893c23a7cf2/deploy-status)](https://app.netlify.com/sites/passage-prep/deploys)
+
+## 🤔 Why this exists
 - 🏗️ Clean, simple formatting for group studies
 - 📚 Quick study outlines with contextual notes
 - ♻️ Personal repository of reusable questions
@@ -17,98 +20,98 @@ A React-powered tool to organize, format, and export your study questions with c
 - Fetch & Filter - "Just the best Genesis passages about forgiveness, please"
 - Collaborative - Add new questions to shared database
 
-## 🖥️ Acknowledgments
+## 💡 Acknowledgments
 This project was developed with the help of AI tools (e.g., GitHub Copilot, Cursor) for code suggestions, debugging, and optimizations.
 
 ## 🚀 Getting Started
 
-### Prerequisites
+### 🛠️ Prerequisites
 - Node.js 16+
 - Yarn 1.22+
-- MongoDB Atlas account + cluster
+- MongoDB Atlas cluster
 
-## Setup and Installation
-
-1. Make sure you have Node.js and Yarn installed on your system.
-
-2. Clone this repository:
-```bash
-git clone <repository-url>
-cd passage-prep
-yarn install
-```
-
-3. Configure MongoDB:
-   - Create an account 
-   - Create a `.env` file in the root directory
-   - Add your MongoDB connection string:
+### ⚡ Setup
+1. **Clone & Install:**
+   ```bash
+   git clone <repository-url>
+   cd passage-prep
+   yarn install
    ```
-   MONGODB_URI=<your_mongodb_connection_string>
+2. **Configure MongoDB:**
+   - Create `.env` in the root:
+     ```
+     MONGODB_URI=<your_mongodb_connection_string>
+     ```
+3. **Import Data:**
+   - Preload questions and book context:
+     ```bash
+     yarn import-data
+     ```
+4. **(Optional) Admin Setup:**
+   - Add to `.env`:
+     ```
+     ADMINUSER=<admin username>
+     ADMINPASSWORD=<admin password>
+     ```
+   - Run:
+     ```bash
+     yarn setup-admin
+     ```
+5. **Run Locally:**
+   ```bash
+   yarn dev
    ```
-   - Replace `<your_mongodb_connection_string>` with your actual MongoDB cluster details
-
-4. Preload MongoDB with questions and context
-   ```
-   # Importing file information from /data
-   # Run:
-   yarn import-data
-   ```
-
-5. Start the application locally:
-```
-# This will run both the Vite frontend and the backend server.
-yarn dev
-```
-or consider deploying to your own website like Netlify
+   - Vite frontend: [localhost:3000](http://localhost:3000)
+   - Express backend: [localhost:3001](http://localhost:3001)
 
 ## 🖥️ Usage
-### Requesting Studies
 
-1. Add scripture references (multiple supported)
-2. Toggle themes to exclude
-3. Click Search Questions to generate the table
-4. Tick checkboxes on questions
-5. Click Generate Study to preview and copy study
+### Search & Format
+- Add scripture references (multi-select)
+- Filter by theme
+- Click **Search Questions**
+- Select questions, then **Generate Study** to preview/copy
 
-### Contributing Questions
+### Submit a Question
+- Select a theme
+- Enter a Bible reference
+- Write your question
+- Submit
 
-1. Select a theme for your question
-2. Enter a Bible reference
-3. Write your question
-4. Click "Submit"
-5. The question will be added to the MongoDB database
-
-### Admin Functionality
-
-1. Add the following to your .env file variables
-   ```
-   ADMINUSER=<desired admin username>
-   ADMINPASSWORD=<desired admin password>
-   ```
-2. Run yarn setup-admin to generate accounts
+### Admin
+- Login with admin credentials
+- Approve, edit, or delete questions
+- Download CSV of filtered or all questions
 
 ## 🌐 Deployment
-### Building for Production
-```
-yarn build
-```
 
 ### Netlify (Recommended)
-1. Connect your GitHub repository
-2. Set `MONGODB_URI` environment variable
-3. Deploy!
+- Connect your repo
+- Set `MONGODB_URI` in Netlify environment variables
+- Netlify auto-detects build (`yarn build`) and publish (`build/`)
+- API routes handled by Netlify Functions (`netlify/functions/`)
+- See `netlify.toml` for redirects and SPA routing
 
+## ⚙️ Scripts
+- `yarn dev` — Run frontend and backend concurrently
+- `yarn import-data` — Import initial CSV data to MongoDB
+- `yarn setup-admin` — Create/update admin user
+- `yarn lint` — Lint code
+- `yarn build` — Production build
 
-## 🤝 Contributing
+## 🧩 Tech Stack
+- **Frontend:** React, Vite, MUI
+- **Backend:** Express, MongoDB, Mongoose
+- **Serverless:** Netlify Functions
+
+## 🤝 Contributions Welcome
+If you have ideas, improvements, or new features:
+
 1. Fork the project
-2. Create your feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add some amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
+2. Create your feature branch (git checkout -b feature/amazing-feature)
+3. Commit your changes (git commit -m 'Add some amazing feature')
+4. Push to the branch (git push origin feature/amazing-feature)
 5. Open a Pull Request
 
-## Future Ideas
-- Migrate to Vite 
-
-## License
-
-This project is licensed under the MIT License.
+## 📄 License
+MIT
