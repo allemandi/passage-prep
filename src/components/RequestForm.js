@@ -12,7 +12,9 @@ import {
   TextField,
   MenuItem,
   Checkbox,
-  ListItemText
+  ListItemText,
+  Switch,
+  FormControlLabel
 } from '@mui/material';
 import { processForm, searchQuestions } from '../data/dataService';
 import { getBibleBooks, getChaptersForBook, getChapterCountForBook, formatReference, getVerseCountForBookAndChapter } from '../utils/bibleData';
@@ -59,6 +61,7 @@ const RequestForm = ({ onStudyGenerated, isLoading }) => {
   const [showSearchResults, setShowSearchResults] = useState(false);
   const [searchResults, setSearchResults] = useState([]);
   const [selectedQuestions, setSelectedQuestions] = useState([]);
+  const [hideUnapproved, setHideUnapproved] = useState(false);
 
   // Bible books from the JSON data
   const bibleBooks = getBibleBooks();
@@ -497,7 +500,7 @@ const RequestForm = ({ onStudyGenerated, isLoading }) => {
             </TextField>
           </Box>
 
-          {/* Action Buttons - Stacked below on mobile */}
+          {/* Action Buttons and Toggle - Stacked below on mobile */}
           <Box sx={{ 
             display: 'flex',
             flexDirection: 'column',
@@ -526,6 +529,21 @@ const RequestForm = ({ onStudyGenerated, isLoading }) => {
           </Box>
         </Box>
 
+        <FormControlLabel
+          control={
+            <Switch
+              checked={hideUnapproved}
+              onChange={e => setHideUnapproved(e.target.checked)}
+              color="primary"
+              size="small"
+              inputProps={{ 'aria-label': 'Hide Unapproved' }}
+            />
+          }
+          label="Hide Unapproved"
+          labelPlacement="end"
+          sx={{ mt: 1, mb: 2, ml: { xs: 0, sm: 2 } }}
+        />
+
         {/* Question Table */}
         {showSearchResults && (
           <Box sx={{ mt: 4 }}>
@@ -534,6 +552,7 @@ const RequestForm = ({ onStudyGenerated, isLoading }) => {
               selectedQuestions={selectedQuestions}
               onQuestionSelect={handleQuestionSelect}
               showActions={true}
+              hideUnapproved={hideUnapproved}
             />
           </Box>
         )}

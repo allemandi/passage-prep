@@ -12,6 +12,8 @@ import {
   Checkbox,
   ListItemText,
   MenuItem,
+  Switch,
+  FormControlLabel
 } from '@mui/material';
 import QuestionTable from './QuestionTable';
 import { searchQuestions, fetchAllQuestions, fetchUnapprovedQuestions, approveQuestions } from '../data/dataService';
@@ -48,6 +50,7 @@ const AdminForm = () => {
   const [filteredQuestions, setFilteredQuestions] = useState([]);
   const [showSuccess, setShowSuccess] = useState(false);
   const [logoutSuccess, setLogoutSuccess] = useState(false);
+  const [hideUnapproved, setHideUnapproved] = useState(false);
 
   // Use ref for logoutTimer to avoid dependency issues
   const logoutTimerRef = useRef(null);
@@ -531,7 +534,7 @@ const AdminForm = () => {
             <Typography variant="h6" sx={{ mb: 2, textAlign: 'center' }}>
               Admin Mode
             </Typography>
-            <Grid container spacing={2} justifyContent="center" sx={{ mb: 3 }}>
+            <Grid container spacing={2} justifyContent="center" sx={{ mb: 3, alignItems: 'center' }}>
               <Grid item>
                 <Button 
                   variant={activeButton === 'edit' ? 'contained' : 'outlined'} 
@@ -632,12 +635,27 @@ const AdminForm = () => {
                 >
                   Apply Filters
                 </Button>
+                <FormControlLabel
+                  control={
+                    <Switch
+                      checked={hideUnapproved}
+                      onChange={e => setHideUnapproved(e.target.checked)}
+                      color="primary"
+                      size="small"
+                      inputProps={{ 'aria-label': 'Hide Unapproved' }}
+                    />
+                  }
+                  label="Hide Unapproved"
+                  labelPlacement="end"
+                  sx={{ mt: 1, mb: 2, ml: { xs: 0, sm: 2 } }}
+                />
                 <QuestionTable
                   questions={filteredQuestions}
                   selectedQuestions={selectedQuestions}
                   onQuestionSelect={handleQuestionSelect}
                   showActions={activeButton === 'edit'}
                   onQuestionUpdate={handleQuestionUpdate}
+                  hideUnapproved={hideUnapproved}
                 />
                 <Button 
                   variant="contained" 

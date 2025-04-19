@@ -29,7 +29,8 @@ const QuestionTable = ({
   selectedQuestions, 
   onQuestionSelect,
   showActions,
-  onQuestionUpdate 
+  onQuestionUpdate,
+  hideUnapproved = false
 }) => {
   const [editingId, setEditingId] = useState(null);
   const [editData, setEditData] = useState({});
@@ -102,7 +103,8 @@ const QuestionTable = ({
   };
 
   // Sort questions by book index and then by chapter
-  const sortedQuestions = [...questions].sort((a, b) => {
+  const filtered = hideUnapproved ? questions.filter(q => q.isApproved !== false) : questions;
+  const sortedQuestions = [...filtered].sort((a, b) => {
     const bookAIndex = bibleCounts[a.book] || Infinity;
     const bookBIndex = bibleCounts[b.book] || Infinity;
     return bookAIndex === bookBIndex 
