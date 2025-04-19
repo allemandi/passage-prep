@@ -1,5 +1,5 @@
 const { connectToDatabase } = require('./utils/db');
-const Book = require('./models/Book');
+const Book = require('../../models/Book');
 
 exports.handler = async function(event, context) {
   // Make the database connection reusable to avoid cold starts

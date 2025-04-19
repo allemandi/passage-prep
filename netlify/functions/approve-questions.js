@@ -1,5 +1,5 @@
 const { connectToDatabase } = require('./utils/db');
-const Question = require('./models/Question');
+const Question = require('../../models/Question');
 
 exports.handler = async function(event, context) {
   context.callbackWaitsForEmptyEventLoop = false;
