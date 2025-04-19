@@ -226,8 +226,6 @@ const ContributeForm = () => {
   
   return (
     <Container maxWidth="xl" sx={{ pt: 3, pb: 4 }}>
-     
-      
       <Paper 
         component="form"
         onSubmit={handleSubmit}
@@ -241,8 +239,8 @@ const ContributeForm = () => {
           mx: 'auto'
         }}
       >
-        <Grid container spacing={4} justifyContent="center" sx={{ width: '100%', maxWidth: '900px', mx: 'auto' }}>
-          <Grid item xs={12} md={6}>
+        <Grid container spacing={3} justifyContent="center">
+          <Grid item xs={12} md={5} sx={{ width: { xs: '100%', md: 260 } }}>
             <Box sx={{ 
               display: 'flex',
               flexDirection: 'column',
@@ -266,7 +264,7 @@ const ContributeForm = () => {
               >
                 Bible Reference
               </Typography>
-              <Box sx={{ width: { xs: '100%', sm: 260 }, mb: 1 }}>
+              <Box sx={{ width: { xs: '100%', md: 260 } }}>
                 <ScriptureCombobox
                   id="bookSelect"
                   label="Book"
@@ -281,7 +279,7 @@ const ContributeForm = () => {
                   sx={{ minWidth: 0, width: '100%' }}
                 />
               </Box>
-              <Box sx={{ width: { xs: '100%', sm: 260 }, mb: 1 }}>
+              <Box sx={{ width: { xs: '100%', md: 260 }, mb: 1 }}>
                 <ScriptureCombobox
                   id="chapterSelect"
                   label="Chapter"
@@ -297,7 +295,7 @@ const ContributeForm = () => {
                   sx={{ minWidth: 0, width: '100%' }}
                 />
               </Box>
-              <Box sx={{ width: { xs: '100%', sm: 260 }, mb: 1 }}>
+              <Box sx={{ width: { xs: '100%', md: 260 }, mb: 1 }}>
                 <ScriptureCombobox
                   id="verseStartSelect"
                   label="Start Verse"
@@ -313,7 +311,7 @@ const ContributeForm = () => {
                   sx={{ minWidth: 0, width: '100%' }}
                 />
               </Box>
-              <Box sx={{ width: { xs: '100%', sm: 260 } }}>
+              <Box sx={{ width: { xs: '100%', md: 260 } }}>
                 <ScriptureCombobox
                   id="verseEndSelect"
                   label="End Verse"
@@ -328,20 +326,16 @@ const ContributeForm = () => {
               </Box>
             </Box>
           </Grid>
-          <Grid item xs={12} md={6}>
+          <Grid item xs={12} md={5}>
             <Box sx={{ 
               display: 'flex',
               flexDirection: 'column',
               height: '100%',
               justifyContent: 'flex-end',
               alignItems: 'center',
-              gap: 2
+              gap: 1
             }}>
-              <Box sx={{ 
-                flex: '0 0 auto',
-                mb: 2,
-                width: { xs: '100%', sm: 260 }
-              }}>
+              <Box sx={{ width: { xs: '100%', md: 260 }}}>
                 <Typography 
                   variant="subtitle1" 
                   gutterBottom 
@@ -366,7 +360,7 @@ const ContributeForm = () => {
                   required
                   variant="outlined"
                   size="medium"
-                  sx={{ minWidth: 0, width: '100%' }}
+                  sx={{ width: { xs: '100%', md: 260 }}}
                 >
                   <MenuItem value="">
                     <em>Select a theme</em>
@@ -378,7 +372,7 @@ const ContributeForm = () => {
               </Box>
               <Box sx={{ 
                 flex: 1,
-                width: { xs: '100%', sm: 260 },
+                 width: { xs: '100%', md: 260 },
                 display: 'flex',
                 flexDirection: 'column',
                 justifyContent: 'flex-end'

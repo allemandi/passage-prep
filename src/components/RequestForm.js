@@ -287,8 +287,6 @@ const RequestForm = ({ onStudyGenerated, isLoading }) => {
   
   return (
     <Container maxWidth="xl" sx={{ pt: 3, pb: 4 }}>
-    
-      
       <Paper 
         elevation={1}
         sx={{ 
@@ -317,7 +315,7 @@ const RequestForm = ({ onStudyGenerated, isLoading }) => {
           </Typography>
           <Grid container spacing={3} justifyContent="center">
             {scriptureRefs.map((ref, index) => (
-              <Grid item xs={12} md={5} key={ref.id}>
+              <Grid item xs={12} md={5} key={ref.id} sx={{ width: { xs: '100%', md: 260 } }}>
                 <Box sx={{ 
                   position: 'relative',
                   display: 'flex', 
@@ -351,7 +349,7 @@ const RequestForm = ({ onStudyGenerated, isLoading }) => {
                       ✕
                     </Button>
                   )}
-                  <Box sx={{ width: { xs: '100%', sm: 260 }, mb: 1 }}>
+                  <Box sx={{ width: { xs: '100%', md: 260 }, mb: 1 }}>
                     <ScriptureCombobox
                       id={`bookSelect-${index}`}
                       label="Book"
@@ -363,7 +361,7 @@ const RequestForm = ({ onStudyGenerated, isLoading }) => {
                       sx={{ minWidth: 0, width: '100%' }}
                     />
                   </Box>
-                  <Box sx={{ width: { xs: '100%', sm: 260 }, mb: 1 }}>
+                  <Box sx={{ width: { xs: '100%', md: 260 }, mb: 1 }}>
                     <ScriptureCombobox
                       id={`chapterSelect-${index}`}
                       label="Chapter"
@@ -375,7 +373,7 @@ const RequestForm = ({ onStudyGenerated, isLoading }) => {
                       sx={{ minWidth: 0, width: '100%' }}
                     />
                   </Box>
-                  <Box sx={{ width: { xs: '100%', sm: 260 }, mb: 1 }}>
+                  <Box sx={{ width: { xs: '100%', md: 260 }, mb: 1 }}>
                     <ScriptureCombobox
                       id={`verseStartSelect-${index}`}
                       label="Start Verse"
@@ -387,7 +385,7 @@ const RequestForm = ({ onStudyGenerated, isLoading }) => {
                       sx={{ minWidth: 0, width: '100%' }}
                     />
                   </Box>
-                  <Box sx={{ width: { xs: '100%', sm: 260 } }}>
+                  <Box sx={{ width: { xs: '100%', md: 260 }, mb: 1 }}>
                     <ScriptureCombobox
                       id={`verseEndSelect-${index}`}
                       label="End Verse"
