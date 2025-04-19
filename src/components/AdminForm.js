@@ -14,7 +14,7 @@ import {
   MenuItem,
 } from '@mui/material';
 import QuestionTable from './QuestionTable';
-import { searchQuestions, fetchAllQuestions } from '../data/dataService';
+import { searchQuestions, fetchAllQuestions, fetchUnapprovedQuestions, approveQuestions } from '../data/dataService';
 import ScriptureCombobox from './ScriptureCombobox';
 import { getBibleBooks, getChaptersForBook, getVerseCountForBookAndChapter } from '../utils/bibleData';
 import themes from '../data/themes.json';
@@ -61,9 +61,6 @@ const AdminForm = () => {
     availableChapters: [],
     availableVerses: [],
   });
-
-  // Store all unapproved questions for Review/Approve
-  const [unapprovedQuestions, setUnapprovedQuestions] = useState([]);
 
   const theme = useTheme();
 
@@ -256,18 +253,18 @@ const AdminForm = () => {
     });
   };
 
-  // Fetch unapproved questions when entering Review/Approve
+  // On entering Review/Approve, load all unapproved questions by default
   useEffect(() => {
     if (activeButton === 'review' && isLoggedIn) {
       (async () => {
         try {
-          const allQuestions = await fetchAllQuestions();
-          const unapproved = allQuestions.filter(q => q.isApproved === false);
-          setUnapprovedQuestions(unapproved);
+          // Use performant endpoint for unapproved questions
+          const unapproved = await fetchUnapprovedQuestions();
           setFilteredQuestions(unapproved);
         } catch (error) {
           setShowError(true);
           setErrorMessage(error.message);
+          setFilteredQuestions([]);
         }
       })();
     }
@@ -276,46 +273,47 @@ const AdminForm = () => {
     }
   }, [activeButton, isLoggedIn]);
 
-  // Custom filter for Review/Approve
-  const applyReviewFilters = useCallback(() => {
-    const ref = scriptureRefs[0];
-    let filtered = unapprovedQuestions;
-    if (ref.selectedBook) {
-      filtered = filtered.filter(q => q.book === ref.selectedBook);
-    }
-    if (ref.selectedChapter) {
-      filtered = filtered.filter(q => String(q.chapter) === String(ref.selectedChapter));
-    }
-    if (ref.startVerse) {
-      filtered = filtered.filter(q => parseInt(q.verseStart) >= parseInt(ref.startVerse));
-    }
-    if (ref.endVerse) {
-      filtered = filtered.filter(q => parseInt(q.verseEnd || q.verseStart) <= parseInt(ref.endVerse));
-    }
-    if (selectedThemes.length !== themes.length) {
-      filtered = filtered.filter(q => selectedThemes.includes(q.theme));
-    }
-    setFilteredQuestions(filtered);
-  }, [scriptureRefs, selectedThemes, unapprovedQuestions]);
-
-  // Edit/Delete: API filter as before
-  const applyEditFilters = useCallback(async () => {
+  // API-based filter for Edit/Delete, client-side filter for Review/Approve
+  const applyApiFilters = useCallback(async () => {
     try {
       const ref = scriptureRefs[0];
-      const results = await searchQuestions({
-        book: ref.selectedBook,
-        chapter: ref.selectedChapter,
-        startVerse: ref.startVerse,
-        endVerse: ref.endVerse,
-        themeArr: selectedThemes.length === themes.length ? [] : selectedThemes,
-      });
+      if (activeButton === 'review') {
+        // Always filter on unapproved questions only
+        const unapproved = await fetchUnapprovedQuestions();
+        let filtered = unapproved;
+        if (ref.selectedBook) {
+          filtered = filtered.filter(q => q.book === ref.selectedBook);
+        }
+        if (ref.selectedChapter) {
+          filtered = filtered.filter(q => String(q.chapter) === String(ref.selectedChapter));
+        }
+        if (ref.startVerse) {
+          filtered = filtered.filter(q => parseInt(q.verseStart) >= parseInt(ref.startVerse));
+        }
+        if (ref.endVerse) {
+          filtered = filtered.filter(q => parseInt(q.verseEnd || q.verseStart) <= parseInt(ref.endVerse));
+        }
+        if (selectedThemes.length !== themes.length) {
+          filtered = filtered.filter(q => selectedThemes.includes(q.theme));
+        }
+        setFilteredQuestions(filtered);
+        return;
+      }
+      // Edit/Delete: use API
+      const filter = {};
+      if (ref.selectedBook) filter.book = ref.selectedBook;
+      if (ref.selectedChapter) filter.chapter = ref.selectedChapter;
+      if (ref.startVerse) filter.startVerse = ref.startVerse;
+      if (ref.endVerse) filter.endVerse = ref.endVerse;
+      if (selectedThemes.length !== themes.length) filter.themeArr = selectedThemes;
+      const results = await searchQuestions(filter);
       setFilteredQuestions(results);
     } catch (error) {
       setShowError(true);
       setErrorMessage(error.message);
       setFilteredQuestions([]);
     }
-  }, [scriptureRefs, selectedThemes]);
+  }, [scriptureRefs, selectedThemes, activeButton]);
 
   const handleDeleteSelected = useCallback(async () => {
     if (selectedQuestions.length === 0) return;
@@ -332,12 +330,12 @@ const AdminForm = () => {
 
       setShowSuccess(true);
       setSelectedQuestions([]);
-      await applyEditFilters();
+      await applyApiFilters();
     } catch (error) {
       setShowError(true);
       setErrorMessage(error.message);
     }
-  }, [selectedQuestions, filteredQuestions, applyEditFilters]);
+  }, [selectedQuestions, filteredQuestions, applyApiFilters]);
 
   const handleQuestionUpdate = useCallback(async (questionId, updatedData) => {
     try {
@@ -350,12 +348,12 @@ const AdminForm = () => {
       if (!response.ok) throw new Error('Failed to update question');
 
       setShowSuccess(true);
-      await applyEditFilters();
+      await applyApiFilters();
     } catch (error) {
       setShowError(true);
       setErrorMessage(error.message);
     }
-  }, [applyEditFilters]);
+  }, [applyApiFilters]);
 
   // Update downloadRef when book or chapter changes
   const updateDownloadRef = (updates) => {
@@ -473,6 +471,24 @@ const AdminForm = () => {
       console.error('Download error:', error);
     }
   };
+
+  // Approve selected questions in Review/Approve mode
+  const handleApproveSelected = useCallback(async () => {
+    if (selectedQuestions.length === 0) return;
+    try {
+      // Get the IDs of selected unapproved questions
+      const questionIds = selectedQuestions.map(index => filteredQuestions[index]._id);
+      await approveQuestions(questionIds);
+      setShowSuccess(true);
+      setSelectedQuestions([]);
+      // Reload unapproved questions
+      const unapproved = await fetchUnapprovedQuestions();
+      setFilteredQuestions(unapproved);
+    } catch (error) {
+      setShowError(true);
+      setErrorMessage(error.message);
+    }
+  }, [selectedQuestions, filteredQuestions]);
 
   return (
     <Container maxWidth="xl" sx={{ pt: 3, pb: 4 }}>
@@ -611,7 +627,7 @@ const AdminForm = () => {
                 </TextField>
                 <Button
                   variant="contained"
-                  onClick={activeButton === 'edit' ? applyEditFilters : applyReviewFilters}
+                  onClick={applyApiFilters}
                   sx={{ mt: 2 }}
                 >
                   Apply Filters
@@ -704,7 +720,7 @@ const AdminForm = () => {
                 </TextField>
                 <Button
                   variant="contained"
-                  onClick={activeButton === 'edit' ? applyEditFilters : applyReviewFilters}
+                  onClick={applyApiFilters}
                   sx={{ mt: 2 }}
                 >
                   Apply Filters
@@ -721,6 +737,7 @@ const AdminForm = () => {
                   color="success" 
                   sx={{ mt: 2 }}
                   disabled={selectedQuestions.length === 0}
+                  onClick={handleApproveSelected}
                 >
                   Approve Selected
                 </Button>

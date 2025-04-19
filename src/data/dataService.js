@@ -225,3 +225,53 @@ export const fetchAllQuestions = async () => {
     throw error;
   }
 };
+
+export const fetchUnapprovedQuestions = async () => {
+  try {
+    let url;
+    if (process.env.NODE_ENV === 'production') {
+      url = '/.netlify/functions/unapproved-questions';
+    } else {
+      url = '/api/unapproved-questions';
+    }
+    let response = await fetch(url, {
+      headers: { 'Accept': 'application/json' }
+    });
+    let contentType = response.headers.get('content-type');
+    // If dev server returns HTML (not found), fallback to fetchAllQuestions and filter client-side
+    if (!response.ok || !(contentType && contentType.includes('application/json'))) {
+      // Try fallback only in dev
+      if (process.env.NODE_ENV !== 'production') {
+        const all = await fetchAllQuestions();
+        return all.filter(q => q.isApproved === false);
+      }
+      let errorText = contentType && contentType.includes('text') ? await response.text() : '';
+      throw new Error(`HTTP error! status: ${response.status} - ${errorText}`);
+    }
+    return await response.json();
+  } catch (error) {
+    console.error('Fetch unapproved error:', error);
+    throw error;
+  }
+};
+
+export const approveQuestions = async (questionIds) => {
+  try {
+    const url = process.env.NODE_ENV === 'production'
+      ? '/.netlify/functions/approve-questions'
+      : '/api/approve-questions';
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ questionIds }),
+    });
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(errorText || 'Failed to approve questions');
+    }
+    return await response.json();
+  } catch (error) {
+    console.error('Approve questions error:', error);
+    throw error;
+  }
+};
