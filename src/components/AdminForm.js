@@ -494,28 +494,29 @@ const AdminForm = () => {
   }, [selectedQuestions, filteredQuestions]);
 
   return (
-    <Container maxWidth="xl" sx={{ pt: 3, pb: 4 }}>
-   
-      
+    <Container maxWidth="xl" sx={{ pt: { xs: 2, md: 6 }, pb: { xs: 2, md: 6 }, px: { xs: 0, md: 4 } }}>
       <Paper 
-        elevation={1}
+        elevation={2}
         sx={{ 
-          p: 3,
+          p: { xs: 2, sm: 4, md: 6 },
           bgcolor: 'background.paper',
-          borderRadius: 2,
-          border: `1px solid ${theme.palette.divider}`,
-          maxWidth: 1200,
-          mx: 'auto'
+          borderRadius: 3,
+          border: `1.5px solid ${theme.palette.divider}`,
+          width: '100%',
+          maxWidth: 'none',
+          mx: 'auto',
         }}
       >
         {!isLoggedIn ? (
-          <Box component="form" onSubmit={handleLogin} sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+          <Box component="form" onSubmit={handleLogin} sx={{ display: 'flex', flexDirection: 'column', gap: 3, maxWidth: 480, mx: 'auto', width: '100%' }}>
             <TextField
               label="Username"
               value={username}
               onChange={(e) => setUsername(e.target.value)}
               required
               fullWidth
+              size="large"
+              sx={{ mb: 2 }}
             />
             <TextField
               label="Password"
@@ -524,37 +525,48 @@ const AdminForm = () => {
               onChange={(e) => setPassword(e.target.value)}
               required
               fullWidth
+              size="large"
+              sx={{ mb: 2 }}
             />
-            <Button type="submit" variant="contained" color="primary" fullWidth>
+            <Button type="submit" variant="contained" color="primary" fullWidth size="large" sx={{ py: 2, fontSize: '1.1rem' }}>
               Login
             </Button>
           </Box>
         ) : (
-          <Box>
-            <Typography variant="h6" sx={{ mb: 2, textAlign: 'center' }}>
+          <Box sx={{ width: '100%' }}>
+            <Typography variant="h5" sx={{ mb: 4, textAlign: 'center', fontWeight: 700, letterSpacing: 1 }}>
               Admin Mode
             </Typography>
-            <Grid container spacing={2} justifyContent="center" sx={{ mb: 3, alignItems: 'center' }}>
-              <Grid item>
+            <Grid container spacing={3} justifyContent="center" alignItems="center" sx={{ mb: 5, width: '100%' }}>
+              <Grid item xs={12} sm={4} md={3}>
                 <Button 
                   variant={activeButton === 'edit' ? 'contained' : 'outlined'} 
                   onClick={() => handleButtonClick('edit')}
+                  fullWidth
+                  size="large"
+                  sx={{ py: 2, fontWeight: 600 }}
                 >
                   Edit/Delete
                 </Button>
               </Grid>
-              <Grid item>
+              <Grid item xs={12} sm={4} md={3}>
                 <Button 
                   variant={activeButton === 'review' ? 'contained' : 'outlined'} 
                   onClick={() => handleButtonClick('review')}
+                  fullWidth
+                  size="large"
+                  sx={{ py: 2, fontWeight: 600 }}
                 >
                   Review/Approve
                 </Button>
               </Grid>
-              <Grid item>
+              <Grid item xs={12} sm={4} md={3}>
                 <Button 
                   variant={activeButton === 'download' ? 'contained' : 'outlined'} 
                   onClick={() => handleButtonClick('download')}
+                  fullWidth
+                  size="large"
+                  sx={{ py: 2, fontWeight: 600 }}
                 >
                   Download
                 </Button>
@@ -562,107 +574,118 @@ const AdminForm = () => {
             </Grid>
 
             {activeButton === 'edit' && (
-              <Box sx={{ mb: 3 }}>
-                <Typography variant="subtitle1" sx={{ mb: 1 }}>
+              <Box sx={{ mb: 5, width: '100%' }}>
+                <Typography variant="h6" sx={{ mb: 3, fontWeight: 600 }}>
                   Filter for Editing/Deleting Questions
                 </Typography>
-                <Grid container spacing={2}>
-                  <Grid item xs={12} sm={3}>
-                    <ScriptureCombobox
-                      label="Book"
-                      value={scriptureRefs[0].selectedBook}
-                      onChange={(book) => updateScriptureRef(0, { selectedBook: book })}
-                      options={getBibleBooks()}
-                      placeholder="Select a book"
-                    />
+                <Grid container spacing={3} justifyContent="center" alignItems="center" sx={{ mb: 2, flexWrap: 'wrap' }}>
+                  <Grid item xs={12} sm={6} md={3} sx={{ display: 'flex', justifyContent: 'center' }}>
+                    <Box sx={{ width: { xs: '100%', sm: 260 } }}>
+                      <ScriptureCombobox
+                        label="Book"
+                        value={scriptureRefs[0].selectedBook}
+                        onChange={(book) => updateScriptureRef(0, { selectedBook: book })}
+                        options={getBibleBooks()}
+                        placeholder="Select a book"
+                        sx={{ width: '100%' }}
+                      />
+                    </Box>
                   </Grid>
-                  <Grid item xs={12} sm={3}>
-                    <ScriptureCombobox
-                      label="Chapter"
-                      value={scriptureRefs[0].selectedChapter}
-                      onChange={(chapter) => updateScriptureRef(0, { selectedChapter: chapter })}
-                      options={scriptureRefs[0].availableChapters}
-                      disabled={!scriptureRefs[0].selectedBook}
-                      placeholder={scriptureRefs[0].selectedBook ? "Select chapter" : "Select book first"}
-                    />
+                  <Grid item xs={12} sm={6} md={3} sx={{ display: 'flex', justifyContent: 'center' }}>
+                    <Box sx={{ width: { xs: '100%', sm: 260 } }}>
+                      <ScriptureCombobox
+                        label="Chapter"
+                        value={scriptureRefs[0].selectedChapter}
+                        onChange={(chapter) => updateScriptureRef(0, { selectedChapter: chapter })}
+                        options={scriptureRefs[0].availableChapters}
+                        disabled={!scriptureRefs[0].selectedBook}
+                        placeholder={scriptureRefs[0].selectedBook ? "Select chapter" : "Select book first"}
+                      />
+                    </Box>
                   </Grid>
-                  <Grid item xs={12} sm={3}>
-                    <ScriptureCombobox
-                      label="Start Verse"
-                      value={scriptureRefs[0].startVerse}
-                      onChange={(verse) => updateScriptureRef(0, { startVerse: verse })}
-                      options={scriptureRefs[0].availableVerses}
-                      disabled={!scriptureRefs[0].selectedChapter}
-                      placeholder={scriptureRefs[0].selectedChapter ? "Select start verse" : "Select chapter first"}
-                    />
+                  <Grid item xs={12} sm={6} md={3} sx={{ display: 'flex', justifyContent: 'center' }}>
+                    <Box sx={{ width: { xs: '100%', sm: 260 } }}>
+                      <ScriptureCombobox
+                        label="Start Verse"
+                        value={scriptureRefs[0].startVerse}
+                        onChange={(verse) => updateScriptureRef(0, { startVerse: verse })}
+                        options={scriptureRefs[0].availableVerses}
+                        disabled={!scriptureRefs[0].selectedChapter}
+                        placeholder={scriptureRefs[0].selectedChapter ? "Select start verse" : "Select chapter first"}
+                      />
+                    </Box>
                   </Grid>
-                  <Grid item xs={12} sm={3}>
-                    <ScriptureCombobox
-                      label="End Verse"
-                      value={scriptureRefs[0].endVerse}
-                      onChange={(verse) => updateScriptureRef(0, { endVerse: verse })}
-                      options={scriptureRefs[0].availableVerses}
-                      disabled={!scriptureRefs[0].selectedChapter}
-                      placeholder={scriptureRefs[0].selectedChapter ? "Select end verse" : "Select chapter first"}
-                      isEndVerse
-                      startVerseValue={scriptureRefs[0].startVerse}
-                    />
+                  <Grid item xs={12} sm={6} md={3} sx={{ display: 'flex', justifyContent: 'center' }}>
+                    <Box sx={{ width: { xs: '100%', sm: 260 } }}>
+                      <ScriptureCombobox
+                        label="End Verse"
+                        value={scriptureRefs[0].endVerse}
+                        onChange={(verse) => updateScriptureRef(0, { endVerse: verse })}
+                        options={scriptureRefs[0].availableVerses}
+                        disabled={!scriptureRefs[0].selectedChapter}
+                        placeholder={scriptureRefs[0].selectedChapter ? "Select end verse" : "Select chapter first"}
+                        isEndVerse
+                        startVerseValue={scriptureRefs[0].startVerse}
+                      />
+                    </Box>
                   </Grid>
                 </Grid>
-                <TextField
-                  select
-                  fullWidth
-                  label="Themes"
-                  value={selectedThemes}
-                  onChange={(e) => setSelectedThemes(e.target.value)}
-                  SelectProps={{
-                    multiple: true,
-                    renderValue: (selected) => selected.length === themes.length ? "All" : selected.join(", "),
-                  }}
-                  sx={{ mt: 2 }}
-                >
-                  {themes.map((theme) => (
-                    <MenuItem key={theme} value={theme}>
-                      <Checkbox checked={selectedThemes.includes(theme)} />
-                      <ListItemText primary={theme} />
-                    </MenuItem>
-                  ))}
-                </TextField>
-                <Button
-                  variant="contained"
-                  onClick={applyApiFilters}
-                  sx={{ mt: 2 }}
-                >
-                  Apply Filters
-                </Button>
-                <FormControlLabel
-                  control={
-                    <Switch
-                      checked={hideUnapproved}
-                      onChange={e => setHideUnapproved(e.target.checked)}
-                      color="primary"
-                      size="small"
-                      inputProps={{ 'aria-label': 'Hide Unapproved' }}
-                    />
-                  }
-                  label="Hide Unapproved"
-                  labelPlacement="end"
-                  sx={{ mt: 1, mb: 2, ml: { xs: 0, sm: 2 } }}
-                />
-                <QuestionTable
-                  questions={filteredQuestions}
-                  selectedQuestions={selectedQuestions}
-                  onQuestionSelect={handleQuestionSelect}
-                  showActions={activeButton === 'edit'}
-                  onQuestionUpdate={handleQuestionUpdate}
-                  hideUnapproved={hideUnapproved}
-                />
+                <Box sx={{ display: 'flex', justifyContent: 'center', width: '100%', mb: 2 }}>
+                  <TextField
+                    select
+                    label="Themes"
+                    value={selectedThemes}
+                    onChange={(e) => setSelectedThemes(e.target.value)}
+                    SelectProps={{
+                      multiple: true,
+                      renderValue: (selected) => selected.length === themes.length ? "All" : selected.join(", "),
+                    }}
+                    sx={{ width: { xs: '100%', sm: 260 }, fontSize: '1.1rem' }}
+                  >
+                    {themes.map((theme) => (
+                      <MenuItem key={theme} value={theme}>
+                        <Checkbox checked={selectedThemes.includes(theme)} />
+                        <ListItemText primary={theme} />
+                      </MenuItem>
+                    ))}
+                  </TextField>
+                </Box>
+                <Box sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, gap: 2, justifyContent: 'center', alignItems: 'center', width: '100%' }}>
+                  <Button
+                    variant="contained"
+                    onClick={applyApiFilters}
+                    sx={{ py: 1.5, fontSize: '1.1rem', width: { xs: '100%', sm: 200 } }}
+                    size="large"
+                  >
+                    Apply Filters
+                  </Button>
+                  <Button
+                    variant={hideUnapproved ? 'contained' : 'outlined'}
+                    color="secondary"
+                    size="small"
+                    sx={{ ml: { xs: 0, sm: 2 }, fontWeight: 500, minWidth: 120, width: { xs: '100%', sm: 'auto' } }}
+                    onClick={() => setHideUnapproved(v => !v)}
+                  >
+                    {hideUnapproved ? 'Show Unapproved' : 'Hide Unapproved'}
+                  </Button>
+                </Box>
+                <Box sx={{ width: '100%', mt: 2 }}>
+                  <QuestionTable
+                    questions={filteredQuestions}
+                    selectedQuestions={selectedQuestions}
+                    onQuestionSelect={handleQuestionSelect}
+                    showActions={activeButton === 'edit'}
+                    onQuestionUpdate={handleQuestionUpdate}
+                    hideUnapproved={hideUnapproved}
+                  />
+                </Box>
                 <Button 
                   variant="contained" 
                   color="error" 
-                  sx={{ mt: 2 }}
+                  sx={{ mt: 4, py: 1.5, fontSize: '1.1rem', width: { xs: '100%', sm: 260 }, mx: 'auto', display: 'block' }}
                   onClick={handleDeleteSelected}
                   disabled={selectedQuestions.length === 0}
+                  size="large"
                 >
                   Delete Selected
                 </Button>
@@ -670,92 +693,108 @@ const AdminForm = () => {
             )}
 
             {activeButton === 'review' && (
-              <Box sx={{ mb: 3 }}>
-                <Typography variant="subtitle1" sx={{ mb: 1 }}>
+              <Box sx={{ mb: 5, width: '100%' }}>
+                <Typography variant="h6" sx={{ mb: 3, fontWeight: 600 }}>
                   Filter for Reviewing/Approving Questions
                 </Typography>
-                <Grid container spacing={2}>
-                  <Grid item xs={12} sm={3}>
-                    <ScriptureCombobox
-                      label="Book"
-                      value={scriptureRefs[0].selectedBook}
-                      onChange={(book) => updateScriptureRef(0, { selectedBook: book })}
-                      options={getBibleBooks()}
-                      placeholder="Select a book"
-                    />
+                <Grid container spacing={3} justifyContent="center" alignItems="center" sx={{ mb: 2, flexWrap: 'wrap' }}>
+                  <Grid item xs={12} sm={6} md={3} sx={{ display: 'flex', justifyContent: 'center' }}>
+                    <Box sx={{ width: { xs: '100%', sm: 260 } }}>
+                      <ScriptureCombobox
+                        label="Book"
+                        value={scriptureRefs[0].selectedBook}
+                        onChange={(book) => updateScriptureRef(0, { selectedBook: book })}
+                        options={getBibleBooks()}
+                        placeholder="Select a book"
+                        sx={{ width: '100%' }}
+                      />
+                    </Box>
                   </Grid>
-                  <Grid item xs={12} sm={3}>
-                    <ScriptureCombobox
-                      label="Chapter"
-                      value={scriptureRefs[0].selectedChapter}
-                      onChange={(chapter) => updateScriptureRef(0, { selectedChapter: chapter })}
-                      options={scriptureRefs[0].availableChapters}
-                      disabled={!scriptureRefs[0].selectedBook}
-                      placeholder={scriptureRefs[0].selectedBook ? "Select chapter" : "Select book first"}
-                    />
+                  <Grid item xs={12} sm={6} md={3} sx={{ display: 'flex', justifyContent: 'center' }}>
+                    <Box sx={{ width: { xs: '100%', sm: 260 } }}>
+                      <ScriptureCombobox
+                        label="Chapter"
+                        value={scriptureRefs[0].selectedChapter}
+                        onChange={(chapter) => updateScriptureRef(0, { selectedChapter: chapter })}
+                        options={scriptureRefs[0].availableChapters}
+                        disabled={!scriptureRefs[0].selectedBook}
+                        placeholder={scriptureRefs[0].selectedBook ? "Select chapter" : "Select book first"}
+                      />
+                    </Box>
                   </Grid>
-                  <Grid item xs={12} sm={3}>
-                    <ScriptureCombobox
-                      label="Start Verse"
-                      value={scriptureRefs[0].startVerse}
-                      onChange={(verse) => updateScriptureRef(0, { startVerse: verse })}
-                      options={scriptureRefs[0].availableVerses}
-                      disabled={!scriptureRefs[0].selectedChapter}
-                      placeholder={scriptureRefs[0].selectedChapter ? "Select start verse" : "Select chapter first"}
-                    />
+                  <Grid item xs={12} sm={6} md={3} sx={{ display: 'flex', justifyContent: 'center' }}>
+                    <Box sx={{ width: { xs: '100%', sm: 260 } }}>
+                      <ScriptureCombobox
+                        label="Start Verse"
+                        value={scriptureRefs[0].startVerse}
+                        onChange={(verse) => updateScriptureRef(0, { startVerse: verse })}
+                        options={scriptureRefs[0].availableVerses}
+                        disabled={!scriptureRefs[0].selectedChapter}
+                        placeholder={scriptureRefs[0].selectedChapter ? "Select start verse" : "Select chapter first"}
+                      />
+                    </Box>
                   </Grid>
-                  <Grid item xs={12} sm={3}>
-                    <ScriptureCombobox
-                      label="End Verse"
-                      value={scriptureRefs[0].endVerse}
-                      onChange={(verse) => updateScriptureRef(0, { endVerse: verse })}
-                      options={scriptureRefs[0].availableVerses}
-                      disabled={!scriptureRefs[0].selectedChapter}
-                      placeholder={scriptureRefs[0].selectedChapter ? "Select end verse" : "Select chapter first"}
-                      isEndVerse
-                      startVerseValue={scriptureRefs[0].startVerse}
-                    />
+                  <Grid item xs={12} sm={6} md={3} sx={{ display: 'flex', justifyContent: 'center' }}>
+                    <Box sx={{ width: { xs: '100%', sm: 260 } }}>
+                      <ScriptureCombobox
+                        label="End Verse"
+                        value={scriptureRefs[0].endVerse}
+                        onChange={(verse) => updateScriptureRef(0, { endVerse: verse })}
+                        options={scriptureRefs[0].availableVerses}
+                        disabled={!scriptureRefs[0].selectedChapter}
+                        placeholder={scriptureRefs[0].selectedChapter ? "Select end verse" : "Select chapter first"}
+                        isEndVerse
+                        startVerseValue={scriptureRefs[0].startVerse}
+                      />
+                    </Box>
                   </Grid>
                 </Grid>
-                <TextField
-                  select
-                  fullWidth
-                  label="Themes"
-                  value={selectedThemes}
-                  onChange={(e) => setSelectedThemes(e.target.value)}
-                  SelectProps={{
-                    multiple: true,
-                    renderValue: (selected) => selected.length === themes.length ? "All" : selected.join(", "),
-                  }}
-                  sx={{ mt: 2 }}
-                >
-                  {themes.map((theme) => (
-                    <MenuItem key={theme} value={theme}>
-                      <Checkbox checked={selectedThemes.includes(theme)} />
-                      <ListItemText primary={theme} />
-                    </MenuItem>
-                  ))}
-                </TextField>
-                <Button
-                  variant="contained"
-                  onClick={applyApiFilters}
-                  sx={{ mt: 2 }}
-                >
-                  Apply Filters
-                </Button>
-                <QuestionTable
-                  questions={filteredQuestions}
-                  selectedQuestions={selectedQuestions}
-                  onQuestionSelect={handleQuestionSelect}
-                  showActions={activeButton === 'review'}
-                  onQuestionUpdate={handleQuestionUpdate}
-                />
+                <Box sx={{ display: 'flex', justifyContent: 'center', width: '100%', mb: 2 }}>
+                  <TextField
+                    select
+                    label="Themes"
+                    value={selectedThemes}
+                    onChange={(e) => setSelectedThemes(e.target.value)}
+                    SelectProps={{
+                      multiple: true,
+                      renderValue: (selected) => selected.length === themes.length ? "All" : selected.join(", "),
+                    }}
+                    sx={{ width: { xs: '100%', sm: 260 }, fontSize: '1.1rem' }}
+                  >
+                    {themes.map((theme) => (
+                      <MenuItem key={theme} value={theme}>
+                        <Checkbox checked={selectedThemes.includes(theme)} />
+                        <ListItemText primary={theme} />
+                      </MenuItem>
+                    ))}
+                  </TextField>
+                </Box>
+                <Box sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, gap: 2, justifyContent: 'center', alignItems: 'center', width: '100%' }}>
+                  <Button
+                    variant="contained"
+                    onClick={applyApiFilters}
+                    sx={{ py: 1.5, fontSize: '1.1rem', width: { xs: '100%', sm: 200 } }}
+                    size="large"
+                  >
+                    Apply Filters
+                  </Button>
+                </Box>
+                <Box sx={{ width: '100%', mt: 2 }}>
+                  <QuestionTable
+                    questions={filteredQuestions}
+                    selectedQuestions={selectedQuestions}
+                    onQuestionSelect={handleQuestionSelect}
+                    showActions={activeButton === 'review'}
+                    onQuestionUpdate={handleQuestionUpdate}
+                  />
+                </Box>
                 <Button 
                   variant="contained" 
                   color="success" 
-                  sx={{ mt: 2 }}
+                  sx={{ mt: 4, py: 1.5, fontSize: '1.1rem', width: { xs: '100%', sm: 260 }, mx: 'auto', display: 'block' }}
                   disabled={selectedQuestions.length === 0}
                   onClick={handleApproveSelected}
+                  size="large"
                 >
                   Approve Selected
                 </Button>
@@ -763,73 +802,86 @@ const AdminForm = () => {
             )}
 
             {activeButton === 'download' && (
-              <Box sx={{ mb: 3 }}>
-                <Typography variant="subtitle1" sx={{ mb: 1 }}>
+              <Box sx={{ mb: 5, width: '100%' }}>
+                <Typography variant="h6" sx={{ mb: 3, fontWeight: 600 }}>
                   Download Options
                 </Typography>
-                <Grid container spacing={2}>
-                  <Grid item xs={12} sm={3}>
-                    <ScriptureCombobox
-                      label="Book"
-                      value={downloadRef.selectedBook}
-                      onChange={(book) => updateDownloadRef({ selectedBook: book })}
-                      options={getBibleBooks()}
-                      placeholder="Select a book"
-                    />
+                <Grid container spacing={3} justifyContent="center" alignItems="center" sx={{ mb: 2, flexWrap: 'wrap' }}>
+                  <Grid item xs={12} sm={6} md={3} sx={{ display: 'flex', justifyContent: 'center' }}>
+                    <Box sx={{ width: { xs: '100%', sm: 260 } }}>
+                      <ScriptureCombobox
+                        label="Book"
+                        value={downloadRef.selectedBook}
+                        onChange={(book) => updateDownloadRef({ selectedBook: book })}
+                        options={getBibleBooks()}
+                        placeholder="Select a book"
+                        sx={{ width: '100%' }}
+                      />
+                    </Box>
                   </Grid>
-                  <Grid item xs={12} sm={3}>
-                    <ScriptureCombobox
-                      label="Chapter"
-                      value={downloadRef.selectedChapter}
-                      onChange={(chapter) => updateDownloadRef({ selectedChapter: chapter })}
-                      options={downloadRef.availableChapters}
-                      disabled={!downloadRef.selectedBook}
-                      placeholder={downloadRef.selectedBook ? "Select chapter" : "Select book first"}
-                    />
+                  <Grid item xs={12} sm={6} md={3} sx={{ display: 'flex', justifyContent: 'center' }}>
+                    <Box sx={{ width: { xs: '100%', sm: 260 } }}>
+                      <ScriptureCombobox
+                        label="Chapter"
+                        value={downloadRef.selectedChapter}
+                        onChange={(chapter) => updateDownloadRef({ selectedChapter: chapter })}
+                        options={downloadRef.availableChapters}
+                        disabled={!downloadRef.selectedBook}
+                        placeholder={downloadRef.selectedBook ? "Select chapter" : "Select book first"}
+                      />
+                    </Box>
                   </Grid>
-                  <Grid item xs={12} sm={3}>
-                    <ScriptureCombobox
-                      label="Start Verse"
-                      value={downloadRef.startVerse}
-                      onChange={(verse) => updateDownloadRef({ startVerse: verse })}
-                      options={downloadRef.availableVerses}
-                      disabled={!downloadRef.selectedChapter}
-                      placeholder={downloadRef.selectedChapter ? "Select start verse" : "Select chapter first"}
-                    />
+                  <Grid item xs={12} sm={6} md={3} sx={{ display: 'flex', justifyContent: 'center' }}>
+                    <Box sx={{ width: { xs: '100%', sm: 260 } }}>
+                      <ScriptureCombobox
+                        label="Start Verse"
+                        value={downloadRef.startVerse}
+                        onChange={(verse) => updateDownloadRef({ startVerse: verse })}
+                        options={downloadRef.availableVerses}
+                        disabled={!downloadRef.selectedChapter}
+                        placeholder={downloadRef.selectedChapter ? "Select start verse" : "Select chapter first"}
+                      />
+                    </Box>
                   </Grid>
-                  <Grid item xs={12} sm={3}>
-                    <ScriptureCombobox
-                      label="End Verse"
-                      value={downloadRef.endVerse}
-                      onChange={(verse) => updateDownloadRef({ endVerse: verse })}
-                      options={downloadRef.availableVerses}
-                      disabled={!downloadRef.selectedChapter}
-                      placeholder={downloadRef.selectedChapter ? "Select end verse" : "Select chapter first"}
-                      isEndVerse
-                      startVerseValue={downloadRef.startVerse}
-                    />
+                  <Grid item xs={12} sm={6} md={3} sx={{ display: 'flex', justifyContent: 'center' }}>
+                    <Box sx={{ width: { xs: '100%', sm: 260 } }}>
+                      <ScriptureCombobox
+                        label="End Verse"
+                        value={downloadRef.endVerse}
+                        onChange={(verse) => updateDownloadRef({ endVerse: verse })}
+                        options={downloadRef.availableVerses}
+                        disabled={!downloadRef.selectedChapter}
+                        placeholder={downloadRef.selectedChapter ? "Select end verse" : "Select chapter first"}
+                        isEndVerse
+                        startVerseValue={downloadRef.startVerse}
+                      />
+                    </Box>
                   </Grid>
                 </Grid>
-                <Button
-                  variant="contained"
-                  onClick={downloadFilteredCSV}
-                  sx={{ mt: 2 }}
-                  disabled={!downloadRef.selectedBook}
-                >
-                  Download Filtered Questions
-                </Button>
-                <Button
-                  variant="contained"
-                  color="secondary"
-                  onClick={downloadAllCSV}
-                  sx={{ mt: 2, ml: 2 }}
-                >
-                  Download All Questions
-                </Button>
+                <Box sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, gap: 2, justifyContent: 'center', alignItems: 'center', width: '100%' }}>
+                  <Button
+                    variant="contained"
+                    onClick={downloadFilteredCSV}
+                    sx={{ py: 1.5, fontSize: '1.1rem', width: { xs: '100%', sm: 260 } }}
+                    disabled={!downloadRef.selectedBook}
+                    size="large"
+                  >
+                    Download Filtered Questions
+                  </Button>
+                  <Button
+                    variant="contained"
+                    color="secondary"
+                    onClick={downloadAllCSV}
+                    sx={{ py: 1.5, fontSize: '1.1rem', width: { xs: '100%', sm: 260 } }}
+                    size="large"
+                  >
+                    Download All Questions
+                  </Button>
+                </Box>
               </Box>
             )}
 
-            <Button variant="outlined" onClick={() => handleLogout('manual')} fullWidth>
+            <Button variant="outlined" onClick={() => handleLogout('manual')} fullWidth size="large" sx={{ mt: 4, py: 2, fontWeight: 600 }}>
               Logout
             </Button>
           </Box>

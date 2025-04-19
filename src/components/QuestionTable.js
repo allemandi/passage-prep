@@ -30,7 +30,8 @@ const QuestionTable = ({
   onQuestionSelect,
   showActions,
   onQuestionUpdate,
-  hideUnapproved = false
+  hideUnapproved = false,
+  hideEditActions = false
 }) => {
   const [editingId, setEditingId] = useState(null);
   const [editData, setEditData] = useState({});
@@ -145,7 +146,7 @@ const QuestionTable = ({
               <TableCell>Bible Passage</TableCell>
               <TableCell>Theme</TableCell>
               <TableCell>Question</TableCell>
-              {showActions && <TableCell>Actions</TableCell>}
+              {showActions && !hideEditActions && <TableCell>Actions</TableCell>}
             </TableRow>
           </TableHead>
           <TableBody>
@@ -164,7 +165,7 @@ const QuestionTable = ({
                 </TableCell>
                 <TableCell>{question.theme}</TableCell>
                 <TableCell>{question.question}</TableCell>
-                {showActions && (
+                {showActions && !hideEditActions && (
                   <TableCell>
                     <IconButton onClick={() => handleEdit(question)}>
                       <Edit />

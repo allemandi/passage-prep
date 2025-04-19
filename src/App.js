@@ -91,6 +91,22 @@ function App() {
               <IconButton 
                 onClick={() => setMode(prev => prev === 'light' ? 'dark' : 'light')} 
                 color="inherit"
+                sx={{
+                  border: `2px solid ${mode === 'dark' ? '#fff' : '#222'}`,
+                  borderRadius: 2,
+                  boxShadow: mode === 'dark'
+                    ? '0 0 0 2px rgba(255,255,255,0.15)'
+                    : '0 0 0 2px rgba(0,0,0,0.08)',
+                  background: mode === 'dark' ? 'rgba(255,255,255,0.04)' : 'rgba(0,0,0,0.03)',
+                  transition: 'border-color 0.2s, box-shadow 0.2s',
+                  '&:hover': {
+                    borderColor: mode === 'dark' ? '#90caf9' : '#1976d2',
+                    boxShadow: mode === 'dark'
+                      ? '0 0 0 3px rgba(144,202,249,0.18)'
+                      : '0 0 0 3px rgba(25,118,210,0.12)',
+                  },
+                  p: 1.2
+                }}
               >
                 {mode === 'dark' ? <Brightness7Icon /> : <Brightness4Icon />}
               </IconButton>
@@ -115,7 +131,14 @@ function App() {
             data={studyData} 
           />
         </Container>
+
+        <Box sx={{ mt: 4, textAlign: 'center' }}>
+        <Typography variant="body2" color="text.secondary">
+          Copyright © 2025 allemandi, All Rights Reserved
+        </Typography>
       </Box>
+      </Box>
+     
     </ThemeProvider>
   );
 }
