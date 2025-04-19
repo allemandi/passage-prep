@@ -61,16 +61,16 @@ const ScriptureCombobox = ({
               }
             },
             '& .MuiInputLabel-root': {
-              fontSize: '0.95rem',
-              transform: 'translate(14px, 16px) scale(1)',
+              fontSize: '0.94rem',
+              transform: 'translate(0.88rem, 1rem) scale(1)',
               '&.Mui-focused, &.MuiFormLabel-filled': {
-                transform: 'translate(14px, -9px) scale(0.75)'
+                transform: 'translate(0.88rem, -0.56rem) scale(0.75)'
               }
             },
             '& .MuiAutocomplete-input': {
               fontSize: '1rem',
-              padding: '12.5px 14px !important',
-              minWidth: '120px'
+              padding: '0.75rem 0.88rem !important',
+              minWidth: 0,
             },
             '& .MuiFormHelperText-root': {
               mt: 1,
