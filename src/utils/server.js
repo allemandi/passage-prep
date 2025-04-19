@@ -39,8 +39,24 @@ async function saveQuestion(newData) {
     chapter: newData.chapter,
     verseStart: newData.verseStart,
     verseEnd: newData.verseEnd,
+    isApproved: false,
   });
   return { success: true };
+}
+
+async function updateQuestion(questionId, updatedData) {
+  if (!questionId || !updatedData) {
+    return { success: false, error: 'Missing question ID or update data' };
+  }
+  const updatedQuestion = await Question.findByIdAndUpdate(
+    questionId,
+    { $set: updatedData },
+    { new: true }
+  );
+  if (!updatedQuestion) {
+    return { success: false, error: 'Question not found' };
+  }
+  return { success: true, updatedQuestion };
 }
 
 async function searchQuestions({ book, chapter, verseStart, verseEnd, theme }) {
@@ -83,6 +99,7 @@ module.exports = {
   getAllBooks,
   getAllQuestions,
   saveQuestion,
+  updateQuestion,
   searchQuestions,
   approveQuestions,
   getUnapprovedQuestions,
