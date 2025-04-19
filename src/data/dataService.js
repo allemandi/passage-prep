@@ -2,13 +2,8 @@ import themes from './themes.json'; // Replace hardcoded array
 
 // Helper to get the correct API URL based on environment
 const getApiUrl = (endpoint) => {
-  // In production with Netlify, use /.netlify/functions/
-  // In development, use /api/
-  const base = import.meta.env.MODE === 'production' 
-    ? '/.netlify/functions'
-    : '/api';
-  
-  return `${base}/${endpoint}`;
+  // Always use /api for backend endpoints
+  return `/api/${endpoint}`;
 };
 
 

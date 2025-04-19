@@ -1,13 +1,12 @@
 [build]
   command = "yarn build"
   publish = "build"
-  functions = "netlify/functions"
 
-# Redirect all API calls to Netlify Functions
-[[redirects]]
-  from = "/api/*"
-  to = "/.netlify/functions/:splat"
-  status = 200
+# If deploying Express backend elsewhere, set up a proxy like below:
+# [[redirects]]
+#   from = "/api/*"
+#   to = "https://your-express-backend-url/api/:splat"
+#   status = 200
 
 # Handle SPA routing
 [[redirects]]
