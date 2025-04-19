@@ -16,10 +16,9 @@ import {
   Dialog,
   DialogTitle,
   DialogContent,
-  DialogActions,
-  Typography
+  DialogActions
 } from '@mui/material';
-import { Save, Cancel, Edit } from '@mui/icons-material';
+import { Edit } from '@mui/icons-material';
 import bibleCounts from '../data/bible-counts.json'; // Adjust the path as necessary
 import { getBibleBooks, getChaptersForBook, getVerseCountForBookAndChapter } from '../utils/bibleData';
 import themes from '../data/themes.json';

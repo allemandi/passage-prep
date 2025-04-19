@@ -12,9 +12,7 @@ import {
   TextField,
   MenuItem,
   Checkbox,
-  ListItemText,
-  Switch,
-  FormControlLabel
+  ListItemText
 } from '@mui/material';
 import { processForm, searchQuestions } from '../data/dataService';
 import { getBibleBooks, getChaptersForBook, getChapterCountForBook, formatReference, getVerseCountForBookAndChapter } from '../utils/bibleData';

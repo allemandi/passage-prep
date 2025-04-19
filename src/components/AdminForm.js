@@ -11,9 +11,7 @@ import {
   Grid,
   Checkbox,
   ListItemText,
-  MenuItem,
-  Switch,
-  FormControlLabel
+  MenuItem
 } from '@mui/material';
 import QuestionTable from './QuestionTable';
 import { searchQuestions, fetchAllQuestions, fetchUnapprovedQuestions, approveQuestions } from '../data/dataService';
