@@ -4,9 +4,8 @@
 
 A modern React + Vite tool to organize, format, and export Bible study questions with contextual notes.
 
-🚀 [Live Demo](passage-prep.netlify.app)
+🚀 [Netlify Live Demo](passage-prep.netlify.app)
 
-[![Netlify Status](https://api.netlify.com/api/v1/badges/fe91a7ea-558d-48ea-8e25-f893c23a7cf2/deploy-status)](https://app.netlify.com/sites/passage-prep/deploys)
 
 ## 🤔 Why this exists
 - 🏗️ Clean, simple formatting for group studies
