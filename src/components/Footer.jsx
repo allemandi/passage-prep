@@ -14,7 +14,7 @@ export default function Footer({ onHelpClick }) {
         bottom: 0,
         left: 0,
         width: '100%',
-        py: 2,
+        py: 0.5,
         px: 2,
         bgcolor: 'background.paper',
         borderTop: '1px solid',
@@ -22,7 +22,7 @@ export default function Footer({ onHelpClick }) {
         display: 'flex',
         justifyContent: 'center',
         alignItems: 'center',
-        gap: 2,
+        gap: 3,
         zIndex: theme.zIndex.appBar,
       }}
     >

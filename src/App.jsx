@@ -72,7 +72,7 @@ function App() {
     <ThemeProvider theme={theme}>
       <CssBaseline />
       <Box sx={{
-        pb: { xs: 8, sm: 10 },
+        pb: { xs: 4, sm: 5 },
         minHeight: '100vh',
         bgcolor: 'background.default',
       }}>
