@@ -10,6 +10,9 @@ import AdminForm from './components/AdminForm';
 import StudyModal from './components/StudyModal';
 import { getBooks, getQuestions } from './data/dataService';
 import { createAppTheme } from './theme/theme';
+import Footer from './components/Footer';
+import HelpModal from './components/HelpModal';
+
 
 function App() {
   const [studyData, setStudyData] = useState(null);
@@ -20,6 +23,9 @@ function App() {
     const savedMode = sessionStorage.getItem('themeMode');
     return savedMode || (prefersDarkMode ? 'dark' : 'light');
   });
+  const [helpOpen, setHelpOpen] = useState(false);
+  const handleHelpClick = () => setHelpOpen(true);
+  const handleHelpClose = () => setHelpOpen(false);
 
   const theme = useMemo(() => {
     const baseTheme = createAppTheme(mode);
@@ -65,10 +71,10 @@ function App() {
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
-      <Box sx={{ 
+      <Box sx={{
+        pb: { xs: 4, sm: 5 },
         minHeight: '100vh',
         bgcolor: 'background.default',
-        pb: { xs: 8, sm: 10 },
       }}>
         <Box component="header" sx={{
           bgcolor: 'primary.main',
@@ -76,7 +82,7 @@ function App() {
           py: { xs: 3, sm: 4 },
           px: { xs: 2, sm: 3, md: 4 },
           mb: 4,
-          boxShadow: 3
+          boxShadow: 3,
         }}>
           <Container maxWidth="xl" sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexDirection: { xs: 'column', sm: 'row' }, textAlign: { xs: 'center', sm: 'left' }, gap: { xs: 2, sm: 0 } }}>
             <Box
@@ -99,8 +105,8 @@ function App() {
               </Box>
             </Box>
             <Tooltip title={mode === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}>
-              <IconButton 
-                onClick={() => setMode(prev => prev === 'light' ? 'dark' : 'light')} 
+              <IconButton
+                onClick={() => setMode(prev => prev === 'light' ? 'dark' : 'light')}
                 color="inherit"
                 sx={{
                   border: `2px solid ${mode === 'dark' ? '#fff' : '#222'}`,
@@ -125,32 +131,31 @@ function App() {
             </Tooltip>
           </Container>
         </Box>
+        <Box sx={{ flex: 1 }}>
+          <Container maxWidth="xl" sx={{ px: { xs: 2, sm: 3, md: 4 } }}>
+            <Tabs value={tabValue} onChange={(_, v) => setTabValue(v)} variant="fullWidth" sx={{ mb: 4 }}>
+              <Tab label="Search & Format" />
+              <Tab label="Contribute" />
+              <Tab label="Admin" />
+            </Tabs>
 
-        <Container maxWidth="xl" sx={{ px: { xs: 2, sm: 3, md: 4 } }}>
-          <Tabs value={tabValue} onChange={(_, v) => setTabValue(v)} variant="fullWidth" sx={{ mb: 4 }}>
-            <Tab label="Search & Format" />
-            <Tab label="Contribute" />
-            <Tab label="Admin" />
-          </Tabs>
+            {tabValue === 0 && <RequestForm onStudyGenerated={handleShowStudy} isLoading={isLoading} />}
+            {tabValue === 1 && <ContributeForm isLoading={isLoading} />}
+            {tabValue === 2 && <AdminForm />}
 
-          {tabValue === 0 && <RequestForm onStudyGenerated={handleShowStudy} isLoading={isLoading} />}
-          {tabValue === 1 && <ContributeForm isLoading={isLoading} />}
-          {tabValue === 2 && <AdminForm />}
+            <StudyModal
+              show={!!studyData}
+              onHide={() => setStudyData(null)}
+              data={studyData}
+            />
+          </Container>
 
-          <StudyModal 
-            show={!!studyData} 
-            onHide={() => setStudyData(null)} 
-            data={studyData} 
-          />
-        </Container>
-
-        <Box sx={{ mt: 4, textAlign: 'center' }}>
-        <Typography variant="body2" color="text.secondary">
-          Copyright © 2025 allemandi, All Rights Reserved
-        </Typography>
+        </Box>
+        <Footer onHelpClick={() => setHelpOpen(true)} />
+        <HelpModal open={helpOpen} onClose={handleHelpClose} />
       </Box>
-      </Box>
-     
+
+
     </ThemeProvider>
   );
 }

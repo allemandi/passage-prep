@@ -6,7 +6,6 @@ A modern React + Vite tool to organize, format, and export Bible study questions
 
 🚀 [Netlify Live Demo](https://passage-prep.netlify.app/)
 
-
 ## 🤔 Why this exists
 - 🏗️ Clean, simple formatting for group studies
 - 📚 Quick study outlines with contextual notes
@@ -66,7 +65,7 @@ This project was developed with the help of AI tools (e.g., GitHub Copilot, Curs
 ## 🖥️ Usage
 
 ### Search & Format
-- Add scripture references (multi-select)
+- Add scripture references
 - Filter by theme
 - Click **Search Questions**
 - Select questions, then **Generate Study** to preview/copy
@@ -111,6 +110,9 @@ If you have ideas, improvements, or new features:
 3. Commit your changes (git commit -m 'Add some amazing feature')
 4. Push to the branch (git push origin feature/amazing-feature)
 5. Open a Pull Request
+
+## ☕ Support
+If this project has helped you or saved you time, consider [buying me a coffee](https://www.buymeacoffee.com/allemandi) to keep the studies flowing.
 
 ## 📄 License
 MIT
