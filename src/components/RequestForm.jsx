@@ -189,8 +189,6 @@ const RequestForm = ({ onStudyGenerated, isLoading }) => {
       const studyData = await processForm(formData);
       
       // Pass the selected questions to the StudyModal
-      console.log("Selected Questions Indices:", selectedQuestions); // Debugging log
-      console.log("Search Results:", searchResults); // Debugging log
 
       // Create a copy of searchResults to avoid mutation issues
       const searchResultsCopy = [...searchResults];
@@ -198,15 +196,14 @@ const RequestForm = ({ onStudyGenerated, isLoading }) => {
       const filteredQuestions = selectedQuestions.map(index => {
         if (index >= 0 && index < searchResultsCopy.length) {
           const question = searchResultsCopy[index];
-          return question; // Get the question based on the selected index from searchResults
+          return question;
         } else {
           console.warn(`Index ${index} is out of bounds for searchResults array.`);
           return null;
         }
-      }).filter(Boolean); // Filter out any undefined values
-
-      console.log("Filtered Questions:", filteredQuestions); // Debugging log
-      onStudyGenerated({ ...studyData, filteredQuestions }); // Pass filtered questions
+      }).filter(Boolean); 
+      
+      onStudyGenerated({ ...studyData, filteredQuestions });
       setShowSuccess(true);
     } catch (error) {
       console.error("Error in study generation:", error);
@@ -580,8 +577,6 @@ const RequestForm = ({ onStudyGenerated, isLoading }) => {
           No questions found that match your criteria. Try different themes or contribute more questions.
         </Alert>
       </Snackbar>
-
-      
     </Container>
   );
 };
