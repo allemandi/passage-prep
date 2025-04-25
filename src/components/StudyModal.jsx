@@ -23,7 +23,6 @@ const StudyModal = ({ show, onHide, data }) => {
   const theme = useTheme();
   const [showSnackbar, setShowSnackbar] = useState(false);
   const noQuestionString = 'Notice: Questions were not selected. Use Search and tick checkboxes against table questions to fill this space, or use the Contribute section to submit your own questions.'
-  console.log("Data received by StudyModal:", data);
 
   // Safety check for data initialization
   if (!data || !data.filteredQuestions) {
@@ -41,9 +40,7 @@ const StudyModal = ({ show, onHide, data }) => {
 
   // Function to group questions by book and theme
   const groupQuestionsByBookAndTheme = (questions) => {
-    console.log("Questions received by groupQuestionsByBookAndTheme:", questions);
     const grouped = {};
-
     questions.forEach(question => {
       if (!grouped[question.book]) {
         grouped[question.book] = {};
@@ -55,8 +52,6 @@ const StudyModal = ({ show, onHide, data }) => {
 
       grouped[question.book][question.theme].push(question);
     });
-
-    console.log("Grouped questions:", grouped);
     return grouped;
   };
 
