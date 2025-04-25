@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import { 
-  Dialog, 
-  DialogTitle, 
+import {
+  Dialog,
+  DialogTitle,
   DialogContent,
   DialogActions,
   Typography,
@@ -11,16 +11,19 @@ import {
   ListItem,
   useTheme,
   Divider,
-  Box
+  Box,
+  MenuItem,
 } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
+import MoreVertIcon from '@mui/icons-material/MoreVert';
 import Snackbar from '@mui/material/Snackbar';
 import MuiAlert from '@mui/material/Alert';
 
 const StudyModal = ({ show, onHide, data }) => {
   const theme = useTheme();
   const [showSnackbar, setShowSnackbar] = useState(false);
-  
+  const noQuestionString = 'Notice: Questions were not selected. Use Search and tick checkboxes against table questions to fill this space, or use the Contribute section to submit your own questions.'
+
   // Safety check for data initialization
   if (!data || !data.filteredQuestions) {
     return null; // or you can return a loading state or a message
@@ -31,30 +34,77 @@ const StudyModal = ({ show, onHide, data }) => {
     return null;
   }
 
-  const borderColor = theme.palette.mode === 'dark' 
-    ? 'rgba(255, 255, 255, 0.12)' 
+  const borderColor = theme.palette.mode === 'dark'
+    ? 'rgba(255, 255, 255, 0.12)'
     : 'rgba(0, 0, 0, 0.12)';
 
   // Function to group questions by book and theme
   const groupQuestionsByBookAndTheme = (questions) => {
     const grouped = {};
-    
+
     questions.forEach(question => {
       if (!grouped[question.book]) {
         grouped[question.book] = {};
       }
-      
+
       if (!grouped[question.book][question.theme]) {
         grouped[question.book][question.theme] = [];
       }
-      
+
       grouped[question.book][question.theme].push(question);
     });
-    
+
     return grouped;
   };
 
   const groupedQuestions = groupQuestionsByBookAndTheme(data.filteredQuestions || []);
+  
+  // Function to generate plaintext content
+  const generatePlainTextContent = () => {
+    let plainText = '';
+
+    // Bible References
+    plainText += 'Bible References:\n';
+    if (data?.refArr && data.refArr.filter(ref => ref).length > 0) {
+      data.refArr.filter(ref => ref).forEach(reference => {
+        plainText += `- ${reference}\n`;
+      });
+    } else {
+      plainText += 'No Bible references specified.\n';
+    }
+    plainText += '\n';
+
+    // General Context
+    plainText += 'General Context:\n';
+    if (data?.contextArr && data.contextArr.length > 0) {
+      data.contextArr.forEach(context => {
+        plainText += `- ${context}\n`;
+      });
+    } else {
+      plainText += 'No context information available.\n';
+    }
+    plainText += '\n';
+
+    // Questions by Book and Theme
+    plainText += 'Questions by Book and Theme:\n';
+    if (Object.keys(groupedQuestions).length > 0) {
+      Object.entries(groupedQuestions).forEach(([book, themes]) => {
+        plainText += `${book}:\n`;
+        Object.entries(themes).forEach(([theme, questions]) => {
+          plainText += `  ${theme}:\n`;
+          questions.forEach(question => {
+            plainText += `    - ${question.question}\n`;
+          });
+        });
+        plainText += '\n';
+      });
+    } else {
+      plainText += '';
+    }
+
+    return plainText;
+  };
+
 
   // Function to generate markdown content
   const generateMarkdownContent = () => {
@@ -96,7 +146,7 @@ const StudyModal = ({ show, onHide, data }) => {
         markdown += '\n';
       });
     } else {
-      markdown += 'No questions available.\n';
+      markdown += '';
     }
 
     return markdown;
@@ -145,30 +195,11 @@ const StudyModal = ({ show, onHide, data }) => {
         });
       });
     } else {
-      html += '<p style="margin: 0.3rem 0 0.7rem; font-size: 0.9rem;">No questions available.</p>';
+      html += '';
     }
 
     html += '</div>';
     return html;
-  };
-
-  // Function to copy rich text to clipboard
-  const copyRichText = async () => {
-    const html = generateRichTextContent();
-    const blob = new Blob([html], { type: 'text/html' });
-    const clipboardItem = new ClipboardItem({ 'text/html': blob });
-    
-    try {
-      await navigator.clipboard.write([clipboardItem]);
-      setShowSnackbar(true);
-    } catch (err) {
-      console.error('Failed to copy rich text:', err);
-      // Fallback to plain text if rich text fails
-      const plainText = generateMarkdownContent();
-      navigator.clipboard.writeText(plainText).then(() => {
-        setShowSnackbar(true);
-      });
-    }
   };
 
   return (
@@ -181,20 +212,20 @@ const StudyModal = ({ show, onHide, data }) => {
       aria-labelledby="study-modal-title"
       PaperProps={{
         elevation: 6,
-        sx: { 
+        sx: {
           borderRadius: 3,
           overflow: 'hidden',
           bgcolor: 'background.paper',
-          boxShadow: theme.palette.mode === 'dark' 
-            ? '0 8px 32px rgba(0, 0, 0, 0.4)' 
+          boxShadow: theme.palette.mode === 'dark'
+            ? '0 8px 32px rgba(0, 0, 0, 0.4)'
             : '0 8px 32px rgba(0, 0, 0, 0.1)'
         }
       }}
     >
-      <DialogTitle 
-        id="study-modal-title" 
-        sx={{ 
-          bgcolor: 'primary.main', 
+      <DialogTitle
+        id="study-modal-title"
+        sx={{
+          bgcolor: 'primary.main',
           color: 'primary.contrastText',
           py: 2.5,
           px: 3,
@@ -222,9 +253,9 @@ const StudyModal = ({ show, onHide, data }) => {
         </IconButton>
       </DialogTitle>
 
-      <DialogContent 
+      <DialogContent
         id="study-modal-content"
-        sx={{ 
+        sx={{
           p: { xs: 2.5, sm: 3.5 },
           bgcolor: theme.palette.mode === 'dark' ? 'background.paper' : 'background.default',
           '& .MuiDialogContent-dividers': {
@@ -232,11 +263,11 @@ const StudyModal = ({ show, onHide, data }) => {
           }
         }}
       >
-        <Typography 
-          variant="h6" 
-          gutterBottom 
+        <Typography
+          variant="h6"
+          gutterBottom
           color="primary.main"
-          sx={{ 
+          sx={{
             fontWeight: 500,
             pb: 1.5,
             borderBottom: `2px solid ${theme.palette.primary.main}`,
@@ -245,13 +276,13 @@ const StudyModal = ({ show, onHide, data }) => {
         >
           Bible References
         </Typography>
-        
+
         {data?.refArr && data.refArr.filter(ref => ref).length > 0 ? (
           <List disablePadding sx={{ mb: 4, pl: 2 }}>
             {data.refArr.filter(ref => ref).map((reference, index) => (
-              <ListItem 
-                key={index} 
-                sx={{ 
+              <ListItem
+                key={index}
+                sx={{
                   py: 1,
                   px: 0,
                   display: 'list-item',
@@ -270,11 +301,11 @@ const StudyModal = ({ show, onHide, data }) => {
           </Typography>
         )}
 
-        <Typography 
-          variant="h6" 
-          gutterBottom 
+        <Typography
+          variant="h6"
+          gutterBottom
           color="primary.main"
-          sx={{ 
+          sx={{
             fontWeight: 500,
             pb: 1.5,
             borderBottom: `2px solid ${theme.palette.primary.main}`,
@@ -283,13 +314,13 @@ const StudyModal = ({ show, onHide, data }) => {
         >
           General Context
         </Typography>
-        
+
         {data?.contextArr && data.contextArr.length > 0 ? (
           <List disablePadding sx={{ mb: 4, pl: 2 }}>
             {data.contextArr.map((context, index) => (
-              <ListItem 
-                key={index} 
-                sx={{ 
+              <ListItem
+                key={index}
+                sx={{
                   py: 1,
                   px: 0,
                   display: 'list-item',
@@ -308,11 +339,11 @@ const StudyModal = ({ show, onHide, data }) => {
           </Typography>
         )}
 
-        <Typography 
-          variant="h6" 
-          gutterBottom 
+        <Typography
+          variant="h6"
+          gutterBottom
           color="primary.main"
-          sx={{ 
+          sx={{
             fontWeight: 500,
             pb: 1.5,
             borderBottom: `2px solid ${theme.palette.primary.main}`,
@@ -349,26 +380,26 @@ const StudyModal = ({ show, onHide, data }) => {
             ))}
           </List>
         ) : (
-          <Typography variant="body1" sx={{ opacity: 0.8 }}>
-            No questions available.
+          <Typography variant="body1" component="em" sx={{ opacity: 0.8 }}>
+            {noQuestionString}
           </Typography>
         )}
       </DialogContent>
-      
+
       <Divider sx={{ borderColor: borderColor }} />
-      
-      <DialogActions 
-        sx={{ 
-          p: 3, 
+
+      <DialogActions
+        sx={{
+          p: 3,
           justifyContent: 'space-between',
           bgcolor: theme.palette.mode === 'dark' ? 'background.paper' : 'background.default'
         }}
       >
-        <Button 
+        <Button
           onClick={onHide}
-          variant="outlined" 
+          variant="outlined"
           color="primary"
-          sx={{ 
+          sx={{
             px: 3,
             py: 1,
             borderRadius: 2,
@@ -378,31 +409,26 @@ const StudyModal = ({ show, onHide, data }) => {
         >
           Close
         </Button>
-        <Box sx={{ display: 'flex', gap: 2 }}>
-          <Button 
-            onClick={() => {
-              const markdownContent = generateMarkdownContent();
-              navigator.clipboard.writeText(markdownContent).then(() => {
+        <Box sx={{ display: 'flex', gap: 2, position: 'relative' }}>
+          <Button
+            onClick={async () => {
+              const plainText = generatePlainTextContent();
+              const richText = generateRichTextContent();
+              try {
+                const blob = new Blob([richText], { type: 'text/html' });
+                const clipboardItem = new ClipboardItem({ 'text/html': blob, 'text/plain': new Blob([plainText], { type: 'text/plain' }) });
+                await navigator.clipboard.write([clipboardItem]);
                 setShowSnackbar(true);
-              });
+              } catch (err) {
+                console.error('Failed to copy rich text:', err);
+                navigator.clipboard.writeText(plainText).then(() => {
+                  setShowSnackbar(true);
+                });
+              }
             }}
-            variant="outlined"
-            color="primary"
-            sx={{ 
-              px: 3,
-              py: 1,
-              borderRadius: 2,
-              textTransform: 'none',
-              fontWeight: 500
-            }}
-          >
-            Copy Markdown
-          </Button>
-          <Button 
-            onClick={copyRichText}
             variant="contained"
             color="primary"
-            sx={{ 
+            sx={{
               px: 3,
               py: 1,
               borderRadius: 2,
@@ -410,8 +436,76 @@ const StudyModal = ({ show, onHide, data }) => {
               fontWeight: 500
             }}
           >
-            Copy Rich Text
+            Copy
           </Button>
+          <IconButton
+            onClick={(e) => {
+              e.stopPropagation();
+              const menu = document.getElementById('copy-menu');
+              if (menu) menu.style.display = menu.style.display === 'block' ? 'none' : 'block';
+            }}
+            sx={{
+              borderRadius: 2,
+              bgcolor: 'primary.main',
+              color: 'primary.contrastText',
+              '&:hover': {
+                bgcolor: 'primary.dark'
+              }
+            }}
+          >
+            <MoreVertIcon />
+          </IconButton>
+          <Box
+            id="copy-menu"
+            sx={{
+              display: 'none',
+              position: 'absolute',
+              right: 0,
+              bottom: '100%',
+              bgcolor: 'background.paper',
+              boxShadow: 3,
+              borderRadius: 2,
+              zIndex: 1,
+              p: 1,
+              minWidth: 200
+            }}
+          >
+            <MenuItem
+              onClick={async () => {
+                const plainText = generatePlainTextContent();
+                navigator.clipboard.writeText(plainText).then(() => {
+                  setShowSnackbar(true);
+                });
+              }}
+            >
+              Copy as Plain Text
+            </MenuItem>
+            <MenuItem
+              onClick={async () => {
+                const markdown = generateMarkdownContent();
+                navigator.clipboard.writeText(markdown).then(() => {
+                  setShowSnackbar(true);
+                });
+              }}
+            >
+              Copy as Markdown
+            </MenuItem>
+            <MenuItem
+              onClick={async () => {
+                const richText = generateRichTextContent();
+                try {
+                  const blob = new Blob([richText], { type: 'text/html' });
+                  const clipboardItem = new ClipboardItem({ 'text/html': blob });
+                  await navigator.clipboard.write([clipboardItem]);
+                  setShowSnackbar(true);
+                } catch (err) {
+                  console.error('Failed to copy rich text:', err);
+                }
+              }}
+            >
+              Copy as Rich Text
+            </MenuItem>
+          </Box>
         </Box>
       </DialogActions>
 
@@ -421,9 +515,9 @@ const StudyModal = ({ show, onHide, data }) => {
         onClose={() => setShowSnackbar(false)}
         anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
       >
-        <MuiAlert 
-          onClose={() => setShowSnackbar(false)} 
-          severity="success" 
+        <MuiAlert
+          onClose={() => setShowSnackbar(false)}
+          severity="success"
           variant="filled"
           sx={{ borderRadius: 2 }}
         >
