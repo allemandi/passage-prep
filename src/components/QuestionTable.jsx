@@ -19,7 +19,7 @@ import {
   DialogActions
 } from '@mui/material';
 import { Edit } from '@mui/icons-material';
-import bibleCounts from '../data/bible-counts.json'; // Adjust the path as necessary
+import bibleCounts from '../data/bible-counts.json';
 import { getBibleBooks, getChaptersForBook, getVerseCountForBookAndChapter } from '../utils/bibleData';
 import themes from '../data/themes.json';
 
@@ -102,33 +102,56 @@ const QuestionTable = ({
     setEditingId(null);
   };
 
-  // Sort questions by book index and then by chapter
+  // Filter questions if hideUnapproved is true
   const filtered = hideUnapproved ? questions.filter(q => q.isApproved !== false) : questions;
- const sortedQuestions = [...filtered].sort((a, b) => {
-  const bookA = a.book;
-  const bookB = b.book;
-
-  const bookAIndex = bibleCounts[bookA] !== undefined ? bibleCounts[bookA] : Infinity;
-  const bookBIndex = bibleCounts[bookB] !== undefined ? bibleCounts[bookB] : Infinity;
-
-  if (bookAIndex === Infinity && bookBIndex === Infinity) {
-    // If both books are not found in bibleCounts, maintain original order
-    return 0;
-  }
-
-  if (bookAIndex === bookBIndex) {
-    const chapterA = parseInt(a.chapter, 10) || 0;
-    const chapterB = parseInt(b.chapter, 10) || 0;
-    if (chapterA === chapterB) {
-      const verseStartA = parseInt(a.verseStart, 10) || 0;
-      const verseStartB = parseInt(b.verseStart, 10) || 0;
-      return verseStartA - verseStartB;
+  
+  // Create a mapping from original questions to their indices for selection tracking
+  const questionIndexMap = {};
+  questions.forEach((q, idx) => {
+    questionIndexMap[q._id || idx] = idx;
+  });
+  
+  // Fixed sorting function with correct book ordering and robust chapter/verse handling
+  const sortedQuestions = [...filtered].sort((a, b) => {
+    // First sort by book using bibleCounts directly
+    const bookA = a.book;
+    const bookB = b.book;
+    
+    // Get the indices from bibleCounts, if they exist
+    const bookAIndex = typeof bibleCounts[bookA] === 'number' ? bibleCounts[bookA] : Infinity;
+    const bookBIndex = typeof bibleCounts[bookB] === 'number' ? bibleCounts[bookB] : Infinity;
+    
+    // If book indices are different, sort by book
+    if (bookAIndex !== bookBIndex) {
+      return bookAIndex - bookBIndex;
     }
-    return chapterA - chapterB;
-  }
-
-  return bookAIndex - bookBIndex;
-});
+    
+    // If books are the same, compare chapters
+    // Ensure chapter is treated as a number
+    const chapterA = parseInt(String(a.chapter).trim(), 10);
+    const chapterB = parseInt(String(b.chapter).trim(), 10);
+    
+    // Handle case where one or both chapters might be NaN
+    if (isNaN(chapterA) && isNaN(chapterB)) return 0;
+    if (isNaN(chapterA)) return 1; // Move NaN chapters to the end
+    if (isNaN(chapterB)) return -1;
+    
+    if (chapterA !== chapterB) {
+      return chapterA - chapterB;
+    }
+    
+    // If chapters are the same, compare verse start
+    // Ensure verse is treated as a number
+    const verseStartA = parseInt(String(a.verseStart).trim(), 10);
+    const verseStartB = parseInt(String(b.verseStart).trim(), 10);
+    
+    // Handle case where one or both verses might be NaN
+    if (isNaN(verseStartA) && isNaN(verseStartB)) return 0;
+    if (isNaN(verseStartA)) return 1; // Move NaN verses to the end
+    if (isNaN(verseStartB)) return -1;
+    
+    return verseStartA - verseStartB;
+  });
 
   return (
     <>
@@ -167,30 +190,39 @@ const QuestionTable = ({
             </TableRow>
           </TableHead>
           <TableBody>
-            {sortedQuestions.map((question, index) => (
-              <TableRow key={question._id || index}>
-                {showActions && (
-                  <TableCell padding="checkbox">
-                    <Checkbox
-                      checked={selectedQuestions.includes(index)}
-                      onChange={(e) => onQuestionSelect([index], e.target.checked)}
-                    />
-                  </TableCell>
-                )}
-                <TableCell>
-                  {`${question.book} ${question.chapter}:${question.verseStart}-${question.verseEnd}`}
-                </TableCell>
-                <TableCell>{question.theme}</TableCell>
-                <TableCell>{question.question}</TableCell>
-                {showActions && !hideEditActions && (
+            {sortedQuestions.map((question) => {
+              // Get the original index of this question for selection tracking
+              const originalIndex = questionIndexMap[question._id || question];
+              
+              return (
+                <TableRow key={question._id || originalIndex}>
+                  {showActions && (
+                    <TableCell padding="checkbox">
+                      <Checkbox
+                        checked={selectedQuestions.includes(originalIndex)}
+                        onChange={(e) => onQuestionSelect([originalIndex], e.target.checked)}
+                      />
+                    </TableCell>
+                  )}
                   <TableCell>
-                    <IconButton onClick={() => handleEdit(question)}>
-                      <Edit />
-                    </IconButton>
+                    {`${question.book} ${question.chapter}:${question.verseStart}${
+                      question.verseEnd && question.verseEnd !== question.verseStart 
+                      ? `-${question.verseEnd}` 
+                      : ''
+                    }`}
                   </TableCell>
-                )}
-              </TableRow>
-            ))}
+                  <TableCell>{question.theme}</TableCell>
+                  <TableCell>{question.question}</TableCell>
+                  {showActions && !hideEditActions && (
+                    <TableCell>
+                      <IconButton onClick={() => handleEdit(question)}>
+                        <Edit />
+                      </IconButton>
+                    </TableCell>
+                  )}
+                </TableRow>
+              );
+            })}
           </TableBody>
         </Table>
       </TableContainer>
@@ -279,7 +311,6 @@ const QuestionTable = ({
                   <TextField
                     {...params}
                     label="End Verse"
-                    required
                   />
                 )}
               />
