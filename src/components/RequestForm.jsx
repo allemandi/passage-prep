@@ -189,10 +189,23 @@ const RequestForm = ({ onStudyGenerated, isLoading }) => {
       const studyData = await processForm(formData);
       
       // Pass the selected questions to the StudyModal
+      console.log("Selected Questions Indices:", selectedQuestions); // Debugging log
+      console.log("Search Results:", searchResults); // Debugging log
+
+      // Create a copy of searchResults to avoid mutation issues
+      const searchResultsCopy = [...searchResults];
+
       const filteredQuestions = selectedQuestions.map(index => {
-        return searchResults[index]; // Get the question based on the selected index from searchResults
+        if (index >= 0 && index < searchResultsCopy.length) {
+          const question = searchResultsCopy[index];
+          return question; // Get the question based on the selected index from searchResults
+        } else {
+          console.warn(`Index ${index} is out of bounds for searchResults array.`);
+          return null;
+        }
       }).filter(Boolean); // Filter out any undefined values
 
+      console.log("Filtered Questions:", filteredQuestions); // Debugging log
       onStudyGenerated({ ...studyData, filteredQuestions }); // Pass filtered questions
       setShowSuccess(true);
     } catch (error) {
@@ -245,8 +258,9 @@ const RequestForm = ({ onStudyGenerated, isLoading }) => {
 
       const results = await Promise.all(searchPromises);
       const combinedResults = results.flat(); // Flatten the array of arrays
+      const combinedResultsCopy = [...combinedResults];
 
-      setSearchResults(combinedResults);
+      setSearchResults(combinedResultsCopy);
       setShowSearchResults(true);
 
       if (combinedResults.length === 0) {
