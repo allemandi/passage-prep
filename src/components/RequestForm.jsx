@@ -189,11 +189,21 @@ const RequestForm = ({ onStudyGenerated, isLoading }) => {
       const studyData = await processForm(formData);
       
       // Pass the selected questions to the StudyModal
-      const filteredQuestions = selectedQuestions.map(index => {
-        return searchResults[index]; // Get the question based on the selected index from searchResults
-      }).filter(Boolean); // Filter out any undefined values
 
-      onStudyGenerated({ ...studyData, filteredQuestions }); // Pass filtered questions
+      // Create a copy of searchResults to avoid mutation issues
+      const searchResultsCopy = [...searchResults];
+
+      const filteredQuestions = selectedQuestions.map(index => {
+        if (index >= 0 && index < searchResultsCopy.length) {
+          const question = searchResultsCopy[index];
+          return question;
+        } else {
+          console.warn(`Index ${index} is out of bounds for searchResults array.`);
+          return null;
+        }
+      }).filter(Boolean); 
+      
+      onStudyGenerated({ ...studyData, filteredQuestions });
       setShowSuccess(true);
     } catch (error) {
       console.error("Error in study generation:", error);
@@ -245,8 +255,9 @@ const RequestForm = ({ onStudyGenerated, isLoading }) => {
 
       const results = await Promise.all(searchPromises);
       const combinedResults = results.flat(); // Flatten the array of arrays
+      const combinedResultsCopy = [...combinedResults];
 
-      setSearchResults(combinedResults);
+      setSearchResults(combinedResultsCopy);
       setShowSearchResults(true);
 
       if (combinedResults.length === 0) {
@@ -566,8 +577,6 @@ const RequestForm = ({ onStudyGenerated, isLoading }) => {
           No questions found that match your criteria. Try different themes or contribute more questions.
         </Alert>
       </Snackbar>
-
-      
     </Container>
   );
 };

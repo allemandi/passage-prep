@@ -41,7 +41,6 @@ const StudyModal = ({ show, onHide, data }) => {
   // Function to group questions by book and theme
   const groupQuestionsByBookAndTheme = (questions) => {
     const grouped = {};
-
     questions.forEach(question => {
       if (!grouped[question.book]) {
         grouped[question.book] = {};
@@ -53,7 +52,6 @@ const StudyModal = ({ show, onHide, data }) => {
 
       grouped[question.book][question.theme].push(question);
     });
-
     return grouped;
   };
 

@@ -104,13 +104,31 @@ const QuestionTable = ({
 
   // Sort questions by book index and then by chapter
   const filtered = hideUnapproved ? questions.filter(q => q.isApproved !== false) : questions;
-  const sortedQuestions = [...filtered].sort((a, b) => {
-    const bookAIndex = bibleCounts[a.book] || Infinity;
-    const bookBIndex = bibleCounts[b.book] || Infinity;
-    return bookAIndex === bookBIndex 
-      ? (parseInt(a.chapter) || 0) - (parseInt(b.chapter) || 0)
-      : bookAIndex - bookBIndex;
-  });
+ const sortedQuestions = [...filtered].sort((a, b) => {
+  const bookA = a.book;
+  const bookB = b.book;
+
+  const bookAIndex = bibleCounts[bookA] !== undefined ? bibleCounts[bookA] : Infinity;
+  const bookBIndex = bibleCounts[bookB] !== undefined ? bibleCounts[bookB] : Infinity;
+
+  if (bookAIndex === Infinity && bookBIndex === Infinity) {
+    // If both books are not found in bibleCounts, maintain original order
+    return 0;
+  }
+
+  if (bookAIndex === bookBIndex) {
+    const chapterA = parseInt(a.chapter, 10) || 0;
+    const chapterB = parseInt(b.chapter, 10) || 0;
+    if (chapterA === chapterB) {
+      const verseStartA = parseInt(a.verseStart, 10) || 0;
+      const verseStartB = parseInt(b.verseStart, 10) || 0;
+      return verseStartA - verseStartB;
+    }
+    return chapterA - chapterB;
+  }
+
+  return bookAIndex - bookBIndex;
+});
 
   return (
     <>
