@@ -27,7 +27,7 @@ export default function Footer({ onHelpClick }) {
       }}
     >
       <Typography variant="body2" color="text.secondary">
-        © {new Date().getFullYear()} allemandi, All Rights Reserved
+        © {new Date().getFullYear()} allemandi
       </Typography>
 
       <Tooltip title="View GitHub Repo">
