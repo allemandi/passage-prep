@@ -55,7 +55,37 @@ const StudyModal = ({ show, onHide, data }) => {
     return grouped;
   };
 
+  // Group the questions by book and theme
   const groupedQuestions = groupQuestionsByBookAndTheme(data.filteredQuestions || []);
+  
+  // Extract book names from the references to use for ordering
+  const bookOrder = (data.refArr || [])
+    .map(ref => {
+      const match = ref.match(/^((?:\d+\s+)?[A-Za-z]+(?:\s+[A-Za-z]+)*)/i);
+      return match ? match[1].trim() : null;
+    })
+    .filter(Boolean);
+  
+  // Remove duplicates while preserving order
+  const uniqueBookOrder = [...new Set(bookOrder)];
+  
+  // Get ordered list of books from groupedQuestions that follow reference order
+  const orderedBooksList = [...Object.keys(groupedQuestions)].sort((a, b) => {
+    const indexA = uniqueBookOrder.indexOf(a);
+    const indexB = uniqueBookOrder.indexOf(b);
+    
+    // If both are in our ordered list, sort by that order
+    if (indexA !== -1 && indexB !== -1) {
+      return indexA - indexB;
+    }
+    
+    // If only one is in our list, prioritize it
+    if (indexA !== -1) return -1;
+    if (indexB !== -1) return 1;
+    
+    // If neither is in our reference list, maintain alphabetical order
+    return a.localeCompare(b);
+  });
   
   // Function to generate plaintext content
   const generatePlainTextContent = () => {
@@ -86,9 +116,9 @@ const StudyModal = ({ show, onHide, data }) => {
     // Questions by Book and Theme
     plainText += 'Questions by Book and Theme:\n';
     if (Object.keys(groupedQuestions).length > 0) {
-      Object.entries(groupedQuestions).forEach(([book, themes]) => {
+      orderedBooksList.forEach(book => {
         plainText += `${book}:\n`;
-        Object.entries(themes).forEach(([theme, questions]) => {
+        Object.entries(groupedQuestions[book]).forEach(([theme, questions]) => {
           plainText += `  ${theme}:\n`;
           questions.forEach(question => {
             plainText += `    - ${question.question}\n`;
@@ -133,9 +163,9 @@ const StudyModal = ({ show, onHide, data }) => {
     // Questions by Book and Theme
     markdown += '## Questions by Book and Theme\n';
     if (Object.keys(groupedQuestions).length > 0) {
-      Object.entries(groupedQuestions).forEach(([book, themes]) => {
+      orderedBooksList.forEach(book => {
         markdown += `### ${book}\n`;
-        Object.entries(themes).forEach(([theme, questions]) => {
+        Object.entries(groupedQuestions[book]).forEach(([theme, questions]) => {
           markdown += `- **${theme}**\n`;
           questions.forEach(question => {
             markdown += `  - ${question.question}\n`;
@@ -181,9 +211,9 @@ const StudyModal = ({ show, onHide, data }) => {
     // Questions by Book and Theme
     html += '<h3 style="color: #1976d2; font-size: 1rem; font-weight: 600; margin: 0.7rem 0 0.3rem; border-bottom: 1px solid #e0e0e0; padding-bottom: 0.2rem;">Questions by Book and Theme</h3>';
     if (Object.keys(groupedQuestions).length > 0) {
-      Object.entries(groupedQuestions).forEach(([book, themes]) => {
+      orderedBooksList.forEach(book => {
         html += `<h4 style="font-size: 0.95rem; font-weight: 500; margin: 0.6rem 0 0.25rem; color: #1976d2;">${book}</h4>`;
-        Object.entries(themes).forEach(([theme, questions]) => {
+        Object.entries(groupedQuestions[book]).forEach(([theme, questions]) => {
           html += `<p style="margin: 0.4rem 0 0.15rem 0.6rem; font-weight: 500; font-size: 0.9rem;">${theme}</p>`;
           html += '<ul style="margin: 0.15rem 0 0.6rem 1.2rem; padding-left: 0.6rem;">';
           questions.forEach(question => {
@@ -353,12 +383,12 @@ const StudyModal = ({ show, onHide, data }) => {
 
         {Object.keys(groupedQuestions).length > 0 ? (
           <List disablePadding>
-            {Object.entries(groupedQuestions).map(([book, themes]) => (
+            {orderedBooksList.map(book => (
               <React.Fragment key={book}>
                 <Typography variant="h6" sx={{ mt: 3, mb: 1.5 }}>
                   {book}
                 </Typography>
-                {Object.entries(themes).map(([theme, questions]) => (
+                {Object.entries(groupedQuestions[book]).map(([theme, questions]) => (
                   <Box key={theme} sx={{ ml: 2, mb: 1.5 }}>
                     <Typography variant="subtitle1" sx={{ mb: 1 }}>
                       {theme}
