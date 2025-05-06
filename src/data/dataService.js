@@ -108,6 +108,20 @@ export const processForm = async (formData) => {
     const refArrFiltered = [...new Set(refArr)].filter(n => n);
     const themeArrFiltered = formData.themeArr.length === themes.length ? [] : [...new Set(themeArr)].filter(n => n);
 
+    // Extract book names from references for ordering
+    const extractBookFromReference = (ref) => {
+      const match = ref.match(/^((?:\d\s+)?[A-Za-z]+(?:\s+[A-Za-z]+)*)/i);
+      return match ? match[1].trim() : null;
+    };
+
+    // Get ordered book names from reference array
+    const orderedBooks = refArrFiltered
+      .map(extractBookFromReference)
+      .filter(Boolean);
+    
+    // Remove duplicates while preserving order
+    const uniqueOrderedBooks = [...new Set(orderedBooks)];
+
     const scriptureRefs = refArrFiltered.map(ref => {
       const match = ref.match(/^((?:\d\s+)?[A-Za-z]+(?:\s+[A-Za-z]+)*)\s*(\d+)?(?::(\d+)(?:-(\d+))?)?/i);
       if (!match) return null;
@@ -122,9 +136,46 @@ export const processForm = async (formData) => {
     }).filter(Boolean);
 
     // Get context for matching books
-    const contextArr = books
+    let contextArr = books
       .filter(book => scriptureRefs.some(ref => book.Book.toLowerCase().includes(ref.book)))
       .map(book => `${book.Book} is about ${book.Context} The author is ${book.Author}.`);
+
+    // Sort contextArr based on the order of books in refArr
+    contextArr = contextArr.sort((a, b) => {
+      // Extract book name from context
+      const getBookFromContext = (contextStr) => {
+        for (const bookName of uniqueOrderedBooks) {
+          if (contextStr.includes(bookName)) {
+            return bookName;
+          }
+        }
+        return null;
+      };
+
+      const bookA = getBookFromContext(a);
+      const bookB = getBookFromContext(b);
+      
+      // If both contexts have books associated with them
+      if (bookA && bookB) {
+        const indexA = uniqueOrderedBooks.indexOf(bookA);
+        const indexB = uniqueOrderedBooks.indexOf(bookB);
+        
+        if (indexA !== -1 && indexB !== -1) {
+          return indexA - indexB; // Sort by book order
+        }
+        
+        // If one book is in the ordered list and the other isn't
+        if (indexA !== -1) return -1;
+        if (indexB !== -1) return 1;
+      }
+      
+      // If only one context has a book associated with it
+      if (bookA) return -1;
+      if (bookB) return 1;
+      
+      // If neither has a book, maintain original order
+      return 0;
+    });
 
     // Filter questions without max limit
     const questionArr = questions.filter(q => {

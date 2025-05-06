@@ -19,7 +19,7 @@ import {
   DialogActions
 } from '@mui/material';
 import { Edit } from '@mui/icons-material';
-import bibleCounts from '../data/bible-counts.json'; // Adjust the path as necessary
+import bibleData from '../data/bible-counts.json'; // Adjust the path as necessary
 import { getBibleBooks, getChaptersForBook, getVerseCountForBookAndChapter } from '../utils/bibleData';
 import themes from '../data/themes.json';
 
@@ -102,33 +102,53 @@ const QuestionTable = ({
     setEditingId(null);
   };
 
-  // Sort questions by book index and then by chapter
+  // Helper function to ensure numbers are properly parsed for comparison
+  const parseNumber = (value) => {
+    // If value is already a number, return it
+    if (typeof value === 'number') return value;
+    // Convert string to number, defaulting to 0 if NaN
+    const parsed = parseInt(value, 10);
+    return isNaN(parsed) ? 0 : parsed;
+  };
+
+  // Build a map of book names to their index positions in the Bible
+  const bookOrderMap = {};
+  bibleData.forEach((book, index) => {
+    bookOrderMap[book.book] = index;
+  });
+
+  // Filter questions if needed
   const filtered = hideUnapproved ? questions.filter(q => q.isApproved !== false) : questions;
- const sortedQuestions = [...filtered].sort((a, b) => {
-  const bookA = a.book;
-  const bookB = b.book;
-
-  const bookAIndex = bibleCounts[bookA] !== undefined ? bibleCounts[bookA] : Infinity;
-  const bookBIndex = bibleCounts[bookB] !== undefined ? bibleCounts[bookB] : Infinity;
-
-  if (bookAIndex === Infinity && bookBIndex === Infinity) {
-    // If both books are not found in bibleCounts, maintain original order
-    return 0;
-  }
-
-  if (bookAIndex === bookBIndex) {
-    const chapterA = parseInt(a.chapter, 10) || 0;
-    const chapterB = parseInt(b.chapter, 10) || 0;
-    if (chapterA === chapterB) {
-      const verseStartA = parseInt(a.verseStart, 10) || 0;
-      const verseStartB = parseInt(b.verseStart, 10) || 0;
-      return verseStartA - verseStartB;
+  
+  // Map original indices before sorting
+  const questionsWithIndices = filtered.map((question, origIndex) => ({
+    ...question,
+    originalIndex: origIndex
+  }));
+  
+  // Sort questions by book order, then chapter, then verse start
+  const sortedQuestions = [...questionsWithIndices].sort((a, b) => {
+    // Sort by book order first
+    const bookAIndex = bookOrderMap[a.book] !== undefined ? bookOrderMap[a.book] : Infinity;
+    const bookBIndex = bookOrderMap[b.book] !== undefined ? bookOrderMap[b.book] : Infinity;
+    
+    if (bookAIndex !== bookBIndex) {
+      return bookAIndex - bookBIndex;
     }
-    return chapterA - chapterB;
-  }
-
-  return bookAIndex - bookBIndex;
-});
+    
+    // If same book, sort by chapter - ensure consistent number parsing
+    const chapterA = parseNumber(a.chapter);
+    const chapterB = parseNumber(b.chapter);
+    
+    if (chapterA !== chapterB) {
+      return chapterA - chapterB;
+    }
+    
+    // If same chapter, sort by verse start - ensure consistent number parsing
+    const verseStartA = parseNumber(a.verseStart);
+    const verseStartB = parseNumber(b.verseStart);
+    return verseStartA - verseStartB;
+  });
 
   return (
     <>
@@ -141,17 +161,17 @@ const QuestionTable = ({
                   <Checkbox
                     indeterminate={
                       selectedQuestions.length > 0 && 
-                      selectedQuestions.length < questions.length
+                      selectedQuestions.length < filtered.length
                     }
                     checked={
-                      questions.length > 0 && 
-                      selectedQuestions.length === questions.length
+                      filtered.length > 0 && 
+                      selectedQuestions.length === filtered.length
                     }
                     onChange={(e) => {
                       if (e.target.checked) {
-                        // Select all
-                        const allIndices = questions.map((_, index) => index);
-                        onQuestionSelect(allIndices, true);
+                        // Select all - use original indices from sorted questions
+                        const allOriginalIndices = sortedQuestions.map(q => q.originalIndex);
+                        onQuestionSelect(allOriginalIndices, true);
                       } else {
                         // Deselect all
                         onQuestionSelect([], false);
@@ -167,30 +187,37 @@ const QuestionTable = ({
             </TableRow>
           </TableHead>
           <TableBody>
-            {sortedQuestions.map((question, index) => (
-              <TableRow key={question._id || index}>
-                {showActions && (
-                  <TableCell padding="checkbox">
-                    <Checkbox
-                      checked={selectedQuestions.includes(index)}
-                      onChange={(e) => onQuestionSelect([index], e.target.checked)}
-                    />
-                  </TableCell>
-                )}
-                <TableCell>
-                  {`${question.book} ${question.chapter}:${question.verseStart}-${question.verseEnd}`}
-                </TableCell>
-                <TableCell>{question.theme}</TableCell>
-                <TableCell>{question.question}</TableCell>
-                {showActions && !hideEditActions && (
-                  <TableCell>
-                    <IconButton onClick={() => handleEdit(question)}>
-                      <Edit />
-                    </IconButton>
-                  </TableCell>
-                )}
-              </TableRow>
-            ))}
+            {sortedQuestions.map((question, index) => {
+              // Format the reference consistently
+              const reference = `${question.book} ${question.chapter}:${question.verseStart}${
+                question.verseEnd && question.verseEnd !== question.verseStart 
+                  ? `-${question.verseEnd}` 
+                  : ''
+              }`;
+              
+              return (
+                <TableRow key={question._id || index}>
+                  {showActions && (
+                    <TableCell padding="checkbox">
+                      <Checkbox
+                        checked={selectedQuestions.includes(question.originalIndex)}
+                        onChange={(e) => onQuestionSelect([question.originalIndex], e.target.checked)}
+                      />
+                    </TableCell>
+                  )}
+                  <TableCell>{reference}</TableCell>
+                  <TableCell>{question.theme}</TableCell>
+                  <TableCell>{question.question}</TableCell>
+                  {showActions && !hideEditActions && (
+                    <TableCell>
+                      <IconButton onClick={() => handleEdit(question)}>
+                        <Edit />
+                      </IconButton>
+                    </TableCell>
+                  )}
+                </TableRow>
+              );
+            })}
           </TableBody>
         </Table>
       </TableContainer>
