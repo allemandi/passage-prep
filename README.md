@@ -80,6 +80,7 @@ This project was developed with the help of AI tools (e.g., GitHub Copilot, Curs
 - Login with admin credentials
 - Approve, edit, or delete questions
 - Download CSV of filtered or all questions
+- Bulk upload questions
 
 ## 🌐 Deployment
 

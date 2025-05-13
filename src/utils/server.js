@@ -32,16 +32,32 @@ async function saveQuestion(newData) {
   if (!newData || !newData.theme || !newData.question || !newData.book || !newData.chapter || !newData.verseStart || !newData.verseEnd) {
     return { success: false, error: 'Missing required question data' };
   }
-  await Question.create({
-    theme: newData.theme,
-    question: newData.question,
-    book: newData.book,
-    chapter: newData.chapter,
-    verseStart: newData.verseStart,
-    verseEnd: newData.verseEnd,
-    isApproved: false,
-  });
-  return { success: true };
+  
+  try {
+    // Create the question with validation
+    const question = new Question({
+      theme: newData.theme,
+      question: newData.question,
+      book: newData.book,
+      chapter: newData.chapter,
+      verseStart: newData.verseStart,
+      verseEnd: newData.verseEnd,
+      isApproved: newData.isApproved === true || false
+    });
+    
+    // Run MongoDB validation
+    await question.validate();
+    
+    // Save after validation passes
+    await question.save();
+    return { success: true };
+  } catch (error) {
+    // Handle validation errors from Mongoose
+    return { 
+      success: false,
+      error: error.message || 'Failed to save question'
+    };
+  }
 }
 
 async function updateQuestion(questionId, updatedData) {

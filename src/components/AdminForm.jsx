@@ -11,7 +11,8 @@ import {
   Grid,
   Checkbox,
   ListItemText,
-  MenuItem
+  MenuItem,
+  CircularProgress
 } from '@mui/material';
 import QuestionTable from './QuestionTable';
 import { searchQuestions, fetchAllQuestions, fetchUnapprovedQuestions, approveQuestions } from '../data/dataService';
@@ -49,6 +50,9 @@ const AdminForm = () => {
   const [showSuccess, setShowSuccess] = useState(false);
   const [logoutSuccess, setLogoutSuccess] = useState(false);
   const [hideUnapproved, setHideUnapproved] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
+  const [uploadResults, setUploadResults] = useState(null);
+  const fileInputRef = useRef(null);
 
   // Use ref for logoutTimer to avoid dependency issues
   const logoutTimerRef = useRef(null);
@@ -505,6 +509,80 @@ const AdminForm = () => {
     }
   }, [selectedQuestions, filteredQuestions]);
 
+  const handleBulkUpload = async (e) => {
+    e.preventDefault();
+    const file = fileInputRef.current.files[0];
+    if (!file) {
+      setShowError(true);
+      setErrorMessage('Please select a CSV file to upload');
+      return;
+    }
+
+    if (file.type !== 'text/csv' && !file.name.endsWith('.csv')) {
+      setShowError(true);
+      setErrorMessage('File must be a CSV file');
+      return;
+    }
+
+    setIsUploading(true);
+    try {
+      const reader = new FileReader();
+      reader.onload = async (event) => {
+        try {
+          const csvContent = event.target.result;
+          
+          // Send raw CSV to server for processing
+          const url = import.meta.env.MODE === 'production'
+            ? '/.netlify/functions/bulk-upload'
+            : '/api/bulk-upload';
+            
+          const response = await fetch(url, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ csvText: csvContent })
+          });
+          
+          if (!response.ok) {
+            const errorText = await response.text();
+            throw new Error(errorText || 'Failed to upload questions');
+          }
+          
+          const results = await response.json();
+          setUploadResults(results);
+          
+          if (results.successful > 0) {
+            setShowSuccess(true);
+          }
+          
+          if (results.failed > 0) {
+            setShowError(true);
+            setErrorMessage(`${results.failed} question(s) failed to upload. Check results for details.`);
+          }
+          
+          // Reset file input
+          fileInputRef.current.value = null;
+        } catch (error) {
+          setShowError(true);
+          setErrorMessage(error.message);
+        } finally {
+          setIsUploading(false);
+        }
+      };
+      
+      reader.onerror = () => {
+        setShowError(true);
+        setErrorMessage('Error reading file');
+        setIsUploading(false);
+      };
+      
+      reader.readAsText(file);
+    } catch (error) {
+      setShowError(true);
+      setErrorMessage(error.message);
+      setIsUploading(false);
+    }
+  };
+
   return (
     <Container maxWidth="xl" sx={{ pt: { xs: 2, md: 6 }, pb: { xs: 2, md: 6 }, px: { xs: 0, md: 4 } }}>
       <Paper 
@@ -581,6 +659,17 @@ const AdminForm = () => {
                   sx={{ py: 2, fontWeight: 600 }}
                 >
                   Download
+                </Button>
+              </Grid>
+              <Grid item xs={12} sm={4} md={3}>
+                <Button 
+                  variant={activeButton === 'upload' ? 'contained' : 'outlined'} 
+                  onClick={() => handleButtonClick('upload')}
+                  fullWidth
+                  size="large"
+                  sx={{ py: 2, fontWeight: 600 }}
+                >
+                  Bulk Upload
                 </Button>
               </Grid>
             </Grid>
@@ -889,6 +978,113 @@ const AdminForm = () => {
                   >
                     Download All Questions
                   </Button>
+                </Box>
+              </Box>
+            )}
+
+            {activeButton === 'upload' && (
+              <Box sx={{ mb: 5, width: '100%' }}>
+                <Typography variant="h6" sx={{ mb: 3, fontWeight: 600 }}>
+                  Bulk Upload Questions
+                </Typography>
+                
+                <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 3, mb: 4 }}>
+                  <Typography variant="body1" sx={{ textAlign: 'center', maxWidth: 760 }}>
+                    Upload a CSV file with questions. The file must:
+                    <ul style={{ textAlign: 'left', margin: '10px 0' }}>
+                      <li>Have headers: <code>theme</code>, <code>question</code>, <code>book</code>, <code>chapter</code>, <code>verseStart</code>, <code>verseEnd</code> (optional), <code>isApproved</code> (optional)</li>
+                      <li>Use valid themes: {themes.join(', ')}</li>
+                      <li>Include only valid Bible books, chapters, and verse numbers</li>
+                      <li>Use quotation marks for values containing commas</li>
+                    </ul>
+                    Download the template below for a properly formatted example.
+                  </Typography>
+                  
+                  <Button 
+                    variant="contained"
+                    color="secondary"
+                    href="/questions-template.csv"
+                    download
+                    sx={{ py: 1.5, fontSize: '1.1rem', width: { xs: '100%', sm: 260 } }}
+                    size="large"
+                  >
+                    Download Template
+                  </Button>
+                </Box>
+                
+                <Box component="form" onSubmit={handleBulkUpload} sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
+                  <Box sx={{ width: '100%', maxWidth: 600 }}>
+                    <input
+                      ref={fileInputRef}
+                      type="file"
+                      accept=".csv"
+                      id="csv-upload"
+                      style={{ display: 'none' }}
+                    />
+                    <label htmlFor="csv-upload">
+                      <Button
+                        variant="outlined"
+                        component="span"
+                        fullWidth
+                        size="large"
+                        sx={{ py: 1.5, mb: 2 }}
+                      >
+                        Select CSV File
+                      </Button>
+                    </label>
+                  </Box>
+                  
+                  <Button
+                    type="submit"
+                    variant="contained"
+                    color="primary"
+                    disabled={isUploading}
+                    sx={{ py: 1.5, fontSize: '1.1rem', width: { xs: '100%', sm: 260 } }}
+                    size="large"
+                  >
+                    {isUploading ? <CircularProgress size={24} color="inherit" /> : 'Upload Questions'}
+                  </Button>
+
+                  {uploadResults && (
+                    <Paper elevation={1} sx={{ p: 3, width: '100%', maxWidth: 600, mt: 3 }}>
+                      <Typography variant="h6" sx={{ mb: 2, fontWeight: 600 }}>
+                        Upload Results
+                      </Typography>
+                      <Typography variant="body1">
+                        Total questions: {uploadResults.totalQuestions}
+                      </Typography>
+                      <Typography variant="body1" color="success.main" sx={{ fontWeight: 500 }}>
+                        Successfully uploaded: {uploadResults.successful}
+                      </Typography>
+                      <Typography variant="body1" color="error.main" sx={{ fontWeight: 500 }}>
+                        Failed to upload: {uploadResults.failed}
+                      </Typography>
+                      
+                      {uploadResults.errors.length > 0 && (
+                        <Box sx={{ mt: 2 }}>
+                          <Typography variant="subtitle1" fontWeight="bold">
+                            Errors:
+                          </Typography>
+                          <Box sx={{ maxHeight: 300, overflowY: 'auto', mt: 1, border: '1px solid #ddd', borderRadius: 1, p: 2 }}>
+                            {uploadResults.errors.map((error, index) => (
+                              <Box key={index} sx={{ mb: 2, pb: 2, borderBottom: index < uploadResults.errors.length - 1 ? '1px solid #eee' : 'none' }}>
+                                <Typography variant="body2" fontWeight="medium" gutterBottom>
+                                  {error.question}
+                                </Typography>
+                                <Typography variant="body2" color="error.main">
+                                  <strong>Error:</strong> {error.error}
+                                </Typography>
+                              </Box>
+                            ))}
+                          </Box>
+                          <Typography variant="body2" sx={{ mt: 2, fontStyle: 'italic' }}>
+                            Tip: Make sure your CSV has the correct headers (theme, question, book, chapter, verseStart, verseEnd) 
+                            and that values match the expected formats. For themes, use one of: {themes.join(', ')}
+                          </Typography>
+                        </Box>
+                      )}
+                    </Paper>
+                  )}
                 </Box>
               </Box>
             )}
