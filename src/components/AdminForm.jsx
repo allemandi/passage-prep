@@ -780,16 +780,18 @@ const AdminForm = () => {
                     hideUnapproved={hideUnapproved}
                   />
                 </Box>
-                <Button 
-                  variant="contained" 
-                  color="error" 
-                  sx={{ mt: 4, py: 1.5, fontSize: '1.1rem', width: { xs: '100%', sm: 260 }, mx: 'auto', display: 'block' }}
-                  onClick={handleDeleteSelected}
-                  disabled={selectedQuestions.length === 0}
-                  size="large"
-                >
-                  Delete Selected
-                </Button>
+                <Box sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, gap: 2, justifyContent: 'center', mt: 4 }}>
+                  <Button 
+                    variant="contained" 
+                    color="error" 
+                    sx={{ py: 1.5, fontSize: '1.1rem', width: { xs: '100%', sm: 260 } }}
+                    disabled={selectedQuestions.length === 0}
+                    onClick={handleDeleteSelected}
+                    size="large"
+                  >
+                    Delete Selected
+                  </Button>
+                </Box>
               </Box>
             )}
 
@@ -889,16 +891,28 @@ const AdminForm = () => {
                     onQuestionUpdate={handleQuestionUpdate}
                   />
                 </Box>
-                <Button 
-                  variant="contained" 
-                  color="success" 
-                  sx={{ mt: 4, py: 1.5, fontSize: '1.1rem', width: { xs: '100%', sm: 260 }, mx: 'auto', display: 'block' }}
-                  disabled={selectedQuestions.length === 0}
-                  onClick={handleApproveSelected}
-                  size="large"
-                >
-                  Approve Selected
-                </Button>
+                <Box sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, gap: 2, justifyContent: 'center', mt: 4 }}>
+                  <Button 
+                    variant="contained" 
+                    color="success" 
+                    sx={{ py: 1.5, fontSize: '1.1rem', width: { xs: '100%', sm: 260 } }}
+                    disabled={selectedQuestions.length === 0}
+                    onClick={handleApproveSelected}
+                    size="large"
+                  >
+                    Approve Selected
+                  </Button>
+                  <Button 
+                    variant="contained" 
+                    color="error" 
+                    sx={{ py: 1.5, fontSize: '1.1rem', width: { xs: '100%', sm: 260 } }}
+                    disabled={selectedQuestions.length === 0}
+                    onClick={handleDeleteSelected}
+                    size="large"
+                  >
+                    Delete Selected
+                  </Button>
+                </Box>
               </Box>
             )}
 

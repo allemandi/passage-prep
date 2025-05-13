@@ -1,15 +1,9 @@
 # 📖 Passage Prep
 
-**Build reusable Bible studies in seconds.**
-
-A modern React + Vite tool to organize, format, and export Bible study questions with contextual notes.
+**A tool to format, organize, and export Bible study questions.**
+Build reusable Bible studies in seconds.
 
 🚀 [Netlify Live Demo](https://passage-prep.netlify.app/)
-
-## 🤔 Why this exists
-- 🏗️ Clean, simple formatting for group studies
-- 📚 Quick study outlines with contextual notes
-- ♻️ Personal repository of reusable questions
 
 ## ✨ Key Features
 - Question Memory Bank - Save your best questions
@@ -17,9 +11,6 @@ A modern React + Vite tool to organize, format, and export Bible study questions
 - Book Context - Automatic authorship/theme notes for each passage
 - Fetch & Filter - "Just the best Genesis passages about forgiveness, please"
 - Collaborative - Add new questions to shared database
-
-## 💡 Acknowledgments
-This project was developed with the help of AI tools (e.g., GitHub Copilot, Cursor) for code suggestions, debugging, and optimizations.
 
 ## 🚀 Getting Started
 
@@ -98,12 +89,21 @@ This project was developed with the help of AI tools (e.g., GitHub Copilot, Curs
 - `yarn lint` — Lint code
 - `yarn build` — Production build
 
-## 🧩 Tech Stack
+## ⚙️ Built With
 - **Frontend:** React, Vite, MUI
 - **Backend:** Express, MongoDB, Mongoose
 - **Serverless:** Netlify Functions
 
-## 🤝 Contributions Welcome
+## 🔗 Related Projects
+Check out these related projects that might interest you:
+- **[Drag And Preach](https://github.com/allemandi/drag-and-preach)**
+  A modern drag-and-drop sermon planner. Organize, structure, and export your sermons with ease.
+
+- **[Vector Knowledge Base](https://github.com/allemandi/vector-knowledge-base)**  
+  A minimalist command-line knowledge system with semantic memory capabilities using vector embeddings for information retrieval.
+
+
+## 🤝 Contributing
 If you have ideas, improvements, or new features:
 
 1. Fork the project
@@ -113,7 +113,10 @@ If you have ideas, improvements, or new features:
 5. Open a Pull Request
 
 ## ☕ Support
-If this project has helped you or saved you time, consider [buying me a coffee](https://www.buymeacoffee.com/allemandi) to keep the studies flowing.
+If this project has helped you or saved you time, consider [buying me a coffee](https://www.buymeacoffee.com/allemandi) to help fuel more ideas and improvements!
+
+## 💡 Acknowledgments
+This project was developed with the help of AI tools (e.g., GitHub Copilot, Cursor, v0) for code suggestions, debugging, and optimizations.
 
 ## 📄 License
 MIT
