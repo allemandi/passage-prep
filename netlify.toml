@@ -3,6 +3,10 @@
   publish = "build"
   functions = "netlify/functions"
 
+
+[functions]
+  included_files = ["src/data/bible-counts.json"]
+
 # Redirect all API calls to Netlify Functions
 [[redirects]]
   from = "/api/*"
