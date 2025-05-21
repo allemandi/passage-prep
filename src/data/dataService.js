@@ -20,7 +20,6 @@ export const getBooks = async () => {
       return booksCache;
     }
     
-    console.log("Fetching books data from API...");
     const response = await fetch(getApiUrl('books'));
     
     if (!response.ok) {
@@ -29,7 +28,6 @@ export const getBooks = async () => {
     }
     
     const books = await response.json();
-    console.log(`Successfully fetched ${books.length} books from API`);
     booksCache = books;
     return books;
   } catch (error) {
@@ -41,7 +39,6 @@ export const getBooks = async () => {
 // Load questions data from MongoDB
 export const getQuestions = async () => {
   try {
-    console.log("Fetching questions data from API...");
     const response = await fetch(getApiUrl('questions'));
     
     if (!response.ok) {
@@ -50,7 +47,6 @@ export const getQuestions = async () => {
     }
     
     const questions = await response.json();
-    console.log(`Successfully fetched ${questions.length} questions from API`);
     return questions;
   } catch (error) {
     console.error("Error fetching questions:", error);
@@ -222,8 +218,6 @@ export const searchQuestions = async ({ book, chapter, startVerse, endVerse, the
       ...(themeArr?.length && { theme: themeArr }),
       ...(typeof isApproved === 'boolean' ? { isApproved } : {})
     };
-
-    console.log('Sending payload:', JSON.stringify(payload, null, 2));
 
     const response = await fetch(getApiUrl('search-questions'), {
       method: 'POST',

@@ -3,6 +3,7 @@ const Book = require('../../models/Book');
 const Question = require('../../models/Question');
 const Admin = require('../../models/Admin');
 const bcrypt = require('bcryptjs');
+require('dotenv').config();
 
 // --- DB Connection ---
 let cachedDb = null;
