@@ -1,3 +1,4 @@
+const fs = require('fs');
 const express = require('express');
 const path = require('path');
 const cors = require('cors');
@@ -26,6 +27,16 @@ const PORT = process.env.PORT || 3001;
 // Middleware
 app.use(cors());
 app.use(bodyParser.json({ limit: '10mb' }));
+
+const indexPath = path.join(__dirname, 'build', 'index.html');
+
+if (!fs.existsSync(indexPath)) {
+  console.error('\nERROR: The file ' + indexPath + ' was not found.');
+  console.error('This usually means the frontend application has not been built yet.');
+  console.error('Please run the build command (e.g., `npm run build` or `yarn build`) before starting the server.');
+  console.error('Aborting server startup.\n');
+  process.exit(1);
+}
 app.use(express.static(path.join(__dirname, 'build')));
 
 // API endpoint to get all books

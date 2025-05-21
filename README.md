@@ -47,11 +47,33 @@ Build reusable Bible studies in seconds.
      yarn setup-admin
      ```
 5. **Run Locally:**
+   There are two main ways to run the application:
+
+   ### Development Mode
+   To run the application in development mode with hot reloading for the frontend and the server running concurrently:
    ```bash
+   npm run dev
+   # or
    yarn dev
    ```
-   - Vite frontend: [localhost:3000](http://localhost:3000)
-   - Express backend: [localhost:3001](http://localhost:3001)
+   This command starts the Vite frontend development server (typically on [localhost:3000](http://localhost:3000)) and the Express backend server (typically on [localhost:3001](http://localhost:3001)). This is the recommended way for active development.
+
+   ### Production-like Mode (Serving Built Files)
+   To run the server and serve the built frontend files, simulating a production environment:
+   1.  **Build the frontend:** If you haven't already, or if you've made frontend changes, you need to build the application. This will create a `build` directory with the static assets.
+       ```bash
+       npm run build
+       # or
+       yarn build
+       ```
+   2.  **Start the server:**
+       ```bash
+       npm start
+       # or
+       yarn start
+       ```
+   This command starts only the Express backend server, which will also serve the static files from the `build` directory.
+   **Important:** If you run `npm start` or `yarn start` without having run the build command first (i.e., without the `build` directory present), the server will exit with an error message prompting you to build the application.
 
 ## 🖥️ Usage
 
@@ -83,11 +105,12 @@ Build reusable Bible studies in seconds.
 - See `netlify.toml` for redirects and SPA routing
 
 ## ⚙️ Scripts
-- `yarn dev` — Run frontend and backend concurrently
-- `yarn import-data` — Import initial CSV data to MongoDB
-- `yarn setup-admin` — Create/update admin user
-- `yarn lint` — Lint code
-- `yarn build` — Production build
+- `yarn dev` / `npm run dev` — Starts both the Vite frontend development server and the Express backend server concurrently. Recommended for development due to hot reloading and immediate feedback.
+- `yarn build` / `npm run build` — Compiles the frontend application into static assets, outputting them to the `build` directory. This step is necessary before running the application in production-like mode.
+- `yarn start` / `npm start` — Starts the Express backend server, which serves the static frontend assets from the `build` directory. **Requires the frontend to be built first using `yarn build` or `npm run build`.**
+- `yarn import-data` / `npm run import-data` — Imports initial CSV data (questions and book context) into the MongoDB database.
+- `yarn setup-admin` / `npm run setup-admin` — Creates or updates the admin user in the database based on credentials in the `.env` file.
+- `yarn lint` / `npm run lint` — Lints the codebase using ESLint to check for code quality and style issues.
 
 ## ⚙️ Built With
 - **Frontend:** React, Vite, MUI
