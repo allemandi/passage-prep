@@ -22,7 +22,7 @@ import {
 } from 'obscenity';
 import { rateLimiter, getUserIdentifier } from '../utils/rateLimit';
 import { processInput } from '../utils/inputUtils';
-import { saveQuestion } from '../data/dataService';
+import { saveQuestion } from '../services/dataService';
 import themes from '../data/themes.json';
 
 const ContributeForm = () => {

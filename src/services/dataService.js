@@ -92,11 +92,11 @@ export const saveQuestion = async (theme, question, reference) => {
 // Process the form data and return study data
 export const processForm = async (formData) => {
   try {
-    const questions = await getQuestions();
+    // const questions = await getQuestions(); // Replaced by searchQuestions loop
     const books = await getBooks();
     
-    if (!Array.isArray(questions) || !Array.isArray(books)) {
-      throw new Error("Failed to load necessary data");
+    if (!Array.isArray(books)) { // questions array is no longer fetched here
+      throw new Error("Failed to load book data");
     }
 
     const { refArr, themeArr } = formData;
@@ -173,36 +173,17 @@ export const processForm = async (formData) => {
       return 0;
     });
 
-    // Filter questions without max limit
-    const questionArr = questions.filter(q => {
-      if (!q.book) return false;
-      
-      return scriptureRefs.some(ref => {
-        const bookMatch = q.book.toLowerCase().includes(ref.book);
-        const chapterMatch = ref.chapter === null || q.chapter === ref.chapter;
-        
-        // Check verse range overlap if specified
-        let verseMatch = true;
-        if (ref.verseStart !== null && ref.verseEnd !== null) {
-          const qStart = parseInt(q.verseStart, 10);
-          const qEnd = parseInt(q.verseEnd || q.verseStart, 10);
-          verseMatch = (
-            qStart <= ref.verseEnd && qEnd >= ref.verseStart
-          );
-        }
-        
-        return bookMatch && chapterMatch && verseMatch;
-      });
-    });
+    // Question fetching and processing is now handled in RequestForm.jsx
+    // processForm is now responsible for references, themes, and context.
 
     return {
       refArr: refArrFiltered,
       themeArr: themeArrFiltered,
-      contextArr,
-      questionArr
+      contextArr
+      // questionArr is no longer returned from here
     };
   } catch (error) {
-    console.error("Study generation error:", error);
+    console.error("Study data preparation error:", error);
     throw error;
   }
 };

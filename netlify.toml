@@ -3,9 +3,12 @@
   publish = "build"
   functions = "netlify/functions"
 
+[dev]
+  command = "vite" # Command to start Vite dev server
+  targetPort = 5173 # Port Vite runs on
 
 [functions]
-  included_files = ["src/data/bible-counts.json"]
+  included_files = ["src/data/bible-counts.json", "src/data/themes.json"]
 
 # Redirect all API calls to Netlify Functions
 [[redirects]]

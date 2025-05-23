@@ -47,33 +47,13 @@ Build reusable Bible studies in seconds.
      yarn setup-admin
      ```
 5. **Run Locally:**
-   There are two main ways to run the application:
-
-   ### Production-like Mode (Serving Built Files)
-   To run the server and serve the built frontend files, simulating a production environment:
-   1.  **Build the frontend:** If you haven't already, or if you've made frontend changes, you need to build the application. This will create a `build` directory with the static assets.
-       ```bash
-       npm run build
-       # or
-       yarn build
-       ```
-   2.  **Start the server:**
-       ```bash
-       npm start
-       # or
-       yarn start
-       ```
-   This command starts only the Express backend server, which will also serve the static files from the `build` directory.
-   **Important:** If you run `npm start` or `yarn start` without having run the build command first (i.e., without the `build` directory present), the server will exit with an error message prompting you to build the application.
-
-   ### Development Mode
-   To run the application in development mode with hot reloading for the frontend and the server running concurrently:
-   ```bash
-   npm run dev
-   # or
-   yarn dev
-   ```
-   This command starts the Vite frontend development server (typically on [localhost:3000](http://localhost:3000)) and the Express backend server (typically on [localhost:3001](http://localhost:3001)). This is the recommended way for active development.
+   To run the application locally, which includes the Vite frontend development server and emulation of Netlify Functions for the backend:
+   1. Ensure you have completed the setup steps (cloning, `yarn install`, `.env` file with `MONGODB_URI`).
+   2. Run the following command:
+      ```bash
+      netlify dev
+      ```
+   This will typically make the application available at a local URL like `http://localhost:8888` (Netlify Dev will specify the port). It provides hot reloading for the frontend and live emulation for serverless functions.
 
 ## 🖥️ Usage
 
@@ -101,21 +81,32 @@ Build reusable Bible studies in seconds.
 - Connect your repo
 - Set `MONGODB_URI` in Netlify environment variables
 - Netlify auto-detects build (`yarn build`) and publish (`build/`)
-- API routes handled by Netlify Functions (`netlify/functions/`)
+- The backend API is implemented entirely as serverless Netlify Functions, located in the `netlify/functions/` directory.
 - See `netlify.toml` for redirects and SPA routing
 
 ## ⚙️ Scripts
-- `yarn dev` — Starts both the Vite frontend development server and the Express backend server concurrently. Recommended for development due to hot reloading and immediate feedback.
-- `yarn build` — Compiles the frontend application into static assets, outputting them to the `build` directory. This step is necessary before running the application in production-like mode.
-- `yarn start` — Starts the Express backend server, which serves the static frontend assets from the `build` directory. **Requires the frontend to be built first using `yarn build` or `npm run build`.**
+- `yarn dev` — Runs the application locally using `netlify dev`. This starts the Vite frontend development server and emulates Netlify Functions for the backend, providing a full local development environment.
+- `yarn build` — Compiles the frontend application into static assets, outputting them to the `build` directory. This step is necessary for production deployment.
 - `yarn import-data` — Imports initial CSV data (questions and book context) into the MongoDB database.
 - `yarn setup-admin` — Creates or updates the admin user in the database based on credentials in the `.env` file.
 - `yarn lint` - Lints the codebase using ESLint to check for code quality and style issues.
 
 ## ⚙️ Built With
 - **Frontend:** React, Vite, MUI
-- **Backend:** Express, MongoDB, Mongoose
-- **Serverless:** Netlify Functions
+- **Backend:** Netlify Functions, MongoDB, Mongoose
+
+## 📂 Project Structure
+The project is organized as follows:
+- `netlify/`: Contains all backend serverless logic.
+  - `netlify/functions/`: Individual Netlify Functions, each corresponding to an API endpoint.
+  - `netlify/utils/`: Shared utility modules for the backend functions (e.g., database interactions in `db.js`).
+- `src/`: Contains all frontend client-side code.
+  - `src/components/`: React components.
+  - `src/services/`: Client-side services for API communication (e.g., `dataService.js`).
+  - `src/utils/`: Utility functions specific to the frontend.
+  - `src/data/`: Static JSON data files (e.g., `themes.json`, `bible-counts.json`).
+  - `src/theme/`: Frontend theme configuration.
+  - `public/`: Static assets directly served.
 
 ## 🔗 Related Projects
 Check out these related projects that might interest you:

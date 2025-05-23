@@ -14,7 +14,7 @@ import {
   Checkbox,
   ListItemText
 } from '@mui/material';
-import { processForm, searchQuestions } from '../data/dataService';
+import { processForm, searchQuestions } from '../services/dataService';
 import { getBibleBooks, getChaptersForBook, getChapterCountForBook, formatReference, getVerseCountForBookAndChapter } from '../utils/bibleData';
 import QuestionTable from './QuestionTable';
 import { rateLimiter, getUserIdentifier } from '../utils/rateLimit';
@@ -186,14 +186,15 @@ const RequestForm = ({ onStudyGenerated, isLoading }) => {
     };
     
     try {
-      const studyData = await processForm(formData);
+      // processForm now returns an object like:
+      // { contextArr, refArr: refArrFiltered, themeArr: themeArrFiltered }
+      const studyBaseData = await processForm(formData);
       
-      // Pass the selected questions to the StudyModal
-
-      // Create a copy of searchResults to avoid mutation issues
-      const searchResultsCopy = [...searchResults];
-
-      const filteredQuestions = selectedQuestions.map(index => {
+      // Construct questionArr (named filteredQuestions here) from component's state
+      // (searchResults and selectedQuestions)
+      // This logic is already in place and correctly uses searchResults and selectedQuestions.
+      const searchResultsCopy = [...searchResults]; // Already present
+      const filteredQuestions = selectedQuestions.map(index => { // Already present
         if (index >= 0 && index < searchResultsCopy.length) {
           const question = searchResultsCopy[index];
           return question;
@@ -203,7 +204,11 @@ const RequestForm = ({ onStudyGenerated, isLoading }) => {
         }
       }).filter(Boolean); 
       
-      onStudyGenerated({ ...studyData, filteredQuestions });
+      // Pass the combined data to onStudyGenerated
+      onStudyGenerated({ 
+        ...studyBaseData, // Includes contextArr, refArrFiltered, themeArrFiltered
+        filteredQuestions: filteredQuestions // The actual list of questions selected by user
+      });
       setShowSuccess(true);
     } catch (error) {
       console.error("Error in study generation:", error);

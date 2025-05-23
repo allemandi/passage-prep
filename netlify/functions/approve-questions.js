@@ -1,4 +1,4 @@
-const { connectToDatabase, approveQuestions } = require('../../src/utils/server');
+const { connectToDatabase, approveQuestions } = require('../utils/db');
 
 exports.handler = async function(event, context) {
   context.callbackWaitsForEmptyEventLoop = false;

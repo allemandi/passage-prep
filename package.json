@@ -13,7 +13,6 @@
     "cors": "^2.8.5",
     "dotenv": "^16.5.0",
     "esbuild": "^0.25.2",
-    "express": "^4.18.2",
     "mongodb": "^6.15.0",
     "mongoose": "^8.13.2",
     "obscenity": "0.4.3",
@@ -25,8 +24,7 @@
     "xss": "^1.0.15"
   },
   "scripts": {
-    "dev": "concurrently 'vite' 'node server.js'",
-    "start": "node server.js",
+    "dev": "netlify dev",
     "lint": "eslint src --max-warnings=0",
     "lint:fix": "eslint src --fix",
     "import-data": "node scripts/import-data.js",
@@ -37,7 +35,6 @@
   "devDependencies": {
     "@eslint/js": "^8.57.0",
     "@vitejs/plugin-react": "^4.4.1",
-    "concurrently": "^9.1.2",
     "eslint": "^8.57.0",
     "eslint-plugin-react": "^7.33.2",
     "eslint-plugin-react-hooks": "^4.6.0",
