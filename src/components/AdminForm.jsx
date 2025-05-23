@@ -383,12 +383,11 @@ const AdminForm = () => {
     }
   }, [applyApiFilters]);
 
-  // Update downloadRef when book or chapter changes
+
   const updateDownloadRef = (updates) => {
     setDownloadRef(prev => {
       const newRef = { ...prev, ...updates };
 
-      // Handle book change
       if (updates.selectedBook !== undefined) {
         newRef.availableChapters = getChaptersForBook(updates.selectedBook);
         newRef.selectedChapter = '';
@@ -411,7 +410,6 @@ const AdminForm = () => {
     });
   };
 
-  // Function to download filtered questions as CSV with dynamic headers
   const downloadFilteredCSV = async () => {
     try {
       const results = await searchQuestions({
@@ -454,7 +452,6 @@ const AdminForm = () => {
     }
   };
 
-  // Function to download all questions as CSV with dynamic headers
   const downloadAllCSV = async () => {
     try {
       const results = await fetchAllQuestions();

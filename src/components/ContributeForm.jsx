@@ -126,7 +126,7 @@ const ContributeForm = () => {
     const userIdentifier = getUserIdentifier();
     try {
       await rateLimiter.consume(userIdentifier);
-    } catch (rejRes) {
+    } catch {
       setShowError(true);
       setErrorMessage('Too many requests. Please slow down.');
       return;

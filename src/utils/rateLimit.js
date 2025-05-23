@@ -13,8 +13,7 @@ export const getUserIdentifier = () => {
       userIdentifier = Math.random().toString(36).substring(2);
       localStorage.setItem('rateLimitId', userIdentifier);
     }
-  } catch (error) {
-    // Fallback to memory if storage is blocked (e.g., private mode)
+  } catch {
     userIdentifier = 'anonymous_' + Math.random().toString(36).substring(2);
   }
   return userIdentifier;
