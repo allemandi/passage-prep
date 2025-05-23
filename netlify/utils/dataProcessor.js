@@ -70,11 +70,11 @@ async function processBulkUpload(questions, saveQuestionFn) {
 
   // Load validation data directly
   // Load themes directly from JSON file
-  const themesPath = path.join(__dirname, '../data/themes.json');
+  const themesPath = path.join(__dirname, '../../src/data/themes.json');
   const themes = JSON.parse(fs.readFileSync(themesPath, 'utf8'));
   
   // Load Bible data for book and verse validation
-  const bibleDataPath = path.join(__dirname, '../data/bible-counts.json');
+  const bibleDataPath = path.join(__dirname, '../../src/data/bible-counts.json');
   const bibleData = JSON.parse(fs.readFileSync(bibleDataPath, 'utf8'));
   
   // Create validation helper functions

@@ -1,4 +1,3 @@
-import React from 'react';
 import { 
   Box, 
   Typography, 
@@ -15,8 +14,6 @@ import {
 
 const ThemesSection = ({ selectedThemes, setSelectedThemes, themes }) => {
   const theme = useTheme();
-  
-  // Safety check for theme initialization
   if (!theme?.palette) {
     return null;
   }

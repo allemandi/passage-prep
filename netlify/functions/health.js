@@ -1,4 +1,4 @@
-const { connectToDatabase } = require('../../src/utils/server');
+const { connectToDatabase } = require('../utils/db');
 
 // Health Check Function
 exports.handler = async function(event, context) {

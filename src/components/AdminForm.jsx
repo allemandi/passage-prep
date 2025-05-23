@@ -15,11 +15,12 @@ import {
   CircularProgress
 } from '@mui/material';
 import QuestionTable from './QuestionTable';
-import { searchQuestions, fetchAllQuestions, fetchUnapprovedQuestions, approveQuestions } from '../data/dataService';
+import { searchQuestions, fetchAllQuestions, fetchUnapprovedQuestions, approveQuestions } from '../services/dataService';
 import ScriptureCombobox from './ScriptureCombobox';
 import { getBibleBooks, getChaptersForBook, getVerseCountForBookAndChapter } from '../utils/bibleData';
 import themes from '../data/themes.json';
 import { useTheme } from '@mui/material/styles';
+import Papa from 'papaparse';
 
 const authChannel = new BroadcastChannel('auth');
 
@@ -325,6 +326,14 @@ const AdminForm = () => {
       if (startVerseNum !== undefined) filter.startVerse = startVerseNum;
       if (endVerseNum !== undefined) filter.endVerse = endVerseNum;
       if (selectedThemes.length !== themes.length) filter.themeArr = selectedThemes;
+
+      // Add isApproved based on hideUnapproved state
+      if (hideUnapproved) {
+        filter.isApproved = true;
+      }
+      // If hideUnapproved is false, isApproved is omitted from filter,
+      // so backend returns both approved and unapproved matching other criteria.
+
       const results = await searchQuestions(filter);
       setFilteredQuestions(results);
     } catch (error) {
@@ -429,11 +438,7 @@ const AdminForm = () => {
         return filtered;
       });
 
-      const headers = Object.keys(filteredResults[0] || {});
-      const csvContent = [
-        headers,
-        ...filteredResults.map(q => headers.map(header => q[header] || ''))
-      ].map(row => row.join(',')).join('\n');
+      const csvContent = Papa.unparse(filteredResults, { header: true });
 
       const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
       const url = URL.createObjectURL(blob);
@@ -469,13 +474,7 @@ const AdminForm = () => {
         });
         return filtered;
       });
-
-      const headers = Object.keys(filteredResults[0] || {});
-      const csvContent = [
-        headers,
-        ...filteredResults.map(item => headers.map(field => `"${String(item[field] || '').replace(/"/g, '""')}"`).join(','))
-      ].join('\r\n');
-
+      const csvContent = Papa.unparse(filteredResults, { header: true });
       const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
       const url = URL.createObjectURL(blob);
       const link = document.createElement('a');
@@ -491,16 +490,13 @@ const AdminForm = () => {
     }
   };
 
-  // Approve selected questions in Review/Approve mode
   const handleApproveSelected = useCallback(async () => {
     if (selectedQuestions.length === 0) return;
     try {
-      // Get the IDs of selected unapproved questions
       const questionIds = selectedQuestions.map(index => filteredQuestions[index]._id);
       await approveQuestions(questionIds);
       setShowSuccess(true);
       setSelectedQuestions([]);
-      // Reload unapproved questions
       const unapproved = await fetchUnapprovedQuestions();
       setFilteredQuestions(unapproved);
     } catch (error) {
@@ -531,11 +527,9 @@ const AdminForm = () => {
         try {
           const csvContent = event.target.result;
           
-          // Send raw CSV to server for processing
           const url = import.meta.env.MODE === 'production'
             ? '/.netlify/functions/bulk-upload'
             : '/api/bulk-upload';
-            
           const response = await fetch(url, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -559,7 +553,6 @@ const AdminForm = () => {
             setErrorMessage(`${results.failed} question(s) failed to upload. Check results for details.`);
           }
           
-          // Reset file input
           fileInputRef.current.value = null;
         } catch (error) {
           setShowError(true);

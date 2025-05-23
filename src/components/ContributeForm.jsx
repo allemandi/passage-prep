@@ -22,7 +22,7 @@ import {
 } from 'obscenity';
 import { rateLimiter, getUserIdentifier } from '../utils/rateLimit';
 import { processInput } from '../utils/inputUtils';
-import { saveQuestion } from '../data/dataService';
+import { saveQuestion } from '../services/dataService';
 import themes from '../data/themes.json';
 
 const ContributeForm = () => {
@@ -54,7 +54,7 @@ const ContributeForm = () => {
     ...englishRecommendedTransformers,
   });
   
-  // Bible books from the JSON data
+ 
   const bibleBooks = getBibleBooks();
   
   const updateReference = useCallback((book, chapter, verseStart, verseEnd) => {
@@ -66,7 +66,7 @@ const ContributeForm = () => {
     });
   }, []);
   
-  // Update chapters when book changes
+
   React.useEffect(() => {
     if (selectedBook) {
       const chapters = getChaptersForBook(selectedBook);
@@ -111,7 +111,7 @@ const ContributeForm = () => {
     }
   }, [selectedChapter, selectedBook, updateReference, startVerse, endVerse]);
   
-  // Add this right after the state declarations
+
   React.useEffect(() => {
     if (startVerse && endVerse && parseInt(endVerse) < parseInt(startVerse)) {
       setEndVerse(startVerse);
@@ -132,14 +132,13 @@ const ContributeForm = () => {
       return;
     }
 
-    // Validate required fields
+
     if (!reference.book || !reference.chapter || !reference.verseStart) {
       setShowError(true);
       setErrorMessage('Please complete all required fields.');
       return;
     }
 
-    // Sanitize and validate inputs in parallel (non-blocking)
     const [
       { error: bookError },
       { error: chapterError },
@@ -151,12 +150,11 @@ const ContributeForm = () => {
       processInput(reference.book, 'book'),
       processInput(reference.chapter, 'chapter'),
       processInput(reference.verseStart, 'start verse'),
-      processInput(reference.verseEnd || reference.verseStart, 'end verse'), // Fallback to start verse if empty
+      processInput(reference.verseEnd || reference.verseStart, 'end verse'),
       processInput(questionText, 'question'),
       processInput(selectedTheme, 'theme')
     ]);
 
-    // Check for errors (priority: scripture > question > theme)
     const error = bookError || chapterError || verseStartError || verseEndError || questionError || themeError;
     if (error) {
       setShowError(true);
@@ -198,7 +196,6 @@ const ContributeForm = () => {
     }
   };
   
-  // Helper to reset form (extracted for clarity)
   const resetForm = () => {
     setQuestionText('');
     setSelectedTheme('');

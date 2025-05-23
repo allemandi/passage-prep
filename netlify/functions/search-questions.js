@@ -1,4 +1,4 @@
-const { connectToDatabase, searchQuestions } = require('../../src/utils/server');
+const { connectToDatabase, searchQuestions } = require('../utils/db');
 
 exports.handler = async function(event, context) {
   // Make the database connection reusable to avoid cold starts

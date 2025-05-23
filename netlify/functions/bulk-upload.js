@@ -1,5 +1,5 @@
-const { connectToDatabase, saveQuestion } = require('../../src/utils/server');
-const { parseCSV, processBulkUpload } = require('../../src/utils/dataProcessor');
+const { connectToDatabase, saveQuestion } = require('../utils/db');
+const { parseCSV, processBulkUpload } = require('../utils/dataProcessor');
 
 exports.handler = async function(event, context) {
   // Avoid cold starts

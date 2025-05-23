@@ -23,13 +23,10 @@ const StudyModal = ({ show, onHide, data }) => {
   const theme = useTheme();
   const [showSnackbar, setShowSnackbar] = useState(false);
   const noQuestionString = 'Notice: Questions were not selected. Use Search and tick checkboxes against table questions to fill this space, or use the Contribute section to submit your own questions.'
-
-  // Safety check for data initialization
   if (!data || !data.filteredQuestions) {
-    return null; // or you can return a loading state or a message
+    return null;
   }
 
-  // Safety check for theme initialization
   if (!theme?.palette) {
     return null;
   }
@@ -38,7 +35,6 @@ const StudyModal = ({ show, onHide, data }) => {
     ? 'rgba(255, 255, 255, 0.12)'
     : 'rgba(0, 0, 0, 0.12)';
 
-  // Function to group questions by book and theme
   const groupQuestionsByBookAndTheme = (questions) => {
     const grouped = {};
     questions.forEach(question => {
@@ -55,26 +51,21 @@ const StudyModal = ({ show, onHide, data }) => {
     return grouped;
   };
 
-  // Group the questions by book and theme
   const groupedQuestions = groupQuestionsByBookAndTheme(data.filteredQuestions || []);
   
-  // Extract book names from the references to use for ordering
   const bookOrder = (data.refArr || [])
     .map(ref => {
       const match = ref.match(/^((?:\d+\s+)?[A-Za-z]+(?:\s+[A-Za-z]+)*)/i);
       return match ? match[1].trim() : null;
     })
     .filter(Boolean);
-  
-  // Remove duplicates while preserving order
+
   const uniqueBookOrder = [...new Set(bookOrder)];
-  
-  // Get ordered list of books from groupedQuestions that follow reference order
+
   const orderedBooksList = [...Object.keys(groupedQuestions)].sort((a, b) => {
     const indexA = uniqueBookOrder.indexOf(a);
     const indexB = uniqueBookOrder.indexOf(b);
     
-    // If both are in our ordered list, sort by that order
     if (indexA !== -1 && indexB !== -1) {
       return indexA - indexB;
     }
@@ -82,16 +73,12 @@ const StudyModal = ({ show, onHide, data }) => {
     // If only one is in our list, prioritize it
     if (indexA !== -1) return -1;
     if (indexB !== -1) return 1;
-    
-    // If neither is in our reference list, maintain alphabetical order
+
     return a.localeCompare(b);
   });
   
-  // Function to generate plaintext content
   const generatePlainTextContent = () => {
     let plainText = '';
-
-    // Bible References
     plainText += 'Bible References:\n';
     if (data?.refArr && data.refArr.filter(ref => ref).length > 0) {
       data.refArr.filter(ref => ref).forEach(reference => {
@@ -101,8 +88,6 @@ const StudyModal = ({ show, onHide, data }) => {
       plainText += 'No Bible references specified.\n';
     }
     plainText += '\n';
-
-    // General Context
     plainText += 'General Context:\n';
     if (data?.contextArr && data.contextArr.length > 0) {
       data.contextArr.forEach(context => {
@@ -113,7 +98,6 @@ const StudyModal = ({ show, onHide, data }) => {
     }
     plainText += '\n';
 
-    // Questions by Book and Theme
     plainText += 'Questions by Book and Theme:\n';
     if (Object.keys(groupedQuestions).length > 0) {
       orderedBooksList.forEach(book => {
@@ -134,11 +118,8 @@ const StudyModal = ({ show, onHide, data }) => {
   };
 
 
-  // Function to generate markdown content
   const generateMarkdownContent = () => {
     let markdown = '';
-
-    // Bible References
     markdown += '## Bible References\n';
     if (data?.refArr && data.refArr.filter(ref => ref).length > 0) {
       data.refArr.filter(ref => ref).forEach(reference => {
@@ -148,8 +129,6 @@ const StudyModal = ({ show, onHide, data }) => {
       markdown += 'No Bible references specified.\n';
     }
     markdown += '\n';
-
-    // General Context
     markdown += '## General Context\n';
     if (data?.contextArr && data.contextArr.length > 0) {
       data.contextArr.forEach(context => {
@@ -159,8 +138,6 @@ const StudyModal = ({ show, onHide, data }) => {
       markdown += 'No context information available.\n';
     }
     markdown += '\n';
-
-    // Questions by Book and Theme
     markdown += '## Questions by Book and Theme\n';
     if (Object.keys(groupedQuestions).length > 0) {
       orderedBooksList.forEach(book => {
@@ -180,11 +157,10 @@ const StudyModal = ({ show, onHide, data }) => {
     return markdown;
   };
 
-  // Function to generate HTML content for rich text
+
   const generateRichTextContent = () => {
     let html = '<div style="font-family: Arial, sans-serif; font-size: 12pt; line-height: 1.4;">';
 
-    // Bible References
     html += '<h3 style="color: #1976d2; font-size: 1rem; font-weight: 600; margin: 0.7rem 0 0.3rem; border-bottom: 1px solid #e0e0e0; padding-bottom: 0.2rem;">Bible References</h3>';
     if (data?.refArr && data.refArr.filter(ref => ref).length > 0) {
       html += '<ul style="margin: 0.3rem 0 0.7rem; padding-left: 1rem;">';
@@ -196,7 +172,6 @@ const StudyModal = ({ show, onHide, data }) => {
       html += '<p style="margin: 0.3rem 0 0.7rem; font-size: 0.9rem;">No Bible references specified.</p>';
     }
 
-    // General Context
     html += '<h3 style="color: #1976d2; font-size: 1rem; font-weight: 600; margin: 0.7rem 0 0.3rem; border-bottom: 1px solid #e0e0e0; padding-bottom: 0.2rem;">General Context</h3>';
     if (data?.contextArr && data.contextArr.length > 0) {
       html += '<ul style="margin: 0.3rem 0 0.7rem; padding-left: 1rem;">';
@@ -208,7 +183,6 @@ const StudyModal = ({ show, onHide, data }) => {
       html += '<p style="margin: 0.3rem 0 0.7rem; font-size: 0.9rem;">No context information available.</p>';
     }
 
-    // Questions by Book and Theme
     html += '<h3 style="color: #1976d2; font-size: 1rem; font-weight: 600; margin: 0.7rem 0 0.3rem; border-bottom: 1px solid #e0e0e0; padding-bottom: 0.2rem;">Questions by Book and Theme</h3>';
     if (Object.keys(groupedQuestions).length > 0) {
       orderedBooksList.forEach(book => {

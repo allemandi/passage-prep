@@ -1,4 +1,4 @@
-const { connectToDatabase, deleteQuestions } = require('../../src/utils/server');
+const { connectToDatabase, deleteQuestions } = require('../utils/db');
 
 exports.handler = async function(event, context) {
   context.callbackWaitsForEmptyEventLoop = false;

@@ -3,9 +3,13 @@
   publish = "build"
   functions = "netlify/functions"
 
+[dev]
+  framework = "vite"
+  command = "vite"
+  targetPort = 5173
 
 [functions]
-  included_files = ["src/data/bible-counts.json"]
+  included_files = ["src/data/bible-counts.json", "src/data/themes.json"]
 
 # Redirect all API calls to Netlify Functions
 [[redirects]]
