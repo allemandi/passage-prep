@@ -438,11 +438,6 @@ const AdminForm = () => {
         return filtered;
       });
 
-      // const headers = Object.keys(filteredResults[0] || {}); // Handled by Papa.unparse
-      // const csvContent = [
-      //   headers,
-      //   ...filteredResults.map(q => headers.map(header => q[header] || ''))
-      // ].map(row => row.join(',')).join('\n');
       const csvContent = Papa.unparse(filteredResults, { header: true });
 
       const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
@@ -479,14 +474,7 @@ const AdminForm = () => {
         });
         return filtered;
       });
-
-      // const headers = Object.keys(filteredResults[0] || {}); // Handled by Papa.unparse
-      // const csvContent = [
-      //   headers,
-      //   ...filteredResults.map(item => headers.map(field => `"${String(item[field] || '').replace(/"/g, '""')}"`).join(','))
-      // ].join('\r\n');
       const csvContent = Papa.unparse(filteredResults, { header: true });
-
       const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
       const url = URL.createObjectURL(blob);
       const link = document.createElement('a');
@@ -502,16 +490,13 @@ const AdminForm = () => {
     }
   };
 
-  // Approve selected questions in Review/Approve mode
   const handleApproveSelected = useCallback(async () => {
     if (selectedQuestions.length === 0) return;
     try {
-      // Get the IDs of selected unapproved questions
       const questionIds = selectedQuestions.map(index => filteredQuestions[index]._id);
       await approveQuestions(questionIds);
       setShowSuccess(true);
       setSelectedQuestions([]);
-      // Reload unapproved questions
       const unapproved = await fetchUnapprovedQuestions();
       setFilteredQuestions(unapproved);
     } catch (error) {
@@ -542,11 +527,9 @@ const AdminForm = () => {
         try {
           const csvContent = event.target.result;
           
-          // Send raw CSV to server for processing
           const url = import.meta.env.MODE === 'production'
             ? '/.netlify/functions/bulk-upload'
             : '/api/bulk-upload';
-            
           const response = await fetch(url, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -570,7 +553,6 @@ const AdminForm = () => {
             setErrorMessage(`${results.failed} question(s) failed to upload. Check results for details.`);
           }
           
-          // Reset file input
           fileInputRef.current.value = null;
         } catch (error) {
           setShowError(true);

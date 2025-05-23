@@ -1,4 +1,3 @@
-import React from 'react';
 import { 
   Box, 
   Typography, 
@@ -10,8 +9,6 @@ import {
 
 const GeneralSettingsSection = ({ maxLimit, setMaxLimit }) => {
   const theme = useTheme();
-  
-  // Safety check for theme initialization
   if (!theme?.palette) {
     return null;
   }
