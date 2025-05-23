@@ -1,4 +1,4 @@
-import themes from './themes.json'; // Replace hardcoded array
+import themes from '../data/themes.json'; // Replace hardcoded array
 
 // Helper to get the correct API URL based on environment
 const getApiUrl = (endpoint) => {
