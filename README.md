@@ -95,19 +95,6 @@ Build reusable Bible studies in seconds.
 - **Frontend:** React, Vite, MUI
 - **Backend:** Netlify Functions, MongoDB, Mongoose
 
-## 📂 Project Structure
-The project is organized as follows:
-- `netlify/`: Contains all backend serverless logic.
-  - `netlify/functions/`: Individual Netlify Functions, each corresponding to an API endpoint.
-  - `netlify/utils/`: Shared utility modules for the backend functions (e.g., database interactions in `db.js`).
-- `src/`: Contains all frontend client-side code.
-  - `src/components/`: React components.
-  - `src/services/`: Client-side services for API communication (e.g., `dataService.js`).
-  - `src/utils/`: Utility functions specific to the frontend.
-  - `src/data/`: Static JSON data files (e.g., `themes.json`, `bible-counts.json`).
-  - `src/theme/`: Frontend theme configuration.
-  - `public/`: Static assets directly served.
-
 ## 🔗 Related Projects
 Check out these related projects that might interest you:
 - **[Drag And Preach](https://github.com/allemandi/drag-and-preach)**
