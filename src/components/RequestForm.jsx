@@ -510,7 +510,7 @@ const RequestForm = ({ onStudyGenerated, isLoading }) => {
                     variant="filled"
                     sx={{ borderRadius: 2 }}
                 >
-                    Questions found! Select the ones you'd like to include in your study.
+                    {`Questions found! Select the ones you'd like to include in your study.`}
                 </Alert>
             </Snackbar>
 

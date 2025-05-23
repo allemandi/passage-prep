@@ -24,7 +24,6 @@ function App() {
     return savedMode || (prefersDarkMode ? 'dark' : 'light');
   });
   const [helpOpen, setHelpOpen] = useState(false);
-  const handleHelpClick = () => setHelpOpen(true);
   const handleHelpClose = () => setHelpOpen(false);
 
   const theme = useMemo(() => {

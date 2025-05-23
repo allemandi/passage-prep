@@ -1,4 +1,5 @@
 import { Box, Typography, IconButton, Tooltip, Link, useTheme } from '@mui/material';
+import React from 'react';
 import GitHubIcon from '@mui/icons-material/GitHub';
 import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
 
