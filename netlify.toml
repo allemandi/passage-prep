@@ -4,6 +4,7 @@
   functions = "netlify/functions"
 
 [dev]
+  framework = "vite"
   command = "vite" # Command to start Vite dev server
   targetPort = 5173 # Port Vite runs on
 
