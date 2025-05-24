@@ -20,8 +20,7 @@ import {
     DialogActions
 } from '@mui/material';
 import { Edit } from '@mui/icons-material';
-import bibleData from '../data/bible-counts.json';
-import { getBibleBooks, getChaptersForBook, getVerseCountForBookAndChapter } from '../utils/bibleData';
+import { getBibleBooks, getChaptersForBook, getVersesForChapter, getSortedQuestions } from '../utils/bibleData';
 import themes from '../data/themes.json';
 
 const QuestionTable = ({
@@ -51,7 +50,7 @@ const QuestionTable = ({
 
     useEffect(() => {
         if (editData.book && editData.chapter) {
-            const verseCount = getVerseCountForBookAndChapter(editData.book, editData.chapter);
+            const verseCount = getVersesForChapter(editData.book, editData.chapter);
             const verses = Array.from({ length: verseCount }, (_, i) => (i + 1).toString());
             setAvailableVerses(verses);
         } else {
@@ -107,40 +106,13 @@ const QuestionTable = ({
         return isNaN(parsed) ? 0 : parsed;
     };
 
-
-    const bookOrderMap = {};
-    bibleData.forEach((book, index) => {
-        bookOrderMap[book.book] = index;
-    });
-
     const filtered = hideUnapproved ? questions.filter(q => q.isApproved !== false) : questions;
-
-    const questionsWithIndices = filtered.map((question, origIndex) => ({
+    const questionsWithIndices = filtered.map((question, index) => ({
         ...question,
-        originalIndex: origIndex
+        originalIndex: questions.indexOf(question)
     }));
+    const sortedQuestionsWithIndices = getSortedQuestions(questionsWithIndices);
 
-
-    const sortedQuestions = [...questionsWithIndices].sort((a, b) => {
-
-        const bookAIndex = bookOrderMap[a.book] !== undefined ? bookOrderMap[a.book] : Infinity;
-        const bookBIndex = bookOrderMap[b.book] !== undefined ? bookOrderMap[b.book] : Infinity;
-
-        if (bookAIndex !== bookBIndex) {
-            return bookAIndex - bookBIndex;
-        }
-
-        const chapterA = parseNumber(a.chapter);
-        const chapterB = parseNumber(b.chapter);
-
-        if (chapterA !== chapterB) {
-            return chapterA - chapterB;
-        }
-
-        const verseStartA = parseNumber(a.verseStart);
-        const verseStartB = parseNumber(b.verseStart);
-        return verseStartA - verseStartB;
-    });
 
     return (
         <>
@@ -162,7 +134,7 @@ const QuestionTable = ({
                                         onChange={(e) => {
                                             if (e.target.checked) {
                                                 // Select all - use original indices from sorted questions
-                                                const allOriginalIndices = sortedQuestions.map(q => q.originalIndex);
+                                                const allOriginalIndices = sortedQuestionsWithIndices.map(q => q.originalIndex);
                                                 onQuestionSelect(allOriginalIndices, true);
                                             } else {
                                                 // Deselect all
@@ -179,11 +151,11 @@ const QuestionTable = ({
                         </TableRow>
                     </TableHead>
                     <TableBody>
-                        {sortedQuestions.map((question, index) => {
-                            // Format the reference consistently
+                        {sortedQuestionsWithIndices.map((question, index) => {
+
                             const reference = `${question.book} ${question.chapter}:${question.verseStart}${question.verseEnd && question.verseEnd !== question.verseStart
-                                    ? `-${question.verseEnd}`
-                                    : ''
+                                ? `-${question.verseEnd}`
+                                : ''
                                 }`;
 
                             return (

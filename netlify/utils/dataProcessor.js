@@ -67,17 +67,10 @@ async function processBulkUpload(questions, saveQuestionFn) {
     failed: 0,
     errors: []
   };
-
-  // Load validation data directly
-  // Load themes directly from JSON file
   const themesPath = path.join(__dirname, '../../src/data/themes.json');
   const themes = JSON.parse(fs.readFileSync(themesPath, 'utf8'));
-  
-  // Load Bible data for book and verse validation
   const bibleDataPath = path.join(__dirname, '../../src/data/bible-counts.json');
   const bibleData = JSON.parse(fs.readFileSync(bibleDataPath, 'utf8'));
-  
-  // Create validation helper functions
   const getBibleBooks = () => bibleData.map(book => book.book);
   
   const getChaptersForBook = (bookName) => {
@@ -87,7 +80,7 @@ async function processBulkUpload(questions, saveQuestionFn) {
     return book.chapters.map(ch => ch.chapter);
   };
   
-  const getVerseCountForBookAndChapter = (bookName, chapterNum) => {
+  const getVersesForChapter = (bookName, chapterNum) => {
     if (!bookName || !chapterNum) return 0;
     const book = bibleData.find(b => b.book.toLowerCase() === bookName.toLowerCase());
     if (!book) return 0;
@@ -126,7 +119,7 @@ async function processBulkUpload(questions, saveQuestionFn) {
       }
 
       // Validate verse range
-      const maxVerses = getVerseCountForBookAndChapter(validatedBookName, chapterNum);
+      const maxVerses = getVersesForChapter(validatedBookName, chapterNum);
       const verseStart = parseInt(question.verseStart, 10);
       const verseEnd = parseInt(question.verseEnd || question.verseStart, 10);
       
