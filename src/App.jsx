@@ -8,7 +8,7 @@ import RequestForm from './components/RequestForm';
 import ContributeForm from './components/ContributeForm';
 import AdminForm from './components/AdminForm';
 import StudyModal from './components/StudyModal';
-import { getBooks, getQuestions } from './services/dataService';
+import { getBooks } from './services/dataService';
 import { createAppTheme } from './theme/theme';
 import Footer from './components/Footer';
 import HelpModal from './components/HelpModal';
@@ -44,7 +44,7 @@ function App() {
 
   useEffect(() => {
     const loadInitialData = async () => {
-      await Promise.all([getBooks(), getQuestions()]);
+      await getBooks();;
       setIsLoading(false);
     };
     loadInitialData();

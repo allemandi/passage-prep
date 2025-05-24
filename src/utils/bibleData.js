@@ -1,79 +1,52 @@
-import bibleData from '../data/bible-counts.json';
+import bibleCounts from '../data/bible-counts.json';
 
-// Extract all book names for combobox options
-export const getBibleBooks = () => {
-  return bibleData.map(book => book.book);
-};
+// Helpers
+const findBook = (bookName) =>
+    bookName && bibleCounts.find(b => b.book.toLowerCase() === bookName.toLowerCase());
 
-// Get chapter numbers for a specific book name
+// Utility functions
+export const getBibleBooks = () => bibleCounts.map(book => book.book);
+
 export const getChaptersForBook = (bookName) => {
-  if (!bookName) return [];
-  
-  const book = bibleData.find(
-    b => b.book.toLowerCase() === bookName.toLowerCase()
-  );
-  
-  if (!book) return [];
-  
-  return book.chapters.map(ch => ch.chapter);
+    const book = findBook(bookName);
+    return book ? book.chapters.map(ch => ch.chapter) : [];
 };
 
-// Get total chapter count for a specific book
 export const getChapterCountForBook = (bookName) => {
-  if (!bookName) return 0;
-  
-  const book = bibleData.find(
-    b => b.book.toLowerCase() === bookName.toLowerCase()
-  );
-  
-  return book ? book.chapters.length : 0;
+    const book = findBook(bookName);
+    return book?.chapters.length || 0;
 };
 
-// Get verses for a specific book and chapter
 export const getVersesForChapter = (bookName, chapterNum) => {
-  if (!bookName || !chapterNum) return 0;
-  
-  const book = bibleData.find(
-    b => b.book.toLowerCase() === bookName.toLowerCase()
-  );
-  
-  if (!book) return 0;
-  
-  const chapter = book.chapters.find(ch => ch.chapter === chapterNum.toString());
-  return chapter ? parseInt(chapter.verses, 10) : 0;
+    const book = findBook(bookName);
+    const chapter = book?.chapters.find(ch => ch.chapter === chapterNum.toString());
+    return chapter ? parseInt(chapter.verses, 10) : 0;
 };
 
-// Format reference based on selected book and chapter
 export const formatReference = (book, chapter, startVerse = '', endVerse = '') => {
-  let reference = `${book} ${chapter}`;
-  if (startVerse) reference += `:${startVerse}`;
-  if (endVerse && endVerse !== startVerse) reference += `-${endVerse}`;
-  return reference;
+    let ref = `${book} ${chapter}`;
+    if (startVerse) ref += `:${startVerse}`;
+    if (endVerse && endVerse !== startVerse) ref += `-${endVerse}`;
+    return ref;
 };
 
-// Export all functions as a named object
-const bibleDataUtils = {
-  getBibleBooks,
-  getChaptersForBook,
-  getChapterCountForBook,
-  getVersesForChapter,
-  formatReference
+export const getSortedQuestions = (questionsArray = []) => {
+    if (!questionsArray.length) return [];
+
+    const bookOrderMap = bibleCounts.reduce((map, book, idx) => {
+        map[book.book] = idx;
+        return map;
+    }, {});
+
+    return [...questionsArray].sort((a, b) => {
+        const bookAIndex = bookOrderMap[a.book] ?? Infinity;
+        const bookBIndex = bookOrderMap[b.book] ?? Infinity;
+
+        if (bookAIndex !== bookBIndex) return bookAIndex - bookBIndex;
+
+        const chapterDiff = (parseInt(a.chapter, 10) || 0) - (parseInt(b.chapter, 10) || 0);
+        if (chapterDiff !== 0) return chapterDiff;
+
+        return (parseInt(a.verseStart, 10) || 0) - (parseInt(b.verseStart, 10) || 0);
+    });
 };
-
-export const getVerseCountForBookAndChapter = (bookName, chapterNum) => {
-  if (!bookName || !chapterNum) return 0;
-
-  const book = bibleData.find(
-    b => b.book.toLowerCase() === bookName.toLowerCase()
-  );
-
-  if (!book) return 0;
-
-  const chapter = book.chapters.find(
-    ch => ch.chapter === chapterNum.toString()
-  );
-
-  return chapter ? parseInt(chapter.verses, 10) : 0;
-};
-
-export default bibleDataUtils;

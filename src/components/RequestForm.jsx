@@ -15,7 +15,7 @@ import {
     ListItemText
 } from '@mui/material';
 import { processForm, searchQuestions } from '../services/dataService';
-import { getBibleBooks, getChaptersForBook, getChapterCountForBook, formatReference, getVerseCountForBookAndChapter } from '../utils/bibleData';
+import { getBibleBooks, getChaptersForBook, getChapterCountForBook, formatReference, getVersesForChapter } from '../utils/bibleData';
 import QuestionTable from './QuestionTable';
 import { rateLimiter, getUserIdentifier } from '../utils/rateLimit';
 import { processInput } from '../utils/inputUtils';
@@ -97,7 +97,6 @@ const RequestForm = ({ onStudyGenerated, isLoading }) => {
                 }
             }
 
-            // If updating the book, reset the chapter and recalculate chapters
             if (updates.selectedBook !== undefined && updates.selectedBook !== currentRef.selectedBook) {
                 const chapters = getChaptersForBook(updates.selectedBook);
                 const chapterCount = getChapterCountForBook(updates.selectedBook);
@@ -113,9 +112,8 @@ const RequestForm = ({ onStudyGenerated, isLoading }) => {
                     scripture: formatReference(updates.selectedBook, '')
                 };
             }
-            // If updating the chapter, reset the verses and recalculate verses
             else if (updates.selectedChapter !== undefined) {
-                const verseCount = getVerseCountForBookAndChapter(currentRef.selectedBook, updates.selectedChapter);
+                const verseCount = getVersesForChapter(currentRef.selectedBook, updates.selectedChapter);
                 const verses = Array.from({ length: verseCount }, (_, i) => (i + 1).toString());
                 newRefs[index] = {
                     ...currentRef,
@@ -125,13 +123,9 @@ const RequestForm = ({ onStudyGenerated, isLoading }) => {
                     availableVerses: verses,
                     scripture: formatReference(currentRef.selectedBook, updates.selectedChapter)
                 };
-            }
-            // For any other updates (e.g., startVerse, endVerse)
-            else {
+            } else {
                 newRefs[index] = { ...currentRef, ...updates };
             }
-
-            // Ensure scripture reference is updated when verses change
             if (updates.startVerse !== undefined || updates.endVerse !== undefined) {
                 newRefs[index].scripture = formatReference(
                     newRefs[index].selectedBook,
