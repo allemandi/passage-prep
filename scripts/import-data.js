@@ -52,10 +52,10 @@ const importBooks = async () => {
     // Import books
     for (const book of books) {
       await Book.create({
-        Index: parseInt(book.Index),
-        Book: book.Book,
-        Author: book.Author,
-        Context: book.Context
+        index: parseInt(book.index),
+        book: book.book,
+        author: book.author,
+        context: book.context
       });
     }
     
