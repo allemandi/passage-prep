@@ -1,21 +1,21 @@
 const mongoose = require('mongoose');
 
 const BookSchema = new mongoose.Schema({
-  Index: {
+  index: {
     type: Number,
     required: true
   },
-  Book: {
+  book: {
     type: String,
     required: true,
     trim: true
   },
-  Author: {
+  author: {
     type: String,
     required: true,
     trim: true
   },
-  Context: {
+  context: {
     type: String,
     required: true,
     trim: true

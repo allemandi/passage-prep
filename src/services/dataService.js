@@ -135,8 +135,8 @@ export const processForm = async (formData) => {
 
         // Get context for matching books
         let contextArr = books
-            .filter(book => scriptureRefs.some(ref => book.Book.toLowerCase().includes(ref.book)))
-            .map(book => `${book.Book} is about ${book.Context} The author is ${book.Author}.`);
+            .filter(book => scriptureRefs.some(ref => book.book.toLowerCase().includes(ref.book)))
+            .map(book => `${book.book} is about ${book.context} The author is ${book.author}.`);
 
         // Sort contextArr based on the order of books in refArr
         contextArr = contextArr.sort((a, b) => {

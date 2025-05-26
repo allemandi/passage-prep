@@ -21,7 +21,7 @@ async function connectToDatabase() {
 
 // --- Book Logic ---
 async function getAllBooks() {
-  return await Book.find().sort({ Index: 1 });
+  return await Book.find().sort({ index: 1 });
 }
 
 // --- Question Logic ---
