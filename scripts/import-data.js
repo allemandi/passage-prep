@@ -24,7 +24,7 @@ const connectDB = async () => {
 // Import Questions data
 const importQuestions = async () => {
     try {
-        const filePath = path.join(__dirname, '../data/allQuestions.csv');
+        const filePath = path.join(__dirname, '../scripts/data/sampleQuestions.csv');
         const fileContent = fs.readFileSync(filePath, 'utf8');
         const results = Papa.parse(fileContent, {
             header: true,
@@ -91,8 +91,9 @@ const importAll = async () => {
 
     if (isConnected) {
         console.log('Starting data import...');
-        // Comment out the line below to keep existing data
-        await Question.deleteMany({});
+
+        // uncomment out the line below to drop existing questions
+        // await Question.deleteMany({});
 
         await importQuestions();
         await createIndexesIfNeeded();
