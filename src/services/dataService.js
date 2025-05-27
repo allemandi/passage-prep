@@ -1,4 +1,5 @@
 import themes from '../data/themes.json'; // Replace hardcoded array
+import booksData from '../data/books.json';
 
 // Helper to get the correct API URL based on environment
 const getApiUrl = (endpoint) => {
@@ -14,28 +15,11 @@ const getApiUrl = (endpoint) => {
 
 let searchQuestionsCache = {};
 let allQuestionsCache = null;
-let booksCache = null;
 
-export const getBooks = async () => {
-    try {
-        if (booksCache) {
-            return booksCache;
-        }
-
-        const response = await fetch(getApiUrl('books'));
-
-        if (!response.ok) {
-            console.error(`Failed to fetch books: ${response.status} ${response.statusText}`);
-            throw new Error(`Failed to fetch books: ${response.status} ${response.statusText}`);
-        }
-
-        const books = await response.json();
-        booksCache = books;
-        return books;
-    } catch (error) {
-        console.error("Error fetching books:", error);
-        return [];
-    }
+export const getBooks = () => {
+    // Directly return the imported JSON data
+    // No need for fetching or caching here as it's a local import
+    return booksData;
 };
 
 // Load questions data from MongoDB
@@ -95,7 +79,7 @@ export const saveQuestion = async (theme, question, reference) => {
 export const processForm = async (formData) => {
     try {
         // const questions = await getQuestions(); // Replaced by searchQuestions loop
-        const books = await getBooks();
+        const books = getBooks();
 
         if (!Array.isArray(books)) { // questions array is no longer fetched here
             throw new Error("Failed to load book data");

@@ -5,7 +5,6 @@ const mongoose = require('mongoose');
 require('dotenv').config();
 
 // Import models
-const Book = require('../models/Book');
 const Question = require('../models/Question');
 
 // Connect to MongoDB
@@ -22,39 +21,19 @@ const connectDB = async () => {
     }
 };
 
-// Import Books data
-const importBooks = async () => {
-    try {
-        const filePath = path.join(__dirname, '../data/Books.csv');
-        const fileContent = fs.readFileSync(filePath, 'utf8');
-        const results = Papa.parse(fileContent, {
-            header: true
-        });
-        const books = results.data.filter(item => Object.values(item).some(val => val));
-
-        if (results.errors && results.errors.length > 0) {
-            console.warn(`Book import terminated. Papaparse errors encountered while parsing ${filePath}:`, results.errors);
-            return;
-        }
-
-        console.log(`Found ${books.length} books to import`);
-
-        // await Book.deleteMany({});
-
-        // Import books
-        for (const book of books) {
-            await Book.create({
-                index: parseInt(book.index),
-                book: book.book,
-                author: book.author,
-                context: book.context
-            });
-        }
-
-        console.log(`Successfully imported ${books.length} books to MongoDB`);
-    } catch (error) {
-        console.error('Error importing books:', error);
+// Helper function to parse CSV files
+const parseCSV = async (filePath) => {
+    const fileContent = fs.readFileSync(filePath, 'utf8');
+    const results = Papa.parse(fileContent, {
+        header: true,
+        skipEmptyLines: true
+    });
+    if (results.errors && results.errors.length > 0) {
+        console.warn(`Papaparse errors encountered while parsing ${filePath}:`, results.errors);
+        // Decide if you want to throw an error or return partial data
+        // For now, let's return data and log errors.
     }
+    return results.data.filter(item => Object.values(item).some(val => val)); // Filter out completely empty rows if any
 };
 
 // Import Questions data
@@ -123,7 +102,6 @@ const importAll = async () => {
     if (isConnected) {
         console.log('Starting data import...');
 
-        await importBooks();
         await importQuestions();
         await createIndexesIfNeeded();
 
