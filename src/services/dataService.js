@@ -209,7 +209,7 @@ export const searchQuestions = async (payload) => {
             throw new Error(error || 'Search failed');
         }
         const questions = await response.json();
-        searchQuestionsCache[cacheKey] = questions; // Cache successful result
+        searchQuestionsCache[cacheKey] = questions;
         return questions;
     } catch (error) {
         console.error("Search error:", error);
