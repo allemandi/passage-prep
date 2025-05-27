@@ -1,5 +1,5 @@
 import themes from '../data/themes.json'; // Replace hardcoded array
-import booksData from '../data/books.json';
+import bibleContext from '../data/bibleContext.json';
 
 // Helper to get the correct API URL based on environment
 const getApiUrl = (endpoint) => {
@@ -19,7 +19,7 @@ let allQuestionsCache = null;
 export const getBooks = () => {
     // Directly return the imported JSON data
     // No need for fetching or caching here as it's a local import
-    return booksData;
+    return bibleContext;
 };
 
 // Load questions data from MongoDB
@@ -79,9 +79,8 @@ export const saveQuestion = async (theme, question, reference) => {
 export const processForm = async (formData) => {
     try {
         // const questions = await getQuestions(); // Replaced by searchQuestions loop
-        const books = getBooks();
 
-        if (!Array.isArray(books)) { // questions array is no longer fetched here
+        if (!Array.isArray(bibleContext)) {
             throw new Error("Failed to load book data");
         }
 
@@ -118,9 +117,9 @@ export const processForm = async (formData) => {
         }).filter(Boolean);
 
         // Get context for matching books
-        let contextArr = books
-            .filter(book => scriptureRefs.some(ref => book.book.toLowerCase().includes(ref.book)))
-            .map(book => `${book.book} is about ${book.context} The author is ${book.author}.`);
+        let contextArr = bibleContext
+            .filter(i => scriptureRefs.some(ref => i.book.toLowerCase().includes(ref.book)))
+            .map(i => `${i.book} is about ${i.context} The author is ${i.author}.`);
 
         // Sort contextArr based on the order of books in refArr
         contextArr = contextArr.sort((a, b) => {
