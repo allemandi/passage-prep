@@ -5,7 +5,6 @@ const mongoose = require('mongoose');
 require('dotenv').config();
 
 // Import models
-const Book = require('../models/Book');
 const Question = require('../models/Question');
 
 // Connect to MongoDB
@@ -22,52 +21,23 @@ const connectDB = async () => {
     }
 };
 
-// Import Books data
-const importBooks = async () => {
-    try {
-        const filePath = path.join(__dirname, '../data/Books.csv');
-        const fileContent = fs.readFileSync(filePath, 'utf8');
-        const results = Papa.parse(fileContent, {
-            header: true
-        });
-        const books = results.data.filter(item => Object.values(item).some(val => val));
-
-        if (results.errors && results.errors.length > 0) {
-            console.warn(`Book import terminated. Papaparse errors encountered while parsing ${filePath}:`, results.errors);
-            return;
-        }
-
-        console.log(`Found ${books.length} books to import`);
-
-        // await Book.deleteMany({});
-
-        // Import books
-        for (const book of books) {
-            await Book.create({
-                index: parseInt(book.index),
-                book: book.book,
-                author: book.author,
-                context: book.context
-            });
-        }
-
-        console.log(`Successfully imported ${books.length} books to MongoDB`);
-    } catch (error) {
-        console.error('Error importing books:', error);
-    }
-};
-
 // Import Questions data
 const importQuestions = async () => {
     try {
-        const questions = await parseCSV(path.join(__dirname, '../data/Questions.csv'));
+        const filePath = path.join(__dirname, '../data/allQuestions.csv');
+        const fileContent = fs.readFileSync(filePath, 'utf8');
+        const results = Papa.parse(fileContent, {
+            header: true,
+            skipEmptyLines: true
+        });
+        if (results.errors && results.errors.length > 0) {
+
+            return console.warn(`Failed to parse questions. Papaparse errors encountered while parsing ${filePath}:`, results.errors);
+        };
+        const questions = results.data.filter(item => Object.values(item).some(val => val));
 
         console.log(`Found ${questions.length} questions to import`);
 
-        // Clear existing questions
-        await Question.deleteMany({});
-
-        // Import questions with all specified columns
         for (const question of questions) {
             await Question.create({
                 theme: question.theme,
@@ -79,7 +49,6 @@ const importQuestions = async () => {
                 isApproved: question.isApproved,
             });
         }
-
         console.log(`Successfully imported ${questions.length} questions to MongoDB`);
     } catch (error) {
         console.error('Error importing questions:', error);
@@ -122,8 +91,9 @@ const importAll = async () => {
 
     if (isConnected) {
         console.log('Starting data import...');
+        // Comment out the line below to keep existing data
+        await Question.deleteMany({});
 
-        await importBooks();
         await importQuestions();
         await createIndexesIfNeeded();
 

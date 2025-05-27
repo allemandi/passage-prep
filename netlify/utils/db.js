@@ -1,5 +1,4 @@
 const mongoose = require('mongoose');
-const Book = require('../../models/Book');
 const Question = require('../../models/Question');
 const Admin = require('../../models/Admin');
 const bcrypt = require('bcryptjs');
@@ -17,11 +16,6 @@ async function connectToDatabase() {
     });
     cachedDb = client;
     return client;
-}
-
-// --- Book Logic ---
-async function getAllBooks() {
-    return await Book.find().sort({ index: 1 });
 }
 
 // --- Question Logic ---
@@ -129,7 +123,6 @@ async function loginHandler({ username, password }) {
 
 module.exports = {
     connectToDatabase,
-    getAllBooks,
     getAllQuestions,
     saveQuestion,
     updateQuestion,
