@@ -72,30 +72,24 @@ async function updateQuestion(questionId, updatedData) {
 
 async function searchQuestions({ book, chapter, verseStart, verseEnd, themeArr }) {
     const query = {};
-    if (book) query.book
+    if (book) query.book = new RegExp(book, 'i');
+    if (chapter) query.chapter = parseInt(chapter, 10);
+    if (themeArr && themeArr.length > 0) query.theme = { $in: themeArr };
 
-    if (chapter) {
-        const parsedChapter = parseInt(chapter, 10);
-        if (!isNaN(parsedChapter)) query.chapter = parsedChapter;
-    }
+    const vStart = Number(verseStart);
+    const vEnd = Number(verseEnd);
+    const hasVStart = !isNaN(vStart);
+    const hasVEnd = !isNaN(vEnd);
 
-    if (Array.isArray(themeArr) && themeArr.length > 0) {
-        query.theme = { $in: themeArr };
-    }
-
-    const isRealNumber = (val) => val !== null && !isNaN(Number(val));
-    const hasVStart = isRealNumber(verseStart);
-    const hasVEnd = isRealNumber(verseEnd);
-
-    if (hasVStart && hasVEnd) {
-        query.verseStart = { $lte: Number(verseEnd) };
-        query.verseEnd = { $gte: Number(verseStart) };
+    if (hasVStart && hasVEnd && verseStart !== null && verseEnd !== null) {
+        query.verseStart = { $lte: vEnd };
+        query.verseEnd = { $gte: vStart };
     } else {
-        if (hasVStart) {
-            query.verseStart = Number(verseStart);
+        if (hasVStart && verseStart !== null) {
+            query.verseStart = vStart;
         }
-        if (hasVEnd) {
-            query.verseEnd = Number(verseEnd);
+        if (hasVEnd && verseEnd !== null) {
+            query.verseEnd = vEnd;
         }
     }
     const questions = await Question.find(query);
