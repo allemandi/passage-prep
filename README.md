@@ -32,7 +32,7 @@ Build reusable Bible studies in seconds.
      MONGODB_URI=<your_mongodb_connection_string>
      ```
 3. **Import Data:**
-   - Preload questions and book context:
+   - Preload sample questions:
      ```bash
      yarn import-data
      ```
@@ -87,7 +87,7 @@ Build reusable Bible studies in seconds.
 ## ⚙️ Scripts
 - `yarn dev` — Runs the application locally using `netlify dev`. This starts the Vite frontend development server and emulates Netlify Functions for the backend, providing a full local development environment.
 - `yarn build` — Compiles the frontend application into static assets, outputting them to the `build` directory. This step is necessary for production deployment.
-- `yarn import-data` — Imports initial CSV data (questions and book context) into the MongoDB database.
+- `yarn import-data` — Imports initial samples of questions from a CSV into the MongoDB database.
 - `yarn setup-admin` — Creates or updates the admin user in the database based on credentials in the `.env` file.
 - `yarn lint` - Lints the codebase using ESLint to check for code quality and style issues.
 

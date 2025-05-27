@@ -1,0 +1,332 @@
+[
+  {
+    "book": "Genesis",
+    "context": "answering two big questions: “How did God’s relationship with the world begin?” and “Where did the nation of Israel come from?”",
+    "author": "traditionally said to be Moses"
+  },
+  {
+    "book": "Exodus",
+    "context": "God saving Israel from slavery in Egypt, and then entering into a special relationship with them.",
+    "author": "traditionally said to be Moses"
+  },
+  {
+    "book": "Leviticus",
+    "context": "God giving Israel instructions for how to worship Him.",
+    "author": "traditionally said to be Moses"
+  },
+  {
+    "book": "Numbers",
+    "context": "Israel failing to trust and obey God, therefore wandering in the wilderness for 40 years.",
+    "author": "traditionally said to be Moses"
+  },
+  {
+    "book": "Deuteronomy",
+    "context": "Moses giving Israel instructions, a recap of the laws for how to love and obey God in the Promised Land.",
+    "author": "traditionally said to be Moses"
+  },
+  {
+    "book": "Joshua",
+    "context": "Joshua leading Israel to conquer the Promised Land and dividing the territories to the twelve tribes of Israel.",
+    "author": "unknown"
+  },
+  {
+    "book": "Judges",
+    "context": "Israel entering a cycle of turning from God, falling captive to oppressive nations, calling out to God, and being rescued by leaders God sends their way (called “judges”).",
+    "author": "unknown"
+  },
+  {
+    "book": "Ruth",
+    "context": "two widows losing everything and finding hope in Israel, leading to the birth of King David.",
+    "author": "unknown"
+  },
+  {
+    "book": "1 Samuel",
+    "context": "Israel demanding a king,",
+    "author": "unknown"
+  },
+  {
+    "book": "2 Samuel",
+    "context": "David, a man after God's own heart, becoming king of Israel.",
+    "author": "unknown"
+  },
+  {
+    "book": "1 Kings",
+    "context": "the kingdom of Israel in a time of peace and prosperity under King Solomon, but afterward splitting, and the two lines of kings turning away from God.",
+    "author": "unknown"
+  },
+  {
+    "book": "2 Kings",
+    "context": "both kingdoms ignore God and His prophets, until they both fall captive to other world empires.",
+    "author": "unknown"
+  },
+  {
+    "book": "1 Chronicles",
+    "context": "a brief history of Israel from Adam to David, culminating with David commissioning the temple of God in Jerusalem.",
+    "author": "traditionally said to be Ezra"
+  },
+  {
+    "book": "2 Chronicles",
+    "context": "David’s son Solomon building the temple, but after centuries of rejecting God, the Babylonians take the southern Israelites captive and destroying the temple.",
+    "author": "traditionally said to be Ezra"
+  },
+  {
+    "book": "Ezra",
+    "context": "the Israelites rebuilding the temple in Jerusalem, and a scribe named Ezra teaching the people to once again obey God’s laws.",
+    "author": "Ezra"
+  },
+  {
+    "book": "Nehemiah",
+    "context": "the city of Jerusalem in bad shape, so Nehemiah rebuilds the wall around the city.",
+    "author": "Nehemiah"
+  },
+  {
+    "book": "Esther",
+    "context": "someone hatching a genocidal plot to bring about Israel’s extinction, and Esther facing King Xerxes to ask for help.",
+    "author": "unknown"
+  },
+  {
+    "book": "Job",
+    "context": "Satan attacking a righteous man named Job, and Job and his friends arguing about why terrible things are happening to him.",
+    "author": "unknown"
+  },
+  {
+    "book": "Psalms",
+    "context": "a collection of 150 songs that Israel sang to God (and to each other)",
+    "author": "various authors, but many attributed to David"
+  },
+  {
+    "book": "Proverbs",
+    "context": "a collection of sayings written to help people make wise decisions that bring about justice.",
+    "author": "Solomon and other wise men"
+  },
+  {
+    "book": "Ecclesiastes",
+    "context": "a philosophical exploration of the meaning of life",
+    "author": "traditionally said to be Solomon"
+  },
+  {
+    "book": "Song of Solomon",
+    "context": "a love song (or collection of love songs) celebrating love, desire, and marriage.",
+    "author": "traditionally said to be Solomon"
+  },
+  {
+    "book": "Isaiah",
+    "context": "God sending the prophet Isaiah to warn Israel of future judgment—but also to tell them about a coming king and servant who will “bear the sins of many.”",
+    "author": "Isaiah"
+  },
+  {
+    "book": "Jeremiah",
+    "context": "God sending a prophet to warn Israel about the coming Babylonian captivity, but the people don’t take the news very well.",
+    "author": "Jeremiah"
+  },
+  {
+    "book": "Lamentations",
+    "context": "a collection of dirges lamenting the fall of Jerusalem after the Babylonian attacks.",
+    "author": "traditionally said to be Jeremiah"
+  },
+  {
+    "book": "Ezekiel",
+    "context": "God choosing a man to speak for Him to Israel, to tell them the error of their ways and teach them justice.",
+    "author": "Ezekiel"
+  },
+  {
+    "book": "Daniel",
+    "context": "Daniel becoming a high-ranking wise man in the Babylonian and Persian empires, and has prophetic visions concerning Israel’s future.",
+    "author": "Daniel (with other contributors)"
+  },
+  {
+    "book": "Hosea",
+    "context": "Hosea being told to marry a prostitute who leaves him, and he must bring her back: a picture of God’s relationship with Israel.",
+    "author": "Hosea"
+  },
+  {
+    "book": "Joel",
+    "context": "God sending a plague of locusts to judge Israel, but His judgment on the surrounding nations is coming, too.",
+    "author": "Joel"
+  },
+  {
+    "book": "Amos",
+    "context": "a shepherd named Amos preaching against the injustice of the Northern Kingdom of Israel.",
+    "author": "Amos"
+  },
+  {
+    "book": "Obadiah",
+    "context": "Obadiah warning the neighboring nation of Edom that they will be judged for plundering Jerusalem.",
+    "author": "Obadiah"
+  },
+  {
+    "book": "Jonah",
+    "context": "a disobedient prophet runnning from God, being swallowed by a great fish, and then preaching God’s message to the city of Nineveh.",
+    "author": "traditionally said to be Jonah"
+  },
+  {
+    "book": "Micah",
+    "context": "Micah confronting the leaders of Israel and Judah regarding their injustice, and prophesies that one day the Lord Himself will rule in perfect justice.",
+    "author": "Micah"
+  },
+  {
+    "book": "Nahum",
+    "context": "Nahum foretelling of God’s judgment on Nineveh, the capital of Assyria.",
+    "author": "Nahum"
+  },
+  {
+    "book": "Habakkuk",
+    "context": "Habakkuk pleading with God to stop the injustice and violence in Judah, and finding that God will use the even more violent Babylonians to do so.",
+    "author": "Habakkuk"
+  },
+  {
+    "book": "Zephaniah",
+    "context": "God warning that He will judge Israel and the surrounding nations, but also that He will restore them in peace and justice.",
+    "author": "Zephaniah"
+  },
+  {
+    "book": "Haggai",
+    "context": "the people having abandoned the work of restoring God’s temple in Jerusalem, and so Haggai takes them to task.",
+    "author": "Haggai"
+  },
+  {
+    "book": "Zechariah",
+    "context": "the prophet Zechariah calling upon Israel to return to God, and recording prophetic visions that show what’s happening behind the scenes.",
+    "author": "Zechariah"
+  },
+  {
+    "book": "Malachi",
+    "context": "God being faithful to Israel, but they continued to live disconnected from Him—so God sends Malachi to call them out.",
+    "author": "Malachi"
+  },
+  {
+    "book": "Matthew",
+    "context": "an account of Jesus’ life, death, and resurrection, focusing on Jesus’ role as the true king of the Jews.",
+    "author": "Matthew"
+  },
+  {
+    "book": "Mark",
+    "context": "an account of Jesus’ earthly ministry highlights Jesus’ authority and servanthood.",
+    "author": "John Mark"
+  },
+  {
+    "book": "Luke",
+    "context": "a most thorough account of Jesus’ life, pulling together eyewitness testimonies to tell the full story of Jesus as the Son of Man.",
+    "author": "Luke"
+  },
+  {
+    "book": "John",
+    "context": "an account of signs and miracles with the hope that readers will believe Jesus is Christ and truly the Son of God.",
+    "author": "John"
+  },
+  {
+    "book": "Acts",
+    "context": "Jesus returning to the Father, the Holy Spirit coming to the church, and the gospel of Jesus spreading throughout the world.",
+    "author": "Luke"
+  },
+  {
+    "book": "Romans",
+    "context": "Paul summarizing how the Gospel of Jesus works in a letter to the churches at Rome, where he plans to visit.",
+    "author": "Paul"
+  },
+  {
+    "book": "1 Corinthians",
+    "context": "Paul writing a disciplinary letter to a fractured church in Corinth, and answers some questions that they’ve had about how Christians should behave.",
+    "author": "Paul"
+  },
+  {
+    "book": "2 Corinthians",
+    "context": "Paul writing a letter of reconciliation to the church at Corinth, and clears up some concerns that they have.",
+    "author": "Paul"
+  },
+  {
+    "book": "Galatians",
+    "context": "Paul hearing that the Galatian churches have been lead to think that salvation comes from the law of Moses, and writes a (rather heated) letter telling them where the false teachers have it wrong.",
+    "author": "Paul"
+  },
+  {
+    "book": "Ephesians",
+    "context": "Paul writing to the church at Ephesus about how to walk in grace, peace, and love.",
+    "author": "Paul"
+  },
+  {
+    "book": "Philippians",
+    "context": "an encouraging letter to the church of Philippi from Paul, telling them how to have joy in Christ.",
+    "author": "Paul"
+  },
+  {
+    "book": "Colossians",
+    "context": "Paul writing the church at Colossae a letter about who they are in Christ, and how to walk in Christ.",
+    "author": "Paul"
+  },
+  {
+    "book": "1 Thessalonians",
+    "context": "Paul having heard a good report on the church at Thessalonica, and encourages them to “excel still more” in faith, hope, and love.",
+    "author": "Paul"
+  },
+  {
+    "book": "2 Thessalonians",
+    "context": "Paul instructing the Thessalonians on how to stand firm until the coming of Jesus.",
+    "author": "Paul"
+  },
+  {
+    "book": "1 Timothy",
+    "context": "Paul giving his protegé Timothy instruction on how to lead a church with sound teaching and a godly example.",
+    "author": "Paul"
+  },
+  {
+    "book": "2 Timothy",
+    "context": "Paul nearing the end of his life, and encouraging Timothy to continue preaching the word.",
+    "author": "Paul"
+  },
+  {
+    "book": "Titus",
+    "context": "Paul advising Titus on how to lead orderly, counter-cultural churches on the island of Crete.",
+    "author": "Paul"
+  },
+  {
+    "book": "Philemon",
+    "context": "Paul strongly recommending that Philemon accept his runaway slave as a brother, not a slave.",
+    "author": "Paul"
+  },
+  {
+    "book": "Hebrews",
+    "context": "a letter encouraging Christians to cling to Christ despite persecution, because He is greater.",
+    "author": "unknown"
+  },
+  {
+    "book": "James",
+    "context": "a letter telling Christians to live in ways that demonstrate their faith in action.",
+    "author": "James (likely the brother of Jesus)"
+  },
+  {
+    "book": "1 Peter",
+    "context": "Peter writing to Christians who are being persecuted, encouraging them to testify to the truth and live accordingly.",
+    "author": "Peter"
+  },
+  {
+    "book": "2 Peter",
+    "context": "Peter writing a letter reminding Christians about the truth of Jesus, and warning them that false teachers will come.",
+    "author": "Peter"
+  },
+  {
+    "book": "1 John",
+    "context": "John writing a letter to Christians about keeping Jesus’ commands, loving one another, and important things they should know.",
+    "author": "John"
+  },
+  {
+    "book": "2 John",
+    "context": "a letter about walking in truth, love, and obedience.",
+    "author": "John"
+  },
+  {
+    "book": "3 John",
+    "context": "a letter about Christian fellowship.",
+    "author": "John"
+  },
+  {
+    "book": "Jude",
+    "context": "a letter encouraging Christians to contend for the faith, even though ungodly persons have crept in unnoticed.",
+    "author": "Jude"
+  },
+  {
+    "book": "Revelation",
+    "context": "John seeing visions of things that have been, things that are, and things that are yet to come.",
+    "author": "John"
+  }
+]

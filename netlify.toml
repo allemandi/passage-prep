@@ -9,7 +9,7 @@
   targetPort = 5173
 
 [functions]
-  included_files = ["src/data/bible-counts.json", "src/data/themes.json"]
+  included_files = ["src/data/bible-counts.json", "src/data/themes.json", "src/data/bibleContext.json"]
 
 # Redirect all API calls to Netlify Functions
 [[redirects]]

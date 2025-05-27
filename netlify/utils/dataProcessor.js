@@ -1,65 +1,6 @@
 const fs = require('fs');
 const path = require('path');
 
-// Function to parse CSV text safely
-function parseCSV(csvText) {
-  // Split by lines and filter out empty lines
-  const lines = csvText.split('\n').filter(line => line.trim());
-  const result = [];
-
-  // Get headers from first line
-  if (lines.length === 0) {
-    return result; // Return empty if no lines/headers
-  }
-  const headers = lines[0].split(',').map(header => header.trim());
-  
-  // Process data rows
-  for (let i = 1; i < lines.length; i++) {
-    const line = lines[i];
-    const values = [];
-    let currentValue = '';
-    let insideQuotes = false;
-    
-    // Parse CSV line character by character to handle quotes
-    for (let j = 0; j < line.length; j++) {
-      const char = line[j];
-      
-      if (char === '"' && (j === 0 || line[j-1] !== '\\')) {
-        // Toggle inside quotes state (if not escaped)
-        insideQuotes = !insideQuotes;
-      } else if (char === ',' && !insideQuotes) {
-        // End of field
-        values.push(currentValue.trim());
-        currentValue = '';
-      } else {
-        // Add character to current value
-        currentValue += char;
-      }
-    }
-    
-    // Add the last value
-    values.push(currentValue.trim());
-    
-    // Create object from headers and values
-    const obj = {};
-    headers.forEach((header, index) => {
-      // Handle quoted values
-      let value = values[index] || '';
-      if (value.startsWith('"') && value.endsWith('"')) {
-        value = value.slice(1, -1);
-      }
-      // Replace escaped quotes with actual quotes
-      value = value.replace(/\\"/g, '"');
-      
-      obj[header] = value;
-    });
-    
-    result.push(obj);
-  }
-  
-  return result;
-}
-
 async function processBulkUpload(questions, saveQuestionFn) {
   const results = {
     totalQuestions: questions.length,
@@ -163,6 +104,5 @@ async function processBulkUpload(questions, saveQuestionFn) {
 }
 
 module.exports = {
-  parseCSV,
   processBulkUpload,
 };

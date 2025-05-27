@@ -412,7 +412,7 @@ const AdminForm = () => {
                 chapter: downloadRef.selectedChapter || null,
                 verseStart: downloadRef.verseStart || null,
                 verseEnd: downloadRef.verseEnd || null,
-                themeArr: [], // Assuming all themes for download, or add theme filter if needed
+                themeArr: [],
             });
 
             if (results.length === 0) {
