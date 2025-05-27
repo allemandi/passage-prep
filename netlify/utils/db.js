@@ -35,7 +35,6 @@ async function saveQuestion(newData) {
   }
   
   try {
-    // Create the question with validation
     const question = new Question({
       theme: newData.theme,
       question: newData.question,
@@ -45,15 +44,10 @@ async function saveQuestion(newData) {
       verseEnd: newData.verseEnd,
       isApproved: newData.isApproved === true || false
     });
-    
-    // Run MongoDB validation
     await question.validate();
-    
-    // Save after validation passes
     await question.save();
     return { success: true };
   } catch (error) {
-    // Handle validation errors from Mongoose
     return { 
       success: false,
       error: error.message || 'Failed to save question'
@@ -83,37 +77,22 @@ async function searchQuestions({ book, chapter, verseStart, verseEnd, themeArr }
   if (chapter) query.chapter = parseInt(chapter, 10);
   if (themeArr && themeArr.length > 0) query.theme = { $in: themeArr };
 
-  // --- Start of block to ensure is used ---
   const vStart = Number(verseStart);
   const vEnd = Number(verseEnd);
   const hasVStart = !isNaN(vStart);
   const hasVEnd = !isNaN(vEnd);
 
   if (hasVStart && hasVEnd && verseStart !== null && verseEnd !== null) {
-    // Both start and end are provided and are not null
     query.verseStart = { $lte: vEnd };
     query.verseEnd = { $gte: vStart };
   } else {
-    // Handle cases where one or both might be null or not provided
-    // This aims to replicate the previous behavior more closely.
     if (hasVStart && verseStart !== null) {
       query.verseStart = vStart;
     }
     if (hasVEnd && verseEnd !== null) {
       query.verseEnd = vEnd;
-      // If start was null, and end is provided, this implies the user might want questions ending at this verse.
-      // To avoid overly broad queries if only verseEnd is set (e.g. verseEnd: 10, without a verseStart constraint),
-      // we might need to also set a $lte for verseStart if it's null, or handle ranges differently.
-      // However, for a strict revert to "what worked", the simple assignment is key.
-      // If verseStart was null, hasVStart would be true (Number(null)=0), but verseStart !== null is false.
-      // So this logic means:
-      // 1. Both provided and not null: range query.
-      // 2. Only Start provided and not null: query.verseStart = vStart (e.g. verseStart: 5)
-      // 3. Only End provided and not null: query.verseEnd = vEnd (e.g. verseEnd: 10)
-      // 4. Both null: no verse query here (vStart/vEnd are 0, but verseStart/verseEnd are null)
-      // 5. One is a number, other is null: only the one that's a number and not null is added.
+    }
   }
-  // --- End of block to ensure is used ---
 
   const questions = await Question.find(query);
   return questions;
@@ -142,7 +121,6 @@ async function deleteQuestions(questionIds) {
   return { success: true };
 }
 
-// --- Login Logic ---
 async function loginHandler({ username, password }) {
   const admin = await Admin.findOne({ username });
   if (!admin) return { success: false, error: 'Invalid credentials' };
