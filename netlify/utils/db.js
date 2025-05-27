@@ -94,6 +94,7 @@ async function searchQuestions({ book, chapter, verseStart, verseEnd, themeArr }
     }
   }
 
+  console.log("MongoDB query:", JSON.stringify(query));
   const questions = await Question.find(query);
   return questions;
 }

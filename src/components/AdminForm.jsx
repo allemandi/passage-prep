@@ -41,8 +41,8 @@ const AdminForm = () => {
         id: 1,
         selectedBook: '',
         selectedChapter: '',
-        startVerse: '',
-        endVerse: '',
+        verseStart: '',
+        verseEnd: '',
         availableChapters: [],
         availableVerses: [],
     }]);
@@ -62,8 +62,8 @@ const AdminForm = () => {
     const [downloadRef, setDownloadRef] = useState({
         selectedBook: '',
         selectedChapter: '',
-        startVerse: '',
-        endVerse: '',
+        verseStart: '',
+        verseEnd: '',
         availableChapters: [],
         availableVerses: [],
     });
@@ -216,13 +216,13 @@ const AdminForm = () => {
             const newRefs = [...prev];
             const currentRef = newRefs[index];
             // Handle verse validation before any other updates
-            if (updates.startVerse !== undefined) {
-                const newStart = updates.startVerse;
-                const currentEnd = updates.endVerse !== undefined ? updates.endVerse : currentRef.endVerse;
+            if (updates.verseStart !== undefined) {
+                const newStart = updates.verseStart;
+                const currentEnd = updates.verseEnd !== undefined ? updates.verseEnd : currentRef.verseEnd;
                 if (currentEnd === undefined || currentEnd === '' || isNaN(Number(currentEnd))) {
-                    updates.endVerse = newStart;
+                    updates.verseEnd = newStart;
                 } else if (parseInt(currentEnd) < parseInt(newStart)) {
-                    updates.endVerse = newStart;
+                    updates.verseEnd = newStart;
                 }
             }
             // Update book and reset dependent fields
@@ -232,8 +232,8 @@ const AdminForm = () => {
                     ...currentRef,
                     ...updates,
                     selectedChapter: '',
-                    startVerse: '',
-                    endVerse: '',
+                    verseStart: '',
+                    verseEnd: '',
                     availableChapters: chapters,
                     availableVerses: [],
                 };
@@ -247,12 +247,12 @@ const AdminForm = () => {
                 newRefs[index] = {
                     ...currentRef,
                     ...updates,
-                    startVerse: '',
-                    endVerse: '',
+                    verseStart: '',
+                    verseEnd: '',
                     availableVerses: verses,
                 };
             }
-            // Other updates (e.g., startVerse, endVerse)
+            // Other updates (e.g., verseStart, verseEnd)
             else {
                 newRefs[index] = { ...currentRef, ...updates };
             }
@@ -295,17 +295,17 @@ const AdminForm = () => {
                 if (ref.selectedChapter) {
                     filtered = filtered.filter(q => String(q.chapter) === String(ref.selectedChapter));
                 }
-                if (ref.startVerse && ref.endVerse && !isNaN(Number(ref.startVerse)) && !isNaN(Number(ref.endVerse))) {
+                if (ref.verseStart && ref.verseEnd && !isNaN(Number(ref.verseStart)) && !isNaN(Number(ref.verseEnd))) {
                     filtered = filtered.filter(q =>
-                        parseInt(q.verseStart) <= Number(ref.endVerse) &&
-                        parseInt(q.verseEnd || q.verseStart) >= Number(ref.startVerse)
+                        parseInt(q.verseStart) <= Number(ref.verseEnd) &&
+                        parseInt(q.verseEnd || q.verseStart) >= Number(ref.verseStart)
                     );
                 } else {
-                    if (ref.startVerse && !isNaN(Number(ref.startVerse))) {
-                        filtered = filtered.filter(q => parseInt(q.verseStart) >= Number(ref.startVerse));
+                    if (ref.verseStart && !isNaN(Number(ref.verseStart))) {
+                        filtered = filtered.filter(q => parseInt(q.verseStart) >= Number(ref.verseStart));
                     }
-                    if (ref.endVerse && !isNaN(Number(ref.endVerse))) {
-                        filtered = filtered.filter(q => parseInt(q.verseEnd || q.verseStart) <= Number(ref.endVerse));
+                    if (ref.verseEnd && !isNaN(Number(ref.verseEnd))) {
+                        filtered = filtered.filter(q => parseInt(q.verseEnd || q.verseStart) <= Number(ref.verseEnd));
                     }
                 }
                 if (selectedThemes.length !== themes.length) {
@@ -315,16 +315,11 @@ const AdminForm = () => {
                 return;
             }
             // Edit/Delete: use API
-            let startVerseNum = ref.startVerse && !isNaN(Number(ref.startVerse)) ? Number(ref.startVerse) : undefined;
-            let endVerseNum = ref.endVerse && !isNaN(Number(ref.endVerse)) ? Number(ref.endVerse) : undefined;
-            if (startVerseNum !== undefined && (endVerseNum === undefined || endVerseNum === null)) {
-                endVerseNum = startVerseNum;
-            }
             const filter = {};
             if (ref.selectedBook) filter.book = ref.selectedBook;
-            if (ref.selectedChapter) filter.chapter = ref.selectedChapter;
-            if (startVerseNum !== undefined) filter.startVerse = startVerseNum;
-            if (endVerseNum !== undefined) filter.endVerse = endVerseNum;
+            filter.chapter = ref.selectedChapter || null;
+            filter.verseStart = ref.verseStart || null;
+            filter.verseEnd = ref.verseEnd || null;
             if (selectedThemes.length !== themes.length) filter.themeArr = selectedThemes;
 
             // Add isApproved based on hideUnapproved state
@@ -391,8 +386,8 @@ const AdminForm = () => {
             if (updates.selectedBook !== undefined) {
                 newRef.availableChapters = getChaptersForBook(updates.selectedBook);
                 newRef.selectedChapter = '';
-                newRef.startVerse = '';
-                newRef.endVerse = '';
+                newRef.verseStart = '';
+                newRef.verseEnd = '';
                 newRef.availableVerses = [];
             }
 
@@ -402,8 +397,8 @@ const AdminForm = () => {
                     { length: getVersesForChapter(prev.selectedBook, updates.selectedChapter) },
                     (_, i) => (i + 1).toString()
                 );
-                newRef.startVerse = '';
-                newRef.endVerse = '';
+                newRef.verseStart = '';
+                newRef.verseEnd = '';
             }
 
             return newRef;
@@ -413,11 +408,11 @@ const AdminForm = () => {
     const downloadFilteredCSV = async () => {
         try {
             const results = await searchQuestions({
-                book: downloadRef.selectedBook || '',
-                chapter: downloadRef.selectedChapter || '',
-                startVerse: downloadRef.startVerse || '',
-                endVerse: downloadRef.endVerse || '',
-                themeArr: [],
+                book: downloadRef.selectedBook || null,
+                chapter: downloadRef.selectedChapter || null,
+                verseStart: downloadRef.verseStart || null,
+                verseEnd: downloadRef.verseEnd || null,
+                themeArr: [], // Assuming all themes for download, or add theme filter if needed
             });
 
             if (results.length === 0) {
@@ -701,8 +696,8 @@ const AdminForm = () => {
                                         <Box sx={{ width: { xs: '100%', sm: 260 } }}>
                                             <ScriptureCombobox
                                                 label="Start Verse"
-                                                value={scriptureRefs[0].startVerse}
-                                                onChange={(verse) => updateScriptureRef(0, { startVerse: verse })}
+                                                value={scriptureRefs[0].verseStart}
+                                                onChange={(verse) => updateScriptureRef(0, { verseStart: verse })}
                                                 options={scriptureRefs[0].availableVerses}
                                                 disabled={!scriptureRefs[0].selectedChapter}
                                                 placeholder={scriptureRefs[0].selectedChapter ? "Select start verse" : "Select chapter first"}
@@ -713,13 +708,13 @@ const AdminForm = () => {
                                         <Box sx={{ width: { xs: '100%', sm: 260 } }}>
                                             <ScriptureCombobox
                                                 label="End Verse"
-                                                value={scriptureRefs[0].endVerse}
-                                                onChange={(verse) => updateScriptureRef(0, { endVerse: verse })}
+                                                value={scriptureRefs[0].verseEnd}
+                                                onChange={(verse) => updateScriptureRef(0, { verseEnd: verse })}
                                                 options={scriptureRefs[0].availableVerses}
                                                 disabled={!scriptureRefs[0].selectedChapter}
                                                 placeholder={scriptureRefs[0].selectedChapter ? "Select end verse" : "Select chapter first"}
                                                 isEndVerse
-                                                startVerseValue={scriptureRefs[0].startVerse}
+                                                startVerseValue={scriptureRefs[0].verseStart}
                                             />
                                         </Box>
                                     </Grid>
@@ -822,8 +817,8 @@ const AdminForm = () => {
                                         <Box sx={{ width: { xs: '100%', sm: 260 } }}>
                                             <ScriptureCombobox
                                                 label="Start Verse"
-                                                value={scriptureRefs[0].startVerse}
-                                                onChange={(verse) => updateScriptureRef(0, { startVerse: verse })}
+                                                value={scriptureRefs[0].verseStart}
+                                                onChange={(verse) => updateScriptureRef(0, { verseStart: verse })}
                                                 options={scriptureRefs[0].availableVerses}
                                                 disabled={!scriptureRefs[0].selectedChapter}
                                                 placeholder={scriptureRefs[0].selectedChapter ? "Select start verse" : "Select chapter first"}
@@ -834,13 +829,13 @@ const AdminForm = () => {
                                         <Box sx={{ width: { xs: '100%', sm: 260 } }}>
                                             <ScriptureCombobox
                                                 label="End Verse"
-                                                value={scriptureRefs[0].endVerse}
-                                                onChange={(verse) => updateScriptureRef(0, { endVerse: verse })}
+                                                value={scriptureRefs[0].verseEnd}
+                                                onChange={(verse) => updateScriptureRef(0, { verseEnd: verse })}
                                                 options={scriptureRefs[0].availableVerses}
                                                 disabled={!scriptureRefs[0].selectedChapter}
                                                 placeholder={scriptureRefs[0].selectedChapter ? "Select end verse" : "Select chapter first"}
                                                 isEndVerse
-                                                startVerseValue={scriptureRefs[0].startVerse}
+                                                startVerseValue={scriptureRefs[0].verseStart}
                                             />
                                         </Box>
                                     </Grid>
@@ -943,8 +938,8 @@ const AdminForm = () => {
                                         <Box sx={{ width: { xs: '100%', sm: 260 } }}>
                                             <ScriptureCombobox
                                                 label="Start Verse"
-                                                value={downloadRef.startVerse}
-                                                onChange={(verse) => updateDownloadRef({ startVerse: verse })}
+                                                value={downloadRef.verseStart}
+                                                onChange={(verse) => updateDownloadRef({ verseStart: verse })}
                                                 options={downloadRef.availableVerses}
                                                 disabled={!downloadRef.selectedChapter}
                                                 placeholder={downloadRef.selectedChapter ? "Select start verse" : "Select chapter first"}
@@ -955,13 +950,13 @@ const AdminForm = () => {
                                         <Box sx={{ width: { xs: '100%', sm: 260 } }}>
                                             <ScriptureCombobox
                                                 label="End Verse"
-                                                value={downloadRef.endVerse}
-                                                onChange={(verse) => updateDownloadRef({ endVerse: verse })}
+                                                value={downloadRef.verseEnd}
+                                                onChange={(verse) => updateDownloadRef({ verseEnd: verse })}
                                                 options={downloadRef.availableVerses}
                                                 disabled={!downloadRef.selectedChapter}
                                                 placeholder={downloadRef.selectedChapter ? "Select end verse" : "Select chapter first"}
                                                 isEndVerse
-                                                startVerseValue={downloadRef.startVerse}
+                                                startVerseValue={downloadRef.verseStart}
                                             />
                                         </Box>
                                     </Grid>

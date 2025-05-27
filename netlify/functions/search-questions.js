@@ -14,6 +14,10 @@ exports.handler = async function(event, context) {
 
     await connectToDatabase();
     const params = JSON.parse(event.body);
+    console.log("Netlify search-questions.js - Parsed params object:", params);
+    console.log("Netlify search-questions.js - params.verseStart:", params.verseStart);
+    console.log("Netlify search-questions.js - params.verseEnd:", params.verseEnd);
+
     const questions = await searchQuestions(params);
     
     return {
