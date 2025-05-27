@@ -71,8 +71,6 @@ async function updateQuestion(questionId, updatedData) {
 }
 
 async function searchQuestions({ book, chapter, verseStart, verseEnd, themeArr }) {
-  console.log("Netlify db.js - searchQuestions params:", { book, chapter, verseStart, verseEnd, themeArr });
-  const query = {};
   if (book) query.book = new RegExp(book, 'i');
   if (chapter) query.chapter = parseInt(chapter, 10);
   if (themeArr && themeArr.length > 0) query.theme = { $in: themeArr };
@@ -93,8 +91,6 @@ async function searchQuestions({ book, chapter, verseStart, verseEnd, themeArr }
       query.verseEnd = vEnd;
     }
   }
-
-  console.log("MongoDB query:", JSON.stringify(query));
   const questions = await Question.find(query);
   return questions;
 }

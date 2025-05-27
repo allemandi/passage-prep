@@ -193,7 +193,6 @@ export const processForm = async (formData) => {
 export const searchQuestions = async (payload) => {
     const cacheKey = JSON.stringify(payload);
     if (searchQuestionsCache[cacheKey]) {
-        console.log('Returning cached search results for:', payload);
         return searchQuestionsCache[cacheKey];
     }
 
@@ -239,7 +238,6 @@ export const deleteQuestions = async (questionIds) => {
 
 export const fetchAllQuestions = async () => {
       if (allQuestionsCache) {
-    console.log('Returning cached all questions');
     return allQuestionsCache;
   }
     try {

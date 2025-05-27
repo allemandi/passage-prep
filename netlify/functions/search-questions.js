@@ -1,7 +1,6 @@
 const { connectToDatabase, searchQuestions } = require('../utils/db');
 
 exports.handler = async function(event, context) {
-  console.log("Netlify search-questions.js - Received event.body:", event.body);
   context.callbackWaitsForEmptyEventLoop = false;
   
   try {
@@ -14,10 +13,6 @@ exports.handler = async function(event, context) {
 
     await connectToDatabase();
     const params = JSON.parse(event.body);
-    console.log("Netlify search-questions.js - Parsed params object:", params);
-    console.log("Netlify search-questions.js - params.verseStart:", params.verseStart);
-    console.log("Netlify search-questions.js - params.verseEnd:", params.verseEnd);
-
     const questions = await searchQuestions(params);
     
     return {

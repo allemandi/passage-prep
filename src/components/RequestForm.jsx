@@ -230,15 +230,6 @@ const RequestForm = ({ onStudyGenerated, isLoading }) => {
                 return;
             }
 
-            // Added console.log statements for debugging
-            scriptureRefs.filter(ref => ref.selectedBook).forEach(ref => {
-                console.log("RequestForm - Processing ref:", ref);
-                console.log("RequestForm - Selected Book:", ref.selectedBook);
-                console.log("RequestForm - Selected Chapter:", ref.selectedChapter);
-                console.log("RequestForm - Verse Start:", ref.verseStart);
-                console.log("RequestForm - Verse End:", ref.verseEnd);
-            });
-
             const searchPromises = scriptureRefs
                 .filter(ref => ref.selectedBook)
                 .map(ref => {
@@ -249,8 +240,6 @@ const RequestForm = ({ onStudyGenerated, isLoading }) => {
                         verseEnd: ref.verseEnd || null,
                         themeArr: selectedThemes.length === themes.length ? [] : selectedThemes
                     };
-                    // Added console.log for searchData
-                    console.log("RequestForm - searchData to be sent:", searchData);
                     return searchQuestions(searchData);
                 });
 
