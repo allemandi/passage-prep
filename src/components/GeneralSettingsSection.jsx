@@ -6,6 +6,7 @@ import {
   Paper,
   useTheme
 } from '@mui/material';
+import React from 'react';
 
 const GeneralSettingsSection = ({ maxLimit, setMaxLimit }) => {
   const theme = useTheme();
