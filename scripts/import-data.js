@@ -21,32 +21,23 @@ const connectDB = async () => {
     }
 };
 
-// Helper function to parse CSV files
-const parseCSV = async (filePath) => {
-    const fileContent = fs.readFileSync(filePath, 'utf8');
-    const results = Papa.parse(fileContent, {
-        header: true,
-        skipEmptyLines: true
-    });
-    if (results.errors && results.errors.length > 0) {
-        console.warn(`Papaparse errors encountered while parsing ${filePath}:`, results.errors);
-        // Decide if you want to throw an error or return partial data
-        // For now, let's return data and log errors.
-    }
-    return results.data.filter(item => Object.values(item).some(val => val)); // Filter out completely empty rows if any
-};
-
 // Import Questions data
 const importQuestions = async () => {
     try {
-        const questions = await parseCSV(path.join(__dirname, '../data/Questions.csv'));
+        const filePath = path.join(__dirname, '../data/allQuestions.csv');
+        const fileContent = fs.readFileSync(filePath, 'utf8');
+        const results = Papa.parse(fileContent, {
+            header: true,
+            skipEmptyLines: true
+        });
+        if (results.errors && results.errors.length > 0) {
+
+            return console.warn(`Failed to parse questions. Papaparse errors encountered while parsing ${filePath}:`, results.errors);
+        };
+        const questions = results.data.filter(item => Object.values(item).some(val => val));
 
         console.log(`Found ${questions.length} questions to import`);
 
-        // Clear existing questions
-        await Question.deleteMany({});
-
-        // Import questions with all specified columns
         for (const question of questions) {
             await Question.create({
                 theme: question.theme,
@@ -58,7 +49,6 @@ const importQuestions = async () => {
                 isApproved: question.isApproved,
             });
         }
-
         console.log(`Successfully imported ${questions.length} questions to MongoDB`);
     } catch (error) {
         console.error('Error importing questions:', error);
@@ -101,6 +91,8 @@ const importAll = async () => {
 
     if (isConnected) {
         console.log('Starting data import...');
+        // Comment out the line below to keep existing data
+        await Question.deleteMany({});
 
         await importQuestions();
         await createIndexesIfNeeded();
