@@ -1,6 +1,9 @@
 const { connectToDatabase, searchQuestions } = require('../utils/db');
 
 exports.handler = async function(event, context) {
+  // Log the received event body
+  console.log("Netlify search-questions.js - Received event.body:", event.body);
+
   // Make the database connection reusable to avoid cold starts
   context.callbackWaitsForEmptyEventLoop = false;
   

@@ -76,25 +76,44 @@ async function updateQuestion(questionId, updatedData) {
   return { success: true, updatedQuestion };
 }
 
-async function searchQuestions({ book, chapter, verseStart, verseEnd, theme }) {
+async function searchQuestions({ book, chapter, verseStart, verseEnd, themeArr }) {
+  console.log("Netlify db.js - searchQuestions params:", { book, chapter, verseStart, verseEnd, themeArr });
   const query = {};
   if (book) query.book = new RegExp(book, 'i');
   if (chapter) query.chapter = parseInt(chapter, 10);
-  if (theme && theme.length > 0) query.theme = { $in: theme };
+  if (themeArr && themeArr.length > 0) query.theme = { $in: themeArr };
 
-  // Coerce to numbers, or undefined if not a valid number
+  // --- Start of block to ensure is used ---
   const vStart = Number(verseStart);
   const vEnd = Number(verseEnd);
   const hasVStart = !isNaN(vStart);
   const hasVEnd = !isNaN(vEnd);
 
-  if (hasVStart && hasVEnd) {
+  if (hasVStart && hasVEnd && verseStart !== null && verseEnd !== null) {
+    // Both start and end are provided and are not null
     query.verseStart = { $lte: vEnd };
     query.verseEnd = { $gte: vStart };
   } else {
-    if (hasVStart) query.verseStart = vStart;
-    if (hasVEnd) query.verseEnd = vEnd;
+    // Handle cases where one or both might be null or not provided
+    // This aims to replicate the previous behavior more closely.
+    if (hasVStart && verseStart !== null) {
+      query.verseStart = vStart;
+    }
+    if (hasVEnd && verseEnd !== null) {
+      query.verseEnd = vEnd;
+      // If start was null, and end is provided, this implies the user might want questions ending at this verse.
+      // To avoid overly broad queries if only verseEnd is set (e.g. verseEnd: 10, without a verseStart constraint),
+      // we might need to also set a $lte for verseStart if it's null, or handle ranges differently.
+      // However, for a strict revert to "what worked", the simple assignment is key.
+      // If verseStart was null, hasVStart would be true (Number(null)=0), but verseStart !== null is false.
+      // So this logic means:
+      // 1. Both provided and not null: range query.
+      // 2. Only Start provided and not null: query.verseStart = vStart (e.g. verseStart: 5)
+      // 3. Only End provided and not null: query.verseEnd = vEnd (e.g. verseEnd: 10)
+      // 4. Both null: no verse query here (vStart/vEnd are 0, but verseStart/verseEnd are null)
+      // 5. One is a number, other is null: only the one that's a number and not null is added.
   }
+  // --- End of block to ensure is used ---
 
   const questions = await Question.find(query);
   return questions;
