@@ -11,6 +11,7 @@ import {
   InputLabel,
   OutlinedInput
 } from '@mui/material';
+import React from 'react';
 
 const ThemesSection = ({ selectedThemes, setSelectedThemes, themes }) => {
   const theme = useTheme();

@@ -30,8 +30,8 @@ const RequestForm = ({ onStudyGenerated, isLoading }) => {
             scripture: '',
             selectedBook: '',
             selectedChapter: '',
-            startVerse: '',
-            endVerse: '',
+            verseStart: '',
+            verseEnd: '',
             availableChapters: [],
             totalChapters: 0,
             availableVerses: []
@@ -41,8 +41,8 @@ const RequestForm = ({ onStudyGenerated, isLoading }) => {
             scripture: '',
             selectedBook: '',
             selectedChapter: '',
-            startVerse: '',
-            endVerse: '',
+            verseStart: '',
+            verseEnd: '',
             availableChapters: [],
             totalChapters: 0,
             availableVerses: []
@@ -73,8 +73,8 @@ const RequestForm = ({ onStudyGenerated, isLoading }) => {
             scripture: '',
             selectedBook: '',
             selectedChapter: '',
-            startVerse: '',
-            endVerse: '',
+            verseStart: '',
+            verseEnd: '',
             availableChapters: [],
             totalChapters: 0,
             availableVerses: []
@@ -85,55 +85,56 @@ const RequestForm = ({ onStudyGenerated, isLoading }) => {
         setScriptureRefs(prev => {
             const newRefs = [...prev];
             const currentRef = newRefs[index];
+            let processedUpdates = { ...updates };
 
             // Handle verse validation before any other updates
-            if (updates.startVerse !== undefined) {
-                const newStart = updates.startVerse;
-                const currentEnd = updates.endVerse !== undefined ? updates.endVerse : currentRef.endVerse;
+            if (processedUpdates.verseStart !== undefined) {
+                const newStart = processedUpdates.verseStart;
+                const currentEnd = processedUpdates.verseEnd !== undefined ? processedUpdates.verseEnd : currentRef.verseEnd;
                 if (currentEnd === undefined || currentEnd === '' || isNaN(Number(currentEnd))) {
-                    updates.endVerse = newStart;
+                    processedUpdates.verseEnd = newStart;
                 } else if (parseInt(currentEnd) < parseInt(newStart)) {
-                    updates.endVerse = newStart;
+                    processedUpdates.verseEnd = newStart;
                 }
             }
 
-            if (updates.selectedBook !== undefined && updates.selectedBook !== currentRef.selectedBook) {
-                const chapters = getChaptersForBook(updates.selectedBook);
-                const chapterCount = getChapterCountForBook(updates.selectedBook);
+            if (processedUpdates.selectedBook !== undefined && processedUpdates.selectedBook !== currentRef.selectedBook) {
+                const chapters = getChaptersForBook(processedUpdates.selectedBook);
+                const chapterCount = getChapterCountForBook(processedUpdates.selectedBook);
                 newRefs[index] = {
                     ...currentRef,
-                    ...updates,
+                    ...processedUpdates,
                     selectedChapter: '',
-                    startVerse: '',
-                    endVerse: '',
+                    verseStart: '',
+                    verseEnd: '',
                     availableChapters: chapters,
                     totalChapters: chapterCount,
                     availableVerses: [],
-                    scripture: formatReference(updates.selectedBook, '')
+                    scripture: formatReference(processedUpdates.selectedBook, '')
                 };
             }
-            else if (updates.selectedChapter !== undefined) {
-                const verseCount = getVersesForChapter(currentRef.selectedBook, updates.selectedChapter);
+            else if (processedUpdates.selectedChapter !== undefined) {
+                const verseCount = getVersesForChapter(currentRef.selectedBook, processedUpdates.selectedChapter);
                 const verses = Array.from({ length: verseCount }, (_, i) => (i + 1).toString());
                 newRefs[index] = {
                     ...currentRef,
-                    selectedChapter: updates.selectedChapter,
-                    startVerse: '',
-                    endVerse: '',
+                    ...processedUpdates, // Ensure this spread is present
+                    verseStart: '',      // Explicitly reset
+                    verseEnd: '',        // Explicitly reset
                     availableVerses: verses,
-                    scripture: formatReference(currentRef.selectedBook, updates.selectedChapter)
+                    // scripture field will be updated by the final step
                 };
             } else {
-                newRefs[index] = { ...currentRef, ...updates };
+                newRefs[index] = { ...currentRef, ...processedUpdates };
             }
-            if (updates.startVerse !== undefined || updates.endVerse !== undefined) {
-                newRefs[index].scripture = formatReference(
-                    newRefs[index].selectedBook,
-                    newRefs[index].selectedChapter,
-                    updates.startVerse ?? currentRef.startVerse,
-                    updates.endVerse ?? currentRef.endVerse
-                );
-            }
+
+            // Unconditionally set the scripture string based on the final values in newRefs[index]
+            newRefs[index].scripture = formatReference(
+                newRefs[index].selectedBook,
+                newRefs[index].selectedChapter,
+                newRefs[index].verseStart,
+                newRefs[index].verseEnd
+            );
 
             return newRefs;
         });
@@ -228,14 +229,15 @@ const RequestForm = ({ onStudyGenerated, isLoading }) => {
                 setErrorMessage('Please select a book in at least one reference');
                 return;
             }
+
             const searchPromises = scriptureRefs
                 .filter(ref => ref.selectedBook)
                 .map(ref => {
                     const searchData = {
                         book: ref.selectedBook,
                         chapter: ref.selectedChapter || null,
-                        startVerse: ref.startVerse || null,
-                        endVerse: ref.endVerse || null,
+                        verseStart: ref.verseStart || null,
+                        verseEnd: ref.verseEnd || null,
                         themeArr: selectedThemes.length === themes.length ? [] : selectedThemes
                     };
                     return searchQuestions(searchData);
@@ -373,8 +375,8 @@ const RequestForm = ({ onStudyGenerated, isLoading }) => {
                                         <ScriptureCombobox
                                             id={`verseStartSelect-${index}`}
                                             label="Start Verse"
-                                            value={ref.startVerse}
-                                            onChange={(verse) => updateScriptureRef(index, { startVerse: verse })}
+                                            value={ref.verseStart}
+                                            onChange={(verse) => updateScriptureRef(index, { verseStart: verse })}
                                             options={ref.availableVerses}
                                             placeholder={ref.selectedChapter ? "Select start verse" : "Select a chapter first"}
                                             disabled={!ref.selectedChapter}
@@ -385,11 +387,11 @@ const RequestForm = ({ onStudyGenerated, isLoading }) => {
                                         <ScriptureCombobox
                                             id={`verseEndSelect-${index}`}
                                             label="End Verse"
-                                            value={ref.endVerse}
-                                            onChange={(verse) => updateScriptureRef(index, { endVerse: verse })}
+                                            value={ref.verseEnd}
+                                            onChange={(verse) => updateScriptureRef(index, { verseEnd: verse })}
                                             options={ref.availableVerses}
                                             isEndVerse
-                                            startVerseValue={ref.startVerse}
+                                            startVerseValue={ref.verseStart}
                                             disabled={!ref.selectedChapter}
                                             sx={{ minWidth: 0, width: '100%' }}
                                         />
