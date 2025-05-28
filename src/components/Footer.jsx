@@ -1,59 +1,33 @@
-import { Box, Typography, IconButton, Tooltip, Link, useTheme } from '@mui/material';
 import React from 'react';
 import GitHubIcon from '@mui/icons-material/GitHub';
 import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
 
 export default function Footer({ onHelpClick }) {
-    const theme = useTheme();
-
     return (
-        <Box
-            component="footer"
-            sx={{
-                position: 'fixed',
-                bottom: 0,
-                left: 0,
-                width: '100%',
-                py: 0.5,
-                px: 2,
-                bgcolor: 'background.paper',
-                borderTop: '1px solid',
-                borderColor: 'divider',
-                display: 'flex',
-                justifyContent: 'center',
-                alignItems: 'center',
-                gap: 3,
-                zIndex: theme.zIndex.appBar,
-            }}
+        <footer
+            className="fixed bottom-0 left-0 w-full py-1 px-4 bg-white dark:bg-gray-800 border-t border-gray-300 dark:border-gray-700 flex justify-center items-center gap-6 z-50"
         >
-            <Typography variant="body2" color="text.secondary">
+            <p className="text-sm text-neutral-500 dark:text-gray-400">
                 © {new Date().getFullYear()} allemandi
-            </Typography>
+            </p>
 
-            <Tooltip title="View GitHub Repo">
-                <IconButton
-                    component={Link}
-                    href="https://github.com/allemandi/passage-prep"
-                    target="_blank"
-                    rel="noopener"
-                    color="inherit"
-                    aria-label="GitHub"
-                    size="small"
-                >
-                    <GitHubIcon fontSize="small" />
-                </IconButton>
-            </Tooltip>
+            <a
+                href="https://github.com/allemandi/passage-prep"
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="View GitHub Repo"
+                className="text-neutral-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-neutral-700 p-1 rounded-full"
+            >
+                <GitHubIcon fontSize="small" />
+            </a>
 
-            <Tooltip title="Help & Instructions">
-                <IconButton
-                    onClick={onHelpClick}
-                    color="inherit"
-                    aria-label="Help"
-                    size="small"
-                >
-                    <HelpOutlineIcon fontSize="small" />
-                </IconButton>
-            </Tooltip>
-        </Box>
+            <button
+                onClick={onHelpClick}
+                aria-label="Help & Instructions"
+                className="text-neutral-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-neutral-700 p-1 rounded-full"
+            >
+                <HelpOutlineIcon fontSize="small" />
+            </button>
+        </footer>
     );
 }
