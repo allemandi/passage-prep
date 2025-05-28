@@ -1,21 +1,18 @@
 import React, { useState } from 'react';
+
+import { X, Check, ChevronDown } from 'lucide-react';
 import {
-    Box,
-    Typography,
-    Alert,
-    Snackbar,
-    useTheme,
-    Button,
-    Container,
-    Paper,
-    Grid,
-    TextField,
-    MenuItem,
-    Checkbox,
-    ListItemText
-} from '@mui/material';
-import { processForm, searchQuestions } from '../services/dataService';
-import { getBibleBooks, getChaptersForBook, getChapterCountForBook, formatReference, getVersesForChapter } from '../utils/bibleData';
+    processForm,
+    searchQuestions,
+} from '../services/dataService';
+
+import {
+    getBibleBooks,
+    getChaptersForBook,
+    getChapterCountForBook,
+    formatReference,
+    getVersesForChapter,
+} from '../utils/bibleData';
 import QuestionTable from './QuestionTable';
 import { rateLimiter, getUserIdentifier } from '../utils/rateLimit';
 import { processInput } from '../utils/inputUtils';
@@ -23,7 +20,6 @@ import themes from '../data/themes.json';
 import ScriptureCombobox from './ScriptureCombobox';
 
 const RequestForm = ({ onStudyGenerated, isLoading }) => {
-    const theme = useTheme();
     const [scriptureRefs, setScriptureRefs] = useState([
         {
             id: 1,
@@ -284,202 +280,172 @@ const RequestForm = ({ onStudyGenerated, isLoading }) => {
     };
 
     return (
-        <Container maxWidth="xl" sx={{ pt: 3, pb: 4 }}>
-            <Paper
-                elevation={1}
-                sx={{
-                    p: 3,
-                    bgcolor: 'background.paper',
-                    borderRadius: 2,
-                    border: `1px solid ${theme.palette.divider}`,
-                    maxWidth: 1200,
-                    mx: 'auto'
-                }}
-            >
+        <div className="max-w-[1200px] mx-auto px-6 pt-12 pb-16">
+            <div className="bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-700 rounded-xl p-6">
+                {/* Bible References Section */}
+             <section className="mb-12">
+  <h2 className="text-xl font-semibold text-primary-600 dark:text-primary-400 border-b-2 border-primary-600 dark:border-primary-400 pb-1 mb-8">
+    Bible References
+  </h2>
 
-                <Box sx={{ mb: 4 }}>
-                    <Typography
-                        variant="h6"
-                        gutterBottom
-                        sx={{
-                            fontWeight: 500,
-                            color: 'primary.main',
-                            pb: 1,
-                            borderBottom: `2px solid ${theme.palette.primary.main}`,
-                            mb: 2.5
-                        }}
-                    >
-                        Bible References
-                    </Typography>
-                    <Grid container spacing={3} justifyContent="center">
-                        {scriptureRefs.map((ref, index) => (
-                            <Grid item xs={12} md={5} key={ref.id} sx={{ width: { xs: '100%', md: 260 } }}>
-                                <Box sx={{
-                                    position: 'relative',
-                                    display: 'flex',
-                                    flexDirection: 'column',
-                                    gap: 2,
-                                    alignItems: 'center',
-                                    p: { xs: 2, sm: 0 },
-                                    mb: { xs: 3, md: 0 },
-                                    borderBottom: { xs: `1px solid ${theme.palette.divider}`, md: 'none' },
-                                    '&:last-child': {
-                                        borderBottom: 'none'
-                                    }
-                                }}>
-                                    <Typography
-                                        variant="subtitle2"
-                                        sx={{
-                                            color: 'text.secondary',
-                                            mb: 1,
-                                            display: { xs: 'block', md: 'none' }
-                                        }}
-                                    >
-                                        Reference {index + 1}
-                                    </Typography>
-                                    {index > 0 && (
-                                        <Button
-                                            size="small"
-                                            color="error"
-                                            onClick={() => setScriptureRefs(prev => prev.filter((_, i) => i !== index))}
-                                            sx={{ position: 'absolute', top: 0, right: 0, minWidth: 0, p: 0.5, zIndex: 1 }}
-                                        >
-                                            ✕
-                                        </Button>
-                                    )}
-                                    <Box sx={{ width: { xs: '100%', md: 260 }, mb: 1 }}>
-                                        <ScriptureCombobox
-                                            id={`bookSelect-${index}`}
-                                            label="Book"
-                                            value={ref.selectedBook}
-                                            onChange={(book) => updateScriptureRef(index, { selectedBook: book })}
-                                            options={bibleBooks}
-                                            placeholder="Select a book..."
-                                            isRequired={index === 0}
-                                            sx={{ minWidth: 0, width: '100%' }}
-                                        />
-                                    </Box>
-                                    <Box sx={{ width: { xs: '100%', md: 260 }, mb: 1 }}>
-                                        <ScriptureCombobox
-                                            id={`chapterSelect-${index}`}
-                                            label="Chapter"
-                                            value={ref.selectedChapter}
-                                            onChange={(chapter) => updateScriptureRef(index, { selectedChapter: chapter })}
-                                            options={ref.availableChapters}
-                                            placeholder={ref.selectedBook ? `Select chapter (1-${ref.totalChapters})` : "Select a book first"}
-                                            disabled={!ref.selectedBook}
-                                            sx={{ minWidth: 0, width: '100%' }}
-                                        />
-                                    </Box>
-                                    <Box sx={{ width: { xs: '100%', md: 260 }, mb: 1 }}>
-                                        <ScriptureCombobox
-                                            id={`verseStartSelect-${index}`}
-                                            label="Start Verse"
-                                            value={ref.verseStart}
-                                            onChange={(verse) => updateScriptureRef(index, { verseStart: verse })}
-                                            options={ref.availableVerses}
-                                            placeholder={ref.selectedChapter ? "Select start verse" : "Select a chapter first"}
-                                            disabled={!ref.selectedChapter}
-                                            sx={{ minWidth: 0, width: '100%' }}
-                                        />
-                                    </Box>
-                                    <Box sx={{ width: { xs: '100%', md: 260 }, mb: 1 }}>
-                                        <ScriptureCombobox
-                                            id={`verseEndSelect-${index}`}
-                                            label="End Verse"
-                                            value={ref.verseEnd}
-                                            onChange={(verse) => updateScriptureRef(index, { verseEnd: verse })}
-                                            options={ref.availableVerses}
-                                            isEndVerse
-                                            startVerseValue={ref.verseStart}
-                                            disabled={!ref.selectedChapter}
-                                            sx={{ minWidth: 0, width: '100%' }}
-                                        />
-                                    </Box>
-                                </Box>
-                            </Grid>
-                        ))}
-                    </Grid>
-                    <Box sx={{ display: 'flex', justifyContent: 'center', mt: 2 }}>
-                        <Button
-                            variant="outlined"
-                            onClick={addScriptureReference}
-                            sx={{ width: { xs: '100%', sm: 260 } }}
-                        >
-                            + Add Another Reference
-                        </Button>
-                    </Box>
-                </Box>
+  <div className="flex flex-wrap gap-y-12 gap-x-12 justify-start">
+    {scriptureRefs.map((ref, index) => (
+      <div
+        key={ref.id}
+        className="relative w-full md:w-[260px] flex flex-col gap-4"
+      >
+        {/* Mobile label */}
+        <p className="text-sm text-gray-500 dark:text-gray-400 block md:hidden">
+          Reference {index + 1}
+        </p>
 
-                <Grid container spacing={3} alignItems="flex-end" justifyContent="center" sx={{ mb: 4 }}>
-                    <Grid item xs={12} sm={6} md={3} sx={{ maxWidth: 260, flexBasis: 260, flexGrow: 0, flexShrink: 0, width: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'flex-end', p: 0 }}>
-                        <Typography
-                            variant="h6"
-                            gutterBottom
-                            sx={{
-                                fontWeight: 500,
-                                color: 'primary.main',
-                                pb: 1,
-                                borderBottom: `2px solid ${theme.palette.primary.main}`,
-                                mb: 2.5
-                            }}
-                        >
-                            Themes
-                        </Typography>
-                        <TextField
-                            select
-                            SelectProps={{
-                                multiple: true,
-                                value: selectedThemes,
-                                onChange: (e) => setSelectedThemes(e.target.value),
-                                renderValue: (selected) => allThemesSelected ? "All" : selected.join(', ')
-                            }}
-                            variant="outlined"
-                            size="medium"
-                            sx={{ minWidth: 0, width: '100%' }}
-                        >
-                            {themes.map((theme) => (
-                                <MenuItem key={theme} value={theme}>
-                                    <Checkbox checked={selectedThemes.includes(theme)} />
-                                    <ListItemText primary={theme} />
-                                </MenuItem>
-                            ))}
-                        </TextField>
-                    </Grid>
-                    <Grid item xs={12} sm={6} md={3} sx={{ maxWidth: 260, flexBasis: 260, flexGrow: 0, flexShrink: 0, width: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'flex-end', p: 0 }}>
-                        <Button
-                            variant="contained"
-                            color="primary"
+        {/* Remove button */}
+        {index > 0 && (
+          <button
+            aria-label={`Remove reference ${index + 1}`}
+            onClick={() =>
+              setScriptureRefs((prev) => prev.filter((_, i) => i !== index))
+            }
+            className="absolute -top-4 -right-4 p-1.5 rounded-full bg-red-500 hover:bg-red-600 text-white shadow focus:outline-none focus:ring-2 focus:ring-red-400"
+          >
+            <X size={16} />
+          </button>
+        )}
+
+        <ScriptureCombobox
+          id={`bookSelect-${index}`}
+          label="Book"
+          value={ref.selectedBook}
+          onChange={(book) => updateScriptureRef(index, { selectedBook: book })}
+          options={bibleBooks}
+          placeholder="Select a book..."
+          isRequired={index === 0}
+          className="w-full"
+        />
+
+        <ScriptureCombobox
+          id={`chapterSelect-${index}`}
+          label="Chapter"
+          value={ref.selectedChapter}
+          onChange={(chapter) => updateScriptureRef(index, { selectedChapter: chapter })}
+          options={ref.availableChapters}
+          placeholder={
+            ref.selectedBook ? `Select chapter (1-${ref.totalChapters})` : 'Select a book first'
+          }
+          disabled={!ref.selectedBook}
+          className="w-full"
+        />
+
+        <ScriptureCombobox
+          id={`verseStartSelect-${index}`}
+          label="Start Verse"
+          value={ref.verseStart}
+          onChange={(verse) => updateScriptureRef(index, { verseStart: verse })}
+          options={ref.availableVerses}
+          placeholder={
+            ref.selectedChapter ? 'Select start verse' : 'Select a chapter first'
+          }
+          disabled={!ref.selectedChapter}
+          className="w-full"
+        />
+
+        <ScriptureCombobox
+          id={`verseEndSelect-${index}`}
+          label="End Verse"
+          value={ref.verseEnd}
+          onChange={(verse) => updateScriptureRef(index, { verseEnd: verse })}
+          options={ref.availableVerses}
+          isEndVerse
+          startVerseValue={ref.verseStart}
+          disabled={!ref.selectedChapter}
+          className="w-full"
+        />
+      </div>
+    ))}
+  </div>
+
+  {/* Add Another Reference Button */}
+  <div className="flex justify-start mt-8">
+    <button
+      onClick={addScriptureReference}
+      className="flex items-center gap-2 px-4 py-2 border border-primary-600 text-primary-600 rounded hover:bg-primary-50 dark:hover:bg-primary-900 transition font-semibold"
+    >
+      + Add Another Reference
+    </button>
+  </div>
+</section>
+<section>
+<div className="max-w-[260px] w-full flex flex-col justify-end">
+  <h3 className="text-xl font-semibold text-primary-600 dark:text-primary-400 border-b-2 border-primary-600 dark:border-primary-400 pb-1 mb-6">
+    Themes
+  </h3>
+
+  {/* Multi-select field */}
+  <div className="relative">
+    <select
+      multiple
+      value={selectedThemes}
+      onChange={(e) =>
+        setSelectedThemes(
+          Array.from(e.target.selectedOptions, (option) => option.value)
+        )
+      }
+      className="w-full rounded-md border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 p-2 h-[160px] focus:outline-none focus:ring-2 focus:ring-primary-600 dark:focus:ring-primary-400"
+    >
+      {themes.map((theme) => (
+        <option
+          key={theme}
+          value={theme}
+          className="relative py-1 pl-2 pr-8 flex items-center"
+        >
+          {theme}
+        </option>
+      ))}
+    </select>
+  </div>
+
+  {/* Render selected summary */}
+  <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
+    {selectedThemes.length === themes.length
+      ? 'All'
+      : selectedThemes.join(', ')}
+  </p>
+</div>
+                    {/* Search Button */}
+                    <div className="max-w-[260px] w-full flex flex-col justify-end">
+                        <button
                             onClick={handleSearch}
                             disabled={isLoading || isSubmitting}
-                            sx={{ minWidth: 120, px: 2, py: 1, fontWeight: 500, mb: 1 }}
+                            className="w-full min-w-[120px] py-2 px-4 font-semibold text-white bg-primary-600 rounded hover:bg-primary-700 disabled:opacity-50 disabled:cursor-not-allowed transition"
                         >
                             Search
-                        </Button>
-                    </Grid>
-                    <Grid item xs={12} sm={6} md={3} sx={{ maxWidth: 260, flexBasis: 260, flexGrow: 0, flexShrink: 0, width: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'flex-end', p: 0 }}>
-                        <Button
-                            variant={hideUnapproved ? 'contained' : 'outlined'}
-                            color="secondary"
-                            size="small"
-                            sx={{ mb: 1, fontWeight: 500, minWidth: 120, width: '100%' }}
-                            onClick={() => setHideUnapproved(v => !v)}
+                        </button>
+                    </div>
+
+                    {/* Toggle & Generate Buttons */}
+                    <div className="max-w-[260px] w-full flex flex-col justify-end space-y-2">
+                        <button
+                            onClick={() => setHideUnapproved((v) => !v)}
+                            className={`w-full min-w-[120px] py-2 font-semibold rounded ${hideUnapproved
+                                    ? 'bg-secondary-600 text-white hover:bg-secondary-700'
+                                    : 'border border-secondary-600 text-secondary-600 hover:bg-secondary-100 dark:hover:bg-secondary-800'
+                                } transition`}
                         >
                             {hideUnapproved ? 'Show Unapproved' : 'Hide Unapproved'}
-                        </Button>
-                        <Button
-                            variant="outlined"
-                            color="primary"
+                        </button>
+                        <button
                             onClick={handleSubmit}
                             disabled={isLoading || isSubmitting}
-                            sx={{ minWidth: 120, px: 2, py: 1, fontWeight: 500, width: '100%' }}
+                            className="w-full min-w-[120px] py-2 px-4 font-semibold border border-primary-600 text-primary-600 rounded hover:bg-primary-50 dark:hover:bg-primary-900 disabled:opacity-50 disabled:cursor-not-allowed transition"
                         >
                             Generate Study
-                        </Button>
-                    </Grid>
-                </Grid>
+                        </button>
+                    </div>
+                </section>
+
+                {/* Search Results */}
                 {showSearchResults && (
-                    <Box sx={{ mt: 4 }}>
+                    <section className="mt-10">
                         <QuestionTable
                             questions={searchResults}
                             selectedQuestions={selectedQuestions}
@@ -488,77 +454,69 @@ const RequestForm = ({ onStudyGenerated, isLoading }) => {
                             hideUnapproved={hideUnapproved}
                             hideEditActions={true}
                         />
-                    </Box>
+                    </section>
                 )}
-            </Paper>
+            </div>
 
-
-
-            <Snackbar
-                open={showSearchSuccess}
-                autoHideDuration={6000}
-                onClose={() => closeAlert('searchSuccess')}
-                anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
-            >
-                <Alert
+            {/* Snackbars/Alerts */}
+            {/* Common Alert container fixed bottom center with fade in/out */}
+            {showSearchSuccess && (
+                <AlertBanner
+                    severity="success"
+                    message="Questions found! Select the ones you'd like to include in your study."
                     onClose={() => closeAlert('searchSuccess')}
+                />
+            )}
+            {showSuccess && (
+                <AlertBanner
                     severity="success"
-                    variant="filled"
-                    sx={{ borderRadius: 2 }}
-                >
-                    {`Questions found! Select the ones you'd like to include in your study.`}
-                </Alert>
-            </Snackbar>
-
-            <Snackbar
-                open={showSuccess}
-                autoHideDuration={6000}
-                onClose={() => closeAlert('success')}
-                anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
-            >
-                <Alert
+                    message="Success! Your Bible study has been generated."
                     onClose={() => closeAlert('success')}
-                    severity="success"
-                    variant="filled"
-                    sx={{ borderRadius: 2 }}
-                >
-                    Success! Your Bible study has been generated.
-                </Alert>
-            </Snackbar>
-
-            <Snackbar
-                open={showError}
-                autoHideDuration={6000}
-                onClose={() => closeAlert('error')}
-                anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
-            >
-                <Alert
-                    onClose={() => closeAlert('error')}
+                />
+            )}
+            {showError && (
+                <AlertBanner
                     severity="error"
-                    variant="filled"
-                    sx={{ borderRadius: 2 }}
-                >
-                    {errorMessage}
-                </Alert>
-            </Snackbar>
-
-            <Snackbar
-                open={noQuestionsFound}
-                autoHideDuration={6000}
-                onClose={() => closeAlert('noQuestions')}
-                anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
-            >
-                <Alert
-                    onClose={() => closeAlert('noQuestions')}
+                    message={errorMessage}
+                    onClose={() => closeAlert('error')}
+                />
+            )}
+            {noQuestionsFound && (
+                <AlertBanner
                     severity="warning"
-                    variant="filled"
-                    sx={{ borderRadius: 2 }}
+                    message="No questions found that match your criteria. Try different themes or contribute more questions."
+                    onClose={() => closeAlert('noQuestions')}
+                />
+            )}
+        </div>
+    );
+};
+
+// AlertBanner component for snackbars (you can move it to separate file if preferred)
+const AlertBanner = ({ severity, message, onClose }) => {
+    const severityColors = {
+        success: 'bg-green-600 text-white',
+        error: 'bg-red-600 text-white',
+        warning: 'bg-yellow-500 text-black',
+    };
+    return (
+        <div
+            role="alert"
+            className={`fixed bottom-6 left-1/2 transform -translate-x-1/2 rounded-xl px-6 py-3 shadow-lg z-50 ${severityColors[severity]}`}
+        >
+            <div className="flex items-center space-x-3">
+                <span>{message}</span>
+                <button
+                    aria-label="Close alert"
+                    onClick={onClose}
+                    className="focus:outline-none focus:ring-2 focus:ring-white rounded"
                 >
-                    No questions found that match your criteria. Try different themes or contribute more questions.
-                </Alert>
-            </Snackbar>
-        </Container>
+                    <X size={20} />
+                </button>
+            </div>
+        </div>
     );
 };
 
 export default RequestForm;
+
