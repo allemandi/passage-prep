@@ -1,18 +1,4 @@
 import React, { useState, useCallback } from 'react';
-import {
-    TextField,
-    Button,
-    MenuItem,
-    Box,
-    Typography,
-    Grid,
-    CircularProgress,
-    Alert,
-    Paper,
-    Snackbar,
-    useTheme,
-    Container
-} from '@mui/material';
 import ScriptureCombobox from './ScriptureCombobox';
 import { getBibleBooks, getChaptersForBook, getChapterCountForBook, getVersesForChapter } from '../utils/bibleData';
 import {
@@ -24,9 +10,9 @@ import { rateLimiter, getUserIdentifier } from '../utils/rateLimit';
 import { processInput } from '../utils/inputUtils';
 import { saveQuestion } from '../services/dataService';
 import themes from '../data/themes.json';
+import { CheckCircle, XCircle } from 'lucide-react';
 
 const ContributeForm = () => {
-    const theme = useTheme();
     const [questionText, setQuestionText] = useState('');
     const [selectedTheme, setSelectedTheme] = useState('');
     const [reference, setReference] = useState({
@@ -54,7 +40,6 @@ const ContributeForm = () => {
         ...englishRecommendedTransformers,
     });
 
-
     const bibleBooks = getBibleBooks();
 
     const updateReference = useCallback((book, chapter, verseStart, verseEnd) => {
@@ -65,7 +50,6 @@ const ContributeForm = () => {
             verseEnd: verseEnd || verseStart || '',
         });
     }, []);
-
 
     React.useEffect(() => {
         if (selectedBook) {
@@ -110,7 +94,6 @@ const ContributeForm = () => {
         }
     }, [selectedChapter, selectedBook, updateReference, startVerse, endVerse]);
 
-
     React.useEffect(() => {
         if (startVerse && endVerse && parseInt(endVerse) < parseInt(startVerse)) {
             setEndVerse(startVerse);
@@ -129,12 +112,10 @@ const ContributeForm = () => {
             return showErrorWithMessage('Too many requests. Please slow down.');
         }
 
-        // Required fields check
         if (!reference.book || !reference.chapter || !reference.verseStart) {
             return showErrorWithMessage('Please complete all required fields.');
         }
 
-        // Input processing
         const [
             { error: bookError },
             { error: chapterError },
@@ -151,11 +132,9 @@ const ContributeForm = () => {
             processInput(selectedTheme, 'theme')
         ]);
 
-        // Input errors
         const error = bookError || chapterError || verseStartError || verseEndError || questionError || themeError;
         if (error) return showErrorWithMessage(error);
 
-        // Additional validation
         if (matcher.hasMatch(sanitizedQuestionText)) {
             return showErrorWithMessage('Possible profanity detected. Please revise your question.');
         }
@@ -190,8 +169,6 @@ const ContributeForm = () => {
         }
     };
 
-    // === Utility Functions ===
-
     const showErrorWithMessage = (message) => {
         setShowError(true);
         setErrorMessage(message);
@@ -212,250 +189,226 @@ const ContributeForm = () => {
         });
     };
 
-    const closeAlert = (alertType) => {
-        if (alertType === 'success') setShowSuccess(false);
-        if (alertType === 'error') setShowError(false);
+    const closeAlert = (type) => {
+        if (type === 'success') setShowSuccess(false);
+        if (type === 'error') setShowError(false);
     };
 
     const handleEndVerseChange = (verse) => {
         setEndVerse(verse);
         updateReference(selectedBook, selectedChapter, startVerse, verse);
     };
+
+    React.useEffect(() => {
+  if (showSuccess) {
+    const timer = setTimeout(() => {
+      setShowSuccess(false);
+    }, 4000);
+    return () => clearTimeout(timer);
+  }
+}, [showSuccess]);
+
+React.useEffect(() => {
+  if (showError) {
+    const timer = setTimeout(() => {
+      setShowError(false);
+    }, 4000);
+    return () => clearTimeout(timer);
+  }
+}, [showError]);
+
+
     return (
-        <Container maxWidth="xl" sx={{ pt: 3, pb: 4 }}>
-            <Paper
-                component="form"
+        <div className="max-w-6xl mx-auto p-6">
+            <form
                 onSubmit={handleSubmit}
-                elevation={1}
-                sx={{
-                    p: 3,
-                    bgcolor: 'background.paper',
-                    borderRadius: 2,
-                    border: `1px solid ${theme.palette.divider}`,
-                    maxWidth: 1200,
-                    mx: 'auto'
-                }}
+                className="bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-lg p-8 shadow-md max-w-5xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-10"
+                noValidate
             >
-                <Grid container spacing={3} justifyContent="center">
-                    <Grid item xs={12} md={5} sx={{ width: { xs: '100%', md: 260 } }}>
-                        <Box sx={{
-                            display: 'flex',
-                            flexDirection: 'column',
-                            gap: 2,
-                            alignItems: 'center',
-                            p: { xs: 2, sm: 0 },
-                            mb: { xs: 3, md: 0 }
-                        }}>
-                            <Typography
-                                variant="subtitle1"
-                                gutterBottom
-                                sx={{
-                                    fontWeight: 500,
-                                    color: 'primary.main',
-                                    pb: 1,
-                                    borderBottom: `2px solid ${theme.palette.primary.main}`,
-                                    mb: 2.5,
-                                    width: '100%',
-                                    textAlign: 'center'
-                                }}
-                            >
-                                Bible Reference
-                            </Typography>
-                            <Box sx={{ width: { xs: '100%', md: 260 } }}>
-                                <ScriptureCombobox
-                                    id="bookSelect"
-                                    label="Book"
-                                    value={selectedBook}
-                                    onChange={(book) => {
-                                        setSelectedBook(book);
-                                        updateReference(book, '', '', '');
-                                    }}
-                                    options={bibleBooks}
-                                    placeholder="Select a book..."
-                                    isRequired
-                                    sx={{ minWidth: 0, width: '100%' }}
-                                />
-                            </Box>
-                            <Box sx={{ width: { xs: '100%', md: 260 }, mb: 1 }}>
-                                <ScriptureCombobox
-                                    id="chapterSelect"
-                                    label="Chapter"
-                                    value={selectedChapter}
-                                    onChange={(chapter) => {
-                                        setSelectedChapter(chapter);
-                                        updateReference(selectedBook, chapter, '', '');
-                                    }}
-                                    options={availableChapters}
-                                    placeholder={selectedBook ? `Select chapter (1-${totalChapters})` : "Select a book first"}
-                                    disabled={!selectedBook}
-                                    isRequired
-                                    sx={{ minWidth: 0, width: '100%' }}
-                                />
-                            </Box>
-                            <Box sx={{ width: { xs: '100%', md: 260 }, mb: 1 }}>
-                                <ScriptureCombobox
-                                    id="verseStartSelect"
-                                    label="Start Verse"
-                                    value={startVerse}
-                                    onChange={(verse) => {
-                                        setStartVerse(verse);
-                                        updateReference(selectedBook, selectedChapter, verse, endVerse);
-                                    }}
-                                    options={availableVerses}
-                                    placeholder={selectedChapter ? "Select start verse" : "Select a chapter first"}
-                                    disabled={!selectedChapter}
-                                    isRequired
-                                    sx={{ minWidth: 0, width: '100%' }}
-                                />
-                            </Box>
-                            <Box sx={{ width: { xs: '100%', md: 260 } }}>
-                                <ScriptureCombobox
-                                    id="verseEndSelect"
-                                    label="End Verse"
-                                    value={endVerse}
-                                    onChange={handleEndVerseChange}
-                                    options={availableVerses}
-                                    isEndVerse
-                                    startVerseValue={startVerse}
-                                    disabled={!selectedChapter}
-                                    sx={{ minWidth: 0, width: '100%' }}
-                                />
-                            </Box>
-                        </Box>
-                    </Grid>
-                    <Grid item xs={12} md={5}>
-                        <Box sx={{
-                            display: 'flex',
-                            flexDirection: 'column',
-                            height: '100%',
-                            justifyContent: 'flex-end',
-                            alignItems: 'center',
-                            gap: 1
-                        }}>
-                            <Box sx={{ width: { xs: '100%', md: 260 } }}>
-                                <Typography
-                                    variant="subtitle1"
-                                    gutterBottom
-                                    sx={{
-                                        fontWeight: 500,
-                                        color: 'primary.main',
-                                        pb: 1,
-                                        borderBottom: `2px solid ${theme.palette.primary.main}`,
-                                        mb: 2.5,
-                                        textAlign: 'center'
-                                    }}
-                                >
-                                    Theme
-                                </Typography>
-                                <TextField
-                                    select
-                                    fullWidth
-                                    id="themeSelect"
-                                    label="Theme"
-                                    value={selectedTheme}
-                                    onChange={(e) => setSelectedTheme(e.target.value)}
-                                    required
-                                    variant="outlined"
-                                    size="medium"
-                                    sx={{ width: { xs: '100%', md: 260 } }}
-                                >
-                                    <MenuItem value="">
-                                        <em>Select a theme</em>
-                                    </MenuItem>
-                                    {themes.map((theme, index) => (
-                                        <MenuItem key={index} value={theme}>{theme}</MenuItem>
-                                    ))}
-                                </TextField>
-                            </Box>
-                            <Box sx={{
-                                flex: 1,
-                                width: { xs: '100%', md: 260 },
-                                display: 'flex',
-                                flexDirection: 'column',
-                                justifyContent: 'flex-end'
-                            }}>
-                                <Typography
-                                    variant="subtitle1"
-                                    gutterBottom
-                                    sx={{
-                                        fontWeight: 500,
-                                        color: 'primary.main',
-                                        pb: 1,
-                                        borderBottom: `2px solid ${theme.palette.primary.main}`,
-                                        mb: 2.5,
-                                        textAlign: 'center'
-                                    }}
-                                >
-                                    Question Details
-                                </Typography>
-                                <TextField
-                                    fullWidth
-                                    id="questionText"
-                                    label="Question"
-                                    multiline
-                                    rows={3}
-                                    value={questionText}
-                                    onChange={(e) => setQuestionText(e.target.value)}
-                                    required
-                                    placeholder="Type your Bible study question here..."
-                                    variant="outlined"
-                                    sx={{ minWidth: 0, width: '100%' }}
-                                />
-                            </Box>
-                        </Box>
-                    </Grid>
-                </Grid>
-                <Box sx={{ mt: 4, display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, gap: 2, justifyContent: 'center', alignItems: 'center' }}>
-                    <Button
-                        variant="contained"
-                        color="primary"
+                {/* Left Column: Bible Reference */}
+                <div className="flex flex-col items-center gap-6">
+                    <h2 className="text-xl font-semibold text-blue-600 border-b-2 border-blue-600 w-full text-center pb-2 mb-6">
+                        Bible Reference
+                    </h2>
+
+                    <div className="w-full max-w-xs">
+                        <ScriptureCombobox
+                            id="bookSelect"
+                            label="Book"
+                            value={selectedBook}
+                            onChange={(book) => {
+                                setSelectedBook(book);
+                                updateReference(book, '', '', '');
+                            }}
+                            options={bibleBooks}
+                            placeholder="Select a book..."
+                            isRequired
+                            className="w-full"
+                        />
+                    </div>
+
+                    <div className="w-full max-w-xs">
+                        <ScriptureCombobox
+                            id="chapterSelect"
+                            label="Chapter"
+                            value={selectedChapter}
+                            onChange={(chapter) => {
+                                setSelectedChapter(chapter);
+                                updateReference(selectedBook, chapter, '', '');
+                            }}
+                            options={availableChapters}
+                            placeholder={selectedBook ? `Select chapter (1-${totalChapters})` : "Select a book first"}
+                            disabled={!selectedBook}
+                            isRequired
+                            className="w-full"
+                        />
+                    </div>
+
+                    <div className="w-full max-w-xs">
+                        <ScriptureCombobox
+                            id="verseStartSelect"
+                            label="Start Verse"
+                            value={startVerse}
+                            onChange={(verse) => {
+                                setStartVerse(verse);
+                                updateReference(selectedBook, selectedChapter, verse, endVerse);
+                            }}
+                            options={availableVerses}
+                            placeholder={selectedChapter ? "Select start verse" : "Select a chapter first"}
+                            disabled={!selectedChapter}
+                            isRequired
+                            className="w-full"
+                        />
+                    </div>
+
+                    <div className="w-full max-w-xs">
+                        <ScriptureCombobox
+                            id="verseEndSelect"
+                            label="End Verse"
+                            value={endVerse}
+                            onChange={handleEndVerseChange}
+                            options={availableVerses}
+                            isEndVerse
+                            startVerseValue={startVerse}
+                            disabled={!selectedChapter}
+                            className="w-full"
+                        />
+                    </div>
+                </div>
+
+                {/* Right Column: Theme and Question */}
+                <div className="flex flex-col justify-between gap-6">
+                    <div className="w-full max-w-xs mx-auto">
+                        <h2 className="text-xl font-semibold text-blue-600 border-b-2 border-blue-600 pb-2 mb-6 text-center">
+                            Theme
+                        </h2>
+                        <select
+                            id="themeSelect"
+                            value={selectedTheme}
+                            onChange={(e) => setSelectedTheme(e.target.value)}
+                            required
+                            className="w-full border border-gray-300 rounded-md p-2 text-gray-900 dark:text-gray-100 dark:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        >
+                            <option value="">Select a theme</option>
+                            {themes.map((theme, idx) => (
+                                <option key={idx} value={theme}>{theme}</option>
+                            ))}
+                        </select>
+                    </div>
+
+                    <div className="w-full max-w-xs mx-auto flex flex-col">
+                        <h2 className="text-xl font-semibold text-blue-600 border-b-2 border-blue-600 pb-2 mb-6 text-center">
+                            Question Details
+                        </h2>
+                        <textarea
+                            id="questionText"
+                            rows={4}
+                            value={questionText}
+                            onChange={(e) => setQuestionText(e.target.value)}
+                            placeholder="Type your Bible study question here..."
+                            required
+                            className="w-full border border-gray-300 rounded-md p-3 resize-none text-gray-900 dark:text-gray-100 dark:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        />
+                    </div>
+                </div>
+
+                {/* Submit Button */}
+                <div className="col-span-full flex justify-center mt-8">
+                    <button
                         type="submit"
                         disabled={isSubmitting}
-                        size="large"
-                        sx={{ px: 6, py: 1.5, minWidth: { xs: '100%', sm: 260 }, borderRadius: 2, fontSize: '1rem', fontWeight: 500, textTransform: 'none', boxShadow: theme.palette.mode === 'dark' ? '0 2px 8px rgba(144, 202, 249, 0.2)' : '0 2px 8px rgba(25, 118, 210, 0.2)', '&:hover': { boxShadow: theme.palette.mode === 'dark' ? '0 4px 12px rgba(144, 202, 249, 0.3)' : '0 4px 12px rgba(25, 118, 210, 0.3)' } }}
+                        className={`px-14 py-3 rounded-lg font-semibold text-lg transition-shadow text-white
+                            ${isSubmitting 
+                                ? 'bg-blue-400 cursor-not-allowed' 
+                                : 'bg-blue-600 hover:bg-blue-700 shadow-lg hover:shadow-xl'
+                            }`}
                     >
                         {isSubmitting ? (
-                            <>
-                                <CircularProgress size={24} color="inherit" sx={{ mr: 1.5 }} />
-                                Submitting...
-                            </>
-                        ) : 'Submit Question'}
-                    </Button>
-                </Box>
-            </Paper>
+                            <div className="flex items-center justify-center space-x-3">
+                                <svg
+                                    className="animate-spin h-5 w-5 text-white"
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    fill="none"
+                                    viewBox="0 0 24 24"
+                                >
+                                    <circle
+                                        className="opacity-25"
+                                        cx="12"
+                                        cy="12"
+                                        r="10"
+                                        stroke="currentColor"
+                                        strokeWidth="4"
+                                    />
+                                    <path
+                                        className="opacity-75"
+                                        fill="currentColor"
+                                        d="M4 12a8 8 0 018-8v8H4z"
+                                    />
+                                </svg>
+                                <span>Submitting...</span>
+                            </div>
+                        ) : (
+                            'Submit Question'
+                        )}
+                    </button>
+                </div>
+            </form>
 
-            <Snackbar
-                open={showSuccess}
-                autoHideDuration={6000}
-                onClose={() => closeAlert('success')}
-                anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
-            >
-                <Alert
-                    onClose={() => closeAlert('success')}
-                    severity="success"
-                    variant="filled"
-                    sx={{ borderRadius: 2 }}
-                >
-                    Your question has been submitted successfully! Thank you for contributing.
-                </Alert>
-            </Snackbar>
+            {/* Alerts */}
+         {showSuccess && (
+  <div
+    className="fixed bottom-6 left-1/2 transform -translate-x-1/2 bg-green-600 text-white rounded-lg px-6 py-3 flex items-center gap-3 shadow-lg animate-slideIn"
+    role="alert"
+  >
+    <CheckCircle className="w-6 h-6" />
+    <span>Your question has been submitted successfully! Thank you for contributing.</span>
+    <button
+      onClick={() => closeAlert('success')}
+      className="ml-auto focus:outline-none"
+      aria-label="Close"
+    >
+      <XCircle className="w-6 h-6 hover:text-green-300 transition" />
+    </button>
+  </div>
+)}
 
-            <Snackbar
-                open={showError}
-                autoHideDuration={6000}
-                onClose={() => closeAlert('error')}
-                anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
-            >
-                <Alert
-                    onClose={() => closeAlert('error')}
-                    severity="error"
-                    variant="filled"
-                    sx={{ borderRadius: 2 }}
-                >
-                    {errorMessage}
-                </Alert>
-            </Snackbar>
-        </Container>
+{showError && (
+  <div
+    className="fixed bottom-6 left-1/2 transform -translate-x-1/2 bg-red-600 text-white rounded-lg px-6 py-3 flex items-center gap-3 shadow-lg animate-slideIn"
+    role="alert"
+  >
+    <XCircle className="w-6 h-6" />
+    <span>{errorMessage}</span>
+    <button
+      onClick={() => closeAlert('error')}
+      className="ml-auto focus:outline-none"
+      aria-label="Close"
+    >
+      <XCircle className="w-6 h-6 hover:text-red-300 transition" />
+    </button>
+  </div>
+)}
+        </div>
     );
 };
 
