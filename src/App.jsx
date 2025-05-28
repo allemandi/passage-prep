@@ -15,8 +15,6 @@ import {
 import Brightness4Icon from '@mui/icons-material/Brightness4';
 import Brightness7Icon from '@mui/icons-material/Brightness7';
 import AutoStoriesIcon from '@mui/icons-material/AutoStories';
-
-import './App.css';
 import RequestForm from './components/RequestForm';
 import ContributeForm from './components/ContributeForm';
 import AdminForm from './components/AdminForm';

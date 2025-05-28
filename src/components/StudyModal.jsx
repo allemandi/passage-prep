@@ -1,39 +1,13 @@
 import React, { useState } from 'react';
-import {
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
-  Typography,
-  IconButton,
-  Button,
-  List,
-  ListItem,
-  useTheme,
-  Divider,
-  Box,
-  MenuItem,
-} from '@mui/material';
-import CloseIcon from '@mui/icons-material/Close';
-import MoreVertIcon from '@mui/icons-material/MoreVert';
-import Snackbar from '@mui/material/Snackbar';
-import MuiAlert from '@mui/material/Alert';
-
+import { X, MoreVertical, Copy, FileText, FileCode, CheckCircle } from 'lucide-react';
 const StudyModal = ({ show, onHide, data }) => {
-  const theme = useTheme();
   const [showSnackbar, setShowSnackbar] = useState(false);
+  const [showCopyMenu, setShowCopyMenu] = useState(false);
   const noQuestionString = 'Notice: Questions were not selected. Use Search and tick checkboxes against table questions to fill this space, or use the Contribute section to submit your own questions.'
   if (!data || !data.filteredQuestions) {
     return null;
   }
 
-  if (!theme?.palette) {
-    return null;
-  }
-
-  const borderColor = theme.palette.mode === 'dark'
-    ? 'rgba(255, 255, 255, 0.12)'
-    : 'rgba(0, 0, 0, 0.12)';
 
   const groupQuestionsByBookAndTheme = (questions) => {
     const grouped = {};
@@ -70,7 +44,6 @@ const StudyModal = ({ show, onHide, data }) => {
       return indexA - indexB;
     }
     
-    // If only one is in our list, prioritize it
     if (indexA !== -1) return -1;
     if (indexB !== -1) return 1;
 
@@ -204,329 +177,229 @@ const StudyModal = ({ show, onHide, data }) => {
     return html;
   };
 
+  if (!show) return null; // Early return if modal is not visible
+
   return (
-    <Dialog
-      open={show}
-      onClose={onHide}
-      fullWidth
-      maxWidth="xl"
-      scroll="paper"
+
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 p-4"
+      onClick={onHide} 
       aria-labelledby="study-modal-title"
-      PaperProps={{
-        elevation: 6,
-        sx: {
-          borderRadius: 3,
-          overflow: 'hidden',
-          bgcolor: 'background.paper',
-          boxShadow: theme.palette.mode === 'dark'
-            ? '0 8px 32px rgba(0, 0, 0, 0.4)'
-            : '0 8px 32px rgba(0, 0, 0, 0.1)'
-        }
-      }}
+      role="dialog"
+      aria-modal="true"
     >
-      <DialogTitle
-        id="study-modal-title"
-        sx={{
-          bgcolor: 'primary.main',
-          color: 'primary.contrastText',
-          py: 2.5,
-          px: 3,
-          position: 'relative'
-        }}
+      {/* Modal panel */}
+      <div
+        className="relative w-full max-w-4xl max-h-[90vh] flex flex-col bg-background-paper dark:bg-dark-background-paper rounded-lg shadow-xl overflow-hidden"
+        onClick={(e) => e.stopPropagation()} // Prevent closing when clicking inside modal
       >
-        <Typography variant="h5" sx={{ fontWeight: 600 }}>
-          Bible Study Preparation
-        </Typography>
-        <IconButton
-          aria-label="close"
-          onClick={onHide}
-          sx={{
-            position: 'absolute',
-            right: 16,
-            top: '50%',
-            transform: 'translateY(-50%)',
-            color: 'primary.contrastText',
-            '&:hover': {
-              bgcolor: 'rgba(255, 255, 255, 0.1)'
-            }
-          }}
+        {/* Modal Header (formerly DialogTitle) */}
+        <div
+          id="study-modal-title"
+          className="bg-primary-DEFAULT dark:bg-dark-primary-DEFAULT text-text-DEFAULT dark:text-dark-text-DEFAULT py-4 px-6 flex justify-between items-center"
         >
-          <CloseIcon />
-        </IconButton>
-      </DialogTitle>
+          <h2 className="text-h5 font-medium"> {/* Replaced Typography variant="h5" */}
+            Bible Study Preparation
+          </h2>
+          <button
+            aria-label="close"
+            onClick={onHide}
+            className="text-text-DEFAULT dark:text-dark-text-DEFAULT hover:bg-white/10 p-1 rounded-full"
+          >
+            <X size={24} /> {/* Replaced CloseIcon */}
+          </button>
+        </div>
 
-      <DialogContent
-        id="study-modal-content"
-        sx={{
-          p: { xs: 2.5, sm: 3.5 },
-          bgcolor: theme.palette.mode === 'dark' ? 'background.paper' : 'background.default',
-          '& .MuiDialogContent-dividers': {
-            borderColor: borderColor
-          }
-        }}
-      >
-        <Typography
-          variant="h6"
-          gutterBottom
-          color="primary.main"
-          sx={{
-            fontWeight: 500,
-            pb: 1.5,
-            borderBottom: `2px solid ${theme.palette.primary.main}`,
-            mb: 3.5
-          }}
+        {/* Modal Content (formerly DialogContent) */}
+        <div
+          id="study-modal-content"
+          className="overflow-y-auto p-6 sm:p-8 bg-background-default dark:bg-dark-background-default text-text-DEFAULT dark:text-dark-text-DEFAULT"
         >
-          Bible References
-        </Typography>
+          <h3
+            className="text-h6 text-primary-DEFAULT dark:text-dark-primary-DEFAULT font-medium pb-2 border-b-2 border-primary-DEFAULT dark:border-dark-primary-DEFAULT mb-6"
+          >
+            Bible References
+          </h3>
 
-        {data?.refArr && data.refArr.filter(ref => ref).length > 0 ? (
-          <List disablePadding sx={{ mb: 4, pl: 2 }}>
-            {data.refArr.filter(ref => ref).map((reference, index) => (
-              <ListItem
-                key={index}
-                sx={{
-                  py: 1,
-                  px: 0,
-                  display: 'list-item',
-                  listStyleType: 'disc'
-                }}
-              >
-                <Typography variant="body1" sx={{ fontWeight: 400 }}>
+          {data?.refArr && data.refArr.filter(ref => ref).length > 0 ? (
+            <ul className="list-disc pl-5 mb-8 space-y-2"> {/* Replaced List and ListItem */}
+              {data.refArr.filter(ref => ref).map((reference, index) => (
+                <li key={index} className="text-base font-normal"> {/* Replaced Typography */}
                   {reference}
-                </Typography>
-              </ListItem>
-            ))}
-          </List>
-        ) : (
-          <Typography variant="body1" sx={{ mb: 4, ml: 2, opacity: 0.8 }}>
-            No Bible references specified.
-          </Typography>
-        )}
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p className="mb-8 ml-2 opacity-80">
+              No Bible references specified.
+            </p>
+          )}
 
-        <Typography
-          variant="h6"
-          gutterBottom
-          color="primary.main"
-          sx={{
-            fontWeight: 500,
-            pb: 1.5,
-            borderBottom: `2px solid ${theme.palette.primary.main}`,
-            mb: 3.5
-          }}
-        >
-          General Context
-        </Typography>
+          <h3
+             className="text-h6 text-primary-DEFAULT dark:text-dark-primary-DEFAULT font-medium pb-2 border-b-2 border-primary-DEFAULT dark:border-dark-primary-DEFAULT mb-6"
+          >
+            General Context
+          </h3>
 
-        {data?.contextArr && data.contextArr.length > 0 ? (
-          <List disablePadding sx={{ mb: 4, pl: 2 }}>
-            {data.contextArr.map((context, index) => (
-              <ListItem
-                key={index}
-                sx={{
-                  py: 1,
-                  px: 0,
-                  display: 'list-item',
-                  listStyleType: 'disc'
-                }}
-              >
-                <Typography variant="body1" sx={{ fontWeight: 400 }}>
+          {data?.contextArr && data.contextArr.length > 0 ? (
+            <ul className="list-disc pl-5 mb-8 space-y-2"> {/* Replaced List and ListItem */}
+              {data.contextArr.map((context, index) => (
+                <li key={index} className="text-base font-normal"> {/* Replaced Typography */}
                   {context}
-                </Typography>
-              </ListItem>
-            ))}
-          </List>
-        ) : (
-          <Typography variant="body1" sx={{ mb: 4, ml: 2, opacity: 0.8 }}>
-            No context information available.
-          </Typography>
-        )}
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p className="mb-8 ml-2 opacity-80">
+              No context information available.
+            </p>
+          )}
 
-        <Typography
-          variant="h6"
-          gutterBottom
-          color="primary.main"
-          sx={{
-            fontWeight: 500,
-            pb: 1.5,
-            borderBottom: `2px solid ${theme.palette.primary.main}`,
-            mb: 3.5
-          }}
-        >
-          Questions by Book and Theme
-        </Typography>
+          <h3
+             className="text-h6 text-primary-DEFAULT dark:text-dark-primary-DEFAULT font-medium pb-2 border-b-2 border-primary-DEFAULT dark:border-dark-primary-DEFAULT mb-6"
+          >
+            Questions by Book and Theme
+          </h3>
 
-        {Object.keys(groupedQuestions).length > 0 ? (
-          <List disablePadding>
-            {orderedBooksList.map(book => (
-              <React.Fragment key={book}>
-                <Typography variant="h6" sx={{ mt: 3, mb: 1.5 }}>
-                  {book}
-                </Typography>
-                {Object.entries(groupedQuestions[book]).map(([theme, questions]) => (
-                  <Box key={theme} sx={{ ml: 2, mb: 1.5 }}>
-                    <Typography variant="subtitle1" sx={{ mb: 1 }}>
-                      {theme}
-                    </Typography>
-                    <List disablePadding sx={{ ml: 2 }}>
-                      {questions.map((question, qIndex) => (
-                        <ListItem key={qIndex} sx={{ py: 0.5, px: 0, display: 'list-item', listStyleType: 'circle' }}>
-                          <Typography variant="body2">
+          {Object.keys(groupedQuestions).length > 0 ? (
+            <div className="space-y-6"> 
+              {orderedBooksList.map(book => (
+                <div key={book}> 
+                  <h4 className="text-h6 font-medium mt-6 mb-3 text-text-DEFAULT dark:text-dark-text-DEFAULT"> {/* Replaced Typography variant="h6" */}
+                    {book}
+                  </h4>
+                  {Object.entries(groupedQuestions[book]).map(([theme, questions]) => (
+                    <div key={theme} className="ml-4 mb-3"> {/* Replaced Box */}
+                      <h5 className="text-lg font-medium mb-2 text-text-secondary dark:text-dark-text-secondary"> {/* Replaced Typography variant="subtitle1" */}
+                        {theme}
+                      </h5>
+                      <ul className="list-disc pl-5 space-y-1"> 
+                        {questions.map((question, qIndex) => (
+                          <li key={qIndex} className="text-sm"> 
                             {question.question}
-                          </Typography>
-                        </ListItem>
-                      ))}
-                    </List>
-                  </Box>
-                ))}
-              </React.Fragment>
-            ))}
-          </List>
-        ) : (
-          <Typography variant="body1" component="em" sx={{ opacity: 0.8 }}>
-            {noQuestionString}
-          </Typography>
-        )}
-      </DialogContent>
-
-      <Divider sx={{ borderColor: borderColor }} />
-
-      <DialogActions
-        sx={{
-          p: 3,
-          justifyContent: 'space-between',
-          bgcolor: theme.palette.mode === 'dark' ? 'background.paper' : 'background.default'
-        }}
-      >
-        <Button
-          onClick={onHide}
-          variant="outlined"
-          color="primary"
-          sx={{
-            px: 3,
-            py: 1,
-            borderRadius: 2,
-            textTransform: 'none',
-            fontWeight: 500
-          }}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  ))}
+                </div>
+              ))}
+            </div>
+          ) : (
+            <p className="italic opacity-80">
+              {noQuestionString}
+            </p>
+          )}
+        </div>
+        <hr className="border-divider dark:border-dark-divider" />
+        <div
+          className="p-6 flex justify-between items-center bg-background-default dark:bg-dark-background-default"
         >
-          Close
-        </Button>
-        <Box sx={{ display: 'flex', gap: 2, position: 'relative' }}>
-          <Button
-            onClick={async () => {
-              const plainText = generatePlainTextContent();
-              const richText = generateRichTextContent();
-              try {
-                const blob = new Blob([richText], { type: 'text/html' });
-                const clipboardItem = new ClipboardItem({ 'text/html': blob, 'text/plain': new Blob([plainText], { type: 'text/plain' }) });
-                await navigator.clipboard.write([clipboardItem]);
-                setShowSnackbar(true);
-              } catch (err) {
-                console.error('Failed to copy rich text:', err);
-                navigator.clipboard.writeText(plainText).then(() => {
-                  setShowSnackbar(true);
-                });
-              }
-            }}
-            variant="contained"
-            color="primary"
-            sx={{
-              px: 3,
-              py: 1,
-              borderRadius: 2,
-              textTransform: 'none',
-              fontWeight: 500
-            }}
+          <button
+            onClick={onHide}
+            className="px-4 py-2 rounded-md border border-primary-DEFAULT dark:border-dark-primary-DEFAULT text-primary-DEFAULT dark:text-dark-primary-DEFAULT hover:bg-primary-light/10 dark:hover:bg-dark-primary-light/10 font-medium focus:outline-none focus:ring-2 focus:ring-primary-DEFAULT dark:focus:ring-dark-primary-DEFAULT"
           >
-            Copy
-          </Button>
-          <IconButton
-            onClick={(e) => {
-              e.stopPropagation();
-              const menu = document.getElementById('copy-menu');
-              if (menu) menu.style.display = menu.style.display === 'block' ? 'none' : 'block';
-            }}
-            sx={{
-              borderRadius: 2,
-              bgcolor: 'primary.main',
-              color: 'primary.contrastText',
-              '&:hover': {
-                bgcolor: 'primary.dark'
-              }
-            }}
-          >
-            <MoreVertIcon />
-          </IconButton>
-          <Box
-            id="copy-menu"
-            sx={{
-              display: 'none',
-              position: 'absolute',
-              right: 0,
-              bottom: '100%',
-              bgcolor: 'background.paper',
-              boxShadow: 3,
-              borderRadius: 2,
-              zIndex: 1,
-              p: 1,
-              minWidth: 200
-            }}
-          >
-            <MenuItem
+            Close
+          </button>
+          <div className="flex gap-2 relative"> {/* Replaced Box */}
+            <button
               onClick={async () => {
                 const plainText = generatePlainTextContent();
-                navigator.clipboard.writeText(plainText).then(() => {
-                  setShowSnackbar(true);
-                });
-              }}
-            >
-              Copy as Plain Text
-            </MenuItem>
-            <MenuItem
-              onClick={async () => {
-                const markdown = generateMarkdownContent();
-                navigator.clipboard.writeText(markdown).then(() => {
-                  setShowSnackbar(true);
-                });
-              }}
-            >
-              Copy as Markdown
-            </MenuItem>
-            <MenuItem
-              onClick={async () => {
                 const richText = generateRichTextContent();
                 try {
                   const blob = new Blob([richText], { type: 'text/html' });
-                  const clipboardItem = new ClipboardItem({ 'text/html': blob });
+                  const clipboardItem = new ClipboardItem({ 'text/html': blob, 'text/plain': new Blob([plainText], { type: 'text/plain' }) });
                   await navigator.clipboard.write([clipboardItem]);
                   setShowSnackbar(true);
                 } catch (err) {
                   console.error('Failed to copy rich text:', err);
+                  navigator.clipboard.writeText(plainText).then(() => {
+                    setShowSnackbar(true);
+                  });
                 }
               }}
+              className="px-4 py-2 rounded-md bg-primary-DEFAULT dark:bg-dark-primary-DEFAULT text-white dark:text-dark-text-DEFAULT hover:bg-primary-dark dark:hover:bg-dark-primary-dark font-medium flex items-center gap-2 focus:outline-none focus:ring-2 focus:ring-primary-DEFAULT dark:focus:ring-dark-primary-DEFAULT"
             >
-              Copy as Rich Text
-            </MenuItem>
-          </Box>
-        </Box>
-      </DialogActions>
+              <Copy size={18} /> Copy
+            </button>
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                setShowCopyMenu(!showCopyMenu);
+              }}
+              className="p-2 rounded-md bg-primary-DEFAULT dark:bg-dark-primary-DEFAULT text-white dark:text-dark-text-DEFAULT hover:bg-primary-dark dark:hover:bg-dark-primary-dark focus:outline-none focus:ring-2 focus:ring-primary-DEFAULT dark:focus:ring-dark-primary-DEFAULT"
+            >
+              <MoreVertical size={24} />
+            </button>
+            {showCopyMenu && (
+              <div
+                className="absolute right-0 bottom-full mb-2 w-56 bg-background-paper dark:bg-dark-background-paper rounded-md shadow-lg z-10 border border-divider dark:border-dark-divider overflow-hidden"
+              >
+                <button
+                  onClick={async () => {
+                    const plainText = generatePlainTextContent();
+                    navigator.clipboard.writeText(plainText).then(() => {
+                      setShowSnackbar(true);
+                      setShowCopyMenu(false);
+                    });
+                  }}
+                  className="w-full text-left px-4 py-2 text-sm text-text-DEFAULT dark:text-dark-text-DEFAULT hover:bg-background-default dark:hover:bg-dark-background-default flex items-center gap-2"
+                >
+                  <FileText size={16} className="text-text-secondary dark:text-dark-text-secondary" /> Copy as Plain Text
+                </button>
+                <button
+                  onClick={async () => {
+                    const markdown = generateMarkdownContent();
+                    navigator.clipboard.writeText(markdown).then(() => {
+                      setShowSnackbar(true);
+                      setShowCopyMenu(false);
+                    });
+                  }}
+                  className="w-full text-left px-4 py-2 text-sm text-text-DEFAULT dark:text-dark-text-DEFAULT hover:bg-background-default dark:hover:bg-dark-background-default flex items-center gap-2"
+                >
+                  <FileCode size={16} className="text-text-secondary dark:text-dark-text-secondary" /> Copy as Markdown
+                </button>
+                <button
+                  onClick={async () => {
+                    const richText = generateRichTextContent();
+                    try {
+                      const blob = new Blob([richText], { type: 'text/html' });
+                      const clipboardItem = new ClipboardItem({ 'text/html': blob });
+                      await navigator.clipboard.write([clipboardItem]);
+                      setShowSnackbar(true);
+                      setShowCopyMenu(false);
+                    } catch (err) {
+                      console.error('Failed to copy rich text:', err);
+                      setShowCopyMenu(false);
+                    }
+                  }}
+                  className="w-full text-left px-4 py-2 text-sm text-text-DEFAULT dark:text-dark-text-DEFAULT hover:bg-background-default dark:hover:bg-dark-background-default flex items-center gap-2"
+                >
+                  <Copy size={16} className="text-text-secondary dark:text-dark-text-secondary" /> Copy as Rich Text
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
 
-      <Snackbar
-        open={showSnackbar}
-        autoHideDuration={6000}
-        onClose={() => setShowSnackbar(false)}
-        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
-      >
-        <MuiAlert
-          onClose={() => setShowSnackbar(false)}
-          severity="success"
-          variant="filled"
-          sx={{ borderRadius: 2 }}
-        >
-          Content copied to clipboard!
-        </MuiAlert>
-      </Snackbar>
-    </Dialog>
+        {showSnackbar && (
+          <div
+            className="fixed bottom-5 left-1/2 -translate-x-1/2 bg-success-DEFAULT dark:bg-dark-success-DEFAULT text-white dark:text-dark-text-DEFAULT px-6 py-3 rounded-md shadow-lg flex items-center gap-2 animate-slideIn"
+            role="alert"
+          >
+            <CheckCircle size={20} />
+            <span>Content copied to clipboard!</span>
+            <button
+              onClick={() => setShowSnackbar(false)}
+              className="ml-4 text-lg font-semibold hover:opacity-75"
+              aria-label="Close notification"
+            >
+              &times;
+            </button>
+          </div>
+        )}
+      </div>
+    </div>
   );
 };
 
