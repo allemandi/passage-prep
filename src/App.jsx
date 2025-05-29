@@ -17,7 +17,7 @@ import Brightness7Icon from '@mui/icons-material/Brightness7';
 import AutoStoriesIcon from '@mui/icons-material/AutoStories';
 import RequestForm from './components/RequestForm';
 import ContributeForm from './components/ContributeForm';
-import AdminForm from './components/AdminForm';
+import AdminForm from './components/admin/AdminForm';
 import StudyModal from './components/StudyModal';
 import { getBooks } from './services/dataService';
 import { createAppTheme } from './theme/theme';

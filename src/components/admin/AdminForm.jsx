@@ -14,11 +14,11 @@ import {
     MenuItem,
     CircularProgress
 } from '@mui/material';
-import QuestionTable from './QuestionTable';
-import { searchQuestions, fetchAllQuestions, fetchUnapprovedQuestions, approveQuestions } from '../services/dataService';
-import ScriptureCombobox from './ScriptureCombobox';
-import { getBibleBooks, getChaptersForBook, getVersesForChapter, getSortedQuestions } from '../utils/bibleData';
-import themes from '../data/themes.json';
+import QuestionTable from '../QuestionTable';
+import { searchQuestions, fetchAllQuestions, fetchUnapprovedQuestions, approveQuestions } from '../../services/dataService';
+import ScriptureCombobox from '../ScriptureCombobox';
+import { getBibleBooks, getChaptersForBook, getVersesForChapter, getSortedQuestions } from '../../utils/bibleData';
+import themes from '../../data/themes.json';
 import { useTheme } from '@mui/material/styles';
 import Papa from 'papaparse';
 
