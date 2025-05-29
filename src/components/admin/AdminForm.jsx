@@ -11,24 +11,26 @@ import {
     Grid,
     Checkbox,
     ListItemText,
-    MenuItem,
-    CircularProgress
+    MenuItem
 } from '@mui/material';
 import QuestionTable from '../QuestionTable';
-import { searchQuestions, fetchAllQuestions, fetchUnapprovedQuestions, approveQuestions } from '../../services/dataService';
+import { searchQuestions, fetchAllQuestions, fetchUnapprovedQuestions } from '../../services/dataService';
 import ScriptureCombobox from '../ScriptureCombobox';
 import { getBibleBooks, getChaptersForBook, getVersesForChapter, getSortedQuestions } from '../../utils/bibleData';
 import themes from '../../data/themes.json';
 import { useTheme } from '@mui/material/styles';
-import Papa from 'papaparse';
 import ReviewApprove from '../Admin/ReviewApprove';
-
+import { downloadAllCSV, downloadFilteredCSV } from '../../utils/download';
+import { bulkUploadQuestions } from '../../utils/upload'
+import UploadResultsPanel from '../Admin/UploadResultsPanel';
 const authChannel = new BroadcastChannel('auth');
 
 const excludeFields = ['_id', '__v'];
 
 const SESSION_TIMEOUT_MINUTES = 30; // Adjustable timeout in minutes
 const SESSION_TIMEOUT_MS = SESSION_TIMEOUT_MINUTES * 60 * 1000; // Convert to milliseconds
+import { useToast } from '../ToastMessage/Toast';
+
 
 const AdminForm = () => {
     const [username, setUsername] = useState('');
@@ -55,6 +57,7 @@ const AdminForm = () => {
     const [isUploading, setIsUploading] = useState(false);
     const [uploadResults, setUploadResults] = useState(null);
     const fileInputRef = useRef(null);
+    const showToast = useToast();
 
     // Use ref for logoutTimer to avoid dependency issues
     const logoutTimerRef = useRef(null);
@@ -191,23 +194,14 @@ const AdminForm = () => {
 
     const handleQuestionSelect = (indices, isSelected) => {
         setSelectedQuestions(prev => {
-            // Normalize to array if single index
             if (!Array.isArray(indices)) indices = [indices];
-
-            // Check if this is a "Select All" action (indices contains all visible items)
             if (indices.length === filteredQuestions.length) {
-                // Toggle behavior - deselect all if all were selected, select all otherwise
                 return prev.length === filteredQuestions.length ? [] : indices;
             }
-
-            // Check if this is a header checkbox click (indices is empty array)
             if (indices.length === 0) {
-                // Toggle behavior based on current selection state
                 return prev.length === filteredQuestions.length ? [] :
                     Array.from({ length: filteredQuestions.length }, (_, i) => i);
             }
-
-            // Regular selection/deselection
             return isSelected
                 ? [...new Set([...prev, ...indices])]
                 : prev.filter(i => !indices.includes(i));
@@ -218,7 +212,6 @@ const AdminForm = () => {
         setScriptureRefs(prev => {
             const newRefs = [...prev];
             const currentRef = newRefs[index];
-            // Handle verse validation before any other updates
             if (updates.verseStart !== undefined) {
                 const newStart = updates.verseStart;
                 const currentEnd = updates.verseEnd !== undefined ? updates.verseEnd : currentRef.verseEnd;
@@ -228,7 +221,6 @@ const AdminForm = () => {
                     updates.verseEnd = newStart;
                 }
             }
-            // Update book and reset dependent fields
             if (updates.selectedBook !== undefined) {
                 const chapters = getChaptersForBook(updates.selectedBook);
                 newRefs[index] = {
@@ -241,7 +233,6 @@ const AdminForm = () => {
                     availableVerses: [],
                 };
             }
-            // Update chapter and reset verses
             else if (updates.selectedChapter !== undefined) {
                 const verses = Array.from(
                     { length: getVersesForChapter(currentRef.selectedBook, updates.selectedChapter) },
@@ -255,7 +246,6 @@ const AdminForm = () => {
                     availableVerses: verses,
                 };
             }
-            // Other updates (e.g., verseStart, verseEnd)
             else {
                 newRefs[index] = { ...currentRef, ...updates };
             }
@@ -264,21 +254,10 @@ const AdminForm = () => {
         });
     };
 
-
-    const handleError = (msg) => {
-      console.error(msg);
-      // optionally show a toast or set some error state
-    };
-    const handleSuccess = (msg) => {
-      console.log(msg);
-      // optionally show a toast or set some error state
-    };
-    // On entering Review/Approve, load all unapproved questions by default
     useEffect(() => {
         if (activeButton === 'review' && isLoggedIn) {
             (async () => {
                 try {
-                    // Use performant endpoint for unapproved questions
                     const unapproved = await fetchUnapprovedQuestions();
                     setFilteredQuestions(unapproved);
                 } catch (error) {
@@ -293,12 +272,11 @@ const AdminForm = () => {
         }
     }, [activeButton, isLoggedIn]);
 
-    // API-based filter for Edit/Delete, client-side filter for Review/Approve
+
     const applyApiFilters = useCallback(async () => {
         try {
             const ref = scriptureRefs[0];
             if (activeButton === 'review') {
-                // Always filter on unapproved questions only
                 const unapproved = await fetchUnapprovedQuestions();
                 let filtered = unapproved;
                 if (ref.selectedBook) {
@@ -326,7 +304,6 @@ const AdminForm = () => {
                 setFilteredQuestions(filtered);
                 return;
             }
-            // Edit/Delete: use API
             const filter = {};
             if (ref.selectedBook) filter.book = ref.selectedBook;
             filter.chapter = ref.selectedChapter || null;
@@ -334,13 +311,9 @@ const AdminForm = () => {
             filter.verseEnd = ref.verseEnd || null;
             if (selectedThemes.length !== themes.length) filter.themeArr = selectedThemes;
 
-            // Add isApproved based on hideUnapproved state
             if (hideUnapproved) {
                 filter.isApproved = true;
             }
-            // If hideUnapproved is false, isApproved is omitted from filter,
-            // so backend returns both approved and unapproved matching other criteria.
-
             const results = await searchQuestions(filter);
             setFilteredQuestions(results);
         } catch (error) {
@@ -402,8 +375,6 @@ const AdminForm = () => {
                 newRef.verseEnd = '';
                 newRef.availableVerses = [];
             }
-
-            // Handle chapter change
             if (updates.selectedChapter !== undefined) {
                 newRef.availableVerses = Array.from(
                     { length: getVersesForChapter(prev.selectedBook, updates.selectedChapter) },
@@ -417,171 +388,33 @@ const AdminForm = () => {
         });
     };
 
-    const downloadFilteredCSV = async () => {
-        try {
-            const results = await searchQuestions({
-                book: downloadRef.selectedBook || null,
-                chapter: downloadRef.selectedChapter || null,
-                verseStart: downloadRef.verseStart || null,
-                verseEnd: downloadRef.verseEnd || null,
-                themeArr: [],
-            });
 
-            if (results.length === 0) {
-                setShowError(true);
-                setErrorMessage('No questions match the selected filters.');
-                return;
-            }
-
-            const sortedResults = getSortedQuestions(results);
-            const dataForCsv = sortedResults.map(item => {
-                const filtered = {};
-                Object.keys(item).forEach(key => {
-                    if (!excludeFields.includes(key)) {
-                        filtered[key] = item[key];
-                    }
-                });
-                return filtered;
-            });
-
-            const csvContent = Papa.unparse(dataForCsv, { header: true });
-
-            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-            const url = URL.createObjectURL(blob);
-            const link = document.createElement('a');
-            link.href = url;
-            link.setAttribute('download', 'filtered_questions.csv');
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-        } catch (error) {
-            setShowError(true);
-            setErrorMessage(error.message);
-        }
+    const handleDownloadFilteredCSV = () => {
+      downloadFilteredCSV({
+        fetchAllQuestions,
+        downloadRef,
+        excludeFields,
+        getSortedQuestions,
+        showToast,
+      });
     };
 
-    const downloadAllCSV = async () => {
-        try {
-            const results = await fetchAllQuestions();
-
-            if (!results?.length) {
-                setShowError(true);
-                setErrorMessage('No questions available to download');
-                return;
-            }
-
-            const sortedResults = getSortedQuestions(results);
-
-            const dataForCsv = sortedResults.map(item => {
-                const filtered = {};
-                Object.keys(item).forEach(key => {
-                    if (!excludeFields.includes(key)) {
-                        filtered[key] = item[key];
-                    }
-                });
-                return filtered;
-            });
-            const csvContent = Papa.unparse(dataForCsv, { header: true });
-            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-            const url = URL.createObjectURL(blob);
-            const link = document.createElement('a');
-            link.href = url;
-            link.download = `questions_${new Date().toISOString().slice(0, 10)}.csv`;
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-        } catch (error) {
-            setShowError(true);
-            setErrorMessage(error.message || 'Download failed');
-            console.error('Download error:', error);
-        }
+    const handleDownloadAllCSV = () => {
+      downloadAllCSV({
+        fetchAllQuestions,
+        excludeFields,
+        getSortedQuestions,
+        showToast,
+      });
     };
-
-    const handleApproveSelected = useCallback(async () => {
-        if (selectedQuestions.length === 0) return;
-        try {
-            const questionIds = selectedQuestions.map(index => filteredQuestions[index]._id);
-            await approveQuestions(questionIds);
-            setShowSuccess(true);
-            setSelectedQuestions([]);
-            const unapproved = await fetchUnapprovedQuestions();
-            setFilteredQuestions(unapproved);
-        } catch (error) {
-            setShowError(true);
-            setErrorMessage(error.message);
-        }
-    }, [selectedQuestions, filteredQuestions]);
-
-    const handleBulkUpload = async (e) => {
-        e.preventDefault();
-        const file = fileInputRef.current.files[0];
-        if (!file) {
-            setShowError(true);
-            setErrorMessage('Please select a CSV file to upload');
-            return;
-        }
-
-        if (file.type !== 'text/csv' && !file.name.endsWith('.csv')) {
-            setShowError(true);
-            setErrorMessage('File must be a CSV file');
-            return;
-        }
-
-        setIsUploading(true);
-        try {
-            const reader = new FileReader();
-            reader.onload = async (event) => {
-                try {
-                    const csvContent = event.target.result;
-
-                    const url = import.meta.env.MODE === 'production'
-                        ? '/.netlify/functions/bulk-upload'
-                        : '/api/bulk-upload';
-                    const response = await fetch(url, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ csvText: csvContent })
-                    });
-
-                    if (!response.ok) {
-                        const errorText = await response.text();
-                        throw new Error(errorText || 'Failed to upload questions');
-                    }
-
-                    const results = await response.json();
-                    setUploadResults(results);
-
-                    if (results.successful > 0) {
-                        setShowSuccess(true);
-                    }
-
-                    if (results.failed > 0) {
-                        setShowError(true);
-                        setErrorMessage(`${results.failed} question(s) failed to upload. Check results for details.`);
-                    }
-
-                    fileInputRef.current.value = null;
-                } catch (error) {
-                    setShowError(true);
-                    setErrorMessage(error.message);
-                } finally {
-                    setIsUploading(false);
-                }
-            };
-
-            reader.onerror = () => {
-                setShowError(true);
-                setErrorMessage('Error reading file');
-                setIsUploading(false);
-            };
-
-            reader.readAsText(file);
-        } catch (error) {
-            setShowError(true);
-            setErrorMessage(error.message);
-            setIsUploading(false);
-        }
-    };
+    const handleBulkUpload = (e) =>
+      bulkUploadQuestions({
+        e,
+        fileInputRef,
+        setIsUploading,
+        setUploadResults,
+        showToast,
+      });
 
     return (
         <Container maxWidth="xl" sx={{ pt: { xs: 2, md: 6 }, pb: { xs: 2, md: 6 }, px: { xs: 0, md: 4 } }}>
@@ -795,11 +628,7 @@ const AdminForm = () => {
                             </Box>
                         )}
 
-                        {activeButton === 'review' && (
-                           <ReviewApprove onError={handleError} onSuccess={handleSuccess}
-                       />
-                        
-                        )}
+                        {activeButton === 'review' && ( <ReviewApprove />)}
 
                         {activeButton === 'download' && (
                             <Box sx={{ mb: 5, width: '100%' }}>
@@ -861,7 +690,7 @@ const AdminForm = () => {
                                 <Box sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, gap: 2, justifyContent: 'center', alignItems: 'center', width: '100%' }}>
                                     <Button
                                         variant="contained"
-                                        onClick={downloadFilteredCSV}
+                                        onClick={handleDownloadFilteredCSV}
                                         sx={{ py: 1.5, fontSize: '1.1rem', width: { xs: '100%', sm: 260 } }}
                                         disabled={!downloadRef.selectedBook}
                                         size="large"
@@ -871,7 +700,7 @@ const AdminForm = () => {
                                     <Button
                                         variant="contained"
                                         color="secondary"
-                                        onClick={downloadAllCSV}
+                                        onClick={handleDownloadAllCSV}
                                         sx={{ py: 1.5, fontSize: '1.1rem', width: { xs: '100%', sm: 260 } }}
                                         size="large"
                                     >
@@ -937,53 +766,14 @@ const AdminForm = () => {
                                         type="submit"
                                         variant="contained"
                                         color="primary"
-                                        disabled={isUploading}
+
                                         sx={{ py: 1.5, fontSize: '1.1rem', width: { xs: '100%', sm: 260 } }}
                                         size="large"
                                     >
-                                        {isUploading ? <CircularProgress size={24} color="inherit" /> : 'Upload Questions'}
+                                        {'Upload Questions'}
                                     </Button>
 
-                                    {uploadResults && (
-                                        <Paper elevation={1} sx={{ p: 3, width: '100%', maxWidth: 600, mt: 3 }}>
-                                            <Typography variant="h6" sx={{ mb: 2, fontWeight: 600 }}>
-                                                Upload Results
-                                            </Typography>
-                                            <Typography variant="body1">
-                                                Total questions: {uploadResults.totalQuestions}
-                                            </Typography>
-                                            <Typography variant="body1" color="success.main" sx={{ fontWeight: 500 }}>
-                                                Successfully uploaded: {uploadResults.successful}
-                                            </Typography>
-                                            <Typography variant="body1" color="error.main" sx={{ fontWeight: 500 }}>
-                                                Failed to upload: {uploadResults.failed}
-                                            </Typography>
-
-                                            {uploadResults.errors.length > 0 && (
-                                                <Box sx={{ mt: 2 }}>
-                                                    <Typography variant="subtitle1" fontWeight="bold">
-                                                        Errors:
-                                                    </Typography>
-                                                    <Box sx={{ maxHeight: 300, overflowY: 'auto', mt: 1, border: '1px solid #ddd', borderRadius: 1, p: 2 }}>
-                                                        {uploadResults.errors.map((error, index) => (
-                                                            <Box key={index} sx={{ mb: 2, pb: 2, borderBottom: index < uploadResults.errors.length - 1 ? '1px solid #eee' : 'none' }}>
-                                                                <Typography variant="body2" fontWeight="medium" gutterBottom>
-                                                                    {error.question}
-                                                                </Typography>
-                                                                <Typography variant="body2" color="error.main">
-                                                                    <strong>Error:</strong> {error.error}
-                                                                </Typography>
-                                                            </Box>
-                                                        ))}
-                                                    </Box>
-                                                    <Typography variant="body2" sx={{ mt: 2, fontStyle: 'italic' }}>
-                                                        Tip: Make sure your CSV has the correct headers (theme, question, book, chapter, verseStart, verseEnd)
-                                                        and that values match the expected formats. For themes, use one of: {themes.join(', ')}
-                                                    </Typography>
-                                                </Box>
-                                            )}
-                                        </Paper>
-                                    )}
+                                    <UploadResultsPanel results={uploadResults} themes={themes} />
                                 </Box>
                             </Box>
                         )}

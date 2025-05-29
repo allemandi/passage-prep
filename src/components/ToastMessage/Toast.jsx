@@ -3,6 +3,13 @@ import { X } from 'lucide-react';
 
 const ToastContext = createContext();
 
+const toastStyles = {
+  success: 'bg-green-600 text-white',
+  error: 'bg-red-600 text-white',
+  warning: 'bg-yellow-500 text-black',
+  info: 'bg-blue-600 text-white',
+};
+
 export const ToastProvider = ({ children }) => {
   const [toast, setToast] = useState(null);
 
@@ -31,12 +38,7 @@ export const useToast = () => {
   return context.showToast;
 };
 
-const toastStyles = {
-  success: 'bg-green-600 text-white',
-  error: 'bg-red-600 text-white',
-  warning: 'bg-yellow-500 text-black',
-  info: 'bg-blue-600 text-white',
-};
+
 
 const Toast = ({ message, variant = 'info', onDismiss }) => {
   const style = toastStyles[variant] || toastStyles.info;

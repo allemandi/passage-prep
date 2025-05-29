@@ -10,9 +10,10 @@ import { rateLimiter, getUserIdentifier } from '../utils/rateLimit';
 import { processInput } from '../utils/inputUtils';
 import { saveQuestion } from '../services/dataService';
 import themes from '../data/themes.json';
-import { CheckCircle, XCircle } from 'lucide-react';
+import { useToast } from './ToastMessage/Toast';
 
 const ContributeForm = () => {
+    const showToast = useToast();
     const [questionText, setQuestionText] = useState('');
     const [selectedTheme, setSelectedTheme] = useState('');
     const [reference, setReference] = useState({
@@ -31,9 +32,6 @@ const ContributeForm = () => {
     const [totalChapters, setTotalChapters] = useState(0);
 
     const [isSubmitting, setIsSubmitting] = useState(false);
-    const [showSuccess, setShowSuccess] = useState(false);
-    const [showError, setShowError] = useState(false);
-    const [errorMessage, setErrorMessage] = useState('');
 
     const matcher = new RegExpMatcher({
         ...englishDataset.build(),
@@ -102,77 +100,71 @@ const ContributeForm = () => {
     }, [startVerse, endVerse, selectedBook, selectedChapter, updateReference]);
 
     const handleSubmit = async (e) => {
-        e.preventDefault();
+      e.preventDefault();
+  
+      try {
+          const userIdentifier = getUserIdentifier();
+          await rateLimiter.consume(userIdentifier);
+      } catch {
+          return showToast('Too many requests. Please slow down.', 'error');
+      }
+  
+      if (!reference.book || !reference.chapter || !reference.verseStart) {
+          return showToast('Please complete all required fields.', 'error');
+      }
+  
+      const [
+          { error: bookError },
+          { error: chapterError },
+          { error: verseStartError },
+          { error: verseEndError },
+          { sanitizedValue: sanitizedQuestionText, error: questionError },
+          { sanitizedValue: sanitizedTheme, error: themeError }
+      ] = await Promise.all([
+          processInput(reference.book, 'book'),
+          processInput(reference.chapter, 'chapter'),
+          processInput(reference.verseStart, 'start verse'),
+          processInput(reference.verseEnd || reference.verseStart, 'end verse'),
+          processInput(questionText, 'question'),
+          processInput(selectedTheme, 'theme')
+      ]);
+  
+      const error = bookError || chapterError || verseStartError || verseEndError || questionError || themeError;
+      if (error) return showToast(error, 'error');
+  
+      if (matcher.hasMatch(sanitizedQuestionText)) {
+          return showToast('Possible profanity detected. Please revise your question.', 'error');
+      }
+  
+      if (sanitizedQuestionText.length < 5) {
+          return showToast('Question is too short.', 'error');
+      }
+  
+      setIsSubmitting(true);
+  
+      try {
+          const saved = await saveQuestion(
+              sanitizedTheme,
+              sanitizedQuestionText,
+              {
+                  book: reference.book,
+                  chapter: reference.chapter,
+                  verseStart: reference.verseStart,
+                  verseEnd: reference.verseEnd || reference.verseStart,
+              }
+          );
+          if (saved) {
+              resetForm();
+              showToast('Your question has been submitted successfully!', 'success');
+          }
+      } catch (error) {
+          console.error('Error submitting question:', error);
+          showToast('Failed to submit your question. Please try again.', 'error');
+      } finally {
+          setIsSubmitting(false);
+      }
+  };
 
-        // Rate limiting
-        try {
-            const userIdentifier = getUserIdentifier();
-            await rateLimiter.consume(userIdentifier);
-        } catch {
-            return showErrorWithMessage('Too many requests. Please slow down.');
-        }
-
-        if (!reference.book || !reference.chapter || !reference.verseStart) {
-            return showErrorWithMessage('Please complete all required fields.');
-        }
-
-        const [
-            { error: bookError },
-            { error: chapterError },
-            { error: verseStartError },
-            { error: verseEndError },
-            { sanitizedValue: sanitizedQuestionText, error: questionError },
-            { sanitizedValue: sanitizedTheme, error: themeError }
-        ] = await Promise.all([
-            processInput(reference.book, 'book'),
-            processInput(reference.chapter, 'chapter'),
-            processInput(reference.verseStart, 'start verse'),
-            processInput(reference.verseEnd || reference.verseStart, 'end verse'),
-            processInput(questionText, 'question'),
-            processInput(selectedTheme, 'theme')
-        ]);
-
-        const error = bookError || chapterError || verseStartError || verseEndError || questionError || themeError;
-        if (error) return showErrorWithMessage(error);
-
-        if (matcher.hasMatch(sanitizedQuestionText)) {
-            return showErrorWithMessage('Possible profanity detected. Please revise your question.');
-        }
-
-        if (sanitizedQuestionText.length < 5) {
-            return showErrorWithMessage('Question is too short.');
-        }
-
-        setIsSubmitting(true);
-        setShowError(false);
-
-        try {
-            const saved = await saveQuestion(
-                sanitizedTheme,
-                sanitizedQuestionText,
-                {
-                    book: reference.book,
-                    chapter: reference.chapter,
-                    verseStart: reference.verseStart,
-                    verseEnd: reference.verseEnd || reference.verseStart,
-                }
-            );
-            if (saved) {
-                setShowSuccess(true);
-                resetForm();
-            }
-        } catch (error) {
-            console.error('Error submitting question:', error);
-            showErrorWithMessage('Failed to submit your question. Please try again.');
-        } finally {
-            setIsSubmitting(false);
-        }
-    };
-
-    const showErrorWithMessage = (message) => {
-        setShowError(true);
-        setErrorMessage(message);
-    };
 
     const resetForm = () => {
         setQuestionText('');
@@ -189,33 +181,11 @@ const ContributeForm = () => {
         });
     };
 
-    const closeAlert = (type) => {
-        if (type === 'success') setShowSuccess(false);
-        if (type === 'error') setShowError(false);
-    };
-
     const handleEndVerseChange = (verse) => {
         setEndVerse(verse);
         updateReference(selectedBook, selectedChapter, startVerse, verse);
     };
 
-    React.useEffect(() => {
-  if (showSuccess) {
-    const timer = setTimeout(() => {
-      setShowSuccess(false);
-    }, 4000);
-    return () => clearTimeout(timer);
-  }
-}, [showSuccess]);
-
-React.useEffect(() => {
-  if (showError) {
-    const timer = setTimeout(() => {
-      setShowError(false);
-    }, 4000);
-    return () => clearTimeout(timer);
-  }
-}, [showError]);
 
 
     return (
@@ -373,41 +343,6 @@ React.useEffect(() => {
                     </button>
                 </div>
             </form>
-
-            {/* Alerts */}
-         {showSuccess && (
-  <div
-    className="fixed bottom-6 left-1/2 transform -translate-x-1/2 bg-green-600 text-white rounded-lg px-6 py-3 flex items-center gap-3 shadow-lg animate-slideIn"
-    role="alert"
-  >
-    <CheckCircle className="w-6 h-6" />
-    <span>Your question has been submitted successfully! Thank you for contributing.</span>
-    <button
-      onClick={() => closeAlert('success')}
-      className="ml-auto focus:outline-none"
-      aria-label="Close"
-    >
-      <XCircle className="w-6 h-6 hover:text-green-300 transition" />
-    </button>
-  </div>
-)}
-
-{showError && (
-  <div
-    className="fixed bottom-6 left-1/2 transform -translate-x-1/2 bg-red-600 text-white rounded-lg px-6 py-3 flex items-center gap-3 shadow-lg animate-slideIn"
-    role="alert"
-  >
-    <XCircle className="w-6 h-6" />
-    <span>{errorMessage}</span>
-    <button
-      onClick={() => closeAlert('error')}
-      className="ml-auto focus:outline-none"
-      aria-label="Close"
-    >
-      <XCircle className="w-6 h-6 hover:text-red-300 transition" />
-    </button>
-  </div>
-)}
         </div>
     );
 };

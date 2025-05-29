@@ -14,9 +14,10 @@ import { fetchUnapprovedQuestions, approveQuestions } from '../../services/dataS
 import ScriptureCombobox from '../ScriptureCombobox';
 import { getBibleBooks, getChaptersForBook, getVersesForChapter } from '../../utils/bibleData';
 import themes from '../../data/themes.json';
+import { useToast } from '../ToastMessage/Toast';
 
 
-const ReviewApprove = ({ onError, onSuccess }) => {
+const ReviewApprove = () => {
     const [selectedQuestions, setSelectedQuestions] = useState([]);
     const [scriptureRefs, setScriptureRefs] = useState([{
         id: 1,
@@ -29,20 +30,19 @@ const ReviewApprove = ({ onError, onSuccess }) => {
     }]);
     const [selectedThemes, setSelectedThemes] = useState(themes);
     const [filteredQuestions, setFilteredQuestions] = useState([]);
+    const showToast = useToast();
 
-    // On entering Review/Approve, load all unapproved questions by default
     useEffect(() => {
-        (async () => {
-            try {
-                // Use performant endpoint for unapproved questions
-                const unapproved = await fetchUnapprovedQuestions();
-                setFilteredQuestions(unapproved);
-            } catch (error) {
-                onError(error.message);
-                setFilteredQuestions([]);
-            }
-        })();
-    }, [onError]);
+      (async () => {
+          try {
+              const unapproved = await fetchUnapprovedQuestions();
+              setFilteredQuestions(unapproved);
+          } catch (error) {
+              showToast(error.message, 'error');
+              setFilteredQuestions([]);
+          }
+      })();
+  }, []);
 
     const handleQuestionSelect = (indices, isSelected) => {
         setSelectedQuestions(prev => {
@@ -118,8 +118,6 @@ const ReviewApprove = ({ onError, onSuccess }) => {
             return newRefs;
         });
     };
-
-    // Client-side filter for Review/Approve
     const applyApiFilters = useCallback(async () => {
         try {
             const ref = scriptureRefs[0];
@@ -150,10 +148,10 @@ const ReviewApprove = ({ onError, onSuccess }) => {
             }
             setFilteredQuestions(filtered);
         } catch (error) {
-            onError(error.message);
+            showToast(error.message, 'error');
             setFilteredQuestions([]);
         }
-    }, [scriptureRefs, selectedThemes, onError]);
+    }, [scriptureRefs, selectedThemes]);
 
     const handleDeleteSelected = useCallback(async () => {
         if (selectedQuestions.length === 0) return;
@@ -168,14 +166,14 @@ const ReviewApprove = ({ onError, onSuccess }) => {
 
             if (!response.ok) throw new Error('Failed to delete questions');
 
-            onSuccess();
+            showToast('Questions deleted successfully', 'success');
             setSelectedQuestions([]);
             const unapproved = await fetchUnapprovedQuestions();
             setFilteredQuestions(unapproved);
         } catch (error) {
-            onError(error.message);
+            showToast(error.message, 'error');
         }
-    }, [selectedQuestions, filteredQuestions, onError, onSuccess]);
+    }, [selectedQuestions, filteredQuestions]);
 
     const handleQuestionUpdate = useCallback(async (questionId, updatedData) => {
         try {
@@ -187,27 +185,27 @@ const ReviewApprove = ({ onError, onSuccess }) => {
 
             if (!response.ok) throw new Error('Failed to update question');
 
-            onSuccess();
+            showToast('Questions updated successfully', 'success');
             const unapproved = await fetchUnapprovedQuestions();
             setFilteredQuestions(unapproved);
         } catch (error) {
-            onError(error.message);
+          showToast(error.message, 'error');
         }
-    }, [onError, onSuccess]);
+    }, []);
 
     const handleApproveSelected = useCallback(async () => {
         if (selectedQuestions.length === 0) return;
         try {
             const questionIds = selectedQuestions.map(index => filteredQuestions[index]._id);
             await approveQuestions(questionIds);
-            onSuccess();
+            showToast('Questions approved successfully', 'success');
             setSelectedQuestions([]);
             const unapproved = await fetchUnapprovedQuestions();
             setFilteredQuestions(unapproved);
         } catch (error) {
-            onError(error.message);
+          showToast(error.message, 'error');
         }
-    }, [selectedQuestions, filteredQuestions, onError, onSuccess]);
+    }, [selectedQuestions, filteredQuestions]);
 
     return (
         <Box sx={{ mb: 5, width: '100%' }}>
