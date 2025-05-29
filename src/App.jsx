@@ -17,12 +17,13 @@ import Brightness7Icon from '@mui/icons-material/Brightness7';
 import AutoStoriesIcon from '@mui/icons-material/AutoStories';
 import RequestForm from './components/RequestForm';
 import ContributeForm from './components/ContributeForm';
-import AdminForm from './components/admin/AdminForm';
+import AdminForm from './components/Admin/AdminForm';
 import StudyModal from './components/StudyModal';
 import { getBooks } from './services/dataService';
 import { createAppTheme } from './theme/theme';
 import Footer from './components/Footer';
 import HelpModal from './components/HelpModal';
+import { ToastProvider } from './components/ToastMessage/Toast';
 
 function App() {
   const [studyData, setStudyData] = useState(null);
@@ -78,6 +79,7 @@ function App() {
   }, []);
 
   return (
+    <ToastProvider>
     <ThemeProvider theme={theme}>
       <CssBaseline />
       <Box
@@ -201,6 +203,7 @@ function App() {
         <HelpModal open={helpOpen} onClose={handleHelpClose} />
       </Box>
     </ThemeProvider>
+    </ToastProvider>
   );
 }
 

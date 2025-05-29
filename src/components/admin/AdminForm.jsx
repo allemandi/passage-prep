@@ -21,6 +21,7 @@ import { getBibleBooks, getChaptersForBook, getVersesForChapter, getSortedQuesti
 import themes from '../../data/themes.json';
 import { useTheme } from '@mui/material/styles';
 import Papa from 'papaparse';
+import ReviewApprove from '../Admin/ReviewApprove';
 
 const authChannel = new BroadcastChannel('auth');
 
@@ -57,6 +58,8 @@ const AdminForm = () => {
 
     // Use ref for logoutTimer to avoid dependency issues
     const logoutTimerRef = useRef(null);
+
+    
 
     // Add state for download filters
     const [downloadRef, setDownloadRef] = useState({
@@ -261,6 +264,15 @@ const AdminForm = () => {
         });
     };
 
+
+    const handleError = (msg) => {
+      console.error(msg);
+      // optionally show a toast or set some error state
+    };
+    const handleSuccess = (msg) => {
+      console.log(msg);
+      // optionally show a toast or set some error state
+    };
     // On entering Review/Approve, load all unapproved questions by default
     useEffect(() => {
         if (activeButton === 'review' && isLoggedIn) {
@@ -784,124 +796,9 @@ const AdminForm = () => {
                         )}
 
                         {activeButton === 'review' && (
-                            <Box sx={{ mb: 5, width: '100%' }}>
-                                <Typography variant="h6" sx={{ mb: 3, fontWeight: 600 }}>
-                                    Filter for Reviewing/Approving Questions
-                                </Typography>
-                                <Grid container spacing={3} justifyContent="center" alignItems="center" sx={{ mb: 2, flexWrap: 'wrap' }}>
-                                    <Grid item xs={12} sm={6} md={3} sx={{ display: 'flex', justifyContent: 'center' }}>
-                                        <Box sx={{ width: { xs: '100%', sm: 260 } }}>
-                                            <ScriptureCombobox
-                                                label="Book"
-                                                value={scriptureRefs[0].selectedBook}
-                                                onChange={(book) => updateScriptureRef(0, { selectedBook: book })}
-                                                options={getBibleBooks()}
-                                                placeholder="Select a book"
-                                                sx={{ width: '100%' }}
-                                            />
-                                        </Box>
-                                    </Grid>
-                                    <Grid item xs={12} sm={6} md={3} sx={{ display: 'flex', justifyContent: 'center' }}>
-                                        <Box sx={{ width: { xs: '100%', sm: 260 } }}>
-                                            <ScriptureCombobox
-                                                label="Chapter"
-                                                value={scriptureRefs[0].selectedChapter}
-                                                onChange={(chapter) => updateScriptureRef(0, { selectedChapter: chapter })}
-                                                options={scriptureRefs[0].availableChapters}
-                                                disabled={!scriptureRefs[0].selectedBook}
-                                                placeholder={scriptureRefs[0].selectedBook ? "Select chapter" : "Select book first"}
-                                            />
-                                        </Box>
-                                    </Grid>
-                                    <Grid item xs={12} sm={6} md={3} sx={{ display: 'flex', justifyContent: 'center' }}>
-                                        <Box sx={{ width: { xs: '100%', sm: 260 } }}>
-                                            <ScriptureCombobox
-                                                label="Start Verse"
-                                                value={scriptureRefs[0].verseStart}
-                                                onChange={(verse) => updateScriptureRef(0, { verseStart: verse })}
-                                                options={scriptureRefs[0].availableVerses}
-                                                disabled={!scriptureRefs[0].selectedChapter}
-                                                placeholder={scriptureRefs[0].selectedChapter ? "Select start verse" : "Select chapter first"}
-                                            />
-                                        </Box>
-                                    </Grid>
-                                    <Grid item xs={12} sm={6} md={3} sx={{ display: 'flex', justifyContent: 'center' }}>
-                                        <Box sx={{ width: { xs: '100%', sm: 260 } }}>
-                                            <ScriptureCombobox
-                                                label="End Verse"
-                                                value={scriptureRefs[0].verseEnd}
-                                                onChange={(verse) => updateScriptureRef(0, { verseEnd: verse })}
-                                                options={scriptureRefs[0].availableVerses}
-                                                disabled={!scriptureRefs[0].selectedChapter}
-                                                placeholder={scriptureRefs[0].selectedChapter ? "Select end verse" : "Select chapter first"}
-                                                isEndVerse
-                                                startVerseValue={scriptureRefs[0].verseStart}
-                                            />
-                                        </Box>
-                                    </Grid>
-                                </Grid>
-                                <Box sx={{ display: 'flex', justifyContent: 'center', width: '100%', mb: 2 }}>
-                                    <TextField
-                                        select
-                                        label="Themes"
-                                        value={selectedThemes}
-                                        onChange={(e) => setSelectedThemes(e.target.value)}
-                                        SelectProps={{
-                                            multiple: true,
-                                            renderValue: (selected) => selected.length === themes.length ? "All" : selected.join(", "),
-                                        }}
-                                        sx={{ width: { xs: '100%', sm: 260 }, fontSize: '1.1rem' }}
-                                    >
-                                        {themes.map((theme) => (
-                                            <MenuItem key={theme} value={theme}>
-                                                <Checkbox checked={selectedThemes.includes(theme)} />
-                                                <ListItemText primary={theme} />
-                                            </MenuItem>
-                                        ))}
-                                    </TextField>
-                                </Box>
-                                <Box sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, gap: 2, justifyContent: 'center', alignItems: 'center', width: '100%' }}>
-                                    <Button
-                                        variant="contained"
-                                        onClick={applyApiFilters}
-                                        sx={{ py: 1.5, fontSize: '1.1rem', width: { xs: '100%', sm: 200 } }}
-                                        size="large"
-                                    >
-                                        Apply Filters
-                                    </Button>
-                                </Box>
-                                <Box sx={{ width: '100%', mt: 2 }}>
-                                    <QuestionTable
-                                        questions={filteredQuestions}
-                                        selectedQuestions={selectedQuestions}
-                                        onQuestionSelect={handleQuestionSelect}
-                                        showActions={activeButton === 'review'}
-                                        onQuestionUpdate={handleQuestionUpdate}
-                                    />
-                                </Box>
-                                <Box sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, gap: 2, justifyContent: 'center', mt: 4 }}>
-                                    <Button
-                                        variant="contained"
-                                        color="success"
-                                        sx={{ py: 1.5, fontSize: '1.1rem', width: { xs: '100%', sm: 260 } }}
-                                        disabled={selectedQuestions.length === 0}
-                                        onClick={handleApproveSelected}
-                                        size="large"
-                                    >
-                                        Approve Selected
-                                    </Button>
-                                    <Button
-                                        variant="contained"
-                                        color="error"
-                                        sx={{ py: 1.5, fontSize: '1.1rem', width: { xs: '100%', sm: 260 } }}
-                                        disabled={selectedQuestions.length === 0}
-                                        onClick={handleDeleteSelected}
-                                        size="large"
-                                    >
-                                        Delete Selected
-                                    </Button>
-                                </Box>
-                            </Box>
+                           <ReviewApprove onError={handleError} onSuccess={handleSuccess}
+                       />
+                        
                         )}
 
                         {activeButton === 'download' && (
