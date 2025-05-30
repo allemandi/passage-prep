@@ -1,6 +1,6 @@
-import React, { useState, useEffect, useCallback, useRef } from 'react';
+import React, { useState, useCallback } from 'react';
 import ScriptureCombobox from '../ScriptureCombobox';
-import { getBibleBooks, getChaptersForBook, getVersesForChapter, getSortedQuestions } from '../../utils/bibleData';
+import { getBibleBooks, getChaptersForBook, getVersesForChapter } from '../../utils/bibleData';
 import QuestionTable from '../QuestionTable';
 import themes from '../../data/themes.json';
 import {
@@ -109,18 +109,19 @@ const EditDelete = () => {
       }
       const results = await searchQuestions(filter);
       setFilteredQuestions(results);
+      setSelectedQuestions([]);
     } catch (error) {
       showToast(error.message, 'error');
       setFilteredQuestions([]);
     }
-  }, [scriptureRefs, selectedThemes]);
-
+  }, [scriptureRefs, selectedThemes, hideUnapproved]);
 
   const handleDeleteSelected = useCallback(async () => {
     if (selectedQuestions.length === 0) return;
 
     try {
       const questionIds = selectedQuestions.map(index => filteredQuestions[index]._id);
+      setSelectedQuestions([]);
       const response = await fetch('/api/delete-questions', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -128,13 +129,14 @@ const EditDelete = () => {
       });
 
       if (!response.ok) throw new Error('Failed to delete questions');
-      setSelectedQuestions([]);
-      await applyApiFilters();
+      setFilteredQuestions(prev => prev.filter(q => !questionIds.includes(q._id)));
       showToast('Questions deleted successfully', 'success');
+      setTimeout(() => applyApiFilters(), 500);
     } catch (error) {
       showToast(error.message, 'error');
+      applyApiFilters();
     }
-  }, [selectedQuestions, filteredQuestions]);
+  }, [selectedQuestions, filteredQuestions, applyApiFilters]);
 
   const handleQuestionUpdate = useCallback(async (questionId, updatedData) => {
     try {
@@ -143,18 +145,18 @@ const EditDelete = () => {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ questionId, updatedData }),
       });
-
       if (!response.ok) throw new Error('Failed to update question');
+      setFilteredQuestions(prev => 
+        prev.map(q => q._id === questionId ? { ...q, ...updatedData } : q)
+      );
 
-      showToast('Questions updated successfully', 'success');
-      await applyApiFilters();
+      showToast('Question updated successfully', 'success');
+      setTimeout(() => applyApiFilters(), 500);
     } catch (error) {
       showToast(error.message, 'error');
+      applyApiFilters();
     }
-  }, []);
-
-
-
+  }, [applyApiFilters]);
 
   return (
     <Box sx={{ mb: 5, width: '100%' }}>
@@ -271,7 +273,7 @@ const EditDelete = () => {
           onClick={handleDeleteSelected}
           size="large"
         >
-          Delete Selected
+          Delete Selected ({selectedQuestions.length})
         </Button>
       </Box>
     </Box>

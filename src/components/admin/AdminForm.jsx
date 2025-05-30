@@ -9,17 +9,14 @@ import {
     Snackbar,
     Container,
     Grid,
-    Checkbox,
-    ListItemText,
-    MenuItem
 } from '@mui/material';
 
-import { searchQuestions, fetchAllQuestions, fetchUnapprovedQuestions } from '../../services/dataService';
+import {  fetchAllQuestions } from '../../services/dataService';
 import ScriptureCombobox from '../ScriptureCombobox';
 import { getBibleBooks, getChaptersForBook, getVersesForChapter, getSortedQuestions } from '../../utils/bibleData';
 import themes from '../../data/themes.json';
 import { useTheme } from '@mui/material/styles';
-import ReviewApprove from './ReviewApprove.jsx'
+import ReviewApprove from '../Admin/ReviewApprove';
 import { downloadAllCSV, downloadFilteredCSV } from '../../utils/download';
 import { bulkUploadQuestions } from '../../utils/upload'
 import UploadResultsPanel from './UploadResultsPanel';
@@ -41,7 +38,6 @@ const AdminForm = () => {
     const [showError, setShowError] = useState(false);
     const [errorMessage, setErrorMessage] = useState('');
     const [activeButton, setActiveButton] = useState(null);
-    const [filteredQuestions, setFilteredQuestions] = useState([]);
     const [showSuccess, setShowSuccess] = useState(false);
     const [logoutSuccess, setLogoutSuccess] = useState(false);
 
@@ -174,30 +170,6 @@ const AdminForm = () => {
     const handleButtonClick = (buttonName) => {
         setActiveButton(buttonName);
     };
-
-   
-
-    useEffect(() => {
-        if (activeButton === 'review' && isLoggedIn) {
-            (async () => {
-                try {
-                    const unapproved = await fetchUnapprovedQuestions();
-                    setFilteredQuestions(unapproved);
-                } catch (error) {
-                    setShowError(true);
-                    setErrorMessage(error.message);
-                    setFilteredQuestions([]);
-                }
-            })();
-        }
-        if (activeButton === 'edit') {
-            setFilteredQuestions([]);
-        }
-    }, [activeButton, isLoggedIn]);
-
-
-   
-
 
     const updateDownloadRef = (updates) => {
         setDownloadRef(prev => {
