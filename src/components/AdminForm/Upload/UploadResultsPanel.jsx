@@ -2,6 +2,7 @@
 import React from 'react';
 import { Paper, Typography, Box } from '@mui/material';
 
+
 const UploadResultsPanel = ({ results, themes }) => {
   if (!results) return null;
 

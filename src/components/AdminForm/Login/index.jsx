@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Box, TextField, Button, Snackbar, Alert } from '@mui/material';
+import { Box, TextField, Button } from '@mui/material';
 
 const authChannel = new BroadcastChannel('auth');
 

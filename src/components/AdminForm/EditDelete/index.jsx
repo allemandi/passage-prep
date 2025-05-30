@@ -1,4 +1,8 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useCallback } from 'react';
+import ScriptureCombobox from '../../ScriptureCombobox';
+import { getBibleBooks, getChaptersForBook, getVersesForChapter } from '../../../utils/bibleData';
+import QuestionTable from '../../QuestionTable';
+import themes from '../../../data/themes.json';
 import {
   Box,
   TextField,
@@ -7,17 +11,19 @@ import {
   Grid,
   Checkbox,
   ListItemText,
-  MenuItem,
+  MenuItem
 } from '@mui/material';
-import QuestionTable from '../QuestionTable';
-import { fetchUnapprovedQuestions, approveQuestions } from '../../services/dataService';
-import ScriptureCombobox from '../ScriptureCombobox';
-import { getBibleBooks, getChaptersForBook, getVersesForChapter } from '../../utils/bibleData';
-import themes from '../../data/themes.json';
-import { useToast } from '../ToastMessage/Toast';
+import { useToast } from '../../ToastMessage/Toast';
+import { searchQuestions, clearSearchCache } from '../../../services/dataService';
 
-const ReviewApprove = () => {
+
+const EditDelete = () => {
+  const [hideUnapproved, setHideUnapproved] = useState(false);
+  const [selectedThemes, setSelectedThemes] = useState(themes);
   const [selectedQuestions, setSelectedQuestions] = useState([]);
+  const [filteredQuestions, setFilteredQuestions] = useState([]);
+  const showToast = useToast();
+
   const [scriptureRefs, setScriptureRefs] = useState([{
     id: 1,
     selectedBook: '',
@@ -27,27 +33,6 @@ const ReviewApprove = () => {
     availableChapters: [],
     availableVerses: [],
   }]);
-  const [selectedThemes, setSelectedThemes] = useState(themes);
-  const [filteredQuestions, setFilteredQuestions] = useState([]);
-  const [allUnapprovedQuestions, setAllUnapprovedQuestions] = useState([]);
-  const showToast = useToast();
-
-  const fetchUnapprovedData = useCallback(async () => {
-    try {
-      const unapproved = await fetchUnapprovedQuestions();
-      setAllUnapprovedQuestions(unapproved);
-      setFilteredQuestions(unapproved);
-      setSelectedQuestions([]); // Clear selections when data refreshes
-    } catch (error) {
-      showToast(error.message, 'error');
-      setFilteredQuestions([]);
-      setAllUnapprovedQuestions([]);
-    }
-  }, [showToast]);
-
-  useEffect(() => {
-    fetchUnapprovedData();
-  }, [fetchUnapprovedData]);
 
   const handleQuestionSelect = (indices, isSelected) => {
     setSelectedQuestions(prev => {
@@ -114,38 +99,23 @@ const ReviewApprove = () => {
   const applyApiFilters = useCallback(async () => {
     try {
       const ref = scriptureRefs[0];
-      let filtered = [...allUnapprovedQuestions];
-      
-      if (ref.selectedBook) {
-        filtered = filtered.filter(q => q.book === ref.selectedBook);
+      const filter = {};
+      if (ref.selectedBook) filter.book = ref.selectedBook;
+      filter.chapter = ref.selectedChapter || null;
+      filter.verseStart = ref.verseStart || null;
+      filter.verseEnd = ref.verseEnd || null;
+      if (selectedThemes.length !== themes.length) filter.themeArr = selectedThemes;
+      if (hideUnapproved) {
+        filter.isApproved = true;
       }
-      if (ref.selectedChapter) {
-        filtered = filtered.filter(q => String(q.chapter) === String(ref.selectedChapter));
-      }
-      if (ref.verseStart && ref.verseEnd && !isNaN(Number(ref.verseStart)) && !isNaN(Number(ref.verseEnd))) {
-        filtered = filtered.filter(q =>
-          parseInt(q.verseStart) <= Number(ref.verseEnd) &&
-          parseInt(q.verseEnd || q.verseStart) >= Number(ref.verseStart)
-        );
-      } else {
-        if (ref.verseStart && !isNaN(Number(ref.verseStart))) {
-          filtered = filtered.filter(q => parseInt(q.verseStart) >= Number(ref.verseStart));
-        }
-        if (ref.verseEnd && !isNaN(Number(ref.verseEnd))) {
-          filtered = filtered.filter(q => parseInt(q.verseEnd || q.verseStart) <= Number(ref.verseEnd));
-        }
-      }
-      if (selectedThemes.length !== themes.length) {
-        filtered = filtered.filter(q => selectedThemes.includes(q.theme));
-      }
-      
-      setFilteredQuestions(filtered);
+      const results = await searchQuestions(filter);
+      setFilteredQuestions(results);
       setSelectedQuestions([]);
     } catch (error) {
       showToast(error.message, 'error');
       setFilteredQuestions([]);
     }
-  }, [scriptureRefs, selectedThemes, allUnapprovedQuestions, showToast]);
+  }, [scriptureRefs, selectedThemes, hideUnapproved]);
 
   const handleDeleteSelected = useCallback(async () => {
     if (selectedQuestions.length === 0) return;
@@ -161,14 +131,13 @@ const ReviewApprove = () => {
 
       if (!response.ok) throw new Error('Failed to delete questions');
       setFilteredQuestions(prev => prev.filter(q => !questionIds.includes(q._id)));
-      setAllUnapprovedQuestions(prev => prev.filter(q => !questionIds.includes(q._id)));
       showToast('Questions deleted successfully', 'success');
-      setTimeout(() => fetchUnapprovedData(), 500);
+      clearSearchCache();
     } catch (error) {
       showToast(error.message, 'error');
-      fetchUnapprovedData();
+      applyApiFilters();
     }
-  }, [selectedQuestions, filteredQuestions, fetchUnapprovedData, showToast]);
+  }, [selectedQuestions, filteredQuestions, applyApiFilters]);
 
   const handleQuestionUpdate = useCallback(async (questionId, updatedData) => {
     try {
@@ -177,45 +146,23 @@ const ReviewApprove = () => {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ questionId, updatedData }),
       });
-
       if (!response.ok) throw new Error('Failed to update question');
-      const updateQuestion = (questions) =>
-        questions.map(q => q._id === questionId ? { ...q, ...updatedData } : q);
-      
-      setFilteredQuestions(updateQuestion);
-      setAllUnapprovedQuestions(updateQuestion);
+      setFilteredQuestions(prev => 
+        prev.map(q => q._id === questionId ? { ...q, ...updatedData } : q)
+      );
 
       showToast('Question updated successfully', 'success');
-      setTimeout(() => fetchUnapprovedData(), 500);
+      clearSearchCache();
     } catch (error) {
       showToast(error.message, 'error');
-      fetchUnapprovedData();
+      applyApiFilters();
     }
-  }, [fetchUnapprovedData, showToast]);
-
-  const handleApproveSelected = useCallback(async () => {
-    if (selectedQuestions.length === 0) return;
-    
-    try {
-      const questionIds = selectedQuestions.map(index => filteredQuestions[index]._id);
-      setSelectedQuestions([]);
-      
-      await approveQuestions(questionIds);
-      setFilteredQuestions(prev => prev.filter(q => !questionIds.includes(q._id)));
-      setAllUnapprovedQuestions(prev => prev.filter(q => !questionIds.includes(q._id)));
-      
-      showToast('Questions approved successfully', 'success');
-      setTimeout(() => fetchUnapprovedData(), 500);
-    } catch (error) {
-      showToast(error.message, 'error');
-      fetchUnapprovedData();
-    }
-  }, [selectedQuestions, filteredQuestions, fetchUnapprovedData, showToast]);
+  }, [applyApiFilters]);
 
   return (
     <Box sx={{ mb: 5, width: '100%' }}>
       <Typography variant="h6" sx={{ mb: 3, fontWeight: 600 }}>
-        Filter for Reviewing/Approving Questions
+        Filter for Editing/Deleting Questions
       </Typography>
       <Grid container spacing={3} justifyContent="center" alignItems="center" sx={{ mb: 2, flexWrap: 'wrap' }}>
         <Grid item xs={12} sm={6} md={3} sx={{ display: 'flex', justifyContent: 'center' }}>
@@ -299,12 +246,13 @@ const ReviewApprove = () => {
           Apply Filters
         </Button>
         <Button
-          variant="outlined"
-          onClick={fetchUnapprovedData}
-          sx={{ py: 1.5, fontSize: '1.1rem', width: { xs: '100%', sm: 160 } }}
-          size="large"
+          variant={hideUnapproved ? 'contained' : 'outlined'}
+          color="secondary"
+          size="small"
+          sx={{ ml: { xs: 0, sm: 2 }, fontWeight: 500, minWidth: 120, width: { xs: '100%', sm: 'auto' } }}
+          onClick={() => setHideUnapproved(v => !v)}
         >
-          Refresh
+          {hideUnapproved ? 'Show Unapproved' : 'Hide Unapproved'}
         </Button>
       </Box>
       <Box sx={{ width: '100%', mt: 2 }}>
@@ -314,19 +262,10 @@ const ReviewApprove = () => {
           onQuestionSelect={handleQuestionSelect}
           showActions={true}
           onQuestionUpdate={handleQuestionUpdate}
+          hideUnapproved={hideUnapproved}
         />
       </Box>
       <Box sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, gap: 2, justifyContent: 'center', mt: 4 }}>
-        <Button
-          variant="contained"
-          color="success"
-          sx={{ py: 1.5, fontSize: '1.1rem', width: { xs: '100%', sm: 260 } }}
-          disabled={selectedQuestions.length === 0}
-          onClick={handleApproveSelected}
-          size="large"
-        >
-          Approve Selected ({selectedQuestions.length})
-        </Button>
         <Button
           variant="contained"
           color="error"
@@ -339,7 +278,7 @@ const ReviewApprove = () => {
         </Button>
       </Box>
     </Box>
-  );
+  )
 };
 
-export default ReviewApprove;
+export default EditDelete;
