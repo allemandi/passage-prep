@@ -13,16 +13,18 @@ import {
     ListItemText,
     MenuItem
 } from '@mui/material';
-import QuestionTable from '../QuestionTable';
+
 import { searchQuestions, fetchAllQuestions, fetchUnapprovedQuestions } from '../../services/dataService';
 import ScriptureCombobox from '../ScriptureCombobox';
 import { getBibleBooks, getChaptersForBook, getVersesForChapter, getSortedQuestions } from '../../utils/bibleData';
 import themes from '../../data/themes.json';
 import { useTheme } from '@mui/material/styles';
-import ReviewApprove from '../Admin/ReviewApprove';
+import ReviewApprove from './ReviewApprove.jsx'
 import { downloadAllCSV, downloadFilteredCSV } from '../../utils/download';
 import { bulkUploadQuestions } from '../../utils/upload'
-import UploadResultsPanel from '../Admin/UploadResultsPanel';
+import UploadResultsPanel from './UploadResultsPanel';
+import EditDelete from './EditDelete';
+
 const authChannel = new BroadcastChannel('auth');
 
 const excludeFields = ['_id', '__v'];
@@ -39,32 +41,17 @@ const AdminForm = () => {
     const [showError, setShowError] = useState(false);
     const [errorMessage, setErrorMessage] = useState('');
     const [activeButton, setActiveButton] = useState(null);
-    const [selectedQuestions, setSelectedQuestions] = useState([]);
-    const [scriptureRefs, setScriptureRefs] = useState([{
-        id: 1,
-        selectedBook: '',
-        selectedChapter: '',
-        verseStart: '',
-        verseEnd: '',
-        availableChapters: [],
-        availableVerses: [],
-    }]);
-    const [selectedThemes, setSelectedThemes] = useState(themes);
     const [filteredQuestions, setFilteredQuestions] = useState([]);
     const [showSuccess, setShowSuccess] = useState(false);
     const [logoutSuccess, setLogoutSuccess] = useState(false);
-    const [hideUnapproved, setHideUnapproved] = useState(false);
+
     const [isUploading, setIsUploading] = useState(false);
     const [uploadResults, setUploadResults] = useState(null);
     const fileInputRef = useRef(null);
     const showToast = useToast();
 
-    // Use ref for logoutTimer to avoid dependency issues
     const logoutTimerRef = useRef(null);
 
-    
-
-    // Add state for download filters
     const [downloadRef, setDownloadRef] = useState({
         selectedBook: '',
         selectedChapter: '',
@@ -134,7 +121,6 @@ const AdminForm = () => {
                 }
             }
         };
-
         authChannel.addEventListener('message', handleAuthMessage);
         return () => authChannel.removeEventListener('message', handleAuthMessage);
     }, [resetLogoutTimer]);
@@ -144,7 +130,6 @@ const AdminForm = () => {
             const updateLastActivity = () => {
                 sessionStorage.setItem('lastActivity', Date.now().toString());
             };
-
             const checkInactivity = () => {
                 const lastActivity = sessionStorage.getItem('lastActivity');
                 const now = Date.now();
@@ -152,12 +137,10 @@ const AdminForm = () => {
                     handleLogout('inactivity');
                 }
             };
-
             window.addEventListener('mousemove', updateLastActivity);
             window.addEventListener('keydown', updateLastActivity);
 
             const intervalId = setInterval(checkInactivity, 60000);
-
             return () => {
                 clearInterval(intervalId);
                 window.removeEventListener('mousemove', updateLastActivity);
@@ -192,67 +175,7 @@ const AdminForm = () => {
         setActiveButton(buttonName);
     };
 
-    const handleQuestionSelect = (indices, isSelected) => {
-        setSelectedQuestions(prev => {
-            if (!Array.isArray(indices)) indices = [indices];
-            if (indices.length === filteredQuestions.length) {
-                return prev.length === filteredQuestions.length ? [] : indices;
-            }
-            if (indices.length === 0) {
-                return prev.length === filteredQuestions.length ? [] :
-                    Array.from({ length: filteredQuestions.length }, (_, i) => i);
-            }
-            return isSelected
-                ? [...new Set([...prev, ...indices])]
-                : prev.filter(i => !indices.includes(i));
-        });
-    };
-
-    const updateScriptureRef = (index, updates) => {
-        setScriptureRefs(prev => {
-            const newRefs = [...prev];
-            const currentRef = newRefs[index];
-            if (updates.verseStart !== undefined) {
-                const newStart = updates.verseStart;
-                const currentEnd = updates.verseEnd !== undefined ? updates.verseEnd : currentRef.verseEnd;
-                if (currentEnd === undefined || currentEnd === '' || isNaN(Number(currentEnd))) {
-                    updates.verseEnd = newStart;
-                } else if (parseInt(currentEnd) < parseInt(newStart)) {
-                    updates.verseEnd = newStart;
-                }
-            }
-            if (updates.selectedBook !== undefined) {
-                const chapters = getChaptersForBook(updates.selectedBook);
-                newRefs[index] = {
-                    ...currentRef,
-                    ...updates,
-                    selectedChapter: '',
-                    verseStart: '',
-                    verseEnd: '',
-                    availableChapters: chapters,
-                    availableVerses: [],
-                };
-            }
-            else if (updates.selectedChapter !== undefined) {
-                const verses = Array.from(
-                    { length: getVersesForChapter(currentRef.selectedBook, updates.selectedChapter) },
-                    (_, i) => (i + 1).toString()
-                );
-                newRefs[index] = {
-                    ...currentRef,
-                    ...updates,
-                    verseStart: '',
-                    verseEnd: '',
-                    availableVerses: verses,
-                };
-            }
-            else {
-                newRefs[index] = { ...currentRef, ...updates };
-            }
-
-            return newRefs;
-        });
-    };
+   
 
     useEffect(() => {
         if (activeButton === 'review' && isLoggedIn) {
@@ -273,95 +196,7 @@ const AdminForm = () => {
     }, [activeButton, isLoggedIn]);
 
 
-    const applyApiFilters = useCallback(async () => {
-        try {
-            const ref = scriptureRefs[0];
-            if (activeButton === 'review') {
-                const unapproved = await fetchUnapprovedQuestions();
-                let filtered = unapproved;
-                if (ref.selectedBook) {
-                    filtered = filtered.filter(q => q.book === ref.selectedBook);
-                }
-                if (ref.selectedChapter) {
-                    filtered = filtered.filter(q => String(q.chapter) === String(ref.selectedChapter));
-                }
-                if (ref.verseStart && ref.verseEnd && !isNaN(Number(ref.verseStart)) && !isNaN(Number(ref.verseEnd))) {
-                    filtered = filtered.filter(q =>
-                        parseInt(q.verseStart) <= Number(ref.verseEnd) &&
-                        parseInt(q.verseEnd || q.verseStart) >= Number(ref.verseStart)
-                    );
-                } else {
-                    if (ref.verseStart && !isNaN(Number(ref.verseStart))) {
-                        filtered = filtered.filter(q => parseInt(q.verseStart) >= Number(ref.verseStart));
-                    }
-                    if (ref.verseEnd && !isNaN(Number(ref.verseEnd))) {
-                        filtered = filtered.filter(q => parseInt(q.verseEnd || q.verseStart) <= Number(ref.verseEnd));
-                    }
-                }
-                if (selectedThemes.length !== themes.length) {
-                    filtered = filtered.filter(q => selectedThemes.includes(q.theme));
-                }
-                setFilteredQuestions(filtered);
-                return;
-            }
-            const filter = {};
-            if (ref.selectedBook) filter.book = ref.selectedBook;
-            filter.chapter = ref.selectedChapter || null;
-            filter.verseStart = ref.verseStart || null;
-            filter.verseEnd = ref.verseEnd || null;
-            if (selectedThemes.length !== themes.length) filter.themeArr = selectedThemes;
-
-            if (hideUnapproved) {
-                filter.isApproved = true;
-            }
-            const results = await searchQuestions(filter);
-            setFilteredQuestions(results);
-        } catch (error) {
-            setShowError(true);
-            setErrorMessage(error.message);
-            setFilteredQuestions([]);
-        }
-    }, [scriptureRefs, selectedThemes, activeButton]);
-
-    const handleDeleteSelected = useCallback(async () => {
-        if (selectedQuestions.length === 0) return;
-
-        try {
-            const questionIds = selectedQuestions.map(index => filteredQuestions[index]._id);
-            const response = await fetch('/api/delete-questions', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ questionIds }),
-            });
-
-            if (!response.ok) throw new Error('Failed to delete questions');
-
-            setShowSuccess(true);
-            setSelectedQuestions([]);
-            await applyApiFilters();
-        } catch (error) {
-            setShowError(true);
-            setErrorMessage(error.message);
-        }
-    }, [selectedQuestions, filteredQuestions, applyApiFilters]);
-
-    const handleQuestionUpdate = useCallback(async (questionId, updatedData) => {
-        try {
-            const response = await fetch('/api/update-question', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ questionId, updatedData }),
-            });
-
-            if (!response.ok) throw new Error('Failed to update question');
-
-            setShowSuccess(true);
-            await applyApiFilters();
-        } catch (error) {
-            setShowError(true);
-            setErrorMessage(error.message);
-        }
-    }, [applyApiFilters]);
+   
 
 
     const updateDownloadRef = (updates) => {
@@ -507,126 +342,7 @@ const AdminForm = () => {
                             </Grid>
                         </Grid>
 
-                        {activeButton === 'edit' && (
-                            <Box sx={{ mb: 5, width: '100%' }}>
-                                <Typography variant="h6" sx={{ mb: 3, fontWeight: 600 }}>
-                                    Filter for Editing/Deleting Questions
-                                </Typography>
-                                <Grid container spacing={3} justifyContent="center" alignItems="center" sx={{ mb: 2, flexWrap: 'wrap' }}>
-                                    <Grid item xs={12} sm={6} md={3} sx={{ display: 'flex', justifyContent: 'center' }}>
-                                        <Box sx={{ width: { xs: '100%', sm: 260 } }}>
-                                            <ScriptureCombobox
-                                                label="Book"
-                                                value={scriptureRefs[0].selectedBook}
-                                                onChange={(book) => updateScriptureRef(0, { selectedBook: book })}
-                                                options={getBibleBooks()}
-                                                placeholder="Select a book"
-                                                sx={{ width: '100%' }}
-                                            />
-                                        </Box>
-                                    </Grid>
-                                    <Grid item xs={12} sm={6} md={3} sx={{ display: 'flex', justifyContent: 'center' }}>
-                                        <Box sx={{ width: { xs: '100%', sm: 260 } }}>
-                                            <ScriptureCombobox
-                                                label="Chapter"
-                                                value={scriptureRefs[0].selectedChapter}
-                                                onChange={(chapter) => updateScriptureRef(0, { selectedChapter: chapter })}
-                                                options={scriptureRefs[0].availableChapters}
-                                                disabled={!scriptureRefs[0].selectedBook}
-                                                placeholder={scriptureRefs[0].selectedBook ? "Select chapter" : "Select book first"}
-                                            />
-                                        </Box>
-                                    </Grid>
-                                    <Grid item xs={12} sm={6} md={3} sx={{ display: 'flex', justifyContent: 'center' }}>
-                                        <Box sx={{ width: { xs: '100%', sm: 260 } }}>
-                                            <ScriptureCombobox
-                                                label="Start Verse"
-                                                value={scriptureRefs[0].verseStart}
-                                                onChange={(verse) => updateScriptureRef(0, { verseStart: verse })}
-                                                options={scriptureRefs[0].availableVerses}
-                                                disabled={!scriptureRefs[0].selectedChapter}
-                                                placeholder={scriptureRefs[0].selectedChapter ? "Select start verse" : "Select chapter first"}
-                                            />
-                                        </Box>
-                                    </Grid>
-                                    <Grid item xs={12} sm={6} md={3} sx={{ display: 'flex', justifyContent: 'center' }}>
-                                        <Box sx={{ width: { xs: '100%', sm: 260 } }}>
-                                            <ScriptureCombobox
-                                                label="End Verse"
-                                                value={scriptureRefs[0].verseEnd}
-                                                onChange={(verse) => updateScriptureRef(0, { verseEnd: verse })}
-                                                options={scriptureRefs[0].availableVerses}
-                                                disabled={!scriptureRefs[0].selectedChapter}
-                                                placeholder={scriptureRefs[0].selectedChapter ? "Select end verse" : "Select chapter first"}
-                                                isEndVerse
-                                                startVerseValue={scriptureRefs[0].verseStart}
-                                            />
-                                        </Box>
-                                    </Grid>
-                                </Grid>
-                                <Box sx={{ display: 'flex', justifyContent: 'center', width: '100%', mb: 2 }}>
-                                    <TextField
-                                        select
-                                        label="Themes"
-                                        value={selectedThemes}
-                                        onChange={(e) => setSelectedThemes(e.target.value)}
-                                        SelectProps={{
-                                            multiple: true,
-                                            renderValue: (selected) => selected.length === themes.length ? "All" : selected.join(", "),
-                                        }}
-                                        sx={{ width: { xs: '100%', sm: 260 }, fontSize: '1.1rem' }}
-                                    >
-                                        {themes.map((theme) => (
-                                            <MenuItem key={theme} value={theme}>
-                                                <Checkbox checked={selectedThemes.includes(theme)} />
-                                                <ListItemText primary={theme} />
-                                            </MenuItem>
-                                        ))}
-                                    </TextField>
-                                </Box>
-                                <Box sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, gap: 2, justifyContent: 'center', alignItems: 'center', width: '100%' }}>
-                                    <Button
-                                        variant="contained"
-                                        onClick={applyApiFilters}
-                                        sx={{ py: 1.5, fontSize: '1.1rem', width: { xs: '100%', sm: 200 } }}
-                                        size="large"
-                                    >
-                                        Apply Filters
-                                    </Button>
-                                    <Button
-                                        variant={hideUnapproved ? 'contained' : 'outlined'}
-                                        color="secondary"
-                                        size="small"
-                                        sx={{ ml: { xs: 0, sm: 2 }, fontWeight: 500, minWidth: 120, width: { xs: '100%', sm: 'auto' } }}
-                                        onClick={() => setHideUnapproved(v => !v)}
-                                    >
-                                        {hideUnapproved ? 'Show Unapproved' : 'Hide Unapproved'}
-                                    </Button>
-                                </Box>
-                                <Box sx={{ width: '100%', mt: 2 }}>
-                                    <QuestionTable
-                                        questions={filteredQuestions}
-                                        selectedQuestions={selectedQuestions}
-                                        onQuestionSelect={handleQuestionSelect}
-                                        showActions={activeButton === 'edit'}
-                                        onQuestionUpdate={handleQuestionUpdate}
-                                        hideUnapproved={hideUnapproved}
-                                    />
-                                </Box>
-                                <Box sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, gap: 2, justifyContent: 'center', mt: 4 }}>
-                                    <Button
-                                        variant="contained"
-                                        color="error"
-                                        sx={{ py: 1.5, fontSize: '1.1rem', width: { xs: '100%', sm: 260 } }}
-                                        disabled={selectedQuestions.length === 0}
-                                        onClick={handleDeleteSelected}
-                                        size="large"
-                                    >
-                                        Delete Selected
-                                    </Button>
-                                </Box>
-                            </Box>
-                        )}
+                        {activeButton === 'edit' && (<EditDelete />)}
 
                         {activeButton === 'review' && ( <ReviewApprove />)}
 
