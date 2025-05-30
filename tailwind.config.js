@@ -1,8 +1,49 @@
 module.exports = {
   darkMode: 'class',
-  content: ["./index.html", "./src/**/*.{js,ts,jsx,tsx}"],
+  content: ['./index.html', './src/**/*.{js,ts,jsx,tsx}'],
+  safelist: [
+    'bg-white',
+    'bg-gray-100',
+    'bg-gray-800',
+    'bg-black',
+    'bg-light-bg',
+    'bg-dark-bg',
+    'text-light-text',
+    'text-dark-text',
+  ],
   theme: {
-    extend: {},
+    extend: {
+      colors: {
+        'light-bg': '#FFF1E6',
+        'dark-bg': '#1E1E1E',
+        'light-text': '#3C2F2F',
+        'dark-text': '#FCEADE',
+        primary: {
+          50: '#FFF7F0',
+          100: '#FFEBDD',
+          200: '#FFD5BA',
+          300: '#FFB88A',
+          400: '#FF9C5C',
+          500: '#FF8133',
+          600: '#DB6622',
+          700: '#B34F19',
+          800: '#8C3A12',
+          900: '#66280C',
+        },
+        gray: {
+          50: '#FAF4F2',
+          100: '#F3EAE7',
+          200: '#E5D7D1',
+          300: '#D0BFB7',
+          400: '#A99D95',
+          500: '#857B74',
+          600: '#655E58',
+          700: '#4B4642',
+          800: '#332F2D',
+          900: '#1E1A19',
+        },
+      },
+    },
   },
-  plugins: [],
-}
+  plugins: [require('@tailwindcss/typography')],
+};

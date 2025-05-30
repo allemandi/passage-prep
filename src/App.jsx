@@ -41,10 +41,20 @@ function App() {
 
   return (
     <ToastProvider>
-      <div className="min-h-screen flex flex-col bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 transition-colors duration-300">
+      {/* Test box with corrected class names */}
+<div className="bg-light-bg dark:bg-dark-bg text-light-text dark:text-dark-text p-4 rounded">
+  This background & text changes correctly with dark mode!
+</div>
+
+      <div
+        className="min-h-screen flex flex-col
+          bg-light-bg dark:bg-dark-bg
+          text-light-text dark:text-dark-text
+          transition-colors duration-300"
+      >
         <Header mode={mode} setMode={setMode} />
 
-        <main className="flex-grow bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 transition-colors duration-300">
+        <main className="flex-grow bg-light-bg dark:bg-dark-bg text-light-text dark:text-dark-text transition-colors duration-300">
           <div className="px-4 sm:px-6 md:px-8 py-8 min-h-screen flex flex-col">
             <Tabs tabValue={tabValue} setTabValue={setTabValue} />
 
