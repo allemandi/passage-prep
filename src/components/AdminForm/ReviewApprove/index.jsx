@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import { Check, Trash2, RefreshCcw, Filter } from 'lucide-react';
+import { useState, useEffect, useCallback } from 'react';
+import { Check, Trash2, Filter } from 'lucide-react';
 import QuestionTable from '../../QuestionTable';
 import { fetchUnapprovedQuestions, approveQuestions } from '../../../services/dataService';
 import ScriptureCombobox from '../../ScriptureCombobox';

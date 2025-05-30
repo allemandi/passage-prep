@@ -37,7 +37,7 @@ const downloadAllCSV = async ({
     link.click();
     document.body.removeChild(link);
   } catch (error) {
-    showToast('Download failed', 'error');
+    showToast(error.message, 'error');
   }
 };
 

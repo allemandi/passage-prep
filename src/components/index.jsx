@@ -1,4 +1,3 @@
-import React from 'react';
 import RequestForm from './RequestForm';
 import ContributeForm from './ContributeForm';
 import AdminForm from './AdminForm';
@@ -7,7 +6,12 @@ import StudyModal from './StudyModal';
 export default function MainContent({ tabValue, isLoading, handleShowStudy, studyData, setStudyData }) {
   return (
     <section
-      className="w-full max-w-[1200px] mx-auto px-4 sm:px-6 md:px-8"
+      className="
+        w-full max-w-[1200px] mx-auto px-4 sm:px-6 md:px-8
+        bg-white text-gray-900
+        dark:bg-gray-900 dark:text-gray-100
+        transition-colors duration-300
+      "
       role="tabpanel"
       id={`tabpanel-${tabValue}`}
       aria-labelledby={`tab-${tabValue}`}

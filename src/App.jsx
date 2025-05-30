@@ -1,31 +1,19 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { ToastProvider } from './components/ToastMessage/Toast'
+import { ToastProvider } from './components/ToastMessage/Toast';
 import Header from './components/Header';
 import Tabs from './components/Tabs';
 import MainContent from './components';
 import Footer from './components/Footer';
 import HelpModal from './components/HelpModal';
 import { getBooks } from './services/dataService';
+import { useDarkMode } from './components/useDarkMode';
 
 function App() {
   const [studyData, setStudyData] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [tabValue, setTabValue] = useState(0);
-  const [mode, setMode] = useState(() => {
-    const saved = sessionStorage.getItem('themeMode');
-    if (saved) return saved;
-    return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
-  });
+  const [mode, setMode] = useDarkMode();
   const [helpOpen, setHelpOpen] = useState(false);
-
-  useEffect(() => {
-    if (mode === 'dark') {
-      document.documentElement.classList.add('dark');
-    } else {
-      document.documentElement.classList.remove('dark');
-    }
-    sessionStorage.setItem('themeMode', mode);
-  }, [mode]);
 
   useEffect(() => {
     const loadInitialData = async () => {
@@ -56,19 +44,19 @@ function App() {
       <div className="min-h-screen flex flex-col bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 transition-colors duration-300">
         <Header mode={mode} setMode={setMode} />
 
-<main className="flex-grow bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 transition-colors duration-300">
-  <div className="px-4 sm:px-6 md:px-8 py-8 min-h-screen flex flex-col">
-    <Tabs tabValue={tabValue} setTabValue={setTabValue} />
+        <main className="flex-grow bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 transition-colors duration-300">
+          <div className="px-4 sm:px-6 md:px-8 py-8 min-h-screen flex flex-col">
+            <Tabs tabValue={tabValue} setTabValue={setTabValue} />
 
-    <MainContent
-      tabValue={tabValue}
-      isLoading={isLoading}
-      handleShowStudy={handleShowStudy}
-      studyData={studyData}
-      setStudyData={setStudyData}
-    />
-  </div>
-</main>
+            <MainContent
+              tabValue={tabValue}
+              isLoading={isLoading}
+              handleShowStudy={handleShowStudy}
+              studyData={studyData}
+              setStudyData={setStudyData}
+            />
+          </div>
+        </main>
 
         <Footer onHelpClick={() => setHelpOpen(true)} />
 

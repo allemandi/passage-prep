@@ -9,11 +9,11 @@ export default defineConfig([
     languageOptions: {
       ecmaVersion: 2022,
       sourceType: "module",
-        parserOptions: {
-    ecmaFeatures: {
-      jsx: true,
-    },
-},
+      parserOptions: {
+        ecmaFeatures: {
+          jsx: true,
+        },
+      },
       globals: { ...globals.browser, ...globals.node },
     },
     plugins: {
@@ -22,6 +22,19 @@ export default defineConfig([
     rules: {
       ...pluginReact.configs.recommended.rules,
       "react/prop-types": "off",
+
+      // Disable the rule that requires React in scope for JSX (React 17+)
+      "react/react-in-jsx-scope": "off",
+
+      // Adjust no-unused-vars to ignore React variable
+      "no-unused-vars": [
+        "warn",
+        {
+          varsIgnorePattern: "^React$",
+          argsIgnorePattern: "^_",
+          ignoreRestSiblings: true,
+        },
+      ],
     },
     settings: {
       react: {

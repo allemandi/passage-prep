@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import { ChevronDown, Check } from "lucide-react";
 import clsx from "clsx";
 import defaultThemes from "../data/themes.json";
+import React from 'react';
 
 export { defaultThemes };
 
