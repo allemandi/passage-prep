@@ -9,8 +9,8 @@ import {
 import { rateLimiter, getUserIdentifier } from '../utils/rateLimit';
 import { processInput } from '../utils/inputUtils';
 import { saveQuestion } from '../services/dataService';
-import themes from '../data/themes.json';
 import { useToast } from './ToastMessage/Toast';
+import ThemesSingleSelect from './ThemesSingleSelect';
 
 const ContributeForm = () => {
     const showToast = useToast();
@@ -100,70 +100,70 @@ const ContributeForm = () => {
     }, [startVerse, endVerse, selectedBook, selectedChapter, updateReference]);
 
     const handleSubmit = async (e) => {
-      e.preventDefault();
-  
-      try {
-          const userIdentifier = getUserIdentifier();
-          await rateLimiter.consume(userIdentifier);
-      } catch {
-          return showToast('Too many requests. Please slow down.', 'error');
-      }
-  
-      if (!reference.book || !reference.chapter || !reference.verseStart) {
-          return showToast('Please complete all required fields.', 'error');
-      }
-  
-      const [
-          { error: bookError },
-          { error: chapterError },
-          { error: verseStartError },
-          { error: verseEndError },
-          { sanitizedValue: sanitizedQuestionText, error: questionError },
-          { sanitizedValue: sanitizedTheme, error: themeError }
-      ] = await Promise.all([
-          processInput(reference.book, 'book'),
-          processInput(reference.chapter, 'chapter'),
-          processInput(reference.verseStart, 'start verse'),
-          processInput(reference.verseEnd || reference.verseStart, 'end verse'),
-          processInput(questionText, 'question'),
-          processInput(selectedTheme, 'theme')
-      ]);
-  
-      const error = bookError || chapterError || verseStartError || verseEndError || questionError || themeError;
-      if (error) return showToast(error, 'error');
-  
-      if (matcher.hasMatch(sanitizedQuestionText)) {
-          return showToast('Possible profanity detected. Please revise your question.', 'error');
-      }
-  
-      if (sanitizedQuestionText.length < 5) {
-          return showToast('Question is too short.', 'error');
-      }
-  
-      setIsSubmitting(true);
-  
-      try {
-          const saved = await saveQuestion(
-              sanitizedTheme,
-              sanitizedQuestionText,
-              {
-                  book: reference.book,
-                  chapter: reference.chapter,
-                  verseStart: reference.verseStart,
-                  verseEnd: reference.verseEnd || reference.verseStart,
-              }
-          );
-          if (saved) {
-              resetForm();
-              showToast('Your question has been submitted successfully!', 'success');
-          }
-      } catch (error) {
-          console.error('Error submitting question:', error);
-          showToast('Failed to submit your question. Please try again.', 'error');
-      } finally {
-          setIsSubmitting(false);
-      }
-  };
+        e.preventDefault();
+
+        try {
+            const userIdentifier = getUserIdentifier();
+            await rateLimiter.consume(userIdentifier);
+        } catch {
+            return showToast('Too many requests. Please slow down.', 'error');
+        }
+        if (!reference.book || !reference.chapter || !reference.verseStart || !selectedTheme) {
+            return showToast('Please complete all required fields.', 'error');
+        }
+
+
+        const [
+            { error: bookError },
+            { error: chapterError },
+            { error: verseStartError },
+            { error: verseEndError },
+            { sanitizedValue: sanitizedQuestionText, error: questionError },
+            { sanitizedValue: sanitizedTheme, error: themeError }
+        ] = await Promise.all([
+            processInput(reference.book, 'book'),
+            processInput(reference.chapter, 'chapter'),
+            processInput(reference.verseStart, 'start verse'),
+            processInput(reference.verseEnd || reference.verseStart, 'end verse'),
+            processInput(questionText, 'question'),
+            processInput(selectedTheme, 'theme')
+        ]);
+
+        const error = bookError || chapterError || verseStartError || verseEndError || questionError || themeError;
+        if (error) return showToast(error, 'error');
+
+        if (matcher.hasMatch(sanitizedQuestionText)) {
+            return showToast('Possible profanity detected. Please revise your question.', 'error');
+        }
+
+        if (sanitizedQuestionText.length < 5) {
+            return showToast('Question is too short.', 'error');
+        }
+
+        setIsSubmitting(true);
+
+        try {
+            const saved = await saveQuestion(
+                sanitizedTheme,
+                sanitizedQuestionText,
+                {
+                    book: reference.book,
+                    chapter: reference.chapter,
+                    verseStart: reference.verseStart,
+                    verseEnd: reference.verseEnd || reference.verseStart,
+                }
+            );
+            if (saved) {
+                resetForm();
+                showToast('Your question has been submitted successfully!', 'success');
+            }
+        } catch (error) {
+            console.error('Error submitting question:', error);
+            showToast('Failed to submit your question. Please try again.', 'error');
+        } finally {
+            setIsSubmitting(false);
+        }
+    };
 
 
     const resetForm = () => {
@@ -272,18 +272,11 @@ const ContributeForm = () => {
                         <h2 className="text-xl font-semibold text-blue-600 border-b-2 border-blue-600 pb-2 mb-6 text-center">
                             Theme
                         </h2>
-                        <select
-                            id="themeSelect"
+                        <ThemesSingleSelect
                             value={selectedTheme}
-                            onChange={(e) => setSelectedTheme(e.target.value)}
-                            required
-                            className="w-full border border-gray-300 rounded-md p-2 text-gray-900 dark:text-gray-100 dark:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                        >
-                            <option value="">Select a theme</option>
-                            {themes.map((theme, idx) => (
-                                <option key={idx} value={theme}>{theme}</option>
-                            ))}
-                        </select>
+                            onChange={(newTheme) => setSelectedTheme(newTheme)}
+                            isRequired
+                        />
                     </div>
 
                     <div className="w-full max-w-xs mx-auto flex flex-col">
@@ -308,8 +301,8 @@ const ContributeForm = () => {
                         type="submit"
                         disabled={isSubmitting}
                         className={`px-14 py-3 rounded-lg font-semibold text-lg transition-shadow text-white
-                            ${isSubmitting 
-                                ? 'bg-blue-400 cursor-not-allowed' 
+                            ${isSubmitting
+                                ? 'bg-blue-400 cursor-not-allowed'
                                 : 'bg-blue-600 hover:bg-blue-700 shadow-lg hover:shadow-xl'
                             }`}
                     >
