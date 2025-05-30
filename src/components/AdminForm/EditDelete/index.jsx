@@ -2,14 +2,13 @@ import React, { useState, useCallback } from 'react';
 import ScriptureCombobox from '../../ScriptureCombobox';
 import { getBibleBooks, getChaptersForBook, getVersesForChapter } from '../../../utils/bibleData';
 import QuestionTable from '../../QuestionTable';
-import themes from '../../../data/themes.json';
 import { useToast } from '../../ToastMessage/Toast';
 import { searchQuestions, clearSearchCache } from '../../../services/dataService';
-import ThemesMultiSelect from '../../ThemesMultiSelect';
+import ThemesMultiSelect, { defaultThemes } from '../../ThemesMultiSelect';
 
 const EditDelete = () => {
     const [hideUnapproved, setHideUnapproved] = useState(false);
-    const [selectedThemes, setSelectedThemes] = useState(themes);
+    const [selectedThemes, setSelectedThemes] = useState(defaultThemes);
     const [selectedQuestions, setSelectedQuestions] = useState([]);
     const [filteredQuestions, setFilteredQuestions] = useState([]);
     const showToast = useToast();
@@ -94,7 +93,9 @@ const EditDelete = () => {
             filter.chapter = ref.selectedChapter || null;
             filter.verseStart = ref.verseStart || null;
             filter.verseEnd = ref.verseEnd || null;
-            if (selectedThemes.length !== themes.length) filter.themeArr = selectedThemes;
+            if (selectedThemes.length !== defaultThemes.length) {
+                filter.themeArr = selectedThemes;
+            }
             if (hideUnapproved) {
                 filter.isApproved = true;
             }

@@ -281,8 +281,11 @@ const ContributeForm = () => {
 
                     <div className="w-full max-w-xs mx-auto flex flex-col">
                         <h2 className="text-xl font-semibold text-blue-600 border-b-2 border-blue-600 pb-2 mb-6 text-center">
-                            Question Details
+                            Question
                         </h2>
+                        <label className="block mb-1 text-sm font-medium text-gray-700 dark:text-gray-300">
+                            Question Details <span className="text-red-500">*</span>
+                        </label>
                         <textarea
                             id="questionText"
                             rows={4}
@@ -295,7 +298,6 @@ const ContributeForm = () => {
                     </div>
                 </div>
 
-                {/* Submit Button */}
                 <div className="col-span-full flex justify-center mt-8">
                     <button
                         type="submit"

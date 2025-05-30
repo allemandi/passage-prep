@@ -8,6 +8,7 @@ const ThemesSingleSelect = ({
   onChange,
   themes = defaultThemes,
   label = "Themes",
+  isRequired,
 }) => {
   const [open, setOpen] = useState(false);
   const containerRef = useRef();
@@ -30,9 +31,10 @@ const ThemesSingleSelect = ({
   return (
     <div className="relative w-full max-w-[260px]" ref={containerRef}>
       <label className="block mb-1 text-sm font-medium text-gray-700 dark:text-gray-300">
-        {label}
+       {label} {isRequired && <span className="text-red-500">*</span>}
       </label>
       <button
+        type="button"
         onClick={() => setOpen((o) => !o)}
         aria-haspopup="listbox"
         aria-expanded={open}

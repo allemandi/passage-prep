@@ -3,6 +3,8 @@ import { ChevronDown, Check } from "lucide-react";
 import clsx from "clsx";
 import defaultThemes from "../data/themes.json";
 
+export { defaultThemes };
+
 const ThemesMultiSelect = ({
   value,
   onChange,

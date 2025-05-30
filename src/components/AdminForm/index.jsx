@@ -1,197 +1,103 @@
-import React, { useState, useEffect, useCallback, useRef } from 'react';
-import {
-    Box,
-    Button,
-    Typography,
-    Paper,
-    Alert,
-    Snackbar,
-    Container,
-    Grid,
-} from '@mui/material';
-
-
-import { useTheme } from '@mui/material/styles';
+import React, { useState, useEffect, useCallback } from 'react';
+import useSessionTimeout from './useSessionTimeout';
+import Login from './Login';
 import ReviewApprove from './ReviewApprove';
-
 import Upload from './Upload';
 import EditDelete from './EditDelete';
-import Login from './Login';
 import Download from './Download';
 
+import { useToast } from '../ToastMessage/Toast';
 
-const SESSION_TIMEOUT_MINUTES = 30;
-const SESSION_TIMEOUT_MS = SESSION_TIMEOUT_MINUTES * 60 * 1000;
+const SESSION_TIMEOUT_MS = 30 * 60 * 1000;
 
+const buttons = [
+  { name: 'edit', label: 'Edit/Delete' },
+  { name: 'review', label: 'Review/Approve' },
+  { name: 'download', label: 'Download' },
+  { name: 'upload', label: 'Bulk Upload' },
+];
 
-const AdminForm = () => {
-    const [isLoggedIn, setIsLoggedIn] = useState(false);
-    const [showError, setShowError] = useState(false);
-    const [errorMessage, setErrorMessage] = useState('');
-    const [activeButton, setActiveButton] = useState(null);
-    const [logoutSuccess, setLogoutSuccess] = useState(false);
+export default function AdminForm() {
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [activeButton, setActiveButton] = useState(null);
+  const showToast = useToast();
 
-    const logoutTimerRef = useRef(null);
+  const handleLogout = useCallback(
+    (reason) => {
+      setIsLoggedIn(false);
+      sessionStorage.removeItem('isLoggedIn');
 
+      if (reason === 'inactivity') {
+        showToast('Logged out due to inactivity', 'error');
+      } else if (reason === 'manual') {
+        showToast('Logged out successfully', 'success');
+      }
+    },
+    [showToast]
+  );
 
+  useSessionTimeout(() => handleLogout('inactivity'), isLoggedIn, SESSION_TIMEOUT_MS);
 
-    const theme = useTheme();
+  useEffect(() => {
+    if (sessionStorage.getItem('isLoggedIn') === 'true') {
+      setIsLoggedIn(true);
+    }
+  }, []);
 
-    const handleLogout = useCallback((reason) => {
-        if (logoutTimerRef.current) {
-            clearTimeout(logoutTimerRef.current);
-        }
+  const renderContent = () => {
+    switch (activeButton) {
+      case 'edit':
+        return <EditDelete />;
+      case 'review':
+        return <ReviewApprove />;
+      case 'download':
+        return <Download />;
+      case 'upload':
+        return <Upload />;
+      default:
+        return null;
+    }
+  };
 
-        setIsLoggedIn(false);
-        sessionStorage.removeItem('isLoggedIn');
+  return (
+    <div className="max-w-[1200px] mx-auto px-6 pt-12 pb-16 bg-gray-900 min-h-screen">
+      <div className="bg-gray-800 border border-gray-700 rounded-xl p-8 shadow-lg">
+        {!isLoggedIn ? (
+          <Login setIsLoggedIn={setIsLoggedIn} />
+        ) : (
+          <>
+            <h2 className="text-3xl font-semibold text-primary-500 border-b-2 border-primary-500 pb-2 mb-10 tracking-wide">
+              Admin Mode
+            </h2>
 
-        if (reason === 'inactivity') {
-            setShowError(true);
-            setErrorMessage('Logged out due to inactivity');
-        } else if (reason === 'manual') {
-            setLogoutSuccess(true);
-        }
-    }, []);
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6 mb-10">
+              {buttons.map(({ name, label }) => (
+                <button
+                  key={name}
+                  onClick={() => setActiveButton(name)}
+                  className={`w-full py-3 font-semibold rounded-lg transition
+                    ${
+                      activeButton === name
+                        ? 'bg-primary-600 text-white shadow-lg'
+                        : 'border border-gray-600 text-gray-300 hover:bg-gray-700 hover:border-primary-500 hover:text-primary-400'
+                    }`}
+                >
+                  {label}
+                </button>
+              ))}
+            </div>
 
-    const resetLogoutTimer = useCallback(() => {
-        if (logoutTimerRef.current) {
-            clearTimeout(logoutTimerRef.current);
-        }
-        logoutTimerRef.current = setTimeout(() => {
-            handleLogout('inactivity');
-        }, SESSION_TIMEOUT_MS);
-    }, [handleLogout]);
+            <div className="min-h-[300px] text-gray-100">{renderContent()}</div>
 
-    useEffect(() => {
-        if (isLoggedIn) {
-            resetLogoutTimer();
-            const handleActivity = () => resetLogoutTimer();
-            window.addEventListener('mousemove', handleActivity);
-            window.addEventListener('keydown', handleActivity);
-
-            return () => {
-                if (logoutTimerRef.current) {
-                    clearTimeout(logoutTimerRef.current);
-                }
-                window.removeEventListener('mousemove', handleActivity);
-                window.removeEventListener('keydown', handleActivity);
-            };
-        }
-    }, [isLoggedIn, resetLogoutTimer]);
-
-    useEffect(() => {
-        const storedLogin = sessionStorage.getItem('isLoggedIn');
-        if (storedLogin === 'true') {
-            setIsLoggedIn(true);
-        }
-    }, []);
-
-    const handleButtonClick = (buttonName) => {
-        setActiveButton(buttonName);
-    };
-
-   
-    return (
-        <Container maxWidth="xl" sx={{ pt: { xs: 2, md: 6 }, pb: { xs: 2, md: 6 }, px: { xs: 0, md: 4 } }}>
-            <Paper
-                elevation={2}
-                sx={{
-                    p: { xs: 2, sm: 4, md: 6 },
-                    bgcolor: 'background.paper',
-                    borderRadius: 3,
-                    border: `1.5px solid ${theme.palette.divider}`,
-                    width: '100%',
-                    maxWidth: 'none',
-                    mx: 'auto',
-                }}
+            <button
+              onClick={() => handleLogout('manual')}
+              className="mt-12 w-full py-3 font-semibold rounded-lg border border-primary-600 text-primary-600 hover:bg-primary-600 hover:text-white transition"
             >
-                {!isLoggedIn ? (<Login setIsLoggedIn={setIsLoggedIn} setShowError={setShowError} setErrorMessage={setErrorMessage} />
-                ) : (
-                    <Box sx={{ width: '100%' }}>
-                        <Typography variant="h5" sx={{ mb: 4, textAlign: 'center', fontWeight: 700, letterSpacing: 1 }}>
-                            Admin Mode
-                        </Typography>
-                        <Grid container spacing={3} justifyContent="center" alignItems="center" sx={{ mb: 5, width: '100%' }}>
-                            <Grid item xs={12} sm={4} md={3}>
-                                <Button
-                                    variant={activeButton === 'edit' ? 'contained' : 'outlined'}
-                                    onClick={() => handleButtonClick('edit')}
-                                    fullWidth
-                                    size="large"
-                                    sx={{ py: 2, fontWeight: 600 }}
-                                >
-                                    Edit/Delete
-                                </Button>
-                            </Grid>
-                            <Grid item xs={12} sm={4} md={3}>
-                                <Button
-                                    variant={activeButton === 'review' ? 'contained' : 'outlined'}
-                                    onClick={() => handleButtonClick('review')}
-                                    fullWidth
-                                    size="large"
-                                    sx={{ py: 2, fontWeight: 600 }}
-                                >
-                                    Review/Approve
-                                </Button>
-                            </Grid>
-                            <Grid item xs={12} sm={4} md={3}>
-                                <Button
-                                    variant={activeButton === 'download' ? 'contained' : 'outlined'}
-                                    onClick={() => handleButtonClick('download')}
-                                    fullWidth
-                                    size="large"
-                                    sx={{ py: 2, fontWeight: 600 }}
-                                >
-                                    Download
-                                </Button>
-                            </Grid>
-                            <Grid item xs={12} sm={4} md={3}>
-                                <Button
-                                    variant={activeButton === 'upload' ? 'contained' : 'outlined'}
-                                    onClick={() => handleButtonClick('upload')}
-                                    fullWidth
-                                    size="large"
-                                    sx={{ py: 2, fontWeight: 600 }}
-                                >
-                                    Bulk Upload
-                                </Button>
-                            </Grid>
-                        </Grid>
-
-                        {activeButton === 'edit' && (<EditDelete />)}
-                        {activeButton === 'review' && (<ReviewApprove />)}
-                        {activeButton === 'download' && (
-                            <Download />)}
-
-                        {activeButton === 'upload' && (<Upload />)}
-                        <Button variant="outlined" onClick={() => handleLogout('manual')} fullWidth size="large" sx={{ mt: 4, py: 2, fontWeight: 600 }}>
-                            Logout
-                        </Button>
-                    </Box>
-                )}
-            </Paper>
-
-            <Snackbar
-                open={showError}
-                autoHideDuration={6000}
-                onClose={() => setShowError(false)}
-                anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
-            >
-                <Alert onClose={() => setShowError(false)} severity="error">
-                    {errorMessage}
-                </Alert>
-            </Snackbar>
-
-            <Snackbar
-                open={logoutSuccess}
-                autoHideDuration={6000}
-                onClose={() => setLogoutSuccess(false)}
-                anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
-            >
-                <Alert severity="success">Logged out successfully</Alert>
-            </Snackbar>
-        </Container>
-    );
-};
-
-export default AdminForm;
+              Logout
+            </button>
+          </>
+        )}
+      </div>
+    </div>
+  );
+}

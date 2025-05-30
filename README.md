@@ -92,7 +92,7 @@ Build reusable Bible studies in seconds.
 - `yarn lint` - Lints the codebase using ESLint to check for code quality and style issues.
 
 ## ⚙️ Built With
-- **Frontend:** React, Vite, MUI
+- **Frontend:** React, Vite, Tailwind
 - **Backend:** Netlify Functions, MongoDB, Mongoose
 
 ## 🔗 Related Projects

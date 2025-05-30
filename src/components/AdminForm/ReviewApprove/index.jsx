@@ -4,9 +4,8 @@ import QuestionTable from '../../QuestionTable';
 import { fetchUnapprovedQuestions, approveQuestions } from '../../../services/dataService';
 import ScriptureCombobox from '../../ScriptureCombobox';
 import { getBibleBooks, getChaptersForBook, getVersesForChapter } from '../../../utils/bibleData';
-import themes from '../../../data/themes.json';
 import { useToast } from '../../ToastMessage/Toast';
-import ThemesMultiSelect from '../../ThemesMultiSelect';
+import ThemesMultiSelect, { defaultThemes } from '../../ThemesMultiSelect';
 
 const ReviewApprove = () => {
     const [selectedQuestions, setSelectedQuestions] = useState([]);
@@ -19,7 +18,7 @@ const ReviewApprove = () => {
         availableChapters: [],
         availableVerses: [],
     }]);
-    const [selectedThemes, setSelectedThemes] = useState(themes);
+    const [selectedThemes, setSelectedThemes] = useState(defaultThemes);
     const [filteredQuestions, setFilteredQuestions] = useState([]);
     const [allUnapprovedQuestions, setAllUnapprovedQuestions] = useState([]);
     const showToast = useToast();
@@ -124,7 +123,7 @@ const ReviewApprove = () => {
                     filtered = filtered.filter(q => parseInt(q.verseEnd || q.verseStart) <= Number(ref.verseEnd));
                 }
             }
-            if (selectedThemes.length !== themes.length) {
+            if (selectedThemes.length !== defaultThemes.length) {
                 filtered = filtered.filter(q => selectedThemes.includes(q.theme));
             }
 
@@ -252,12 +251,7 @@ const ReviewApprove = () => {
                 >
                     <Filter className="w-5 h-5" /> Apply Filters
                 </button>
-                <button
-                    onClick={fetchUnapprovedData}
-                    className="flex items-center gap-2 border border-gray-400 px-6 py-2 rounded hover:bg-gray-100"
-                >
-                    <RefreshCcw className="w-5 h-5" /> Refresh
-                </button>
+                
             </div>
 
             <div className="mt-6">
