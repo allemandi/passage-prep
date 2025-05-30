@@ -13,8 +13,12 @@ const getApiUrl = (endpoint) => {
 };
 
 
-let searchQuestionsCache = {};
+export let searchQuestionsCache = {};
 let allQuestionsCache = null;
+
+export const clearSearchCache = () => {
+  searchQuestionsCache = {};
+};
 
 export const getBooks = () => {
     // Directly return the imported JSON data

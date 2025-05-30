@@ -14,7 +14,8 @@ import {
   MenuItem
 } from '@mui/material';
 import { useToast } from '../ToastMessage/Toast';
-import { searchQuestions } from '../../services/dataService';
+import { searchQuestions, clearSearchCache } from '../../services/dataService';
+
 
 const EditDelete = () => {
   const [hideUnapproved, setHideUnapproved] = useState(false);
@@ -131,7 +132,7 @@ const EditDelete = () => {
       if (!response.ok) throw new Error('Failed to delete questions');
       setFilteredQuestions(prev => prev.filter(q => !questionIds.includes(q._id)));
       showToast('Questions deleted successfully', 'success');
-      setTimeout(() => applyApiFilters(), 500);
+      clearSearchCache();
     } catch (error) {
       showToast(error.message, 'error');
       applyApiFilters();
@@ -151,7 +152,7 @@ const EditDelete = () => {
       );
 
       showToast('Question updated successfully', 'success');
-      setTimeout(() => applyApiFilters(), 500);
+      clearSearchCache();
     } catch (error) {
       showToast(error.message, 'error');
       applyApiFilters();
