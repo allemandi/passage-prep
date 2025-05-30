@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import {
     Box,
-    TextField,
     Button,
     Typography,
     Paper,
@@ -11,7 +10,7 @@ import {
     Grid,
 } from '@mui/material';
 
-import {  fetchAllQuestions } from '../../services/dataService';
+import { fetchAllQuestions } from '../../services/dataService';
 import ScriptureCombobox from '../ScriptureCombobox';
 import { getBibleBooks, getChaptersForBook, getVersesForChapter, getSortedQuestions } from '../../utils/bibleData';
 import themes from '../../data/themes.json';
@@ -21,31 +20,23 @@ import { downloadAllCSV, downloadFilteredCSV } from '../../utils/download';
 import { bulkUploadQuestions } from '../../utils/upload'
 import UploadResultsPanel from './UploadResultsPanel';
 import EditDelete from './EditDelete';
-
-const authChannel = new BroadcastChannel('auth');
-
-const excludeFields = ['_id', '__v'];
-
-const SESSION_TIMEOUT_MINUTES = 30; // Adjustable timeout in minutes
-const SESSION_TIMEOUT_MS = SESSION_TIMEOUT_MINUTES * 60 * 1000; // Convert to milliseconds
+import Login from './LoginPanel';
 import { useToast } from '../ToastMessage/Toast';
 
+const SESSION_TIMEOUT_MINUTES = 30;
+const SESSION_TIMEOUT_MS = SESSION_TIMEOUT_MINUTES * 60 * 1000;
+const excludeFields = ['_id', '__v'];
 
 const AdminForm = () => {
-    const [username, setUsername] = useState('');
-    const [password, setPassword] = useState('');
     const [isLoggedIn, setIsLoggedIn] = useState(false);
     const [showError, setShowError] = useState(false);
     const [errorMessage, setErrorMessage] = useState('');
     const [activeButton, setActiveButton] = useState(null);
-    const [showSuccess, setShowSuccess] = useState(false);
     const [logoutSuccess, setLogoutSuccess] = useState(false);
-
     const [isUploading, setIsUploading] = useState(false);
     const [uploadResults, setUploadResults] = useState(null);
     const fileInputRef = useRef(null);
     const showToast = useToast();
-
     const logoutTimerRef = useRef(null);
 
     const [downloadRef, setDownloadRef] = useState({
@@ -64,7 +55,6 @@ const AdminForm = () => {
             clearTimeout(logoutTimerRef.current);
         }
 
-        authChannel.postMessage({ type: 'LOGOUT' });
         setIsLoggedIn(false);
         sessionStorage.removeItem('isLoggedIn');
 
@@ -103,69 +93,11 @@ const AdminForm = () => {
     }, [isLoggedIn, resetLogoutTimer]);
 
     useEffect(() => {
-        const handleAuthMessage = (event) => {
-            if (event.data.type === 'LOGIN') {
-                setIsLoggedIn(true);
-                sessionStorage.setItem('isLoggedIn', 'true');
-                resetLogoutTimer();
-            } else if (event.data.type === 'LOGOUT') {
-                setIsLoggedIn(false);
-                sessionStorage.removeItem('isLoggedIn');
-                if (logoutTimerRef.current) {
-                    clearTimeout(logoutTimerRef.current);
-                    logoutTimerRef.current = null;
-                }
-            }
-        };
-        authChannel.addEventListener('message', handleAuthMessage);
-        return () => authChannel.removeEventListener('message', handleAuthMessage);
-    }, [resetLogoutTimer]);
-
-    useEffect(() => {
-        if (isLoggedIn) {
-            const updateLastActivity = () => {
-                sessionStorage.setItem('lastActivity', Date.now().toString());
-            };
-            const checkInactivity = () => {
-                const lastActivity = sessionStorage.getItem('lastActivity');
-                const now = Date.now();
-                if (lastActivity && (now - parseInt(lastActivity) > SESSION_TIMEOUT_MS)) {
-                    handleLogout('inactivity');
-                }
-            };
-            window.addEventListener('mousemove', updateLastActivity);
-            window.addEventListener('keydown', updateLastActivity);
-
-            const intervalId = setInterval(checkInactivity, 60000);
-            return () => {
-                clearInterval(intervalId);
-                window.removeEventListener('mousemove', updateLastActivity);
-                window.removeEventListener('keydown', updateLastActivity);
-            };
-        }
-    }, [isLoggedIn, handleLogout]);
-
-    const handleLogin = async (e) => {
-        e.preventDefault();
-        try {
-            const response = await fetch('/api/login', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ username, password }),
-            });
-            if (!response.ok) throw new Error('Invalid credentials');
-
+        const storedLogin = sessionStorage.getItem('isLoggedIn');
+        if (storedLogin === 'true') {
             setIsLoggedIn(true);
-            sessionStorage.setItem('isLoggedIn', 'true');
-        } catch (error) {
-            setShowError(true);
-            setErrorMessage(error.message);
         }
-    };
-
-    const closeError = () => {
-        setShowError(false);
-    };
+    }, []);
 
     const handleButtonClick = (buttonName) => {
         setActiveButton(buttonName);
@@ -195,33 +127,33 @@ const AdminForm = () => {
         });
     };
 
-
     const handleDownloadFilteredCSV = () => {
-      downloadFilteredCSV({
-        fetchAllQuestions,
-        downloadRef,
-        excludeFields,
-        getSortedQuestions,
-        showToast,
-      });
+        downloadFilteredCSV({
+            fetchAllQuestions,
+            downloadRef,
+            excludeFields,
+            getSortedQuestions,
+            showToast,
+        });
     };
 
     const handleDownloadAllCSV = () => {
-      downloadAllCSV({
-        fetchAllQuestions,
-        excludeFields,
-        getSortedQuestions,
-        showToast,
-      });
+        downloadAllCSV({
+            fetchAllQuestions,
+            excludeFields,
+            getSortedQuestions,
+            showToast,
+        });
     };
+
     const handleBulkUpload = (e) =>
-      bulkUploadQuestions({
-        e,
-        fileInputRef,
-        setIsUploading,
-        setUploadResults,
-        showToast,
-      });
+        bulkUploadQuestions({
+            e,
+            fileInputRef,
+            setIsUploading,
+            setUploadResults,
+            showToast,
+        });
 
     return (
         <Container maxWidth="xl" sx={{ pt: { xs: 2, md: 6 }, pb: { xs: 2, md: 6 }, px: { xs: 0, md: 4 } }}>
@@ -238,30 +170,11 @@ const AdminForm = () => {
                 }}
             >
                 {!isLoggedIn ? (
-                    <Box component="form" onSubmit={handleLogin} sx={{ display: 'flex', flexDirection: 'column', gap: 3, maxWidth: 480, mx: 'auto', width: '100%' }}>
-                        <TextField
-                            label="Username"
-                            value={username}
-                            onChange={(e) => setUsername(e.target.value)}
-                            required
-                            fullWidth
-                            size="large"
-                            sx={{ mb: 2 }}
-                        />
-                        <TextField
-                            label="Password"
-                            type="password"
-                            value={password}
-                            onChange={(e) => setPassword(e.target.value)}
-                            required
-                            fullWidth
-                            size="large"
-                            sx={{ mb: 2 }}
-                        />
-                        <Button type="submit" variant="contained" color="primary" fullWidth size="large" sx={{ py: 2, fontSize: '1.1rem' }}>
-                            Login
-                        </Button>
-                    </Box>
+                    <Login 
+                        setIsLoggedIn={setIsLoggedIn} 
+                        setShowError={setShowError} 
+                        setErrorMessage={setErrorMessage} 
+                    />
                 ) : (
                     <Box sx={{ width: '100%' }}>
                         <Typography variant="h5" sx={{ mb: 4, textAlign: 'center', fontWeight: 700, letterSpacing: 1 }}>
@@ -315,9 +228,7 @@ const AdminForm = () => {
                         </Grid>
 
                         {activeButton === 'edit' && (<EditDelete />)}
-
-                        {activeButton === 'review' && ( <ReviewApprove />)}
-
+                        {activeButton === 'review' && (<ReviewApprove />)}
                         {activeButton === 'download' && (
                             <Box sx={{ mb: 5, width: '100%' }}>
                                 <Typography variant="h6" sx={{ mb: 3, fontWeight: 600 }}>
@@ -454,7 +365,6 @@ const AdminForm = () => {
                                         type="submit"
                                         variant="contained"
                                         color="primary"
-
                                         sx={{ py: 1.5, fontSize: '1.1rem', width: { xs: '100%', sm: 260 } }}
                                         size="large"
                                     >
@@ -476,10 +386,10 @@ const AdminForm = () => {
             <Snackbar
                 open={showError}
                 autoHideDuration={6000}
-                onClose={closeError}
+                onClose={() => setShowError(false)}
                 anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
             >
-                <Alert onClose={closeError} severity="error">
+                <Alert onClose={() => setShowError(false)} severity="error">
                     {errorMessage}
                 </Alert>
             </Snackbar>
@@ -491,15 +401,6 @@ const AdminForm = () => {
                 anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
             >
                 <Alert severity="success">Logged out successfully</Alert>
-            </Snackbar>
-
-            <Snackbar
-                open={showSuccess}
-                autoHideDuration={6000}
-                onClose={() => setShowSuccess(false)}
-                anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
-            >
-                <Alert severity="success">Operation successful</Alert>
             </Snackbar>
         </Container>
     );
