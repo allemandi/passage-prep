@@ -8,7 +8,7 @@ import Download from './Download';
 
 import { useToast } from '../ToastMessage/Toast';
 
-const SESSION_TIMEOUT_MS = 30 * 60 * 1000;
+const SESSION_TIMEOUT_MS = 300000; // 5 mins
 
 const buttons = [
   { name: 'edit', label: 'Edit/Delete' },
