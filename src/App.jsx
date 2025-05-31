@@ -1,50 +1,23 @@
-import React, { useState, useEffect, useMemo, useCallback } from 'react';
-import { ThemeProvider, createTheme, Tabs, Tab, Box, Container, CssBaseline, IconButton, Tooltip, useMediaQuery, Typography } from '@mui/material';
-import Brightness4Icon from '@mui/icons-material/Brightness4';
-import Brightness7Icon from '@mui/icons-material/Brightness7';
-import AutoStoriesIcon from '@mui/icons-material/AutoStories';
-import './App.css';
-import RequestForm from './components/RequestForm';
-import ContributeForm from './components/ContributeForm';
-import AdminForm from './components/AdminForm';
-import StudyModal from './components/StudyModal';
-import { getBooks } from './services/dataService';
-import { createAppTheme } from './theme/theme';
+import React, { useState, useEffect, useCallback } from 'react';
+import { ToastProvider } from './components/ToastMessage/Toast';
+import Header from './components/Header';
+import Tabs from './components/Tabs';
+import MainContent from './components';
 import Footer from './components/Footer';
 import HelpModal from './components/HelpModal';
-
+import { getBooks } from './services/dataService';
+import { useDarkMode } from './components/useDarkMode';
 
 function App() {
   const [studyData, setStudyData] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [tabValue, setTabValue] = useState(0);
-  const prefersDarkMode = useMediaQuery('(prefers-color-scheme: dark)');
-  const [mode, setMode] = useState(() => {
-    const savedMode = sessionStorage.getItem('themeMode');
-    return savedMode || (prefersDarkMode ? 'dark' : 'light');
-  });
+  const [mode, setMode] = useDarkMode();
   const [helpOpen, setHelpOpen] = useState(false);
-  const handleHelpClose = () => setHelpOpen(false);
-
-  const theme = useMemo(() => {
-    const baseTheme = createAppTheme(mode);
-    return createTheme({
-      ...baseTheme,
-      palette: {
-        ...baseTheme.palette,
-        mode,
-        divider: mode === 'dark' ? 'rgba(255, 255, 255, 0.12)' : 'rgba(0, 0, 0, 0.12)',
-      },
-    });
-  }, [mode]);
-
-  useEffect(() => {
-    sessionStorage.setItem('themeMode', mode);
-  }, [mode]);
 
   useEffect(() => {
     const loadInitialData = async () => {
-      await getBooks();;
+      await getBooks();
       setIsLoading(false);
     };
     loadInitialData();
@@ -59,7 +32,6 @@ function App() {
     const handleTabChange = () => {
       authChannel.postMessage({ type: 'LOGOUT' });
     };
-
     window.addEventListener('beforeunload', handleTabChange);
     return () => {
       window.removeEventListener('beforeunload', handleTabChange);
@@ -68,94 +40,28 @@ function App() {
   }, []);
 
   return (
-    <ThemeProvider theme={theme}>
-      <CssBaseline />
-      <Box sx={{
-        pb: { xs: 4, sm: 5 },
-        minHeight: '100vh',
-        bgcolor: 'background.default',
-      }}>
-        <Box component="header" sx={{
-          bgcolor: 'primary.main',
-          color: 'primary.contrastText',
-          py: { xs: 3, sm: 4 },
-          px: { xs: 2, sm: 3, md: 4 },
-          mb: 4,
-          boxShadow: 3,
-        }}>
-          <Container maxWidth="xl" sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexDirection: { xs: 'column', sm: 'row' }, textAlign: { xs: 'center', sm: 'left' }, gap: { xs: 2, sm: 0 } }}>
-            <Box
-              sx={{
-                display: 'flex',
-                flexDirection: { xs: 'column', sm: 'row' },
-                alignItems: 'center',
-                mb: { xs: 1, sm: 0 },
-                gap: { xs: 0.5, sm: 1 },
-              }}
-            >
-              <AutoStoriesIcon sx={{ fontSize: { xs: 40, sm: 60 }, color: 'inherit', mb: { xs: 0.5, sm: 0 }, mr: { xs: 0, sm: 1 } }} />
-              <Box>
-                <Typography variant="h4" component="h1" sx={{ fontWeight: 600, fontSize: { xs: '1.5rem', sm: '2rem' }, mb: 0 }}>
-                  PassagePrep
-                </Typography>
-                <Typography variant="subtitle1" sx={{ mt: 0, fontSize: { xs: '0.9rem', sm: '1.10rem' } }}>
-                  Build reusable Bible studies in seconds.
-                </Typography>
-              </Box>
-            </Box>
-            <Tooltip title={mode === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}>
-              <IconButton
-                onClick={() => setMode(prev => prev === 'light' ? 'dark' : 'light')}
-                color="inherit"
-                sx={{
-                  border: `2px solid ${mode === 'dark' ? '#fff' : '#222'}`,
-                  borderRadius: 2,
-                  boxShadow: mode === 'dark'
-                    ? '0 0 0 2px rgba(255,255,255,0.15)'
-                    : '0 0 0 2px rgba(0,0,0,0.08)',
-                  background: mode === 'dark' ? 'rgba(255,255,255,0.04)' : 'rgba(0,0,0,0.03)',
-                  transition: 'border-color 0.2s, box-shadow 0.2s',
-                  '&:hover': {
-                    borderColor: mode === 'dark' ? '#90caf9' : '#1976d2',
-                    boxShadow: mode === 'dark'
-                      ? '0 0 0 3px rgba(144,202,249,0.18)'
-                      : '0 0 0 3px rgba(25,118,210,0.12)',
-                  },
-                  p: 1.2,
-                  mt: { xs: 1, sm: 0 }
-                }}
-              >
-                {mode === 'dark' ? <Brightness7Icon /> : <Brightness4Icon />}
-              </IconButton>
-            </Tooltip>
-          </Container>
-        </Box>
-        <Box sx={{ flex: 1 }}>
-          <Container maxWidth="xl" sx={{ px: { xs: 2, sm: 3, md: 4 } }}>
-            <Tabs value={tabValue} onChange={(_, v) => setTabValue(v)} variant="fullWidth" sx={{ mb: 4 }}>
-              <Tab label="Search & Format" />
-              <Tab label="Contribute" />
-              <Tab label="Admin" />
-            </Tabs>
+    <ToastProvider>
+      <div className="min-h-screen flex flex-col bg-gradient-to-br from-sky-50 to-sky-200 text-gray-900 dark:from-gray-950 dark:to-gray-800 dark:text-gray-100 transition-colors duration-500">
+        <Header mode={mode} setMode={setMode} />
 
-            {tabValue === 0 && <RequestForm onStudyGenerated={handleShowStudy} isLoading={isLoading} />}
-            {tabValue === 1 && <ContributeForm isLoading={isLoading} />}
-            {tabValue === 2 && <AdminForm />}
+        <main className="flex-grow w-full">
+          <div className="mx-auto w-full max-w-screen-xl px-3 sm:px-4 md:px-6 py-4 sm:py-6 md:py-8 flex flex-col gap-4 sm:gap-6">
+            <Tabs tabValue={tabValue} setTabValue={setTabValue} />
 
-            <StudyModal
-              show={!!studyData}
-              onHide={() => setStudyData(null)}
-              data={studyData}
+            <MainContent
+              tabValue={tabValue}
+              isLoading={isLoading}
+              handleShowStudy={handleShowStudy}
+              studyData={studyData}
+              setStudyData={setStudyData}
             />
-          </Container>
+          </div>
+        </main>
 
-        </Box>
         <Footer onHelpClick={() => setHelpOpen(true)} />
-        <HelpModal open={helpOpen} onClose={handleHelpClose} />
-      </Box>
-
-
-    </ThemeProvider>
+        <HelpModal open={helpOpen} onClose={() => setHelpOpen(false)} />
+      </div>
+    </ToastProvider>
   );
 }
 

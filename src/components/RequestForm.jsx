@@ -1,263 +1,166 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
+import { X } from 'lucide-react';
+import Tooltip from './Tooltip';
+
 import {
-    Box,
-    Typography,
-    Alert,
-    Snackbar,
-    useTheme,
-    Button,
-    Container,
-    Paper,
-    Grid,
-    TextField,
-    MenuItem,
-    Checkbox,
-    ListItemText
-} from '@mui/material';
-import { processForm, searchQuestions } from '../services/dataService';
-import { getBibleBooks, getChaptersForBook, getChapterCountForBook, formatReference, getVersesForChapter } from '../utils/bibleData';
+    processForm,
+    searchQuestions,
+} from '../services/dataService';
+
+import {
+    getBibleBooks,
+    getChaptersForBook,
+    getChapterCountForBook,
+    formatReference,
+    getVersesForChapter,
+} from '../utils/bibleData';
+
 import QuestionTable from './QuestionTable';
 import { rateLimiter, getUserIdentifier } from '../utils/rateLimit';
 import { processInput } from '../utils/inputUtils';
-import themes from '../data/themes.json';
 import ScriptureCombobox from './ScriptureCombobox';
+import { useToast } from './ToastMessage/Toast';
+import ThemesMultiSelect, { defaultThemes } from './ThemesMultiSelect';
+
+
+const initialRef = {
+    scripture: '',
+    selectedBook: '',
+    selectedChapter: '',
+    verseStart: '',
+    verseEnd: '',
+    availableChapters: [],
+    totalChapters: 0,
+    availableVerses: []
+};
 
 const RequestForm = ({ onStudyGenerated, isLoading }) => {
-    const theme = useTheme();
-    const [scriptureRefs, setScriptureRefs] = useState([
-        {
-            id: 1,
-            scripture: '',
-            selectedBook: '',
-            selectedChapter: '',
-            verseStart: '',
-            verseEnd: '',
-            availableChapters: [],
-            totalChapters: 0,
-            availableVerses: []
-        },
-        {
-            id: 2,
-            scripture: '',
-            selectedBook: '',
-            selectedChapter: '',
-            verseStart: '',
-            verseEnd: '',
-            availableChapters: [],
-            totalChapters: 0,
-            availableVerses: []
-        }
-    ]);
+    const showToast = useToast();
 
-    const [selectedThemes, setSelectedThemes] = useState(themes); // Default to all themes selected
-    const [showSuccess, setShowSuccess] = useState(false);
-    const [showSearchSuccess, setShowSearchSuccess] = useState(false);
-    const [showError, setShowError] = useState(false);
-    const [errorMessage, setErrorMessage] = useState('');
+    const [scriptureRefs, setScriptureRefs] = useState([{ id: 1, ...initialRef }, { id: 2, ...initialRef }]);
+    const [selectedThemes, setSelectedThemes] = useState(defaultThemes);
     const [isSubmitting, setIsSubmitting] = useState(false);
-    const [noQuestionsFound, setNoQuestionsFound] = useState(false);
-    const [showSearchResults, setShowSearchResults] = useState(false);
     const [searchResults, setSearchResults] = useState([]);
     const [selectedQuestions, setSelectedQuestions] = useState([]);
     const [hideUnapproved, setHideUnapproved] = useState(false);
+    const [showSearchResults, setShowSearchResults] = useState(false);
 
-    // Bible books from the JSON data
     const bibleBooks = getBibleBooks();
 
-    // Helper to check if all themes are selected
-    const allThemesSelected = selectedThemes.length === themes.length;
-
     const addScriptureReference = () => {
-        setScriptureRefs(prev => [...prev, {
-            id: prev.length + 1,
-            scripture: '',
-            selectedBook: '',
-            selectedChapter: '',
-            verseStart: '',
-            verseEnd: '',
-            availableChapters: [],
-            totalChapters: 0,
-            availableVerses: []
-        }]);
+        setScriptureRefs(prev => [...prev, { id: prev.length + 1, ...initialRef }]);
     };
 
     const updateScriptureRef = (index, updates) => {
         setScriptureRefs(prev => {
             const newRefs = [...prev];
-            const currentRef = newRefs[index];
-            let processedUpdates = { ...updates };
+            const current = newRefs[index];
+            const next = { ...current, ...updates };
+            if (updates.selectedBook && updates.selectedBook !== current.selectedBook) {
+                next.selectedChapter = '';
+                next.verseStart = '';
+                next.verseEnd = '';
+                next.availableChapters = getChaptersForBook(updates.selectedBook);
+                next.totalChapters = getChapterCountForBook(updates.selectedBook);
+                next.availableVerses = [];
+            }
 
-            // Handle verse validation before any other updates
-            if (processedUpdates.verseStart !== undefined) {
-                const newStart = processedUpdates.verseStart;
-                const currentEnd = processedUpdates.verseEnd !== undefined ? processedUpdates.verseEnd : currentRef.verseEnd;
-                if (currentEnd === undefined || currentEnd === '' || isNaN(Number(currentEnd))) {
-                    processedUpdates.verseEnd = newStart;
-                } else if (parseInt(currentEnd) < parseInt(newStart)) {
-                    processedUpdates.verseEnd = newStart;
+            // If chapter changed, reset verses and load verses info
+            if (updates.selectedChapter && updates.selectedChapter !== current.selectedChapter) {
+                next.verseStart = '';
+                next.verseEnd = '';
+                const verseCount = getVersesForChapter(next.selectedBook, updates.selectedChapter);
+                next.availableVerses = Array.from({ length: verseCount }, (_, i) => (i + 1).toString());
+            }
+
+            // Ensure verseEnd is never less than verseStart
+            if (updates.verseStart !== undefined) {
+                const start = updates.verseStart;
+                let end = updates.verseEnd !== undefined ? updates.verseEnd : next.verseEnd;
+                if (!end || Number(end) < Number(start)) {
+                    end = start;
                 }
+                next.verseEnd = end;
             }
+            next.scripture = formatReference(next.selectedBook, next.selectedChapter, next.verseStart, next.verseEnd);
 
-            if (processedUpdates.selectedBook !== undefined && processedUpdates.selectedBook !== currentRef.selectedBook) {
-                const chapters = getChaptersForBook(processedUpdates.selectedBook);
-                const chapterCount = getChapterCountForBook(processedUpdates.selectedBook);
-                newRefs[index] = {
-                    ...currentRef,
-                    ...processedUpdates,
-                    selectedChapter: '',
-                    verseStart: '',
-                    verseEnd: '',
-                    availableChapters: chapters,
-                    totalChapters: chapterCount,
-                    availableVerses: [],
-                    scripture: formatReference(processedUpdates.selectedBook, '')
-                };
-            }
-            else if (processedUpdates.selectedChapter !== undefined) {
-                const verseCount = getVersesForChapter(currentRef.selectedBook, processedUpdates.selectedChapter);
-                const verses = Array.from({ length: verseCount }, (_, i) => (i + 1).toString());
-                newRefs[index] = {
-                    ...currentRef,
-                    ...processedUpdates, // Ensure this spread is present
-                    verseStart: '',      // Explicitly reset
-                    verseEnd: '',        // Explicitly reset
-                    availableVerses: verses,
-                    // scripture field will be updated by the final step
-                };
-            } else {
-                newRefs[index] = { ...currentRef, ...processedUpdates };
-            }
-
-            // Unconditionally set the scripture string based on the final values in newRefs[index]
-            newRefs[index].scripture = formatReference(
-                newRefs[index].selectedBook,
-                newRefs[index].selectedChapter,
-                newRefs[index].verseStart,
-                newRefs[index].verseEnd
-            );
-
+            newRefs[index] = next;
             return newRefs;
         });
     };
 
-    const handleSubmit = async (e) => {
-        if (e) e.preventDefault();
+    const handleSubmit = async e => {
+        e?.preventDefault();
+        if (!scriptureRefs.some(ref => ref.scripture.trim())) {
+            showToast('Please select at least one scripture reference.', 'error');
+            return;
+        }
 
-        // Rate limiting
-        const userIdentifier = getUserIdentifier();
         try {
-            await rateLimiter.consume(userIdentifier);
-        } catch (rejRes) {
-            setShowError(true);
-            setErrorMessage('Too many requests. Please slow down.');
+            await rateLimiter.consume(getUserIdentifier());
+        } catch {
+            showToast('Too many requests. Please slow down.', 'warning');
             return;
         }
 
         setIsSubmitting(true);
-        setShowSuccess(false);
-        setShowError(false);
-        setNoQuestionsFound(false);
-
-        // Gather all scripture references and themes
-        const refArr = scriptureRefs.map(ref => {
-            const { sanitizedValue: sanitizedScripture } = processInput(ref.scripture, 'scripture reference');
-            return sanitizedScripture;
-        }).filter(Boolean);
-
-        const themeArr = selectedThemes.length === themes.length ? [] : selectedThemes; // Empty array means all themes
-
-        // Check if at least one scripture reference is selected
-        if (!refArr.length) {
-            setShowError(true);
-            setErrorMessage('Please select at least one scripture reference.');
-            setIsSubmitting(false);
-            return;
-        }
-
-        const formData = {
-            refArr,
-            themeArr,
-        };
 
         try {
-            const studyBaseData = await processForm(formData);
+            const refArr = scriptureRefs
+                .map(ref => processInput(ref.scripture, 'scripture reference').sanitizedValue)
+                .filter(Boolean);
+            const themeArr = selectedThemes.length === defaultThemes.length ? [] : selectedThemes;
 
-            const searchResultsCopy = [...searchResults];
-            const filteredQuestions = selectedQuestions.map(index => {
-                if (index >= 0 && index < searchResultsCopy.length) {
-                    const question = searchResultsCopy[index];
-                    return question;
-                } else {
-                    console.warn(`Index ${index} is out of bounds for searchResults array.`);
-                    return null;
-                }
-            }).filter(Boolean);
+            const studyBaseData = await processForm({ refArr, themeArr });
 
-            onStudyGenerated({
-                ...studyBaseData,
-                filteredQuestions: filteredQuestions
-            });
-            setShowSuccess(true);
-        } catch (error) {
-            console.error("Error in study generation:", error);
-            setShowError(true);
+            const filteredQuestions = selectedQuestions.map(i => searchResults[i]).filter(Boolean);
 
-            if (error.message) {
-                setErrorMessage(error.message);
-            } else {
-                setErrorMessage('An error occurred while generating your study. Please try again.');
-            }
+            onStudyGenerated({ ...studyBaseData, filteredQuestions });
+            showToast('Study generated successfully!', 'success');
+        } catch (err) {
+            showToast(err?.message || 'An error occurred while generating your study.', 'error');
         } finally {
             setIsSubmitting(false);
         }
     };
 
     const handleSearch = async () => {
-        const userIdentifier = getUserIdentifier();
         try {
-            await rateLimiter.consume(userIdentifier);
-        } catch (rejRes) {
-            setShowError(true);
-            setErrorMessage('Too many requests. Please slow down.');
+            await rateLimiter.consume(getUserIdentifier());
+        } catch {
+            showToast('Too many requests. Please slow down.', 'warning');
+            return;
+        }
+
+        if (!scriptureRefs.some(ref => ref.selectedBook)) {
+            showToast('Please select a book in at least one reference.', 'error');
             return;
         }
 
         try {
-            const hasValidRef = scriptureRefs.some(ref => ref.selectedBook);
-            if (!hasValidRef) {
-                setShowError(true);
-                setErrorMessage('Please select a book in at least one reference');
-                return;
-            }
+            const themeArr = selectedThemes.length === defaultThemes.length ? [] : selectedThemes;
+            const combinedResults = (
+                await Promise.all(
+                    scriptureRefs
+                        .filter(ref => ref.selectedBook)
+                        .map(ref =>
+                            searchQuestions({
+                                book: ref.selectedBook,
+                                chapter: ref.selectedChapter || null,
+                                verseStart: ref.verseStart || null,
+                                verseEnd: ref.verseEnd || null,
+                                themeArr,
+                            })
+                        )
+                )
+            ).flat();
 
-            const searchPromises = scriptureRefs
-                .filter(ref => ref.selectedBook)
-                .map(ref => {
-                    const searchData = {
-                        book: ref.selectedBook,
-                        chapter: ref.selectedChapter || null,
-                        verseStart: ref.verseStart || null,
-                        verseEnd: ref.verseEnd || null,
-                        themeArr: selectedThemes.length === themes.length ? [] : selectedThemes
-                    };
-                    return searchQuestions(searchData);
-                });
-
-            const results = await Promise.all(searchPromises);
-            const combinedResults = results.flat();
-            const combinedResultsCopy = [...combinedResults];
-
-            setSearchResults(combinedResultsCopy);
+            setSearchResults(combinedResults);
             setShowSearchResults(true);
 
-            if (combinedResults.length === 0) {
-                setNoQuestionsFound(true);
-            } else {
-                setShowSearchSuccess(true);
-            }
-        } catch (error) {
-            setShowError(true);
-            setErrorMessage(error.message || 'Search failed');
+            showToast(combinedResults.length ? 'Search completed successfully.' : 'No questions found for your search.', combinedResults.length ? 'success' : 'info');
+        } catch (err) {
+            showToast(err?.message || 'Search failed.', 'error');
         }
     };
 
@@ -267,298 +170,238 @@ const RequestForm = ({ onStudyGenerated, isLoading }) => {
                 return prev.length === searchResults.length ? [] : indices;
             }
             if (indices.length === 0) {
-                return prev.length === searchResults.length ? [] :
-                    Array.from({ length: searchResults.length }, (_, i) => i);
+                return prev.length === searchResults.length ? [] : Array.from({ length: searchResults.length }, (_, i) => i);
             }
-            return isSelected
-                ? [...new Set([...prev, ...indices])]
-                : prev.filter(i => !indices.includes(i));
+            return isSelected ? Array.from(new Set([...prev, ...indices])) : prev.filter(i => !indices.includes(i));
         });
     };
-
-    const closeAlert = (alertType) => {
-        if (alertType === 'success') setShowSuccess(false);
-        if (alertType === 'searchSuccess') setShowSearchSuccess(false);
-        if (alertType === 'error') setShowError(false);
-        if (alertType === 'noQuestions') setNoQuestionsFound(false);
-    };
+    const isGenerateDisabled = searchResults.length === 0 || selectedQuestions.length === 0;
 
     return (
-        <Container maxWidth="xl" sx={{ pt: 3, pb: 4 }}>
-            <Paper
-                elevation={1}
-                sx={{
-                    p: 3,
-                    bgcolor: 'background.paper',
-                    borderRadius: 2,
-                    border: `1px solid ${theme.palette.divider}`,
-                    maxWidth: 1200,
-                    mx: 'auto'
-                }}
+        <div className="max-w-[1200px] mx-auto px-6 pt-12 pb-16">
+            <div
+                className="
+        bg-white/50 dark:bg-gray-900/60
+        border border-gray-200 dark:border-gray-800
+        rounded-xl shadow-sm backdrop-blur-md
+        p-8
+        flex flex-col gap-14
+      "
             >
-
-                <Box sx={{ mb: 4 }}>
-                    <Typography
-                        variant="h6"
-                        gutterBottom
-                        sx={{
-                            fontWeight: 500,
-                            color: 'primary.main',
-                            pb: 1,
-                            borderBottom: `2px solid ${theme.palette.primary.main}`,
-                            mb: 2.5
-                        }}
+                <section>
+                    <h2
+                        className="
+      text-2xl font-semibold
+      text-sky-700 dark:text-sky-400
+      border-b-2 border-sky-700 dark:border-sky-400
+      pb-2 mb-8
+      text-center
+    "
                     >
                         Bible References
-                    </Typography>
-                    <Grid container spacing={3} justifyContent="center">
-                        {scriptureRefs.map((ref, index) => (
-                            <Grid item xs={12} md={5} key={ref.id} sx={{ width: { xs: '100%', md: 260 } }}>
-                                <Box sx={{
-                                    position: 'relative',
-                                    display: 'flex',
-                                    flexDirection: 'column',
-                                    gap: 2,
-                                    alignItems: 'center',
-                                    p: { xs: 2, sm: 0 },
-                                    mb: { xs: 3, md: 0 },
-                                    borderBottom: { xs: `1px solid ${theme.palette.divider}`, md: 'none' },
-                                    '&:last-child': {
-                                        borderBottom: 'none'
-                                    }
-                                }}>
-                                    <Typography
-                                        variant="subtitle2"
-                                        sx={{
-                                            color: 'text.secondary',
-                                            mb: 1,
-                                            display: { xs: 'block', md: 'none' }
-                                        }}
+                    </h2>
+
+                    <div
+                        className="
+      grid
+      grid-cols-1 sm:grid-cols-2
+      justify-center
+      gap-x-12 gap-y-10
+      max-w-[600px] mx-auto
+      text-gray-900 dark:text-gray-300
+    "
+                    >
+                        {scriptureRefs.map((ref, i) => (
+                            <div
+                                key={ref.id}
+                                className="relative w-full flex flex-col gap-5"
+                            >
+                                <p className="text-sm text-gray-700 dark:text-gray-400 block md:hidden">
+                                    Reference {i + 1}
+                                </p>
+                                {i > 0 && (
+                                    <button
+                                        aria-label={`Remove reference ${i + 1}`}
+                                        onClick={() =>
+                                            setScriptureRefs((prev) => prev.filter((_, idx) => idx !== i))
+                                        }
+                                        className="
+              absolute -top-5 -right-5 p-2 rounded-full
+              bg-red-600 hover:bg-red-700
+              text-white shadow-md
+              focus:outline-none focus:ring-2 focus:ring-red-400
+              transition
+            "
                                     >
-                                        Reference {index + 1}
-                                    </Typography>
-                                    {index > 0 && (
-                                        <Button
-                                            size="small"
-                                            color="error"
-                                            onClick={() => setScriptureRefs(prev => prev.filter((_, i) => i !== index))}
-                                            sx={{ position: 'absolute', top: 0, right: 0, minWidth: 0, p: 0.5, zIndex: 1 }}
-                                        >
-                                            ✕
-                                        </Button>
-                                    )}
-                                    <Box sx={{ width: { xs: '100%', md: 260 }, mb: 1 }}>
-                                        <ScriptureCombobox
-                                            id={`bookSelect-${index}`}
-                                            label="Book"
-                                            value={ref.selectedBook}
-                                            onChange={(book) => updateScriptureRef(index, { selectedBook: book })}
-                                            options={bibleBooks}
-                                            placeholder="Select a book..."
-                                            isRequired={index === 0}
-                                            sx={{ minWidth: 0, width: '100%' }}
-                                        />
-                                    </Box>
-                                    <Box sx={{ width: { xs: '100%', md: 260 }, mb: 1 }}>
-                                        <ScriptureCombobox
-                                            id={`chapterSelect-${index}`}
-                                            label="Chapter"
-                                            value={ref.selectedChapter}
-                                            onChange={(chapter) => updateScriptureRef(index, { selectedChapter: chapter })}
-                                            options={ref.availableChapters}
-                                            placeholder={ref.selectedBook ? `Select chapter (1-${ref.totalChapters})` : "Select a book first"}
-                                            disabled={!ref.selectedBook}
-                                            sx={{ minWidth: 0, width: '100%' }}
-                                        />
-                                    </Box>
-                                    <Box sx={{ width: { xs: '100%', md: 260 }, mb: 1 }}>
-                                        <ScriptureCombobox
-                                            id={`verseStartSelect-${index}`}
-                                            label="Start Verse"
-                                            value={ref.verseStart}
-                                            onChange={(verse) => updateScriptureRef(index, { verseStart: verse })}
-                                            options={ref.availableVerses}
-                                            placeholder={ref.selectedChapter ? "Select start verse" : "Select a chapter first"}
-                                            disabled={!ref.selectedChapter}
-                                            sx={{ minWidth: 0, width: '100%' }}
-                                        />
-                                    </Box>
-                                    <Box sx={{ width: { xs: '100%', md: 260 }, mb: 1 }}>
-                                        <ScriptureCombobox
-                                            id={`verseEndSelect-${index}`}
-                                            label="End Verse"
-                                            value={ref.verseEnd}
-                                            onChange={(verse) => updateScriptureRef(index, { verseEnd: verse })}
-                                            options={ref.availableVerses}
-                                            isEndVerse
-                                            startVerseValue={ref.verseStart}
-                                            disabled={!ref.selectedChapter}
-                                            sx={{ minWidth: 0, width: '100%' }}
-                                        />
-                                    </Box>
-                                </Box>
-                            </Grid>
+                                        <X size={16} />
+                                    </button>
+                                )}
+
+                                {/* Scripture ComboBoxes in original order, full width */}
+                                <ScriptureCombobox
+                                    id={`bookSelect-${i}`}
+                                    label="Book"
+                                    value={ref.selectedBook}
+                                    onChange={(book) => updateScriptureRef(i, { selectedBook: book })}
+                                    options={bibleBooks}
+                                    placeholder="Select a book..."
+                                    isRequired={i === 0}
+                                    className="w-full"
+                                />
+                                <ScriptureCombobox
+                                    id={`chapterSelect-${i}`}
+                                    label="Chapter"
+                                    value={ref.selectedChapter}
+                                    onChange={(chapter) => updateScriptureRef(i, { selectedChapter: chapter })}
+                                    options={ref.availableChapters}
+                                    placeholder={
+                                        ref.selectedBook
+                                            ? `Select chapter (1-${ref.totalChapters})`
+                                            : "Select a book first"
+                                    }
+                                    disabled={!ref.selectedBook}
+                                    className="w-full"
+                                />
+                                <ScriptureCombobox
+                                    id={`verseStartSelect-${i}`}
+                                    label="Start Verse"
+                                    value={ref.verseStart}
+                                    onChange={(verse) => updateScriptureRef(i, { verseStart: verse })}
+                                    options={ref.availableVerses}
+                                    placeholder={ref.selectedChapter ? "Select start verse" : "Select a chapter first"}
+                                    disabled={!ref.selectedChapter}
+                                    className="w-full"
+                                />
+                                <ScriptureCombobox
+                                    id={`verseEndSelect-${i}`}
+                                    label="End Verse"
+                                    value={ref.verseEnd}
+                                    onChange={(verse) => updateScriptureRef(i, { verseEnd: verse })}
+                                    options={ref.availableVerses}
+                                    isEndVerse
+                                    startVerseValue={ref.verseStart}
+                                    disabled={!ref.selectedChapter}
+                                    className="w-full"
+                                />
+                            </div>
                         ))}
-                    </Grid>
-                    <Box sx={{ display: 'flex', justifyContent: 'center', mt: 2 }}>
-                        <Button
-                            variant="outlined"
+                    </div>
+
+                    <div className="flex justify-center mt-10">
+                        <button
                             onClick={addScriptureReference}
-                            sx={{ width: { xs: '100%', sm: 260 } }}
+                            className="
+        inline-flex items-center gap-2
+        px-5 py-3
+        border border-sky-600 text-sky-600
+        rounded-lg
+        hover:bg-sky-100 dark:hover:bg-sky-700/30
+        font-semibold
+        transition
+      "
                         >
                             + Add Another Reference
-                        </Button>
-                    </Box>
-                </Box>
+                        </button>
+                    </div>
+                </section>
 
-                <Grid container spacing={3} alignItems="flex-end" justifyContent="center" sx={{ mb: 4 }}>
-                    <Grid item xs={12} sm={6} md={3} sx={{ maxWidth: 260, flexBasis: 260, flexGrow: 0, flexShrink: 0, width: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'flex-end', p: 0 }}>
-                        <Typography
-                            variant="h6"
-                            gutterBottom
-                            sx={{
-                                fontWeight: 500,
-                                color: 'primary.main',
-                                pb: 1,
-                                borderBottom: `2px solid ${theme.palette.primary.main}`,
-                                mb: 2.5
-                            }}
-                        >
-                            Themes
-                        </Typography>
-                        <TextField
-                            select
-                            SelectProps={{
-                                multiple: true,
-                                value: selectedThemes,
-                                onChange: (e) => setSelectedThemes(e.target.value),
-                                renderValue: (selected) => allThemesSelected ? "All" : selected.join(', ')
-                            }}
-                            variant="outlined"
-                            size="medium"
-                            sx={{ minWidth: 0, width: '100%' }}
-                        >
-                            {themes.map((theme) => (
-                                <MenuItem key={theme} value={theme}>
-                                    <Checkbox checked={selectedThemes.includes(theme)} />
-                                    <ListItemText primary={theme} />
-                                </MenuItem>
-                            ))}
-                        </TextField>
-                    </Grid>
-                    <Grid item xs={12} sm={6} md={3} sx={{ maxWidth: 260, flexBasis: 260, flexGrow: 0, flexShrink: 0, width: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'flex-end', p: 0 }}>
-                        <Button
-                            variant="contained"
-                            color="primary"
-                            onClick={handleSearch}
-                            disabled={isLoading || isSubmitting}
-                            sx={{ minWidth: 120, px: 2, py: 1, fontWeight: 500, mb: 1 }}
-                        >
-                            Search
-                        </Button>
-                    </Grid>
-                    <Grid item xs={12} sm={6} md={3} sx={{ maxWidth: 260, flexBasis: 260, flexGrow: 0, flexShrink: 0, width: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'flex-end', p: 0 }}>
-                        <Button
-                            variant={hideUnapproved ? 'contained' : 'outlined'}
-                            color="secondary"
-                            size="small"
-                            sx={{ mb: 1, fontWeight: 500, minWidth: 120, width: '100%' }}
-                            onClick={() => setHideUnapproved(v => !v)}
+
+                <section
+                    className="
+            grid grid-cols-1 sm:grid-cols-2 gap-6 justify-center
+            max-w-md mx-auto
+          "
+                >
+                    {/* ThemesMultiSelect */}
+                    <div className="w-full">
+                        <ThemesMultiSelect value={selectedThemes} onChange={setSelectedThemes} />
+                    </div>
+
+                    {/* Hide Unapproved toggle */}
+                    <div className="w-full">
+                        <button
+                            onClick={() => setHideUnapproved((h) => !h)}
+                            className={`
+                w-full py-3 font-semibold rounded-lg transition
+                ${hideUnapproved
+                                    ? 'bg-secondary-600 text-white hover:bg-secondary-700'
+                                    : 'border border-secondary-600 text-secondary-600 hover:bg-secondary-100 dark:hover:bg-secondary-800'
+                                }
+              `}
                         >
                             {hideUnapproved ? 'Show Unapproved' : 'Hide Unapproved'}
-                        </Button>
-                        <Button
-                            variant="outlined"
-                            color="primary"
-                            onClick={handleSubmit}
+                        </button>
+                    </div>
+
+                    {/* Search button */}
+                    <div className="w-full">
+                        <button
+                            onClick={handleSearch}
                             disabled={isLoading || isSubmitting}
-                            sx={{ minWidth: 120, px: 2, py: 1, fontWeight: 500, width: '100%' }}
+                            className="
+                w-full min-w-[140px] py-3 px-6 font-semibold
+                text-white bg-sky-600 rounded-lg
+                hover:bg-sky-700
+                disabled:opacity-50 disabled:cursor-not-allowed
+                transition
+              "
                         >
-                            Generate Study
-                        </Button>
-                    </Grid>
-                </Grid>
+                            Search
+                        </button>
+                    </div>
+
+                    <div className="w-full relative">
+                        {isGenerateDisabled ? (
+                            <Tooltip content="Select at least one question from Search table">
+                                <button
+                                    disabled
+                                    className="
+          w-full min-w-[140px] py-3 px-6 font-semibold
+          border border-sky-600 text-sky-600 rounded-lg
+          bg-gray-100 dark:bg-gray-800
+          cursor-not-allowed
+          transition
+        "
+                                >
+                                    Generate Study
+                                </button>
+                            </Tooltip>
+                        ) : (
+                            <button
+                                onClick={handleSubmit}
+                                disabled={isLoading || isSubmitting}
+                                className="
+        w-full min-w-[140px] py-3 px-6 font-semibold
+        border border-sky-600 text-sky-600 rounded-lg
+        hover:bg-sky-100 dark:hover:bg-sky-700/30
+        disabled:opacity-50 disabled:cursor-not-allowed
+        transition
+      "
+                            >
+                                Generate Study
+                            </button>
+                        )}
+                    </div>
+
+                </section>
+                {/* Search Results */}
                 {showSearchResults && (
-                    <Box sx={{ mt: 4 }}>
+                    <section className="mt-12">
                         <QuestionTable
                             questions={searchResults}
                             selectedQuestions={selectedQuestions}
                             onQuestionSelect={handleQuestionSelect}
-                            showActions={true}
+                            showActions
                             hideUnapproved={hideUnapproved}
-                            hideEditActions={true}
+                            hideEditActions
                         />
-                    </Box>
+                    </section>
                 )}
-            </Paper>
-
-
-
-            <Snackbar
-                open={showSearchSuccess}
-                autoHideDuration={6000}
-                onClose={() => closeAlert('searchSuccess')}
-                anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
-            >
-                <Alert
-                    onClose={() => closeAlert('searchSuccess')}
-                    severity="success"
-                    variant="filled"
-                    sx={{ borderRadius: 2 }}
-                >
-                    {`Questions found! Select the ones you'd like to include in your study.`}
-                </Alert>
-            </Snackbar>
-
-            <Snackbar
-                open={showSuccess}
-                autoHideDuration={6000}
-                onClose={() => closeAlert('success')}
-                anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
-            >
-                <Alert
-                    onClose={() => closeAlert('success')}
-                    severity="success"
-                    variant="filled"
-                    sx={{ borderRadius: 2 }}
-                >
-                    Success! Your Bible study has been generated.
-                </Alert>
-            </Snackbar>
-
-            <Snackbar
-                open={showError}
-                autoHideDuration={6000}
-                onClose={() => closeAlert('error')}
-                anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
-            >
-                <Alert
-                    onClose={() => closeAlert('error')}
-                    severity="error"
-                    variant="filled"
-                    sx={{ borderRadius: 2 }}
-                >
-                    {errorMessage}
-                </Alert>
-            </Snackbar>
-
-            <Snackbar
-                open={noQuestionsFound}
-                autoHideDuration={6000}
-                onClose={() => closeAlert('noQuestions')}
-                anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
-            >
-                <Alert
-                    onClose={() => closeAlert('noQuestions')}
-                    severity="warning"
-                    variant="filled"
-                    sx={{ borderRadius: 2 }}
-                >
-                    No questions found that match your criteria. Try different themes or contribute more questions.
-                </Alert>
-            </Snackbar>
-        </Container>
+            </div>
+        </div>
     );
-};
+
+
+}
 
 export default RequestForm;

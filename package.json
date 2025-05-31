@@ -3,15 +3,13 @@
   "version": "1.0.0",
   "private": true,
   "dependencies": {
-    "@emotion/react": "^11.14.0",
-    "@emotion/styled": "^11.14.0",
-    "@mui/icons-material": "^7.0.2",
-    "@mui/lab": "^7.0.0-beta.11",
-    "@mui/material": "^7.0.2",
+    "@headlessui/react": "^2.2.4",
     "bcryptjs": "^3.0.2",
     "body-parser": "^1.20.2",
+    "clsx": "^2.1.1",
     "cors": "^2.8.5",
     "dotenv": "^16.5.0",
+    "lucide-react": "^0.511.0",
     "mongodb": "^6.15.0",
     "mongoose": "^8.13.2",
     "obscenity": "0.4.3",
@@ -19,6 +17,7 @@
     "rate-limiter-flexible": "7.0.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
+    "simple-icons": "^14.15.0",
     "uuid": "^11.1.0",
     "xss": "^1.0.15"
   },
@@ -33,12 +32,16 @@
   },
   "devDependencies": {
     "@eslint/js": "^9.27.0",
+    "@tailwindcss/postcss": "^4.1.8",
+    "@tailwindcss/vite": "^4.1.8",
     "@vitejs/plugin-react": "^4.4.1",
     "eslint": "^9.27.0",
     "eslint-plugin-react": "^7.37.5",
     "eslint-plugin-react-hooks": "^4.6.0",
     "globals": "^16.1.0",
     "netlify-cli": "^21.5.0",
+    "postcss": "^8.5.3",
+    "tailwindcss": "^4.1.8",
     "vite": "^6.3.5"
   }
 }
