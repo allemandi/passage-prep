@@ -2,6 +2,11 @@
 # yarn lockfile v1
 
 
+"@allemandi/bible-validate@^2.1.0":
+  version "2.1.0"
+  resolved "https://registry.yarnpkg.com/@allemandi/bible-validate/-/bible-validate-2.1.0.tgz#99aca212070f8b0d04ddcd992efb70e3409859a4"
+  integrity sha512-cP7cZKZRHB4If0bcw/VShTPmTYwiM/EInfCsm8cVqOsWaY7kBc1pyURGYa5SUd6RCkmL+FUGwrwoKpj1BUXACw==
+
 "@alloc/quick-lru@^5.2.0":
   version "5.2.0"
   resolved "https://registry.yarnpkg.com/@alloc/quick-lru/-/quick-lru-5.2.0.tgz#7bf68b20c0a350f936915fcae06f58e32007ce30"

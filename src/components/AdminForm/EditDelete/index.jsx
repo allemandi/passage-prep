@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import { useState, useCallback } from 'react';
 import ScriptureCombobox from '../../ScriptureCombobox';
 import { getBibleBooks, getChaptersForBook, getVersesForChapter } from '../../../utils/bibleData';
 import QuestionTable from '../../QuestionTable';

@@ -1,26 +1,44 @@
-import bibleCounts from '../data/bible-counts.json';
+import {
+    listBibleBooks,
+    getChapterCount,
+    listChapters,
+    listVerses,
+    isValidBook,
+    isValidChapter,
+    isValidReference,
+} from '@allemandi/bible-validate';
 
-// Helpers
-const findBook = (bookName) =>
-    bookName && bibleCounts.find(b => b.book.toLowerCase() === bookName.toLowerCase());
-
-// Utility functions
-export const getBibleBooks = () => bibleCounts.map(book => book.book);
+export const getBibleBooks = () => listBibleBooks();
 
 export const getChaptersForBook = (bookName) => {
-    const book = findBook(bookName);
-    return book ? book.chapters.map(ch => ch.chapter) : [];
+    if (!isValidBook(bookName)) return [];
+     return listChapters(bookName).map(String);
 };
 
 export const getChapterCountForBook = (bookName) => {
-    const book = findBook(bookName);
-    return book?.chapters.length || 0;
+    if (!isValidBook(bookName)) return 0;
+    return getChapterCount(bookName);
 };
 
 export const getVersesForChapter = (bookName, chapterNum) => {
-    const book = findBook(bookName);
-    const chapter = book?.chapters.find(ch => ch.chapter === chapterNum.toString());
-    return chapter ? parseInt(chapter.verses, 10) : 0;
+    const chapterNumber = parseInt(chapterNum, 10);
+    if (!isValidChapter(bookName, chapterNumber)) return 0;
+    const versesArray = listVerses(bookName, chapterNumber);
+    return versesArray.length > 0 ? Math.max(...versesArray) : 0;
+};
+
+export const validateBook = (bookName) => isValidBook(bookName);
+
+export const validateChapter = (bookName, chapterNum) => {
+    return isValidChapter(bookName, parseInt(chapterNum, 10));
+};
+
+export const validateVerse = (bookName, chapterNum, verseNum) => {
+    return isValidReference(bookName, parseInt(chapterNum, 10), parseInt(verseNum, 10));
+};
+
+export const validateVerseRange = (bookName, chapterNum, startVerse, endVerse) => {
+    return isValidReference(bookName, parseInt(chapterNum, 10), parseInt(startVerse, 10), parseInt(endVerse, 10));
 };
 
 export const formatReference = (book, chapter, startVerse = '', endVerse = '') => {
@@ -32,9 +50,9 @@ export const formatReference = (book, chapter, startVerse = '', endVerse = '') =
 
 export const getSortedQuestions = (questionsArray = []) => {
     if (!questionsArray.length) return [];
-
-    const bookOrderMap = bibleCounts.reduce((map, book, idx) => {
-        map[book.book] = idx;
+    const currentBibleBooks = listBibleBooks();
+    const bookOrderMap = currentBibleBooks.reduce((map, book, idx) => {
+        map[book] = idx;
         return map;
     }, {});
 

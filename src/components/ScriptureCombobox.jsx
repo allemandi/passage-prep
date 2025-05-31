@@ -27,12 +27,10 @@ const ScriptureCombobox = ({
     }
   }, [options, isEndVerse, startVerseValue]);
 
-  // Sync input value with value prop changes (like from outside)
   useEffect(() => {
     setInputValue(value || '');
   }, [value]);
 
-  // Close dropdown when clicking outside
   useEffect(() => {
     const onClickOutside = (e) => {
       if (containerRef.current && !containerRef.current.contains(e.target)) {
@@ -117,7 +115,6 @@ const ScriptureCombobox = ({
                 ${option === inputValue ? 'bg-blue-500 text-white' : ''}
               `}
               onMouseDown={(e) => {
-                // prevent input blur before onClick fires
                 e.preventDefault();
                 handleSelect(option);
               }}

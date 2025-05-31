@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { getBibleBooks, getChaptersForBook, getVersesForChapter, getSortedQuestions } from '../../../utils/bibleData';
 import { fetchAllQuestions } from '../../../services/dataService';
 import { downloadAllCSV, downloadFilteredCSV } from '../../../utils/download';

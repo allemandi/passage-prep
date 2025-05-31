@@ -1,5 +1,6 @@
 const fs = require('fs');
 const path = require('path');
+const { getBook, isValidChapter, isValidReference } = require('@allemandi/bible-validate')
 
 async function processBulkUpload(questions, saveQuestionFn) {
   const results = {
@@ -10,80 +11,43 @@ async function processBulkUpload(questions, saveQuestionFn) {
   };
   const themesPath = path.join(__dirname, '../../src/data/themes.json');
   const themes = JSON.parse(fs.readFileSync(themesPath, 'utf8'));
-  const bibleDataPath = path.join(__dirname, '../../src/data/bible-counts.json');
-  const bibleData = JSON.parse(fs.readFileSync(bibleDataPath, 'utf8'));
-  const getBibleBooks = () => bibleData.map(book => book.book);
   
-  const getChaptersForBook = (bookName) => {
-    if (!bookName) return [];
-    const book = bibleData.find(b => b.book.toLowerCase() === bookName.toLowerCase());
-    if (!book) return [];
-    return book.chapters.map(ch => ch.chapter);
-  };
-  
-  const getVersesForChapter = (bookName, chapterNum) => {
-    if (!bookName || !chapterNum) return 0;
-    const book = bibleData.find(b => b.book.toLowerCase() === bookName.toLowerCase());
-    if (!book) return 0;
-    const chapterData = book.chapters.find(ch => ch.chapter === chapterNum.toString());
-    return chapterData ? parseInt(chapterData.verses, 10) : 0;
-  };
-  
-  // Get valid book names for validation
-  const validBooks = getBibleBooks();
-  
-  // Process each question
   for (const question of questions) {
     try {
-      // Basic validation
       if (!question.theme || !question.question || !question.book || !question.chapter || !question.verseStart) {
         throw new Error(`Question missing required fields: ${JSON.stringify(question)}`);
       }
-
-      // Validate theme
       if (!themes.includes(question.theme)) {
         throw new Error(`Invalid theme: "${question.theme}" - must be one of: ${themes.join(', ')}`);
       }
-
-      // Validate book
-      const foundBook = validBooks.find(book => book.toLowerCase() === question.book.toLowerCase());
+    
+      const foundBook = getBook(question.book);
       if (!foundBook) {
         throw new Error(`Invalid book: "${question.book}"`);
       }
-      const validatedBookName = foundBook; // Use the case from bible-counts.json
+      const standardBookName = foundBook.book;
 
-      // Validate chapter
-      const availableChapters = getChaptersForBook(validatedBookName);
       const chapterNum = parseInt(question.chapter, 10);
-      if (isNaN(chapterNum) || !availableChapters.includes(chapterNum.toString())) {
-        throw new Error(`Invalid chapter for ${validatedBookName}: ${question.chapter}`);
+      if (!isValidChapter(standardBookName, chapterNum)) {
+        throw new Error(`Invalid chapter for ${standardBookName}: ${question.chapter}`);
       }
-
-      // Validate verse range
-      const maxVerses = getVersesForChapter(validatedBookName, chapterNum);
       const verseStart = parseInt(question.verseStart, 10);
       const verseEnd = parseInt(question.verseEnd || question.verseStart, 10);
       
-      if (isNaN(verseStart) || verseStart < 1 || verseStart > maxVerses) {
-        throw new Error(`Invalid verseStart for ${validatedBookName} ${chapterNum}: ${question.verseStart} (max: ${maxVerses})`);
-      }
-      
-      if (isNaN(verseEnd) || verseEnd < verseStart || verseEnd > maxVerses) {
-        throw new Error(`Invalid verseEnd for ${validatedBookName} ${chapterNum}: ${question.verseEnd} (must be between ${verseStart} and ${maxVerses})`);
+      if (!isValidReference(standardBookName, chapterNum, verseStart, verseEnd)) {
+        throw new Error(`Invalid verse references for ${standardBookName} ${chapterNum}.`);
       }
 
-      // Prepare data for saving
       const validatedQuestion = {
         theme: question.theme,
         question: question.question,
-        book: validatedBookName, // Use validated book name
+        book: standardBookName,
         chapter: chapterNum,
         verseStart: verseStart,
         verseEnd: verseEnd,
         isApproved: question.isApproved === 'true' || question.isApproved === true || false
       };
 
-      // Save question to database using the provided function
       const saveResult = await saveQuestionFn(validatedQuestion);
       
       if (!saveResult.success) {
