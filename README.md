@@ -1,6 +1,6 @@
 # 📖 Passage Prep
 
-**A tool to format, organize, and export Bible study questions.**
+**Format, organize, and export Bible study questions.**
 Build reusable Bible studies in seconds.
 
 🚀 [Netlify Live Demo](https://passage-prep.netlify.app/)
@@ -78,21 +78,21 @@ Build reusable Bible studies in seconds.
 ## 🌐 Deployment
 
 ### Netlify (Recommended)
-- Connect your repo
+- Connect your Git repo
 - Set `MONGODB_URI` in Netlify environment variables
-- Netlify auto-detects build (`yarn build`) and publish (`build/`)
-- The backend API is implemented entirely as serverless Netlify Functions, located in the `netlify/functions/` directory.
-- See `netlify.toml` for redirects and SPA routing
+- Netlify auto-detects build `yarn build` and serves from `build/`
+- Backend runs as Netlify Functions located in `netlify/functions/`
+- SPA routing and redirects configured in `netlify.toml`
 
 ## ⚙️ Scripts
-- `yarn dev` — Runs the application locally using `netlify dev`. This starts the Vite frontend development server and emulates Netlify Functions for the backend, providing a full local development environment.
-- `yarn build` — Compiles the frontend application into static assets, outputting them to the `build` directory. This step is necessary for production deployment.
-- `yarn import-data` — Imports initial samples of questions from a CSV into the MongoDB database.
-- `yarn setup-admin` — Creates or updates the admin user in the database based on credentials in the `.env` file.
+- `yarn dev` — Start local dev environment with frontend and serverless backend.
+- `yarn build` — Build production-ready frontend assets.
+- `yarn import-data` — Load sample questions into MongoDB.
+- `yarn setup-admin` — Create or update admin user from `.env`
 - `yarn lint` - Lints the codebase using ESLint to check for code quality and style issues.
 
 ## ⚙️ Built With
-- **Frontend:** React, Vite, Tailwind
+- **Frontend:** React, Vite, Tailwind CSS
 - **Backend:** Netlify Functions, MongoDB, Mongoose
 
 ## 🔗 Related Projects
@@ -117,7 +117,7 @@ If you have ideas, improvements, or new features:
 If this project has helped you or saved you time, consider [buying me a coffee](https://www.buymeacoffee.com/allemandi) to help fuel more ideas and improvements!
 
 ## 💡 Acknowledgments
-This project was developed with the help of AI tools (e.g., GitHub Copilot, Cursor, v0) for code suggestions, debugging, and optimizations.
+Powered by AI-assisted tools like GitHub Copilot and Cursor for enhanced coding efficiency.
 
 ## 📄 License
 MIT
