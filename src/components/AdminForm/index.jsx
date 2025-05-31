@@ -60,44 +60,74 @@ export default function AdminForm() {
   };
 
   return (
-    <div className="max-w-[1200px] mx-auto px-6 pt-12 pb-16 bg-gray-900 min-h-screen">
-      <div className="bg-gray-800 border border-gray-700 rounded-xl p-8 shadow-lg">
-        {!isLoggedIn ? (
-          <Login setIsLoggedIn={setIsLoggedIn} />
-        ) : (
-          <>
-            <h2 className="text-3xl font-semibold text-primary-500 border-b-2 border-primary-500 pb-2 mb-10 tracking-wide">
-              Admin Mode
-            </h2>
+ <div className="max-w-[1200px] mx-auto px-6 pt-12 pb-16 bg-white dark:bg-gray-900 min-h-screen">
+  <div
+    className="
+      bg-white/50 dark:bg-gray-900/60
+      border border-gray-200 dark:border-gray-800
+      rounded-xl shadow-sm backdrop-blur-md
+      p-8
+      flex flex-col gap-10
+    "
+  >
+    {!isLoggedIn ? (
+      <Login setIsLoggedIn={setIsLoggedIn} />
+    ) : (
+      <>
+        <h2
+          className="
+            text-3xl font-semibold
+            text-sky-700 dark:text-sky-400
+            border-b-2 border-sky-700 dark:border-sky-400
+            pb-2 mb-10
+            tracking-wide
+            text-center sm:text-left
+          "
+        >
+          Admin Mode
+        </h2>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6 mb-10">
-              {buttons.map(({ name, label }) => (
-                <button
-                  key={name}
-                  onClick={() => setActiveButton(name)}
-                  className={`w-full py-3 font-semibold rounded-lg transition
-                    ${
-                      activeButton === name
-                        ? 'bg-primary-600 text-white shadow-lg'
-                        : 'border border-gray-600 text-gray-300 hover:bg-gray-700 hover:border-primary-500 hover:text-primary-400'
-                    }`}
-                >
-                  {label}
-                </button>
-              ))}
-            </div>
-
-            <div className="min-h-[300px] text-gray-100">{renderContent()}</div>
-
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6 mb-10">
+          {buttons.map(({ name, label }) => (
             <button
-              onClick={() => handleLogout('manual')}
-              className="mt-12 w-full py-3 font-semibold rounded-lg border border-primary-600 text-primary-600 hover:bg-primary-600 hover:text-white transition"
+              key={name}
+              onClick={() => setActiveButton(name)}
+              className={`
+                w-full py-3 font-semibold rounded-lg transition
+                ${
+                  activeButton === name
+                    ? 'bg-sky-600 text-white shadow-md'
+                    : 'border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-sky-100 dark:hover:bg-sky-700/30 hover:border-sky-600 hover:text-sky-600'
+                }
+                focus:outline-none focus:ring-2 focus:ring-sky-400 focus:ring-offset-1
+              `}
             >
-              Logout
+              {label}
             </button>
-          </>
-        )}
-      </div>
-    </div>
-  );
+          ))}
+        </div>
+
+        <div className="min-h-[300px] text-gray-900 dark:text-gray-300 mb-4">
+          {renderContent()}
+        </div>
+
+        <button
+          onClick={() => handleLogout('manual')}
+          className="
+            mt-12 w-full py-3 font-semibold rounded-lg
+            border border-sky-600 text-sky-600
+            hover:bg-sky-100 dark:hover:bg-sky-700/30 hover:text-white
+            transition
+            focus:outline-none focus:ring-2 focus:ring-sky-400 focus:ring-offset-1
+          "
+        >
+          Logout
+        </button>
+      </>
+    )}
+  </div>
+</div>
+
+
+  )
 }

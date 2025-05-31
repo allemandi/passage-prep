@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "private": true,
   "dependencies": {
+    "@headlessui/react": "^2.2.4",
     "bcryptjs": "^3.0.2",
     "body-parser": "^1.20.2",
     "clsx": "^2.1.1",
@@ -16,6 +17,7 @@
     "rate-limiter-flexible": "7.0.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
+    "simple-icons": "^14.15.0",
     "uuid": "^11.1.0",
     "xss": "^1.0.15"
   },

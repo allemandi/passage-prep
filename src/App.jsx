@@ -41,21 +41,11 @@ function App() {
 
   return (
     <ToastProvider>
-      {/* Test box with corrected class names */}
-<div className="bg-light-bg dark:bg-dark-bg text-light-text dark:text-dark-text p-4 rounded">
-  This background & text changes correctly with dark mode!
-</div>
-
-      <div
-        className="min-h-screen flex flex-col
-          bg-light-bg dark:bg-dark-bg
-          text-light-text dark:text-dark-text
-          transition-colors duration-300"
-      >
+      <div className="min-h-screen flex flex-col bg-gradient-to-br from-sky-50 to-sky-200 text-gray-900 dark:from-gray-950 dark:to-gray-800 dark:text-gray-100 transition-colors duration-500">
         <Header mode={mode} setMode={setMode} />
 
-        <main className="flex-grow bg-light-bg dark:bg-dark-bg text-light-text dark:text-dark-text transition-colors duration-300">
-          <div className="px-4 sm:px-6 md:px-8 py-8 min-h-screen flex flex-col">
+        <main className="flex-grow w-full">
+          <div className="mx-auto w-full max-w-screen-xl px-3 sm:px-4 md:px-6 py-4 sm:py-6 md:py-8 flex flex-col gap-4 sm:gap-6">
             <Tabs tabValue={tabValue} setTabValue={setTabValue} />
 
             <MainContent
@@ -69,7 +59,6 @@ function App() {
         </main>
 
         <Footer onHelpClick={() => setHelpOpen(true)} />
-
         <HelpModal open={helpOpen} onClose={() => setHelpOpen(false)} />
       </div>
     </ToastProvider>

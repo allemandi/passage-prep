@@ -189,19 +189,34 @@ const ContributeForm = () => {
 
 
     return (
-        <div className="max-w-6xl mx-auto p-6">
+        <div className="max-w-[1200px] mx-auto px-6 pt-12 pb-16">
             <form
                 onSubmit={handleSubmit}
-                className="bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-lg p-8 shadow-md max-w-5xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-10"
                 noValidate
+                className="
+      bg-white/50 dark:bg-gray-900/60
+      border border-gray-200 dark:border-gray-800
+      rounded-xl shadow-sm backdrop-blur-md
+      p-8
+      max-w-5xl mx-auto
+      grid grid-cols-1 md:grid-cols-2 gap-14
+    "
             >
                 {/* Left Column: Bible Reference */}
-                <div className="flex flex-col items-center gap-6">
-                    <h2 className="text-xl font-semibold text-blue-600 border-b-2 border-blue-600 w-full text-center pb-2 mb-6">
+                <div className="flex flex-col items-center gap-8">
+                    <h2
+                        className="
+          text-2xl font-semibold
+          text-sky-700 dark:text-sky-400
+          border-b-2 border-sky-700 dark:border-sky-400
+          w-full text-center
+          pb-2 mb-8
+        "
+                    >
                         Bible Reference
                     </h2>
 
-                    <div className="w-full max-w-xs">
+                    <div className="w-full max-w-sm">
                         <ScriptureCombobox
                             id="bookSelect"
                             label="Book"
@@ -217,7 +232,7 @@ const ContributeForm = () => {
                         />
                     </div>
 
-                    <div className="w-full max-w-xs">
+                    <div className="w-full max-w-sm">
                         <ScriptureCombobox
                             id="chapterSelect"
                             label="Chapter"
@@ -234,7 +249,7 @@ const ContributeForm = () => {
                         />
                     </div>
 
-                    <div className="w-full max-w-xs">
+                    <div className="w-full max-w-sm">
                         <ScriptureCombobox
                             id="verseStartSelect"
                             label="Start Verse"
@@ -251,7 +266,7 @@ const ContributeForm = () => {
                         />
                     </div>
 
-                    <div className="w-full max-w-xs">
+                    <div className="w-full max-w-sm">
                         <ScriptureCombobox
                             id="verseEndSelect"
                             label="End Verse"
@@ -267,9 +282,17 @@ const ContributeForm = () => {
                 </div>
 
                 {/* Right Column: Theme and Question */}
-                <div className="flex flex-col justify-between gap-6">
-                    <div className="w-full max-w-xs mx-auto">
-                        <h2 className="text-xl font-semibold text-blue-600 border-b-2 border-blue-600 pb-2 mb-6 text-center">
+                <div className="flex flex-col justify-between gap-10">
+                    <div className="w-full max-w-sm mx-auto">
+                        <h2
+                            className="
+            text-2xl font-semibold
+            text-sky-700 dark:text-sky-400
+            border-b-2 border-sky-700 dark:border-sky-400
+            pb-2 mb-8
+            text-center
+          "
+                        >
                             Theme
                         </h2>
                         <ThemesSingleSelect
@@ -279,11 +302,22 @@ const ContributeForm = () => {
                         />
                     </div>
 
-                    <div className="w-full max-w-xs mx-auto flex flex-col">
-                        <h2 className="text-xl font-semibold text-blue-600 border-b-2 border-blue-600 pb-2 mb-6 text-center">
+                    <div className="w-full max-w-sm mx-auto flex flex-col">
+                        <h2
+                            className="
+            text-2xl font-semibold
+            text-sky-700 dark:text-sky-400
+            border-b-2 border-sky-700 dark:border-sky-400
+            pb-2 mb-6
+            text-center
+          "
+                        >
                             Question
                         </h2>
-                        <label className="block mb-1 text-sm font-medium text-gray-700 dark:text-gray-300">
+                        <label
+                            htmlFor="questionText"
+                            className="block mb-1 text-sm font-medium text-gray-900 dark:text-gray-300"
+                        >
                             Question Details <span className="text-red-500">*</span>
                         </label>
                         <textarea
@@ -293,20 +327,35 @@ const ContributeForm = () => {
                             onChange={(e) => setQuestionText(e.target.value)}
                             placeholder="Type your Bible study question here..."
                             required
-                            className="w-full border border-gray-300 rounded-md p-3 resize-none text-gray-900 dark:text-gray-100 dark:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            className="
+  w-full
+  border border-gray-300 dark:border-gray-700
+  rounded-lg
+  p-4
+  resize-none
+  bg-white dark:bg-gray-700
+  text-gray-900 dark:text-gray-100
+  focus:outline-none focus:ring-2 focus:ring-sky-500
+  transition
+"
                         />
                     </div>
                 </div>
 
-                <div className="col-span-full flex justify-center mt-8">
+                {/* Submit Button */}
+                <div className="col-span-full flex justify-center mt-12">
                     <button
                         type="submit"
                         disabled={isSubmitting}
-                        className={`px-14 py-3 rounded-lg font-semibold text-lg transition-shadow text-white
-                            ${isSubmitting
-                                ? 'bg-blue-400 cursor-not-allowed'
-                                : 'bg-blue-600 hover:bg-blue-700 shadow-lg hover:shadow-xl'
-                            }`}
+                        className={`
+          px-16 py-4 rounded-xl font-semibold text-lg
+          text-white
+          transition-shadow
+          ${isSubmitting
+                                ? 'bg-sky-400 cursor-not-allowed'
+                                : 'bg-sky-700 hover:bg-sky-800 shadow-lg hover:shadow-xl'
+                            }
+        `}
                     >
                         {isSubmitting ? (
                             <div className="flex items-center justify-center space-x-3">
@@ -339,7 +388,7 @@ const ContributeForm = () => {
                 </div>
             </form>
         </div>
-    );
+    )
 };
 
 export default ContributeForm;

@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { X } from 'lucide-react';
+import Tooltip from './Tooltip';
 
 import {
     processForm,
@@ -55,8 +56,6 @@ const RequestForm = ({ onStudyGenerated, isLoading }) => {
             const newRefs = [...prev];
             const current = newRefs[index];
             const next = { ...current, ...updates };
-
-            // If book changed, reset chapter, verses and load chapters/verses info
             if (updates.selectedBook && updates.selectedBook !== current.selectedBook) {
                 next.selectedChapter = '';
                 next.verseStart = '';
@@ -83,8 +82,6 @@ const RequestForm = ({ onStudyGenerated, isLoading }) => {
                 }
                 next.verseEnd = end;
             }
-
-            // Update scripture formatted string
             next.scripture = formatReference(next.selectedBook, next.selectedChapter, next.verseStart, next.verseEnd);
 
             newRefs[index] = next;
@@ -178,137 +175,233 @@ const RequestForm = ({ onStudyGenerated, isLoading }) => {
             return isSelected ? Array.from(new Set([...prev, ...indices])) : prev.filter(i => !indices.includes(i));
         });
     };
+    const isGenerateDisabled = searchResults.length === 0 || selectedQuestions.length === 0;
 
     return (
-         <div className="max-w-[1200px] mx-auto px-6 pt-12 pb-16">
-      <div className="bg-lightBg dark:bg-darkBg border border-gray-300 dark:border-gray-700 rounded-xl p-6">
+        <div className="max-w-[1200px] mx-auto px-6 pt-12 pb-16">
+            <div
+                className="
+        bg-white/50 dark:bg-gray-900/60
+        border border-gray-200 dark:border-gray-800
+        rounded-xl shadow-sm backdrop-blur-md
+        p-8
+        flex flex-col gap-14
+      "
+            >
+                <section>
+                    <h2
+                        className="
+      text-2xl font-semibold
+      text-sky-700 dark:text-sky-400
+      border-b-2 border-sky-700 dark:border-sky-400
+      pb-2 mb-8
+      text-center
+    "
+                    >
+                        Bible References
+                    </h2>
 
-        {/* Bible References */}
-        <section className="mb-12">
-          <h2 className="text-xl font-semibold text-primary-600 dark:text-primary-400 border-b-2 border-primary-600 dark:border-primary-400 pb-1 mb-8">
-            Bible References
-          </h2>
-          <div className="flex flex-wrap gap-y-12 gap-x-12 justify-start text-lightText dark:text-darkText">
-            {scriptureRefs.map((ref, i) => (
-              <div key={ref.id} className="relative w-full md:w-[260px] flex flex-col gap-4">
-                <p className="text-sm text-lightText dark:text-darkText block md:hidden">
-                  Reference {i + 1}
-                </p>
-                {i > 0 && (
-                  <button
-                    aria-label={`Remove reference ${i + 1}`}
-                    onClick={() => setScriptureRefs(prev => prev.filter((_, idx) => idx !== i))}
-                    className="absolute -top-4 -right-4 p-1.5 rounded-full bg-red-500 hover:bg-red-600 text-white shadow focus:outline-none focus:ring-2 focus:ring-red-400"
-                  >
-                    <X size={16} />
-                  </button>
+                    <div
+                        className="
+      grid
+      grid-cols-1 sm:grid-cols-2
+      justify-center
+      gap-x-12 gap-y-10
+      max-w-[600px] mx-auto
+      text-gray-900 dark:text-gray-300
+    "
+                    >
+                        {scriptureRefs.map((ref, i) => (
+                            <div
+                                key={ref.id}
+                                className="relative w-full flex flex-col gap-5"
+                            >
+                                <p className="text-sm text-gray-700 dark:text-gray-400 block md:hidden">
+                                    Reference {i + 1}
+                                </p>
+                                {i > 0 && (
+                                    <button
+                                        aria-label={`Remove reference ${i + 1}`}
+                                        onClick={() =>
+                                            setScriptureRefs((prev) => prev.filter((_, idx) => idx !== i))
+                                        }
+                                        className="
+              absolute -top-5 -right-5 p-2 rounded-full
+              bg-red-600 hover:bg-red-700
+              text-white shadow-md
+              focus:outline-none focus:ring-2 focus:ring-red-400
+              transition
+            "
+                                    >
+                                        <X size={16} />
+                                    </button>
+                                )}
+
+                                {/* Scripture ComboBoxes in original order, full width */}
+                                <ScriptureCombobox
+                                    id={`bookSelect-${i}`}
+                                    label="Book"
+                                    value={ref.selectedBook}
+                                    onChange={(book) => updateScriptureRef(i, { selectedBook: book })}
+                                    options={bibleBooks}
+                                    placeholder="Select a book..."
+                                    isRequired={i === 0}
+                                    className="w-full"
+                                />
+                                <ScriptureCombobox
+                                    id={`chapterSelect-${i}`}
+                                    label="Chapter"
+                                    value={ref.selectedChapter}
+                                    onChange={(chapter) => updateScriptureRef(i, { selectedChapter: chapter })}
+                                    options={ref.availableChapters}
+                                    placeholder={
+                                        ref.selectedBook
+                                            ? `Select chapter (1-${ref.totalChapters})`
+                                            : "Select a book first"
+                                    }
+                                    disabled={!ref.selectedBook}
+                                    className="w-full"
+                                />
+                                <ScriptureCombobox
+                                    id={`verseStartSelect-${i}`}
+                                    label="Start Verse"
+                                    value={ref.verseStart}
+                                    onChange={(verse) => updateScriptureRef(i, { verseStart: verse })}
+                                    options={ref.availableVerses}
+                                    placeholder={ref.selectedChapter ? "Select start verse" : "Select a chapter first"}
+                                    disabled={!ref.selectedChapter}
+                                    className="w-full"
+                                />
+                                <ScriptureCombobox
+                                    id={`verseEndSelect-${i}`}
+                                    label="End Verse"
+                                    value={ref.verseEnd}
+                                    onChange={(verse) => updateScriptureRef(i, { verseEnd: verse })}
+                                    options={ref.availableVerses}
+                                    isEndVerse
+                                    startVerseValue={ref.verseStart}
+                                    disabled={!ref.selectedChapter}
+                                    className="w-full"
+                                />
+                            </div>
+                        ))}
+                    </div>
+
+                    <div className="flex justify-center mt-10">
+                        <button
+                            onClick={addScriptureReference}
+                            className="
+        inline-flex items-center gap-2
+        px-5 py-3
+        border border-sky-600 text-sky-600
+        rounded-lg
+        hover:bg-sky-100 dark:hover:bg-sky-700/30
+        font-semibold
+        transition
+      "
+                        >
+                            + Add Another Reference
+                        </button>
+                    </div>
+                </section>
+
+
+                <section
+                    className="
+            grid grid-cols-1 sm:grid-cols-2 gap-6 justify-center
+            max-w-md mx-auto
+          "
+                >
+                    {/* ThemesMultiSelect */}
+                    <div className="w-full">
+                        <ThemesMultiSelect value={selectedThemes} onChange={setSelectedThemes} />
+                    </div>
+
+                    {/* Hide Unapproved toggle */}
+                    <div className="w-full">
+                        <button
+                            onClick={() => setHideUnapproved((h) => !h)}
+                            className={`
+                w-full py-3 font-semibold rounded-lg transition
+                ${hideUnapproved
+                                    ? 'bg-secondary-600 text-white hover:bg-secondary-700'
+                                    : 'border border-secondary-600 text-secondary-600 hover:bg-secondary-100 dark:hover:bg-secondary-800'
+                                }
+              `}
+                        >
+                            {hideUnapproved ? 'Show Unapproved' : 'Hide Unapproved'}
+                        </button>
+                    </div>
+
+                    {/* Search button */}
+                    <div className="w-full">
+                        <button
+                            onClick={handleSearch}
+                            disabled={isLoading || isSubmitting}
+                            className="
+                w-full min-w-[140px] py-3 px-6 font-semibold
+                text-white bg-sky-600 rounded-lg
+                hover:bg-sky-700
+                disabled:opacity-50 disabled:cursor-not-allowed
+                transition
+              "
+                        >
+                            Search
+                        </button>
+                    </div>
+
+                    <div className="w-full relative">
+                        {isGenerateDisabled ? (
+                            <Tooltip content="Select at least one question from Search table">
+                                <button
+                                    disabled
+                                    className="
+          w-full min-w-[140px] py-3 px-6 font-semibold
+          border border-sky-600 text-sky-600 rounded-lg
+          bg-gray-100 dark:bg-gray-800
+          cursor-not-allowed
+          transition
+        "
+                                >
+                                    Generate Study
+                                </button>
+                            </Tooltip>
+                        ) : (
+                            <button
+                                onClick={handleSubmit}
+                                disabled={isLoading || isSubmitting}
+                                className="
+        w-full min-w-[140px] py-3 px-6 font-semibold
+        border border-sky-600 text-sky-600 rounded-lg
+        hover:bg-sky-100 dark:hover:bg-sky-700/30
+        disabled:opacity-50 disabled:cursor-not-allowed
+        transition
+      "
+                            >
+                                Generate Study
+                            </button>
+                        )}
+                    </div>
+
+                </section>
+                {/* Search Results */}
+                {showSearchResults && (
+                    <section className="mt-12">
+                        <QuestionTable
+                            questions={searchResults}
+                            selectedQuestions={selectedQuestions}
+                            onQuestionSelect={handleQuestionSelect}
+                            showActions
+                            hideUnapproved={hideUnapproved}
+                            hideEditActions
+                        />
+                    </section>
                 )}
-                <ScriptureCombobox
-                  id={`bookSelect-${i}`}
-                  label="Book"
-                  value={ref.selectedBook}
-                  onChange={book => updateScriptureRef(i, { selectedBook: book })}
-                  options={bibleBooks}
-                  placeholder="Select a book..."
-                  isRequired={i === 0}
-                  className="w-full"
-                />
-                <ScriptureCombobox
-                  id={`chapterSelect-${i}`}
-                  label="Chapter"
-                  value={ref.selectedChapter}
-                  onChange={chapter => updateScriptureRef(i, { selectedChapter: chapter })}
-                  options={ref.availableChapters}
-                  placeholder={ref.selectedBook ? `Select chapter (1-${ref.totalChapters})` : 'Select a book first'}
-                  disabled={!ref.selectedBook}
-                  className="w-full"
-                />
-                <ScriptureCombobox
-                  id={`verseStartSelect-${i}`}
-                  label="Start Verse"
-                  value={ref.verseStart}
-                  onChange={verse => updateScriptureRef(i, { verseStart: verse })}
-                  options={ref.availableVerses}
-                  placeholder={ref.selectedChapter ? 'Select start verse' : 'Select a chapter first'}
-                  disabled={!ref.selectedChapter}
-                  className="w-full"
-                />
-                <ScriptureCombobox
-                  id={`verseEndSelect-${i}`}
-                  label="End Verse"
-                  value={ref.verseEnd}
-                  onChange={verse => updateScriptureRef(i, { verseEnd: verse })}
-                  options={ref.availableVerses}
-                  isEndVerse
-                  startVerseValue={ref.verseStart}
-                  disabled={!ref.selectedChapter}
-                  className="w-full"
-                />
-              </div>
-            ))}
-          </div>
-          <div className="flex justify-start mt-8">
-            <button
-              onClick={addScriptureReference}
-              className="flex items-center gap-2 px-4 py-2 border border-primary-600 text-primary-600 rounded hover:bg-primary-50 dark:hover:bg-primary-900 transition font-semibold"
-            >
-              + Add Another Reference
-            </button>
-          </div>
-        </section>
+            </div>
+        </div>
+    );
 
-        {/* Themes and Actions */}
-        <section className="flex flex-wrap gap-6 text-lightText dark:text-darkText">
-          <ThemesMultiSelect
-            value={selectedThemes}
-            onChange={setSelectedThemes}
-          />
-          <div className="max-w-[260px] w-full flex flex-col justify-end space-y-2">
-            <button
-              onClick={handleSearch}
-              disabled={isLoading || isSubmitting}
-              className="w-full min-w-[120px] py-2 px-4 font-semibold text-white bg-primary-600 rounded hover:bg-primary-700 disabled:opacity-50 disabled:cursor-not-allowed transition"
-            >
-              Search
-            </button>
 
-            <button
-              onClick={() => setHideUnapproved(h => !h)}
-              className={`w-full min-w-[120px] py-2 font-semibold rounded ${
-                hideUnapproved
-                  ? 'bg-secondary-600 text-white hover:bg-secondary-700'
-                  : 'border border-secondary-600 text-secondary-600 hover:bg-secondary-100 dark:hover:bg-secondary-800'
-              } transition`}
-            >
-              {hideUnapproved ? 'Show Unapproved' : 'Hide Unapproved'}
-            </button>
-
-            <button
-              onClick={handleSubmit}
-              disabled={isLoading || isSubmitting}
-              className="w-full min-w-[120px] py-2 px-4 font-semibold border border-primary-600 text-primary-600 rounded hover:bg-primary-50 dark:hover:bg-primary-900 disabled:opacity-50 disabled:cursor-not-allowed transition"
-            >
-              Generate Study
-            </button>
-          </div>
-        </section>
-
-        {/* Search Results */}
-        {showSearchResults && (
-          <section className="mt-10">
-            <QuestionTable
-              questions={searchResults}
-              selectedQuestions={selectedQuestions}
-              onQuestionSelect={handleQuestionSelect}
-              showActions
-              hideUnapproved={hideUnapproved}
-              hideEditActions
-            />
-          </section>
-        )}
-      </div>
-    </div>
-  );
 }
 
 export default RequestForm;

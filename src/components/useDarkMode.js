@@ -1,9 +1,7 @@
 import { useState, useEffect } from 'react';
 
 export function useDarkMode() {
-  const [mode, setMode] = useState(null); // Start with null to avoid SSR hydration mismatch
-
-  // On mount, read saved mode or system preference, then set it
+  const [mode, setMode] = useState(null);
   useEffect(() => {
     let saved = localStorage.getItem('themeMode');
     if (saved !== 'light' && saved !== 'dark') {
@@ -11,10 +9,8 @@ export function useDarkMode() {
     }
     setMode(saved);
   }, []);
-
-  // When mode changes, update class on <html> and save preference
   useEffect(() => {
-    if (!mode) return; // Don't run until mode is set
+    if (!mode) return;
 
     const root = document.documentElement;
     if (mode === 'dark') {
