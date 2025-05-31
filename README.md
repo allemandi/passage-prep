@@ -1,7 +1,8 @@
 # 📖 Passage Prep
 
-**Format, organize, and export Bible study questions.**
-Build reusable Bible studies in seconds.
+> **Format, organize, and export Bible study questions**
+>
+> Build reusable Bible studies in seconds
 
 🚀 [Netlify Live Demo](https://passage-prep.netlify.app/)
 
@@ -97,11 +98,11 @@ Build reusable Bible studies in seconds.
 
 ## 🔗 Related Projects
 Check out these related projects that might interest you:
-- **[Drag And Preach](https://github.com/allemandi/drag-and-preach)**
-  A modern drag-and-drop sermon planner. Organize, structure, and export your sermons with ease.
+**[Drag And Preach](https://github.com/allemandi/drag-and-preach)**
+- A modern drag-and-drop sermon planner. Organize, structure, and export your sermons with ease.
 
-- **[Vector Knowledge Base](https://github.com/allemandi/vector-knowledge-base)**  
-  A minimalist command-line knowledge system with semantic memory capabilities using vector embeddings for information retrieval.
+**[Vector Knowledge Base](https://github.com/allemandi/vector-knowledge-base)** 
+- A minimalist command-line knowledge system with semantic memory capabilities using vector embeddings for information retrieval.
 
 
 ## 🤝 Contributing

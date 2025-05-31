@@ -1,6 +1,6 @@
 {
   "name": "passage-prep",
-  "version": "1.0.0",
+  "version": "4.0.1",
   "private": true,
   "dependencies": {
     "@allemandi/bible-validate": "^2.1.0",
