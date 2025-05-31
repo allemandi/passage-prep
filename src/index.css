@@ -3,9 +3,14 @@
 @custom-variant dark (&:where(.dark, .dark *));
 
 * {
-  transition: background-color 0.9s ease, color 0.9s ease;
+    transition: background-color 0.9s ease, color 0.9s ease;
 }
 
-html, body {
-  overscroll-behavior: none;
+body {
+    background-color: #f0f9ff;
+}
+
+html.dark,
+body.dark {
+    background-color: #0f172a;
 }

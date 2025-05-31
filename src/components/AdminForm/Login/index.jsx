@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 
 const authChannel = new BroadcastChannel('auth');
 
@@ -26,9 +26,7 @@ const Login = ({ setIsLoggedIn, setShowError, setErrorMessage }) => {
   };
 
   return (
-    <form
-      onSubmit={handleLogin}
-      className="max-w-md mx-auto w-full flex flex-col gap-6"
+    <form onSubmit={handleLogin} className="max-w-md mx-auto w-full flex flex-col gap-6"
     >
       <label className="flex flex-col">
         <span className="mb-2 font-semibold text-gray-700">Username</span>
