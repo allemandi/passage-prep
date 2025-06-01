@@ -20,12 +20,20 @@ const ScriptureCombobox = ({
 
   // Filter options based on end verse logic
   useEffect(() => {
+    let newFilteredOptions = options;
+
     if (isEndVerse && startVerseValue) {
-      setFilteredOptions(options.filter(v => parseInt(v) >= parseInt(startVerseValue)));
-    } else {
-      setFilteredOptions(options);
+      newFilteredOptions = newFilteredOptions.filter(v => parseInt(v) >= parseInt(startVerseValue));
     }
-  }, [options, isEndVerse, startVerseValue]);
+
+    if (inputValue) {
+      newFilteredOptions = newFilteredOptions.filter(option =>
+        String(option).toLowerCase().startsWith(String(inputValue).toLowerCase())
+      );
+    }
+
+    setFilteredOptions(newFilteredOptions);
+  }, [options, isEndVerse, startVerseValue, inputValue]);
 
   useEffect(() => {
     setInputValue(value || '');
