@@ -1,15 +1,30 @@
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { X, MoreVertical, Copy, FileText, FileCode } from 'lucide-react';
 import { useToast } from './ToastMessage/Toast';
 
-
 const StudyModal = ({ show, onHide, data }) => {
     const [showCopyMenu, setShowCopyMenu] = useState(false);
+    const copyMenuRef = useRef(null);
     const showToast = useToast();
     const noQuestionString = 'Notice: Questions were not selected. Use Search and tick checkboxes against table questions to fill this space, or use the Contribute section to submit your own questions.'
+    
+    useEffect(() => {
+        if (!showCopyMenu) return;
+        
+        const handleClickOutside = (event) => {
+            if (copyMenuRef.current && !copyMenuRef.current.contains(event.target)) {
+                setShowCopyMenu(false);
+            }
+        };
+        
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => document.removeEventListener('mousedown', handleClickOutside);
+    }, [showCopyMenu]);
+
     if (!data || !data.filteredQuestions) {
         return null;
     }
+
     const groupQuestionsByBookAndTheme = (questions) => {
         const grouped = {};
         questions.forEach(question => {
@@ -408,6 +423,7 @@ const StudyModal = ({ show, onHide, data }) => {
 
                         {showCopyMenu && (
                             <div
+                                ref={copyMenuRef}
                                 className="
               absolute right-0 bottom-full mb-2 w-56
               bg-white/90 dark:bg-gray-900/90
