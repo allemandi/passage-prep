@@ -10,8 +10,6 @@ const StudyModal = ({ show, onHide, data }) => {
     if (!data || !data.filteredQuestions) {
         return null;
     }
-
-
     const groupQuestionsByBookAndTheme = (questions) => {
         const grouped = {};
         questions.forEach(question => {
@@ -92,7 +90,6 @@ const StudyModal = ({ show, onHide, data }) => {
 
         return plainText;
     };
-
 
     const generateMarkdownContent = () => {
         let markdown = '';
@@ -185,7 +182,7 @@ const StudyModal = ({ show, onHide, data }) => {
     return (
 
         <div
-            className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 p-4"
+            className="fixed inset-0 z-50 flex items-start justify-center bg-black bg-opacity-50 p-4 pt-12"
             onClick={onHide}
             aria-labelledby="study-modal-title"
             role="dialog"
@@ -201,6 +198,7 @@ const StudyModal = ({ show, onHide, data }) => {
       overflow-hidden
     "
                 onClick={(e) => e.stopPropagation()}
+                style={{ transform: 'translateY(-25px)' }}
             >
                 {/* Modal Header */}
                 <div
@@ -239,17 +237,17 @@ const StudyModal = ({ show, onHide, data }) => {
         text-gray-900 dark:text-gray-300
         flex flex-col gap-10
       "
-                    style={{ WebkitOverflowScrolling: 'touch' }}
+                    style={{ WebkitOverflowScrolling: 'touch', paddingBottom: '5rem' }}
                 >
                     <section>
                         <h3
                             className="
-            text-2xl font-semibold
-            text-sky-700 dark:text-sky-400
-            border-b-2 border-sky-700 dark:border-sky-400
-            pb-2 mb-6
-            text-center sm:text-left
-          "
+    text-2xl font-semibold
+    text-sky-700 dark:text-sky-400
+    border-b-2 border-sky-700 dark:border-sky-400
+    pb-2 mb-6
+    text-left
+  "
                         >
                             Bible References
                         </h3>
@@ -271,12 +269,12 @@ const StudyModal = ({ show, onHide, data }) => {
                     <section>
                         <h3
                             className="
-            text-2xl font-semibold
-            text-sky-700 dark:text-sky-400
-            border-b-2 border-sky-700 dark:border-sky-400
-            pb-2 mb-6
-            text-center sm:text-left
-          "
+    text-2xl font-semibold
+    text-sky-700 dark:text-sky-400
+    border-b-2 border-sky-700 dark:border-sky-400
+    pb-2 mb-6
+    text-left
+  "
                         >
                             General Context
                         </h3>
@@ -298,12 +296,12 @@ const StudyModal = ({ show, onHide, data }) => {
                     <section>
                         <h3
                             className="
-            text-2xl font-semibold
-            text-sky-700 dark:text-sky-400
-            border-b-2 border-sky-700 dark:border-sky-400
-            pb-2 mb-6
-            text-center sm:text-left
-          "
+    text-2xl font-semibold
+    text-sky-700 dark:text-sky-400
+    border-b-2 border-sky-700 dark:border-sky-400
+    pb-2 mb-6
+    text-left
+  "
                         >
                             Questions by Book and Theme
                         </h3>
@@ -439,7 +437,7 @@ const StudyModal = ({ show, onHide, data }) => {
                                     onClick={async () => {
                                         const markdown = generateMarkdownContent();
                                         navigator.clipboard.writeText(markdown).then(() => {
-                                           showToast('Successfully copied markdown', 'success');
+                                            showToast('Successfully copied markdown', 'success');
                                             setShowCopyMenu(false);
                                         });
                                     }}

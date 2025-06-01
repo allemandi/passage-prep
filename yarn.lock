@@ -3,9 +3,9 @@
 
 
 "@allemandi/bible-validate@^2.1.0":
-  version "2.1.0"
-  resolved "https://registry.yarnpkg.com/@allemandi/bible-validate/-/bible-validate-2.1.0.tgz#99aca212070f8b0d04ddcd992efb70e3409859a4"
-  integrity sha512-cP7cZKZRHB4If0bcw/VShTPmTYwiM/EInfCsm8cVqOsWaY7kBc1pyURGYa5SUd6RCkmL+FUGwrwoKpj1BUXACw==
+  version "2.2.0"
+  resolved "https://registry.yarnpkg.com/@allemandi/bible-validate/-/bible-validate-2.2.0.tgz#8fbffa1aa5521d7c78b365409be6226edbe22292"
+  integrity sha512-1jo0OWzpcKxJmT79e5aCu+jJH8CddgUO9XtV6Z6FkKYNGAIv8cmWrFzpwide6Pw4sGgBV7/4XUohAylfStTRNQ==
 
 "@alloc/quick-lru@^5.2.0":
   version "5.2.0"
