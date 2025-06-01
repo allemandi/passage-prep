@@ -2,7 +2,7 @@
 # yarn lockfile v1
 
 
-"@allemandi/bible-validate@^2.1.0":
+"@allemandi/bible-validate@^2.2.0":
   version "2.2.0"
   resolved "https://registry.yarnpkg.com/@allemandi/bible-validate/-/bible-validate-2.2.0.tgz#8fbffa1aa5521d7c78b365409be6226edbe22292"
   integrity sha512-1jo0OWzpcKxJmT79e5aCu+jJH8CddgUO9XtV6Z6FkKYNGAIv8cmWrFzpwide6Pw4sGgBV7/4XUohAylfStTRNQ==
