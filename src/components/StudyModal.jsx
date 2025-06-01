@@ -1,16 +1,29 @@
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { X, MoreVertical, Copy, FileText, FileCode } from 'lucide-react';
 import { useToast } from './ToastMessage/Toast';
 
-
 const StudyModal = ({ show, onHide, data }) => {
     const [showCopyMenu, setShowCopyMenu] = useState(false);
+    const copyMenuRef = useRef(null);
     const showToast = useToast();
     const noQuestionString = 'Notice: Questions were not selected. Use Search and tick checkboxes against table questions to fill this space, or use the Contribute section to submit your own questions.'
+    
+    useEffect(() => {
+        if (!showCopyMenu) return;
+        
+        const handleClickOutside = (event) => {
+            if (copyMenuRef.current && !copyMenuRef.current.contains(event.target)) {
+                setShowCopyMenu(false);
+            }
+        };
+        
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => document.removeEventListener('mousedown', handleClickOutside);
+    }, [showCopyMenu]);
+
     if (!data || !data.filteredQuestions) {
         return null;
     }
-
 
     const groupQuestionsByBookAndTheme = (questions) => {
         const grouped = {};
@@ -92,7 +105,6 @@ const StudyModal = ({ show, onHide, data }) => {
 
         return plainText;
     };
-
 
     const generateMarkdownContent = () => {
         let markdown = '';
@@ -185,7 +197,7 @@ const StudyModal = ({ show, onHide, data }) => {
     return (
 
         <div
-            className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 p-4"
+            className="fixed inset-0 z-50 flex items-start justify-center bg-black bg-opacity-50 p-4 pt-12"
             onClick={onHide}
             aria-labelledby="study-modal-title"
             role="dialog"
@@ -201,6 +213,7 @@ const StudyModal = ({ show, onHide, data }) => {
       overflow-hidden
     "
                 onClick={(e) => e.stopPropagation()}
+                style={{ transform: 'translateY(-25px)' }}
             >
                 {/* Modal Header */}
                 <div
@@ -239,17 +252,17 @@ const StudyModal = ({ show, onHide, data }) => {
         text-gray-900 dark:text-gray-300
         flex flex-col gap-10
       "
-                    style={{ WebkitOverflowScrolling: 'touch' }}
+                    style={{ WebkitOverflowScrolling: 'touch', paddingBottom: '5rem' }}
                 >
                     <section>
                         <h3
                             className="
-            text-2xl font-semibold
-            text-sky-700 dark:text-sky-400
-            border-b-2 border-sky-700 dark:border-sky-400
-            pb-2 mb-6
-            text-center sm:text-left
-          "
+    text-2xl font-semibold
+    text-sky-700 dark:text-sky-400
+    border-b-2 border-sky-700 dark:border-sky-400
+    pb-2 mb-6
+    text-left
+  "
                         >
                             Bible References
                         </h3>
@@ -271,12 +284,12 @@ const StudyModal = ({ show, onHide, data }) => {
                     <section>
                         <h3
                             className="
-            text-2xl font-semibold
-            text-sky-700 dark:text-sky-400
-            border-b-2 border-sky-700 dark:border-sky-400
-            pb-2 mb-6
-            text-center sm:text-left
-          "
+    text-2xl font-semibold
+    text-sky-700 dark:text-sky-400
+    border-b-2 border-sky-700 dark:border-sky-400
+    pb-2 mb-6
+    text-left
+  "
                         >
                             General Context
                         </h3>
@@ -298,12 +311,12 @@ const StudyModal = ({ show, onHide, data }) => {
                     <section>
                         <h3
                             className="
-            text-2xl font-semibold
-            text-sky-700 dark:text-sky-400
-            border-b-2 border-sky-700 dark:border-sky-400
-            pb-2 mb-6
-            text-center sm:text-left
-          "
+    text-2xl font-semibold
+    text-sky-700 dark:text-sky-400
+    border-b-2 border-sky-700 dark:border-sky-400
+    pb-2 mb-6
+    text-left
+  "
                         >
                             Questions by Book and Theme
                         </h3>
@@ -410,6 +423,7 @@ const StudyModal = ({ show, onHide, data }) => {
 
                         {showCopyMenu && (
                             <div
+                                ref={copyMenuRef}
                                 className="
               absolute right-0 bottom-full mb-2 w-56
               bg-white/90 dark:bg-gray-900/90
@@ -439,7 +453,7 @@ const StudyModal = ({ show, onHide, data }) => {
                                     onClick={async () => {
                                         const markdown = generateMarkdownContent();
                                         navigator.clipboard.writeText(markdown).then(() => {
-                                           showToast('Successfully copied markdown', 'success');
+                                            showToast('Successfully copied markdown', 'success');
                                             setShowCopyMenu(false);
                                         });
                                     }}
