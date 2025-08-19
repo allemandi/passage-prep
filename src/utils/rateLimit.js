@@ -10,11 +10,15 @@ export const getUserIdentifier = () => {
   try {
     userIdentifier = localStorage.getItem('rateLimitId');
     if (!userIdentifier) {
-      userIdentifier = Math.random().toString(36).substring(2);
+      userIdentifier = Array.from(window.crypto.getRandomValues(new Uint8Array(16)))
+        .map(b => b.toString(36))
+        .join('');
       localStorage.setItem('rateLimitId', userIdentifier);
     }
   } catch {
-    userIdentifier = 'anonymous_' + Math.random().toString(36).substring(2);
+    userIdentifier = 'anonymous_' + Array.from(window.crypto.getRandomValues(new Uint8Array(16)))
+      .map(b => b.toString(36))
+      .join('');
   }
   return userIdentifier;
 };
