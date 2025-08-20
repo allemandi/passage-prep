@@ -78,17 +78,6 @@ updates:
       - dependency-name: "vite"
         update-types: ["version-update:semver-major"]
     
-    # Prioritize security updates
-    allow:
-      # Always allow security updates
-      - dependency-type: "all"
-        update-types: ["security"]
-      # Allow all dev dependency updates (they're safer)
-      - dependency-type: "development"
-      # For production, allow minor and patch updates
-      - dependency-type: "production"
-        update-types: ["minor", "patch"]
-    
     # Add labels for PR organization
     labels:
       - "dependencies"
