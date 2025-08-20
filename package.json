@@ -19,7 +19,7 @@
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
     "react-select": "^5.10.2",
-    "simple-icons": "^15.7.0",
+    "simple-icons": "^15.11.0",
     "uuid": "^11.1.0",
     "xss": "^1.0.15"
   },
