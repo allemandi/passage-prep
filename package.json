@@ -9,7 +9,7 @@
     "body-parser": "^2.2.0",
     "clsx": "^2.1.1",
     "cors": "^2.8.5",
-    "dotenv": "^17.2.0",
+    "dotenv": "^17.2.1",
     "lucide-react": "^0.525.0",
     "mongodb": "^6.17.0",
     "mongoose": "^8.16.4",
