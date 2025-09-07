@@ -7,16 +7,16 @@ const StudyModal = ({ show, onHide, data }) => {
     const copyMenuRef = useRef(null);
     const showToast = useToast();
     const noQuestionString = 'Notice: Questions were not selected. Use Search and tick checkboxes against table questions to fill this space, or use the Contribute section to submit your own questions.'
-    
+
     useEffect(() => {
         if (!showCopyMenu) return;
-        
+
         const handleClickOutside = (event) => {
             if (copyMenuRef.current && !copyMenuRef.current.contains(event.target)) {
                 setShowCopyMenu(false);
             }
         };
-        
+
         document.addEventListener('mousedown', handleClickOutside);
         return () => document.removeEventListener('mousedown', handleClickOutside);
     }, [showCopyMenu]);
@@ -108,41 +108,38 @@ const StudyModal = ({ show, onHide, data }) => {
 
     const generateMarkdownContent = () => {
         let markdown = '';
-        markdown += '## Bible References\n';
+        markdown += '## Bible References\n\n';
         if (data?.refArr && data.refArr.filter(ref => ref).length > 0) {
             data.refArr.filter(ref => ref).forEach(reference => {
                 markdown += `- ${reference}\n`;
             });
         } else {
-            markdown += 'No Bible references specified.\n';
+            markdown += '_No Bible references specified._\n';
         }
-        markdown += '\n';
-        markdown += '## General Context\n';
+        markdown += '\n## General Context\n\n';
         if (data?.contextArr && data.contextArr.length > 0) {
             data.contextArr.forEach(context => {
                 markdown += `- ${context}\n`;
             });
         } else {
-            markdown += 'No context information available.\n';
+            markdown += '_No context information available._\n';
         }
-        markdown += '\n';
-        markdown += '## Questions by Book and Theme\n';
+        markdown += '\n## Questions by Book and Theme\n\n';
         if (Object.keys(groupedQuestions).length > 0) {
             orderedBooksList.forEach(book => {
                 markdown += `### ${book}\n`;
                 Object.entries(groupedQuestions[book]).forEach(([theme, questions]) => {
-                    markdown += `- **${theme}**\n`;
+                    markdown += `#### ${theme}\n`;
                     questions.forEach(question => {
-                        markdown += `  - ${question.question}\n`;
+                        markdown += `- ${question.question}\n`;
                     });
+                    markdown += '\n';
                 });
-                markdown += '\n';
             });
         } else {
-            markdown += '';
+            markdown += '_No questions available._\n';
         }
-
-        return markdown;
+        return markdown.trim();
     };
 
 
