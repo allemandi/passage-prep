@@ -6,6 +6,7 @@ import ScriptureCombobox from '../../ScriptureCombobox';
 import { getBibleBooks, getChaptersForBook, getVersesForChapter } from '../../../utils/bibleData';
 import { useToast } from '../../ToastMessage/Toast';
 import ThemeSelect, { defaultThemes } from '../../ui/ThemeSelect';
+import Button from '../../ui/Button';
 
 const ReviewApprove = () => {
     const [selectedQuestions, setSelectedQuestions] = useState([]);
@@ -202,8 +203,8 @@ const ReviewApprove = () => {
 
     return (
         <div className="w-full mb-10">
-            <h2 className="text-xl font-semibold mb-6 text-center">Filter for Reviewing/Approving Questions</h2>
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 justify-center">
+            <h2 className="text-xl font-bold mb-8 text-center text-app-text">Filter for Reviewing/Approving Questions</h2>
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6 justify-center">
                 <ScriptureCombobox
                     label="Book"
                     value={scriptureRefs[0].selectedBook}
@@ -239,21 +240,23 @@ const ReviewApprove = () => {
                 />
             </div>
 
-            <div className="flex flex-col sm:flex-row justify-center items-center mt-4 gap-4">
-                <ThemeSelect
-                    value={selectedThemes}
-                    onChange={setSelectedThemes}
-                    isMulti
-                    className="max-w-xs"
-                />
+            <div className="flex flex-col sm:flex-row justify-center items-center mt-8 gap-6">
+                <div className="w-full max-w-xs">
+                    <ThemeSelect
+                        value={selectedThemes}
+                        onChange={setSelectedThemes}
+                        isMulti
+                        label="Themes"
+                    />
+                </div>
 
-                <button
+                <Button
                     onClick={applyApiFilters}
-                    className="flex items-center gap-2 bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700"
+                    variant="primary"
+                    className="w-full sm:w-auto"
                 >
                     <Filter className="w-5 h-5" /> Apply Filters
-                </button>
-                
+                </Button>
             </div>
 
             <div className="mt-6">
@@ -266,21 +269,22 @@ const ReviewApprove = () => {
                 />
             </div>
 
-            <div className="flex flex-col sm:flex-row justify-center gap-4 mt-8">
-                <button
+            <div className="flex flex-col sm:flex-row justify-center gap-6 mt-12">
+                <Button
                     onClick={handleApproveSelected}
                     disabled={selectedQuestions.length === 0}
-                    className="flex items-center justify-center gap-2 bg-green-600 text-white px-6 py-3 rounded disabled:opacity-50"
+                    className="w-full sm:w-auto min-w-[240px]"
                 >
                     <Check className="w-5 h-5" /> Approve Selected ({selectedQuestions.length})
-                </button>
-                <button
+                </Button>
+                <Button
                     onClick={handleDeleteSelected}
                     disabled={selectedQuestions.length === 0}
-                    className="flex items-center justify-center gap-2 bg-red-600 text-white px-6 py-3 rounded disabled:opacity-50"
+                    variant="outline"
+                    className="w-full sm:w-auto min-w-[240px] border-2 border-secondary-400 text-secondary-600 hover:bg-secondary-50 dark:text-secondary-400 dark:hover:bg-secondary-900/20"
                 >
                     <Trash2 className="w-5 h-5" /> Delete Selected ({selectedQuestions.length})
-                </button>
+                </Button>
             </div>
         </div>
     );

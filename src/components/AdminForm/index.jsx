@@ -92,7 +92,7 @@ export default function AdminForm() {
                             <Button
                                 variant="outline"
                                 onClick={() => handleLogout('manual')}
-                                className="w-full max-w-xs border-red-600 text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20"
+                                className="w-full max-w-xs border-2 border-secondary-400 text-secondary-600 hover:bg-secondary-50 dark:text-secondary-400 dark:hover:bg-secondary-900/20"
                             >
                                 Logout
                             </Button>

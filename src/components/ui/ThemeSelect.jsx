@@ -55,8 +55,8 @@ const ThemeSelect = ({
 
   return (
     <div className={clsx("relative w-full", className)} ref={containerRef}>
-      <label className="block mb-1 text-sm font-medium text-gray-700 dark:text-gray-300">
-        {label} {isRequired && <span className="text-red-500">*</span>}
+      <label className="block mb-1.5 text-sm font-medium text-app-text">
+        {label} {isRequired && <span className="text-secondary-500">*</span>}
       </label>
       <button
         type="button"
@@ -64,24 +64,23 @@ const ThemeSelect = ({
         aria-haspopup="listbox"
         aria-expanded={open}
         className={clsx(
-          "flex justify-between items-center w-full rounded-md px-3 py-2 text-sm",
-          "border border-gray-300 dark:border-gray-600",
-          "bg-white dark:bg-gray-800",
-          "text-gray-900 dark:text-gray-100 shadow-sm",
-          "focus:outline-none focus:ring-2 focus:ring-sky-500",
+          "flex justify-between items-center w-full rounded-lg px-3 py-2.5 text-sm",
+          "border-2 border-app-border transition-all duration-200",
+          "bg-app-surface text-app-text shadow-sm",
+          "focus:outline-none focus:ring-4 focus:ring-primary-400/20",
           "overflow-hidden",
           open
-            ? "ring-2 ring-sky-500 border-sky-500"
-            : "hover:border-gray-400 dark:hover:border-gray-500"
+            ? "border-primary-400 ring-4 ring-primary-400/20"
+            : "hover:border-primary-300"
         )}
       >
-        <span className={clsx("truncate flex-grow text-left", !isMulti && !value && "text-gray-400")}>
+        <span className={clsx("truncate flex-grow text-left", !isMulti && !value && "text-app-text-muted")}>
           {displayText}
         </span>
         <ChevronDown
           className={clsx(
-            "w-4 h-4 flex-shrink-0 transition-transform duration-200 ml-2",
-            open ? "rotate-180 text-sky-600 dark:text-sky-400" : "text-gray-400 dark:text-gray-500"
+            "w-4 h-4 flex-shrink-0 transition-transform duration-300 ml-2",
+            open ? "rotate-180 text-primary-500" : "text-app-text-muted"
           )}
         />
       </button>
@@ -89,8 +88,8 @@ const ThemeSelect = ({
       {open && (
         <div
           className={clsx(
-            "absolute z-20 mt-1 w-full max-h-60 overflow-y-auto rounded-md border border-gray-300 dark:border-gray-600",
-            "bg-white dark:bg-gray-800 shadow-xl py-1"
+            "absolute z-20 mt-2 w-full max-h-60 overflow-y-auto rounded-xl border-2 border-app-border",
+            "bg-app-surface shadow-2xl py-1 animate-in fade-in zoom-in-95 duration-200"
           )}
           role="listbox"
         >
@@ -103,10 +102,10 @@ const ThemeSelect = ({
                 aria-selected={isSelected}
                 onClick={() => toggleTheme(theme)}
                 className={clsx(
-                  "flex items-center justify-between px-3 py-2 text-sm cursor-pointer select-none transition-colors",
+                  "flex items-center justify-between px-4 py-3 text-sm cursor-pointer select-none transition-all duration-200",
                   isSelected
-                    ? "bg-sky-500 text-white font-medium"
-                    : "text-gray-900 dark:text-gray-100 hover:bg-sky-100 dark:hover:bg-sky-700"
+                    ? "bg-primary-500 text-white font-bold"
+                    : "text-app-text hover:bg-primary-50 dark:hover:bg-primary-900/30"
                 )}
               >
                 <span>{theme}</span>

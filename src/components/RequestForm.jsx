@@ -25,16 +25,16 @@ const ScriptureReferenceItem = ({ id, index, onRemove, bibleBooks, referenceStat
     } = referenceState;
 
     return (
-        <div className="relative w-full flex flex-col gap-5 p-4 rounded-lg bg-gray-50/50 dark:bg-gray-800/30 border border-gray-100 dark:border-gray-700">
+        <div className="relative w-full flex flex-col gap-5 p-5 rounded-2xl bg-app-surface/40 border-2 border-app-border">
             <div className="flex justify-between items-center">
-                <p className="text-sm font-medium text-gray-500 dark:text-gray-400">
+                <p className="text-sm font-bold text-app-text-muted">
                     Reference {index + 1}
                 </p>
                 {index > 0 && (
                     <button
                         aria-label={`Remove reference ${index + 1}`}
                         onClick={() => onRemove(id)}
-                        className="p-1.5 rounded-full bg-red-100 text-red-600 hover:bg-red-200 dark:bg-red-900/30 dark:text-red-400 dark:hover:bg-red-900/50 transition-colors"
+                        className="p-1.5 rounded-xl bg-secondary-50 text-secondary-600 hover:bg-secondary-100 dark:bg-secondary-900/30 dark:text-secondary-400 dark:hover:bg-secondary-900/50 transition-all duration-200"
                     >
                         <X size={16} />
                     </button>
@@ -234,7 +234,7 @@ const RequestForm = ({ onStudyGenerated, isLoading }) => {
                     bibleBooks={bibleBooks}
                 />
 
-                <section className="pt-8 border-t border-gray-100 dark:border-gray-800">
+                <section className="pt-8 border-t-2 border-app-border">
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 items-end">
                         <ThemeSelect
                             value={selectedThemes}
@@ -273,7 +273,7 @@ const RequestForm = ({ onStudyGenerated, isLoading }) => {
                                     onClick={handleSubmit}
                                     variant="outline"
                                     isLoading={isLoading || isSubmitting}
-                                    className="w-full border-sky-600 text-sky-600 hover:bg-sky-50"
+                                    className="w-full"
                                 >
                                     <BookOpen size={18} />
                                     Generate Study

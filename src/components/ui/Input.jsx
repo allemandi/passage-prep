@@ -15,10 +15,10 @@ const Input = ({ label, id, error, className, isRequired, ...props }) => {
       <input
         id={id}
         className={clsx(
-          'w-full border rounded-lg p-2.5 bg-app-surface text-app-text focus:outline-none focus:ring-2 focus:ring-primary-500 transition',
+          'w-full border-2 rounded-lg p-2.5 bg-app-surface text-app-text focus:outline-none focus:ring-4 focus:ring-primary-400/20 transition-all duration-200',
           error
-            ? 'border-secondary-500 focus:ring-secondary-500'
-            : 'border-app-border focus:border-primary-500',
+            ? 'border-secondary-400 focus:border-secondary-500 focus:ring-secondary-400/20'
+            : 'border-app-border focus:border-primary-400',
           props.disabled && 'opacity-50 cursor-not-allowed bg-app-bg'
         )}
         {...props}

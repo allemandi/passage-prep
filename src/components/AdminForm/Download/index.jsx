@@ -5,6 +5,7 @@ import { downloadAllCSV, downloadFilteredCSV } from '../../../utils/download';
 import { useToast } from '../../ToastMessage/Toast';
 import ScriptureCombobox from '../../ScriptureCombobox';
 import { DownloadIcon } from 'lucide-react';
+import Button from '../../ui/Button';
 
 const Download = () => {
   const showToast = useToast();
@@ -64,9 +65,9 @@ const Download = () => {
 
   return (
     <div className="w-full mb-10">
-      <h2 className="text-xl font-semibold mb-6">Download Options</h2>
+      <h2 className="text-xl font-bold mb-8 text-center text-app-text">Download Options</h2>
 
-      <div className="flex flex-wrap justify-center gap-6 mb-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6 justify-center mb-8">
         <div className="w-full sm:w-[260px]">
           <ScriptureCombobox
             label="Book"
@@ -114,25 +115,24 @@ const Download = () => {
         </div>
       </div>
 
-      <div className="flex flex-col sm:flex-row justify-center items-center gap-4 w-full">
-        <button
+      <div className="flex flex-col sm:flex-row justify-center items-center gap-6 w-full mt-10">
+        <Button
           onClick={handleDownloadFilteredCSV}
           disabled={!downloadRef.selectedBook}
-          className={`w-full sm:w-[260px] py-3 text-lg font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition ${
-            !downloadRef.selectedBook ? 'opacity-50 cursor-not-allowed' : ''
-          }`}
+          className="w-full sm:w-auto min-w-[260px]"
         >
           <DownloadIcon className="inline-block mr-2" size={20} />
-          Download Filtered Questions
-        </button>
+          Download Filtered
+        </Button>
 
-        <button
+        <Button
           onClick={handleDownloadAllCSV}
-          className="w-full sm:w-[260px] py-3 text-lg font-medium text-white bg-gray-700 hover:bg-gray-800 rounded-lg transition"
+          variant="outline"
+          className="w-full sm:w-auto min-w-[260px]"
         >
           <DownloadIcon className="inline-block mr-2" size={20} />
-          Download All Questions
-        </button>
+          Download All
+        </Button>
       </div>
     </div>
   );

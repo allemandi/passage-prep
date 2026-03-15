@@ -5,7 +5,7 @@ const Card = ({ children, className, ...props }) => {
   return (
     <div
       className={clsx(
-        'bg-app-surface border border-app-border rounded-xl shadow-sm p-8',
+        'bg-app-surface border-2 border-app-border rounded-2xl shadow-xl p-8',
         className
       )}
       {...props}

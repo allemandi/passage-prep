@@ -1,23 +1,25 @@
 @import 'tailwindcss';
 
 @theme {
-  /* Brand Colors - Pastel Hues */
-  --color-primary-50: #eff6ff;
-  --color-primary-100: #dbeafe;
-  --color-primary-200: #bfdbfe;
-  --color-primary-300: #93c5fd;
-  --color-primary-400: #60a5fa;
-  --color-primary-500: #3b82f6;
-  --color-primary-600: #2563eb;
-  --color-primary-700: #1d4ed8;
-  --color-primary-800: #1e40af;
-  --color-primary-900: #1e3a8a;
+  /* Brand Colors - Refined Pastel Hues */
+  /* Primary: Softer Sky Blue */
+  --color-primary-50: #f0f9ff;
+  --color-primary-100: #e0f2fe;
+  --color-primary-200: #bae6fd;
+  --color-primary-300: #7dd3fc;
+  --color-primary-400: #38bdf8; /* Pastel Sky */
+  --color-primary-500: #0ea5e9;
+  --color-primary-600: #0284c7;
+  --color-primary-700: #0369a1;
+  --color-primary-800: #075985;
+  --color-primary-900: #0c4a6e;
 
+  /* Secondary: Softer Rose */
   --color-secondary-50: #fff1f2;
   --color-secondary-100: #ffe4e6;
   --color-secondary-200: #fecdd3;
   --color-secondary-300: #fda4af;
-  --color-secondary-400: #fb7185;
+  --color-secondary-400: #fb7185; /* Pastel Rose */
   --color-secondary-500: #f43f5e;
   --color-secondary-600: #e11d48;
   --color-secondary-700: #be123c;
@@ -33,20 +35,20 @@
 }
 
 :root {
-  --bg-app: #f8fafc; /* slate-50 */
+  --bg-app: #f1f8ff; /* Soft pastel blue-gray tint */
   --bg-surface: #ffffff;
-  --border-app: #e2e8f0; /* slate-200 */
-  --text-app: #0f172a; /* slate-900 */
-  --text-app-muted: #64748b; /* slate-500 */
+  --border-app: #d6eaff; /* More visible pastel border */
+  --text-app: #0f172a;
+  --text-app-muted: #64748b;
   --select-text-color: #1f2937;
 }
 
 .dark {
-  --bg-app: #020617; /* slate-950 */
-  --bg-surface: #0f172a; /* slate-900 */
-  --border-app: #1e293b; /* slate-800 */
-  --text-app: #f8fafc; /* slate-50 */
-  --text-app-muted: #94a3b8; /* slate-400 */
+  --bg-app: #1e293b; /* Muted slate instead of deep black */
+  --bg-surface: #2b384d; /* Slightly deeper than before for better contrast */
+  --border-app: #3d4a5e; /* Prominent but soft border */
+  --text-app: #f8fafc;
+  --text-app-muted: #94a3b8;
   --select-text-color: #f3f4f6;
 }
 
@@ -54,17 +56,17 @@
 
 /* Global Styles */
 body {
-  @apply bg-app-bg text-app-text transition-colors duration-500;
+  @apply bg-app-bg text-app-text transition-colors duration-500 antialiased;
 }
 
 /* React Select Customizations */
 .react-select__control {
-  @apply border-app-border bg-app-surface hover:border-primary-300;
-  border-width: 1px;
+  @apply border-2 border-app-border bg-app-surface hover:border-primary-300 transition-all duration-300 rounded-lg;
+  border-width: 2px !important;
 }
 
 .react-select__control--is-focused {
-  @apply border-primary-400 ring-2 ring-primary-400/20;
+  @apply border-primary-400 ring-4 ring-primary-400/20 !important;
 }
 
 .react-select__placeholder {
@@ -76,27 +78,23 @@ body {
 }
 
 .react-select__menu {
-  @apply bg-app-surface border border-app-border shadow-lg;
+  @apply bg-app-surface border-2 border-app-border shadow-2xl rounded-xl mt-2 overflow-hidden;
 }
 
 .react-select__option {
-  @apply text-app-text bg-app-surface;
+  @apply text-app-text bg-app-surface px-4 py-3 transition-colors duration-200;
 }
 
 .react-select__option--is-focused {
   @apply bg-primary-50 text-primary-600;
 }
 
-.react-select__option--is-selected {
-  @apply bg-primary-100 text-primary-700;
-}
-
 .dark .react-select__option--is-focused {
   @apply bg-primary-900/40 text-primary-200;
 }
 
-.dark .react-select__option--is-selected {
-  @apply bg-primary-900/60 text-primary-100;
+.react-select__option--is-selected {
+  @apply bg-primary-500 text-white font-bold;
 }
 
 .react-select__indicator svg {

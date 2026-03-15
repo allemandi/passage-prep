@@ -196,7 +196,7 @@ const StudyModal = ({ show, onHide, data }) => {
 
     return (
         <div
-            className="fixed inset-0 z-50 flex items-center justify-center bg-gray-950/60 backdrop-blur-sm p-4 sm:p-6"
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4 sm:p-6"
             onMouseDown={(e) => {
                 if (e.target === e.currentTarget) onHide();
             }}
@@ -205,21 +205,21 @@ const StudyModal = ({ show, onHide, data }) => {
             aria-modal="true"
         >
             <Card
-                className="relative w-full max-w-5xl max-h-[90vh] flex flex-col p-0 overflow-hidden shadow-2xl border-gray-200 dark:border-gray-800"
+                className="relative w-full max-w-5xl max-h-[90vh] flex flex-col p-0 overflow-hidden shadow-2xl border-2 border-app-border"
                 onClick={(e) => e.stopPropagation()}
             >
                 {/* Modal Header */}
                 <div
                     id="study-modal-title"
                     className="
-                        bg-gray-50/80 dark:bg-gray-800/80
-                        border-b border-gray-200 dark:border-gray-700
+                        bg-app-surface/80
+                        border-b-2 border-app-border
                         py-4 px-6
                         flex justify-between items-center
                         select-none
                     "
                 >
-                    <h2 className="text-xl font-bold text-sky-700 dark:text-sky-400">
+                    <h2 className="text-xl font-bold text-primary-600 dark:text-primary-400">
                         Bible Study Preparation
                     </h2>
                     <button
@@ -242,8 +242,8 @@ const StudyModal = ({ show, onHide, data }) => {
                     className="
                         overflow-y-auto
                         p-6 sm:p-10
-                        bg-white/40 dark:bg-gray-900/40
-                        text-gray-900 dark:text-gray-300
+                        bg-app-surface/20
+                        text-app-text
                         flex flex-col gap-12
                     "
                     style={{ WebkitOverflowScrolling: 'touch' }}
@@ -253,8 +253,8 @@ const StudyModal = ({ show, onHide, data }) => {
                         {data?.refArr && data.refArr.filter(Boolean).length > 0 ? (
                             <ul className="grid grid-cols-1 sm:grid-cols-2 gap-3 list-none">
                                 {data.refArr.filter(Boolean).map((reference, index) => (
-                                    <li key={index} className="flex items-center gap-2 p-3 rounded-lg bg-sky-50 dark:bg-sky-900/20 text-sky-800 dark:text-sky-200 border border-sky-100 dark:border-sky-800/50">
-                                        <div className="w-1.5 h-1.5 rounded-full bg-sky-500" />
+                                    <li key={index} className="flex items-center gap-2 p-3 rounded-xl bg-primary-50 dark:bg-primary-900/20 text-primary-700 dark:text-primary-200 border-2 border-primary-100 dark:border-primary-800/50">
+                                        <div className="w-1.5 h-1.5 rounded-full bg-primary-500" />
                                         {reference}
                                     </li>
                                 ))}
@@ -269,7 +269,7 @@ const StudyModal = ({ show, onHide, data }) => {
                         {data?.contextArr && data.contextArr.length > 0 ? (
                             <ul className="space-y-3 list-none">
                                 {data.contextArr.map((context, index) => (
-                                    <li key={index} className="p-4 rounded-lg bg-gray-50 dark:bg-gray-800/40 border border-gray-100 dark:border-gray-700 text-gray-700 dark:text-gray-300">
+                                    <li key={index} className="p-4 rounded-xl bg-app-bg dark:bg-app-bg/40 border-2 border-app-border text-app-text">
                                         {context}
                                     </li>
                                 ))}
@@ -285,19 +285,19 @@ const StudyModal = ({ show, onHide, data }) => {
                             <div className="space-y-10">
                                 {orderedBooksList.map((book) => (
                                     <div key={book} className="space-y-4">
-                                        <h4 className="text-xl font-bold text-gray-900 dark:text-gray-100 flex items-center gap-2">
-                                            <div className="w-2 h-6 bg-sky-500 rounded-full" />
+                                        <h4 className="text-xl font-bold text-app-text flex items-center gap-2">
+                                            <div className="w-2 h-6 bg-primary-500 rounded-full" />
                                             {book}
                                         </h4>
                                         <div className="grid grid-cols-1 gap-6">
                                             {Object.entries(groupedQuestions[book]).map(([theme, questions]) => (
-                                                <div key={theme} className="ml-4 p-5 rounded-xl border border-gray-100 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-800/20">
-                                                    <h5 className="text-lg font-semibold mb-4 text-sky-700 dark:text-sky-400">
+                                                <div key={theme} className="ml-4 p-5 rounded-2xl border-2 border-app-border bg-app-surface/40">
+                                                    <h5 className="text-lg font-bold mb-4 text-primary-600 dark:text-primary-400">
                                                         {theme}
                                                     </h5>
                                                     <ul className="space-y-3 list-disc pl-5">
                                                         {questions.map((question, qIndex) => (
-                                                            <li key={qIndex} className="text-gray-800 dark:text-gray-300 leading-relaxed">
+                                                            <li key={qIndex} className="text-app-text leading-relaxed">
                                                                 {question.question}
                                                             </li>
                                                         ))}
@@ -316,7 +316,7 @@ const StudyModal = ({ show, onHide, data }) => {
                     </section>
                 </div>
 
-                <div className="p-6 bg-gray-50/80 dark:bg-gray-800/80 border-t border-gray-200 dark:border-gray-700 flex flex-col sm:flex-row justify-between items-center gap-4">
+                <div className="p-6 bg-app-surface/80 border-t-2 border-app-border flex flex-col sm:flex-row justify-between items-center gap-4">
                     <Button variant="outline" onClick={onHide} className="w-full sm:w-auto">
                         Close
                     </Button>

@@ -162,7 +162,7 @@ const QuestionTable = ({
                                         <td className="p-3">
                                             <input
                                                 type="checkbox"
-                                                className="cursor-pointer accent-primary-600"
+                                                className="cursor-pointer accent-primary-500 w-4 h-4"
                                                 checked={selectedQuestions.includes(question.originalIndex)}
                                                 onChange={(e) => onQuestionSelect([question.originalIndex], e.target.checked)}
                                             />
@@ -176,7 +176,7 @@ const QuestionTable = ({
                                             <button
                                                 onClick={() => handleEdit(question)}
                                                 aria-label="Edit question"
-                                                className="text-primary-600 hover:text-primary-800 transition-colors"
+                                                className="text-primary-500 hover:text-primary-700 transition-colors p-2 hover:bg-primary-50 dark:hover:bg-primary-900/20 rounded-lg"
                                             >
                                                 <Edit2 size={18} />
                                             </button>
@@ -213,7 +213,7 @@ const QuestionTable = ({
                                 <div className="w-full sm:w-72">
                                     <label className="block text-sm font-medium text-app-text mb-1.5">Book</label>
                                     <select
-                                        className="w-full border border-app-border rounded-lg px-3 py-2.5 bg-app-surface text-app-text focus:outline-none focus:ring-2 focus:ring-primary-500 transition"
+                                        className="w-full border-2 border-app-border rounded-lg px-3 py-2.5 bg-app-surface text-app-text focus:outline-none focus:border-primary-400 focus:ring-4 focus:ring-primary-400/20 transition-all duration-200"
                                         value={editData.book || ''}
                                         onChange={(e) =>
                                             setEditData({
@@ -240,7 +240,7 @@ const QuestionTable = ({
                                 <div className="w-full sm:w-28">
                                     <label className="block text-sm font-medium text-app-text mb-1.5">Chapter</label>
                                     <select
-                                        className="w-full border border-app-border rounded-lg px-3 py-2.5 bg-app-surface text-app-text focus:outline-none focus:ring-2 focus:ring-primary-500 transition disabled:opacity-50"
+                                        className="w-full border-2 border-app-border rounded-lg px-3 py-2.5 bg-app-surface text-app-text focus:outline-none focus:border-primary-400 focus:ring-4 focus:ring-primary-400/20 transition-all duration-200 disabled:opacity-50"
                                         value={editData.chapter || ''}
                                         onChange={(e) =>
                                             setEditData({
@@ -270,7 +270,7 @@ const QuestionTable = ({
                                 <div className="w-full sm:w-28">
                                     <label className="block text-sm font-medium text-app-text mb-1.5">Start</label>
                                     <select
-                                        className="w-full border border-app-border rounded-lg px-3 py-2.5 bg-app-surface text-app-text focus:outline-none focus:ring-2 focus:ring-primary-500 transition disabled:opacity-50"
+                                        className="w-full border-2 border-app-border rounded-lg px-3 py-2.5 bg-app-surface text-app-text focus:outline-none focus:border-primary-400 focus:ring-4 focus:ring-primary-400/20 transition-all duration-200 disabled:opacity-50"
                                         value={editData.verseStart || ''}
                                         onChange={(e) => {
                                             const newValue = e.target.value;
@@ -301,7 +301,7 @@ const QuestionTable = ({
                                 <div className="w-full sm:w-28">
                                     <label className="block text-sm font-medium text-app-text mb-1.5">End</label>
                                     <select
-                                        className="w-full border border-app-border rounded-lg px-3 py-2.5 bg-app-surface text-app-text focus:outline-none focus:ring-2 focus:ring-primary-500 transition disabled:opacity-50"
+                                        className="w-full border-2 border-app-border rounded-lg px-3 py-2.5 bg-app-surface text-app-text focus:outline-none focus:border-primary-400 focus:ring-4 focus:ring-primary-400/20 transition-all duration-200 disabled:opacity-50"
                                         value={editData.verseEnd || ''}
                                         onChange={(e) => setEditData({ ...editData, verseEnd: e.target.value })}
                                         disabled={!editData.verseStart}
@@ -321,10 +321,10 @@ const QuestionTable = ({
                             </div>
 
                             {/* Theme */}
-                            <div>
+                            <div className="flex-1 min-w-[200px]">
                                 <label className="block text-sm font-medium text-app-text mb-1.5">Theme</label>
                                 <select
-                                    className="w-full border border-app-border rounded-lg px-3 py-2.5 bg-app-surface text-app-text focus:outline-none focus:ring-2 focus:ring-primary-500 transition"
+                                    className="w-full border-2 border-app-border rounded-lg px-3 py-2.5 bg-app-surface text-app-text focus:outline-none focus:border-primary-400 focus:ring-4 focus:ring-primary-400/20 transition-all duration-200"
                                     value={editData.theme || ''}
                                     onChange={(e) => setEditData({ ...editData, theme: e.target.value })}
                                     required
@@ -345,7 +345,7 @@ const QuestionTable = ({
                             <div>
                                 <label className="block text-sm font-medium text-app-text mb-1.5">Question</label>
                                 <textarea
-                                    className="w-full border border-app-border rounded-lg px-3 py-2.5 bg-app-surface text-app-text focus:outline-none focus:ring-2 focus:ring-primary-500 transition resize-y"
+                                    className="w-full border-2 border-app-border rounded-lg px-3 py-2.5 bg-app-surface text-app-text focus:outline-none focus:border-primary-400 focus:ring-4 focus:ring-primary-400/20 transition-all duration-200 resize-y"
                                     value={editData.question || ''}
                                     onChange={(e) => setEditData({ ...editData, question: e.target.value })}
                                     rows={4}

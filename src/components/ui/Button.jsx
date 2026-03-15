@@ -2,10 +2,10 @@ import React from 'react';
 import clsx from 'clsx';
 
 const variants = {
-  primary: 'bg-primary-600 text-white hover:bg-primary-700 disabled:bg-primary-300 shadow-sm',
-  secondary: 'bg-secondary-600 text-white hover:bg-secondary-700 disabled:bg-secondary-300 shadow-sm',
-  outline: 'border border-primary-600 text-primary-600 hover:bg-primary-50 dark:hover:bg-primary-900/20 disabled:opacity-50',
-  ghost: 'text-app-text-muted hover:bg-app-surface hover:text-app-text disabled:opacity-50',
+  primary: 'bg-primary-500 text-white hover:bg-primary-600 disabled:bg-primary-300 shadow-sm transition-all duration-200',
+  secondary: 'bg-secondary-500 text-white hover:bg-secondary-600 disabled:bg-secondary-300 shadow-sm transition-all duration-200',
+  outline: 'border-2 border-primary-400 text-primary-600 hover:bg-primary-50 dark:border-primary-500/50 dark:text-primary-300 dark:hover:bg-primary-900/20 disabled:opacity-50 transition-all duration-200',
+  ghost: 'text-app-text-muted hover:bg-app-surface hover:text-app-text disabled:opacity-50 transition-all duration-200',
 };
 
 const sizes = {

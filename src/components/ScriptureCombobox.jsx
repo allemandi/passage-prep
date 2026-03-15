@@ -49,9 +49,9 @@ const ScriptureCombobox = ({
         <div className={clsx("relative w-full", className)}>
             <label
                 htmlFor={id}
-                className="block mb-1 text-sm font-medium text-gray-700 dark:text-gray-300"
+                className="block mb-1.5 text-sm font-medium text-app-text"
             >
-                {label} {isRequired && <span className="text-red-500">*</span>}
+                {label} {isRequired && <span className="text-secondary-500">*</span>}
             </label>
             <Select
                 inputId={id}
@@ -76,7 +76,7 @@ const ScriptureCombobox = ({
                 aria-describedby={helperText ? `${id}-helper` : undefined}
             />
             {helperText && (
-                <p id={`${id}-helper`} className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                <p id={`${id}-helper`} className="mt-1 text-xs text-app-text-muted">
                     {helperText}
                 </p>
             )}
