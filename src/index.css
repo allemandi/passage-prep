@@ -1,19 +1,17 @@
 @import 'tailwindcss';
 
+@theme {
+  --color-secondary-100: #fef2f2;
+  --color-secondary-600: #dc2626;
+  --color-secondary-700: #b91c1c;
+  --color-secondary-800: #991b1b;
+}
+
 @custom-variant dark (&:where(.dark, .dark *));
 
 /* Global */
-* {
-  transition: background-color 0.9s ease, color 0.9s ease;
-}
-
 body {
-  background-color: #f0f9ff;
-}
-
-html.dark,
-body.dark {
-  background-color: #0f172a;
+  @apply bg-sky-50 dark:bg-gray-950 transition-colors duration-500;
 }
 
 /* Root variables */
@@ -26,112 +24,103 @@ body.dark {
 
 /* React Select Base */
 .react-select__control {
-  border-color: #d1d5db; /* gray-300 */
-  background-color: #ffffff;
+  @apply border-gray-300 bg-white hover:border-gray-400;
+  border-width: 1px !important;
 }
-.react-select__control:hover {
-  border-color: #9ca3af; /* gray-400 */
-}
+
 .react-select__control--is-focused {
-  border-color: #3b82f6 !important;
-  box-shadow: 0 0 0 1px #3b82f6 !important;
+  @apply border-blue-500 ring-1 ring-blue-500;
+  border-width: 1px !important;
 }
 
 .react-select__placeholder {
-  color: #9ca3af; /* gray-400 */
+  @apply text-gray-400;
 }
 
 .react-select__input > input {
-  color: #1f2937 !important; /* gray-800 */
+  color: #1f2937 !important;
 }
 
 .react-select__single-value {
-  color: #1f2937; /* gray-800 */
+  @apply text-gray-800;
 }
 
 .react-select__menu {
-  background-color: #ffffff;
-  border: 1px solid #e5e7eb; /* gray-200 */
+  @apply bg-white border border-gray-200;
 }
 
 .react-select__option {
-  color: #1f2937; /* gray-800 */
-  background-color: #ffffff;
+  @apply text-gray-800 bg-white;
 }
 
 .react-select__option--is-focused {
-  background-color: #3b82f6; /* blue-500 */
-  color: #ffffff;
+  background-color: #3b82f6 !important;
+  color: white !important;
 }
 
 .react-select__option--is-selected {
-  background-color: #2563eb; /* blue-600 */
-  color: #ffffff;
+  background-color: #2563eb !important;
+  color: white !important;
 }
 
 .react-select__option--is-selected.react-select__option--is-focused {
-  background-color: #1e40af; /* darker blue */
+  background-color: #1e40af !important;
 }
 
 /* Indicators */
 .react-select__indicator svg {
-  fill: #6b7280; /* gray-500 */
+  @apply fill-gray-500;
 }
 .react-select__indicator:hover svg {
-  fill: #1f2937; /* gray-800 */
+  @apply fill-gray-800;
 }
 
 /* Dark mode */
 .dark {
   .react-select__control {
-    border-color: #4b5563; /* gray-600 */
-    background-color: #1f2937; /* gray-800 */
-  }
-  .react-select__control:hover {
-    border-color: #6b7280; /* gray-500 */
+    @apply border-gray-600 bg-gray-800 hover:border-gray-500;
+    border-width: 1px !important;
   }
   .react-select__control--is-focused {
-    border-color: #60a5fa !important;
-    box-shadow: 0 0 0 1px #60a5fa !important;
+    @apply border-blue-400 ring-1 ring-blue-400;
+    border-width: 1px !important;
   }
 
   .react-select__placeholder {
-    color: #6b7280; /* gray-500 */
+    @apply text-gray-500;
   }
 
   .react-select__input > input {
-    color: #f3f4f6 !important; /* gray-100 */
+    color: #f3f4f6 !important;
   }
 
   .react-select__single-value {
-    color: #f3f4f6; /* gray-100 */
+    @apply text-gray-100;
   }
 
   .react-select__menu {
-    background-color: #1f2937; /* gray-800 */
-    border: 1px solid #374151; /* gray-700 */
+    @apply bg-gray-800 border border-gray-700;
   }
 
   .react-select__option {
-    color: #f3f4f6; /* gray-100 */
-    background-color: #1f2937;
+    @apply text-gray-100 bg-gray-800;
   }
   .react-select__option--is-focused {
-    background-color: #2563eb; /* blue-600 */
-    color: #ffffff;
+    background-color: #2563eb !important;
+    color: white !important;
   }
   .react-select__option--is-selected {
-    background-color: #3b82f6; /* blue-500 */
-    color: #ffffff;
+    background-color: #3b82f6 !important;
+    color: white !important;
   }
   .react-select__option--is-selected.react-select__option--is-focused {
-    background-color: #1d4ed8; /* darker blue */
+    background-color: #1d4ed8 !important;
   }
 
   .react-select__indicator svg {
-    fill: #9ca3af; /* gray-400 */
+    @apply fill-gray-400;
   }
   .react-select__indicator:hover svg {
-    fill: #f3f4f6; /* gray-100 */
+    @apply fill-gray-100;
   }
 }

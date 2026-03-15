@@ -1,17 +1,47 @@
-import themes from '../data/themes.json'; // Replace hardcoded array
+import themes from '../data/themes.json';
 import bibleContext from '../data/bibleContext.json';
 
-// Helper to get the correct API URL based on environment
-const getApiUrl = (endpoint) => {
-    // In production with Netlify, use /.netlify/functions/
-    // In development, use /api/
-    const base = import.meta.env.MODE === 'production'
-        ? '/.netlify/functions'
-        : '/api';
+const API_BASE = import.meta.env.MODE === 'production' ? '/.netlify/functions' : '/api';
 
-    return `${base}/${endpoint}`;
+/**
+ * Standardized API client for PassagePrep
+ */
+const apiClient = {
+  async request(endpoint, options = {}) {
+    const url = `${API_BASE}/${endpoint}`;
+    const defaultHeaders = { 'Accept': 'application/json' };
+
+    if (options.body && !(options.body instanceof FormData)) {
+      defaultHeaders['Content-Type'] = 'application/json';
+    }
+
+    try {
+      const response = await fetch(url, {
+        ...options,
+        headers: { ...defaultHeaders, ...options.headers },
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        let errorData;
+        try { errorData = JSON.parse(errorText); } catch { errorData = { error: errorText }; }
+        throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
+      }
+
+      const contentType = response.headers.get('content-type');
+      if (contentType && contentType.includes('application/json')) {
+        return await response.json();
+      }
+      return await response.text();
+    } catch (error) {
+      console.error(`API Request Error [${endpoint}]:`, error);
+      throw error;
+    }
+  },
+
+  get: (endpoint, options) => apiClient.request(endpoint, { ...options, method: 'GET' }),
+  post: (endpoint, body, options) => apiClient.request(endpoint, { ...options, method: 'POST', body: JSON.stringify(body) }),
 };
-
 
 export let searchQuestionsCache = {};
 let allQuestionsCache = null;
@@ -20,274 +50,102 @@ export const clearSearchCache = () => {
   searchQuestionsCache = {};
 };
 
-export const getBooks = () => {
-    // Directly return the imported JSON data
-    // No need for fetching or caching here as it's a local import
-    return bibleContext;
-};
+export const getBooks = () => bibleContext;
 
-// Load questions data from MongoDB
 export const getQuestions = async () => {
-    try {
-        const response = await fetch(getApiUrl('questions'));
-
-        if (!response.ok) {
-            console.error(`Failed to fetch questions: ${response.status} ${response.statusText}`);
-            throw new Error(`Failed to fetch questions: ${response.status} ${response.statusText}`);
-        }
-
-        const questions = await response.json();
-        return questions;
-    } catch (error) {
-        console.error("Error fetching questions:", error);
-        return [];
-    }
+  try {
+    return await apiClient.get('questions');
+  } catch {
+    return [];
+  }
 };
 
-// Save a new question to MongoDB
 export const saveQuestion = async (theme, question, reference) => {
-    try {
-        // Validate required fields
-        if (!theme || !question || !reference?.book || !reference?.chapter || !reference?.verseStart) {
-            throw new Error("Missing required fields: theme, question, book, chapter, or verseStart");
-        }
+  if (!theme || !question || !reference?.book || !reference?.chapter || !reference?.verseStart) {
+    throw new Error("Missing required fields: theme, question, book, chapter, or verseStart");
+  }
 
-        const newQuestion = {
-            theme,
-            question,
-            book: reference.book,
-            chapter: reference.chapter,
-            verseStart: reference.verseStart,
-            verseEnd: reference.verseEnd || reference.verseStart,
-        };
+  const newQuestion = {
+    theme,
+    question,
+    book: reference.book,
+    chapter: reference.chapter,
+    verseStart: reference.verseStart,
+    verseEnd: reference.verseEnd || reference.verseStart,
+  };
 
-        const response = await fetch(getApiUrl('save-question'), {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ newData: newQuestion }),
-        });
-
-        if (!response.ok) {
-            const errorData = await response.json();
-            throw new Error(errorData.error || "Failed to save question");
-        }
-
-        return true;
-    } catch (error) {
-        console.error("Question save error:", error);
-        throw error;
-    }
+  return await apiClient.post('save-question', { newData: newQuestion });
 };
 
-// Process the form data and return study data
 export const processForm = async (formData) => {
-    try {
-        // const questions = await getQuestions(); // Replaced by searchQuestions loop
+  if (!Array.isArray(bibleContext)) throw new Error("Failed to load book data");
 
-        if (!Array.isArray(bibleContext)) {
-            throw new Error("Failed to load book data");
-        }
+  const { refArr, themeArr } = formData;
+  const refArrFiltered = [...new Set(refArr)].filter(n => n);
+  const themeArrFiltered = themeArr.length === themes.length ? [] : [...new Set(themeArr)].filter(n => n);
 
-        const { refArr, themeArr } = formData;
+  const extractBookFromReference = (ref) => {
+    const match = ref.match(/^((?:\d\s+)?[A-Za-z]+(?:\s+[A-Za-z]+)*)/i);
+    return match ? match[1].trim() : null;
+  };
 
-        const refArrFiltered = [...new Set(refArr)].filter(n => n);
-        const themeArrFiltered = formData.themeArr.length === themes.length ? [] : [...new Set(themeArr)].filter(n => n);
+  const orderedBooks = [...new Set(refArrFiltered.map(extractBookFromReference).filter(Boolean))];
 
-        // Extract book names from references for ordering
-        const extractBookFromReference = (ref) => {
-            const match = ref.match(/^((?:\d\s+)?[A-Za-z]+(?:\s+[A-Za-z]+)*)/i);
-            return match ? match[1].trim() : null;
-        };
+  const scriptureRefs = refArrFiltered.map(ref => {
+    const match = ref.match(/^((?:\d\s+)?[A-Za-z]+(?:\s+[A-Za-z]+)*)\s*(\d+)?(?::(\d+)(?:-(\d+))?)?/i);
+    if (!match) return null;
+    const [, book, chapter, verseStart, verseEnd] = match;
+    return {
+      book: book.toLowerCase().trim(),
+      chapter: chapter ? parseInt(chapter, 10) : null,
+      verseStart: verseStart ? parseInt(verseStart, 10) : null,
+      verseEnd: verseEnd ? parseInt(verseEnd, 10) : null
+    };
+  }).filter(Boolean);
 
-        // Get ordered book names from reference array
-        const orderedBooks = refArrFiltered
-            .map(extractBookFromReference)
-            .filter(Boolean);
+  let contextArr = bibleContext
+    .filter(i => scriptureRefs.some(ref => i.book.toLowerCase().includes(ref.book)))
+    .map(i => `${i.book} is about ${i.context} The author is ${i.author}.`);
 
-        // Remove duplicates while preserving order
-        const uniqueOrderedBooks = [...new Set(orderedBooks)];
+  contextArr.sort((a, b) => {
+    const getBookFromContext = (s) => orderedBooks.find(name => s.includes(name));
+    const bookA = getBookFromContext(a);
+    const bookB = getBookFromContext(b);
+    if (bookA && bookB) return orderedBooks.indexOf(bookA) - orderedBooks.indexOf(bookB);
+    return bookA ? -1 : bookB ? 1 : 0;
+  });
 
-        const scriptureRefs = refArrFiltered.map(ref => {
-            const match = ref.match(/^((?:\d\s+)?[A-Za-z]+(?:\s+[A-Za-z]+)*)\s*(\d+)?(?::(\d+)(?:-(\d+))?)?/i);
-            if (!match) return null;
-
-            const [, book, chapter, verseStart, verseEnd] = match;
-            return {
-                book: book.toLowerCase().trim(),
-                chapter: chapter ? parseInt(chapter, 10) : null,
-                verseStart: verseStart ? parseInt(verseStart, 10) : null,
-                verseEnd: verseEnd ? parseInt(verseEnd, 10) : null
-            };
-        }).filter(Boolean);
-
-        // Get context for matching books
-        let contextArr = bibleContext
-            .filter(i => scriptureRefs.some(ref => i.book.toLowerCase().includes(ref.book)))
-            .map(i => `${i.book} is about ${i.context} The author is ${i.author}.`);
-
-        // Sort contextArr based on the order of books in refArr
-        contextArr = contextArr.sort((a, b) => {
-            // Extract book name from context
-            const getBookFromContext = (contextStr) => {
-                for (const bookName of uniqueOrderedBooks) {
-                    if (contextStr.includes(bookName)) {
-                        return bookName;
-                    }
-                }
-                return null;
-            };
-
-            const bookA = getBookFromContext(a);
-            const bookB = getBookFromContext(b);
-
-            // If both contexts have books associated with them
-            if (bookA && bookB) {
-                const indexA = uniqueOrderedBooks.indexOf(bookA);
-                const indexB = uniqueOrderedBooks.indexOf(bookB);
-
-                if (indexA !== -1 && indexB !== -1) {
-                    return indexA - indexB; // Sort by book order
-                }
-
-                // If one book is in the ordered list and the other isn't
-                if (indexA !== -1) return -1;
-                if (indexB !== -1) return 1;
-            }
-
-            // If only one context has a book associated with it
-            if (bookA) return -1;
-            if (bookB) return 1;
-
-            // If neither has a book, maintain original order
-            return 0;
-        });
-
-        // Question fetching and processing is now handled in RequestForm.jsx
-        // processForm is now responsible for references, themes, and context.
-
-        return {
-            refArr: refArrFiltered,
-            themeArr: themeArrFiltered,
-            contextArr
-            // questionArr is no longer returned from here
-        };
-    } catch (error) {
-        console.error("Study data preparation error:", error);
-        throw error;
-    }
+  return { refArr: refArrFiltered, themeArr: themeArrFiltered, contextArr };
 };
 
 export const searchQuestions = async (payload) => {
-    const cacheKey = JSON.stringify(payload);
-    if (searchQuestionsCache[cacheKey]) {
-        return searchQuestionsCache[cacheKey];
-    }
+  const cacheKey = JSON.stringify(payload);
+  if (searchQuestionsCache[cacheKey]) return searchQuestionsCache[cacheKey];
 
-    try {
-
-        const response = await fetch(getApiUrl('search-questions'), {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(payload)
-        });
-
-        if (!response.ok) {
-            const error = await response.text();
-            throw new Error(error || 'Search failed');
-        }
-        const questions = await response.json();
-        searchQuestionsCache[cacheKey] = questions;
-        return questions;
-    } catch (error) {
-        console.error("Search error:", error);
-        throw error;
-    }
+  const questions = await apiClient.post('search-questions', payload);
+  searchQuestionsCache[cacheKey] = questions;
+  return questions;
 };
 
-export const deleteQuestions = async (questionIds) => {
-    try {
-        const response = await fetch(getApiUrl('delete-questions'), {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ questionIds }),
-        });
-
-        if (!response.ok) {
-            const error = await response.text();
-            throw new Error(error || 'Failed to delete questions');
-        }
-        return true;
-    } catch (error) {
-        console.error("Delete error:", error);
-        throw error;
-    }
-};
+export const deleteQuestions = (questionIds) => apiClient.post('delete-questions', { questionIds });
 
 export const fetchAllQuestions = async () => {
-      if (allQuestionsCache) {
-    return allQuestionsCache;
-  }
-    try {
-      const response = await fetch(`${getApiUrl('questions')}`, {
-         headers: { 'Accept': 'application/json' }
-        });
-
-        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-       const questions = await response.json();
-    allQuestionsCache = questions; // Cache successful result
-    return questions;
-    } catch (error) {
-        console.error("Fetch error:", error);
-        throw error;
-    }
+  if (allQuestionsCache) return allQuestionsCache;
+  const questions = await apiClient.get('questions');
+  allQuestionsCache = questions;
+  return questions;
 };
 
 export const fetchUnapprovedQuestions = async () => {
-    try {
-        let url;
-        if (import.meta.env.MODE === 'production') {
-            url = '/.netlify/functions/unapproved-questions';
-        } else {
-            url = '/api/unapproved-questions';
-        }
-        let response = await fetch(url, {
-            headers: { 'Accept': 'application/json' }
-        });
-        let contentType = response.headers.get('content-type');
-        // If dev server returns HTML (not found), fallback to fetchAllQuestions and filter client-side
-        if (!response.ok || !(contentType && contentType.includes('application/json'))) {
-            // Try fallback only in dev
-            if (import.meta.env.MODE !== 'production') {
-                const all = await fetchAllQuestions();
-                return all.filter(q => q.isApproved === false);
-            }
-            let errorText = contentType && contentType.includes('text') ? await response.text() : '';
-            throw new Error(`HTTP error! status: ${response.status} - ${errorText}`);
-        }
-        return await response.json();
-    } catch (error) {
-        console.error('Fetch unapproved error:', error);
-        throw error;
+  try {
+    return await apiClient.get('unapproved-questions');
+  } catch (error) {
+    if (import.meta.env.MODE !== 'production') {
+      const all = await fetchAllQuestions();
+      return all.filter(q => !q.isApproved);
     }
+    throw error;
+  }
 };
 
-export const approveQuestions = async (questionIds) => {
-    try {
-        const url = import.meta.env.MODE === 'production'
-            ? '/.netlify/functions/approve-questions'
-            : '/api/approve-questions';
-        const response = await fetch(url, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ questionIds }),
-        });
-        if (!response.ok) {
-            const errorText = await response.text();
-            throw new Error(errorText || 'Failed to approve questions');
-        }
-        return await response.json();
-    } catch (error) {
-        console.error('Approve questions error:', error);
-        throw error;
-    }
-};
+export const approveQuestions = (questionIds) => apiClient.post('approve-questions', { questionIds });

@@ -16,7 +16,6 @@ import {
 } from '../utils/bibleData';
 
 import QuestionTable from './QuestionTable';
-import { rateLimiter, getUserIdentifier } from '../utils/rateLimit';
 import { processInput } from '../utils/inputUtils';
 import ScriptureCombobox from './ScriptureCombobox';
 import { useToast } from './ToastMessage/Toast';
@@ -96,13 +95,6 @@ const RequestForm = ({ onStudyGenerated, isLoading }) => {
             return;
         }
 
-        try {
-            await rateLimiter.consume(getUserIdentifier());
-        } catch {
-            showToast('Too many requests. Please slow down.', 'warning');
-            return;
-        }
-
         setIsSubmitting(true);
 
         try {
@@ -125,13 +117,6 @@ const RequestForm = ({ onStudyGenerated, isLoading }) => {
     };
 
     const handleSearch = async () => {
-        try {
-            await rateLimiter.consume(getUserIdentifier());
-        } catch {
-            showToast('Too many requests. Please slow down.', 'warning');
-            return;
-        }
-
         if (!scriptureRefs.some(ref => ref.selectedBook)) {
             showToast('Please select a book in at least one reference.', 'error');
             return;

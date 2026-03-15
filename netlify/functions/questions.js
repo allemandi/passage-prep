@@ -1,33 +1,15 @@
-const { connectToDatabase, getAllQuestions } = require('../utils/db');
+const { connectToDatabase } = require('../utils/db');
+const { getAllQuestions } = require('../services/questionService');
+const { success, error } = require('../utils/response');
 
 exports.handler = async function(event, context) {
-  // Make the database connection reusable to avoid cold starts
   context.callbackWaitsForEmptyEventLoop = false;
   
   try {
-    // Connect to the database
     await connectToDatabase();
-    
-    // Get all questions
     const questions = await getAllQuestions();
-    
-    return {
-      statusCode: 200,
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify(questions)
-    };
-  } catch (error) {
-    return {
-      statusCode: 500,
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({ 
-        error: 'Failed to fetch questions', 
-        details: error.message 
-      })
-    };
+    return success(questions);
+  } catch (err) {
+    return error(500, 'Failed to fetch questions', err.message);
   }
-}; 
+};
