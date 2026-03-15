@@ -1,34 +1,16 @@
 const { connectToDatabase, searchQuestions } = require('../utils/db');
+const { success, error, methodNotAllowed } = require('../utils/response');
 
 exports.handler = async function(event, context) {
   context.callbackWaitsForEmptyEventLoop = false;
-  
-  try {
-    if (event.httpMethod !== 'POST') {
-      return {
-        statusCode: 405,
-        body: JSON.stringify({ error: 'Method not allowed' })
-      };
-    }
+  if (event.httpMethod !== 'POST') return methodNotAllowed();
 
+  try {
     await connectToDatabase();
     const params = JSON.parse(event.body);
     const questions = await searchQuestions(params);
-    
-    return {
-      statusCode: 200,
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(questions)
-    };
-  } catch (error) {
-    console.error('Search questions error:', error);
-    return {
-      statusCode: 500,
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ 
-        error: 'Failed to search questions', 
-        details: error.message 
-      })
-    };
+    return success(questions);
+  } catch (err) {
+    return error(500, 'Failed to search questions', err.message);
   }
 };

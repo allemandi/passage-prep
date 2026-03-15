@@ -2,7 +2,22 @@ const mongoose = require('mongoose');
 const Question = require('../../models/Question');
 const Admin = require('../../models/Admin');
 const bcrypt = require('bcryptjs');
+const { filterXSS } = require('xss');
 require('dotenv').config();
+
+/**
+ * Sanitizes input text to prevent XSS attacks.
+ * @param {string} input - The input text to sanitize.
+ * @returns {string} The sanitized text.
+ */
+const sanitizeInput = (input) => {
+    if (typeof input !== 'string') return input;
+    return filterXSS(input, {
+        whiteList: {}, // No HTML tags allowed
+        stripIgnoreTag: true, // Remove all HTML tags
+        stripIgnoreTagBody: ['script'], // Remove script tags and their content
+    });
+};
 
 // --- DB Connection ---
 let cachedDb = null;
@@ -30,9 +45,9 @@ async function saveQuestion(newData) {
 
     try {
         const question = new Question({
-            theme: newData.theme,
-            question: newData.question,
-            book: newData.book,
+            theme: sanitizeInput(newData.theme),
+            question: sanitizeInput(newData.question),
+            book: sanitizeInput(newData.book),
             chapter: newData.chapter,
             verseStart: newData.verseStart,
             verseEnd: newData.verseEnd,

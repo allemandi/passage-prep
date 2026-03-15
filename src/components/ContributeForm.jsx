@@ -6,8 +6,6 @@ import {
     englishDataset,
     englishRecommendedTransformers,
 } from 'obscenity';
-import { rateLimiter, getUserIdentifier } from '../utils/rateLimit';
-import { processInput } from '../utils/inputUtils';
 import { saveQuestion } from '../services/dataService';
 import { useToast } from './ToastMessage/Toast';
 import ThemesSingleSelect from './ThemesSingleSelect';
@@ -102,41 +100,15 @@ const ContributeForm = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
 
-        try {
-            const userIdentifier = getUserIdentifier();
-            await rateLimiter.consume(userIdentifier);
-        } catch {
-            return showToast('Too many requests. Please slow down.', 'error');
-        }
-        if (!reference.book || !reference.chapter || !reference.verseStart || !selectedTheme) {
+        if (!reference.book || !reference.chapter || !reference.verseStart || !selectedTheme || !questionText) {
             return showToast('Please complete all required fields.', 'error');
         }
 
-
-        const [
-            { error: bookError },
-            { error: chapterError },
-            { error: verseStartError },
-            { error: verseEndError },
-            { sanitizedValue: sanitizedQuestionText, error: questionError },
-            { sanitizedValue: sanitizedTheme, error: themeError }
-        ] = await Promise.all([
-            processInput(reference.book, 'book'),
-            processInput(reference.chapter, 'chapter'),
-            processInput(reference.verseStart, 'start verse'),
-            processInput(reference.verseEnd || reference.verseStart, 'end verse'),
-            processInput(questionText, 'question'),
-            processInput(selectedTheme, 'theme')
-        ]);
-
-        const error = bookError || chapterError || verseStartError || verseEndError || questionError || themeError;
-        if (error) return showToast(error, 'error');
-
-        if (matcher.hasMatch(sanitizedQuestionText)) {
+        if (matcher.hasMatch(questionText)) {
             return showToast('Possible profanity detected. Please revise your question.', 'error');
         }
 
-        if (sanitizedQuestionText.length < 5) {
+        if (questionText.length < 5) {
             return showToast('Question is too short.', 'error');
         }
 
@@ -144,8 +116,8 @@ const ContributeForm = () => {
 
         try {
             const saved = await saveQuestion(
-                sanitizedTheme,
-                sanitizedQuestionText,
+                selectedTheme,
+                questionText,
                 {
                     book: reference.book,
                     chapter: reference.chapter,
@@ -159,7 +131,7 @@ const ContributeForm = () => {
             }
         } catch (error) {
             console.error('Error submitting question:', error);
-            showToast('Failed to submit your question. Please try again.', 'error');
+            showToast(error.message || 'Failed to submit your question. Please try again.', 'error');
         } finally {
             setIsSubmitting(false);
         }
