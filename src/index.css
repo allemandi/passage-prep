@@ -1,25 +1,25 @@
 @import 'tailwindcss';
 
 @theme {
-  /* Brand Colors - Refined Pastel Hues */
-  /* Primary: Softer Sky Blue */
+  /* Brand Colors - Refined Pastel Palette */
+  /* Primary: Sky Blue */
   --color-primary-50: #f0f9ff;
   --color-primary-100: #e0f2fe;
   --color-primary-200: #bae6fd;
   --color-primary-300: #7dd3fc;
-  --color-primary-400: #38bdf8; /* Pastel Sky */
+  --color-primary-400: #38bdf8;
   --color-primary-500: #0ea5e9;
   --color-primary-600: #0284c7;
   --color-primary-700: #0369a1;
   --color-primary-800: #075985;
   --color-primary-900: #0c4a6e;
 
-  /* Secondary: Softer Rose */
+  /* Secondary: Rose */
   --color-secondary-50: #fff1f2;
   --color-secondary-100: #ffe4e6;
   --color-secondary-200: #fecdd3;
   --color-secondary-300: #fda4af;
-  --color-secondary-400: #fb7185; /* Pastel Rose */
+  --color-secondary-400: #fb7185;
   --color-secondary-500: #f43f5e;
   --color-secondary-600: #e11d48;
   --color-secondary-700: #be123c;
@@ -35,21 +35,23 @@
 }
 
 :root {
-  --bg-app: #f1f8ff; /* Soft pastel blue-gray tint */
+  /* Light Mode Pastel */
+  --bg-app: #f0f9ff;
   --bg-surface: #ffffff;
-  --border-app: #d6eaff; /* More visible pastel border */
+  --border-app: #bae6fd;
   --text-app: #0f172a;
-  --text-app-muted: #64748b;
-  --select-text-color: #1f2937;
+  --text-app-muted: #475569;
+  --select-text-color: #1e293b;
 }
 
 .dark {
-  --bg-app: #1e293b; /* Muted slate instead of deep black */
-  --bg-surface: #2b384d; /* Slightly deeper than before for better contrast */
-  --border-app: #3d4a5e; /* Prominent but soft border */
-  --text-app: #f8fafc;
+  /* Dark Mode Pastel */
+  --bg-app: #1e293b;
+  --bg-surface: #2d3748;
+  --border-app: #4a5568;
+  --text-app: #f1f5f9;
   --text-app-muted: #94a3b8;
-  --select-text-color: #f3f4f6;
+  --select-text-color: #f8fafc;
 }
 
 @custom-variant dark (&:where(.dark, .dark *));
@@ -61,12 +63,14 @@ body {
 
 /* React Select Customizations */
 .react-select__control {
-  @apply border-2 border-app-border bg-app-surface hover:border-primary-300 transition-all duration-300 rounded-lg;
-  border-width: 2px !important;
+  @apply bg-app-surface hover:border-primary-300 transition-all duration-300 rounded-lg;
+  border: 2px solid var(--border-app) !important;
 }
 
 .react-select__control--is-focused {
-  @apply border-primary-400 ring-4 ring-primary-400/20 !important;
+  border-color: var(--color-primary-400) !important;
+  transition: all 0.3s;
+  box-shadow: 0 0 0 4px rgba(56, 189, 248, 0.2) !important;
 }
 
 .react-select__placeholder {
@@ -78,7 +82,8 @@ body {
 }
 
 .react-select__menu {
-  @apply bg-app-surface border-2 border-app-border shadow-2xl rounded-xl mt-2 overflow-hidden;
+  @apply bg-app-surface shadow-2xl rounded-xl mt-2 overflow-hidden;
+  border: 2px solid var(--border-app) !important;
 }
 
 .react-select__option {
