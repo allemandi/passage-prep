@@ -2,13 +2,13 @@ export default function Tabs({ tabValue, setTabValue }) {
   return (
     <nav
       className="
-        flex justify-center gap-1 mb-8 overflow-x-auto no-scrollbar
-        bg-white/50 dark:bg-gray-900/60
+        flex justify-center gap-2 mb-2 overflow-x-auto no-scrollbar
+        bg-app-surface/50
         backdrop-blur-md
-        rounded-lg
-        border border-gray-200 dark:border-gray-800
+        rounded-2xl
+        border-2 border-app-border
         shadow-sm
-        px-1 py-1
+        p-2
       "
       role="tablist"
       aria-label="Main tabs"
@@ -25,30 +25,27 @@ export default function Tabs({ tabValue, setTabValue }) {
             onClick={() => setTabValue(id)}
             className={`
               flex-grow
-              min-w-[100px]
+              min-w-[110px]
               md:min-w-0
-              px-3 sm:px-5
-              py-2
+              px-4 sm:px-6
+              py-3
               text-xs sm:text-sm md:text-base
-              font-semibold tracking-wide
-              rounded-lg
-              border-2
-              ring-1 ring-gray-200 dark:ring-gray-700
+              font-bold tracking-tight
+              rounded-xl
               text-center
               whitespace-nowrap
-              transition
-              focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-400 focus-visible:ring-offset-2
+              transition-all duration-300
+              focus:outline-none focus-visible:ring-4 focus-visible:ring-primary-400/20
               ${
                 isSelected
                   ? `
-                    bg-sky-100 text-sky-700 border-sky-600 ring-sky-600
-                    dark:bg-sky-700 dark:text-white dark:border-sky-400 dark:ring-sky-400
+                    bg-primary-500 text-white shadow-md shadow-primary-500/20
+                    dark:bg-primary-600
                   `
                   : `
-                    bg-white text-gray-900 border-transparent
-                    dark:bg-gray-900 dark:text-gray-400 dark:border-transparent
-                    hover:bg-gray-100 hover:text-sky-600
-                    dark:hover:bg-gray-800 dark:hover:text-sky-400
+                    bg-transparent text-app-text-muted
+                    hover:bg-primary-50 hover:text-primary-600
+                    dark:hover:bg-primary-900/30 dark:hover:text-primary-400
                   `
               }
             `}

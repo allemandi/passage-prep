@@ -7,6 +7,9 @@ import EditDelete from './EditDelete';
 import Download from './Download';
 
 import { useToast } from '../ToastMessage/Toast';
+import Card from '../ui/Card';
+import Button from '../ui/Button';
+import SectionHeader from '../ui/SectionHeader';
 
 const SESSION_TIMEOUT_MS = 300000; // 5 mins
 
@@ -60,49 +63,24 @@ export default function AdminForm() {
     };
 
     return (
-        <div className="max-w-[1200px] mx-auto px-6 pt-12 pb-16 bg-white dark:bg-gray-900 min-h-screen">
-            <div
-                className="
-      bg-white/50 dark:bg-gray-900/60
-      border border-gray-200 dark:border-gray-800
-      rounded-xl shadow-sm backdrop-blur-md
-      p-8
-      flex flex-col gap-10
-    "
-            >
+        <div className="w-full">
+            <Card className="flex flex-col gap-10">
                 {!isLoggedIn ? (
                     <Login setIsLoggedIn={setIsLoggedIn} />
                 ) : (
                     <>
-                        <h2
-                            className="
-            text-3xl font-semibold
-            text-sky-700 dark:text-sky-400
-            border-b-2 border-sky-700 dark:border-sky-400
-            pb-2 mb-10
-            tracking-wide
-            text-center sm:text-left
-          "
-                        >
-                            Admin Mode
-                        </h2>
+                        <SectionHeader centered={false}>Admin Mode</SectionHeader>
 
-                        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6 mb-10">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 mb-8">
                             {buttons.map(({ name, label }) => (
-                                <button
+                                <Button
                                     key={name}
+                                    variant={activeButton === name ? 'primary' : 'outline'}
                                     onClick={() => setActiveButton(name)}
-                                    className={`
-                w-full py-3 font-semibold rounded-lg transition
-                ${activeButton === name
-                                            ? 'bg-sky-600 text-white shadow-md'
-                                            : 'border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-sky-100 dark:hover:bg-sky-700/30 hover:border-sky-600 hover:text-sky-600'
-                                        }
-                focus:outline-none focus:ring-2 focus:ring-sky-400 focus:ring-offset-1
-              `}
+                                    className="w-full"
                                 >
                                     {label}
-                                </button>
+                                </Button>
                             ))}
                         </div>
 
@@ -110,21 +88,18 @@ export default function AdminForm() {
                             {renderContent()}
                         </div>
 
-                        <button
-                            onClick={() => handleLogout('manual')}
-                            className="
-            mt-12 w-full py-3 font-semibold rounded-lg
-            border border-sky-600 text-sky-600
-            hover:bg-sky-100 dark:hover:bg-sky-700/30 hover:text-white
-            transition
-            focus:outline-none focus:ring-2 focus:ring-sky-400 focus:ring-offset-1
-          "
-                        >
-                            Logout
-                        </button>
+                        <div className="flex justify-center mt-12">
+                            <Button
+                                variant="outline"
+                                onClick={() => handleLogout('manual')}
+                                className="w-full max-w-xs border-2 border-secondary-400 text-secondary-600 hover:bg-secondary-50 dark:text-secondary-400 dark:hover:bg-secondary-900/20"
+                            >
+                                Logout
+                            </Button>
+                        </div>
                     </>
                 )}
-            </div>
+            </Card>
         </div>
     )
 }

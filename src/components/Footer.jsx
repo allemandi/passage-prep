@@ -5,16 +5,16 @@ export default function Footer({ onHelpClick }) {
  <footer
   className="
     fixed bottom-0 left-0 w-full
-    bg-white/50 dark:bg-gray-900/60
+    bg-app-surface/60
     backdrop-blur-md
-    border-t border-gray-200 dark:border-gray-800
-    shadow-sm
+    border-t-2 border-app-border
+    shadow-lg
     flex justify-center items-center gap-6
-    py-2 px-6   /* reduced padding */
+    py-3 px-6
     z-50
   "
 >
-  <p className="text-sm text-gray-900 dark:text-gray-400">
+  <p className="text-sm font-medium text-app-text">
     © {new Date().getFullYear()} allemandi
   </p>
 
@@ -24,9 +24,10 @@ export default function Footer({ onHelpClick }) {
   rel="noopener noreferrer"
   aria-label="View GitHub Repo"
   className="
-    p-1 rounded-full
-    focus:outline-none focus:ring-2 focus:ring-sky-400 dark:focus:ring-sky-300
-    hover:bg-gray-100 dark:hover:bg-neutral-700
+    p-1.5 rounded-xl
+    focus:outline-none focus:ring-4 focus:ring-primary-400/20
+    hover:bg-primary-50 dark:hover:bg-primary-900/30
+    transition-all duration-200
   "
 >
   <img
@@ -36,12 +37,10 @@ export default function Footer({ onHelpClick }) {
     height={20}
     className="
       filter
-      brightness-0 text-sky-600 dark:text-sky-400
-      hover:brightness-50 dark:hover:brightness-90
+      transition-all duration-200
     "
     style={{
       filter: 'invert(32%) sepia(87%) saturate(3189%) hue-rotate(186deg) brightness(88%) contrast(89%)',
-      transition: 'filter 0.2s ease',
     }}
   />
 </a>
@@ -49,10 +48,12 @@ export default function Footer({ onHelpClick }) {
     onClick={onHelpClick}
     aria-label="Help & Instructions"
     className="
-      text-sky-600 dark:text-sky-400
-      hover:text-sky-900 dark:hover:text-white
-      p-1 rounded-full
-      focus:outline-none focus:ring-2 focus:ring-sky-400 dark:focus:ring-sky-300
+      text-primary-600 dark:text-primary-400
+      hover:text-primary-700 dark:hover:text-primary-300
+      p-1.5 rounded-xl
+      hover:bg-primary-50 dark:hover:bg-primary-900/30
+      transition-all duration-200
+      focus:outline-none focus:ring-4 focus:ring-primary-400/20
     "
   >
     <HelpCircle size={20} />

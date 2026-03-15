@@ -4,7 +4,9 @@ import { getBibleBooks, getChaptersForBook, getVersesForChapter } from '../../..
 import QuestionTable from '../../QuestionTable';
 import { useToast } from '../../ToastMessage/Toast';
 import { searchQuestions, clearSearchCache } from '../../../services/dataService';
-import ThemesMultiSelect, { defaultThemes } from '../../ThemesMultiSelect';
+import ThemeSelect, { defaultThemes } from '../../ui/ThemeSelect';
+import Button from '../../ui/Button';
+import { Trash2, Filter } from 'lucide-react';
 
 const EditDelete = () => {
     const [hideUnapproved, setHideUnapproved] = useState(false);
@@ -150,76 +152,72 @@ const EditDelete = () => {
     }, [applyApiFilters]);
 
     return (
-        <div className="mb-12 w-full">
-            <h2 className="text-xl font-semibold mb-6 text-center">
+        <div className="mb-10 w-full">
+            <h2 className="text-xl font-bold mb-8 text-center text-app-text">
                 Filter for Editing/Deleting Questions
             </h2>
 
-            <div className="flex flex-wrap justify-center gap-4 mb-4">
-                <div className="w-full sm:w-64">
-                    <ScriptureCombobox
-                        label="Book"
-                        value={scriptureRefs[0].selectedBook}
-                        onChange={(book) => updateScriptureRef(0, { selectedBook: book })}
-                        options={getBibleBooks()}
-                        placeholder="Select a book"
-                    />
-                </div>
-                <div className="w-full sm:w-64">
-                    <ScriptureCombobox
-                        label="Chapter"
-                        value={scriptureRefs[0].selectedChapter}
-                        onChange={(chapter) => updateScriptureRef(0, { selectedChapter: chapter })}
-                        options={scriptureRefs[0].availableChapters}
-                        disabled={!scriptureRefs[0].selectedBook}
-                        placeholder={scriptureRefs[0].selectedBook ? "Select chapter" : "Select book first"}
-                    />
-                </div>
-                <div className="w-full sm:w-64">
-                    <ScriptureCombobox
-                        label="Start Verse"
-                        value={scriptureRefs[0].verseStart}
-                        onChange={(verse) => updateScriptureRef(0, { verseStart: verse })}
-                        options={scriptureRefs[0].availableVerses}
-                        disabled={!scriptureRefs[0].selectedChapter}
-                        placeholder={scriptureRefs[0].selectedChapter ? "Select start verse" : "Select chapter first"}
-                    />
-                </div>
-                <div className="w-full sm:w-64">
-                    <ScriptureCombobox
-                        label="End Verse"
-                        value={scriptureRefs[0].verseEnd}
-                        onChange={(verse) => updateScriptureRef(0, { verseEnd: verse })}
-                        options={scriptureRefs[0].availableVerses}
-                        disabled={!scriptureRefs[0].selectedChapter}
-                        placeholder={scriptureRefs[0].selectedChapter ? "Select end verse" : "Select chapter first"}
-                        isEndVerse
-                        startVerseValue={scriptureRefs[0].verseStart}
-                    />
-                </div>
-            </div>
-
-            <div className="flex justify-center mb-4">
-                <ThemesMultiSelect
-                    value={selectedThemes}
-                    onChange={setSelectedThemes}
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6 justify-center mb-8">
+                <ScriptureCombobox
+                    label="Book"
+                    value={scriptureRefs[0].selectedBook}
+                    onChange={(book) => updateScriptureRef(0, { selectedBook: book })}
+                    options={getBibleBooks()}
+                    placeholder="Select a book"
+                />
+                <ScriptureCombobox
+                    label="Chapter"
+                    value={scriptureRefs[0].selectedChapter}
+                    onChange={(chapter) => updateScriptureRef(0, { selectedChapter: chapter })}
+                    options={scriptureRefs[0].availableChapters}
+                    disabled={!scriptureRefs[0].selectedBook}
+                    placeholder={scriptureRefs[0].selectedBook ? "Select chapter" : "Select book first"}
+                />
+                <ScriptureCombobox
+                    label="Start Verse"
+                    value={scriptureRefs[0].verseStart}
+                    onChange={(verse) => updateScriptureRef(0, { verseStart: verse })}
+                    options={scriptureRefs[0].availableVerses}
+                    disabled={!scriptureRefs[0].selectedChapter}
+                    placeholder={scriptureRefs[0].selectedChapter ? "Start verse" : "..."}
+                />
+                <ScriptureCombobox
+                    label="End Verse"
+                    value={scriptureRefs[0].verseEnd}
+                    onChange={(verse) => updateScriptureRef(0, { verseEnd: verse })}
+                    options={scriptureRefs[0].availableVerses}
+                    disabled={!scriptureRefs[0].selectedChapter}
+                    placeholder={scriptureRefs[0].selectedChapter ? "End verse" : "..."}
+                    isEndVerse
+                    startVerseValue={scriptureRefs[0].verseStart}
                 />
             </div>
 
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-4">
-                <button
-                    className="bg-blue-600 text-white px-5 py-2 rounded text-lg font-medium hover:bg-blue-700 w-full sm:w-52"
-                    onClick={applyApiFilters}
-                >
-                    Apply Filters
-                </button>
-                <button
-                    className={`border px-5 py-2 rounded text-lg font-medium w-full sm:w-52 ${hideUnapproved ? 'bg-gray-800 text-white' : 'bg-white text-gray-800 border-gray-300'
-                        }`}
-                    onClick={() => setHideUnapproved(v => !v)}
-                >
-                    {hideUnapproved ? 'Show Unapproved' : 'Hide Unapproved'}
-                </button>
+            <div className="flex flex-col sm:flex-row justify-center items-center gap-6 mb-8">
+                <div className="w-full max-w-xs">
+                    <ThemeSelect
+                        value={selectedThemes}
+                        onChange={setSelectedThemes}
+                        isMulti
+                        label="Themes"
+                    />
+                </div>
+
+                <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto">
+                    <Button
+                        onClick={applyApiFilters}
+                        className="w-full sm:w-auto min-w-[160px]"
+                    >
+                        <Filter className="w-5 h-5" /> Apply Filters
+                    </Button>
+                    <Button
+                        variant={hideUnapproved ? 'secondary' : 'outline'}
+                        onClick={() => setHideUnapproved(v => !v)}
+                        className="w-full sm:w-auto min-w-[200px]"
+                    >
+                        {hideUnapproved ? 'Show Unapproved' : 'Hide Unapproved'}
+                    </Button>
+                </div>
             </div>
 
             <div className="mt-6 w-full">
@@ -233,14 +231,15 @@ const EditDelete = () => {
                 />
             </div>
 
-            <div className="flex justify-center mt-6">
-                <button
-                    className="bg-red-600 text-white px-6 py-3 rounded text-lg font-semibold w-full sm:w-64 disabled:opacity-50"
+            <div className="flex justify-center mt-12">
+                <Button
+                    variant="outline"
                     disabled={selectedQuestions.length === 0}
                     onClick={handleDeleteSelected}
+                    className="w-full sm:w-auto min-w-[240px] border-2 border-secondary-400 text-secondary-600 hover:bg-secondary-100 dark:text-secondary-400 dark:hover:bg-secondary-900/20"
                 >
-                    Delete Selected ({selectedQuestions.length})
-                </button>
+                    <Trash2 className="w-5 h-5" /> Delete Selected ({selectedQuestions.length})
+                </Button>
             </div>
         </div>
     );

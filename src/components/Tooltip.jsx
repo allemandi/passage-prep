@@ -28,10 +28,12 @@ const Tooltip = ({ content, children }) => {
           role="tooltip"
           id="tooltip"
           className="
-            absolute bottom-full mb-2 left-1/2 -translate-x-1/2
-            bg-gray-900 text-white text-xs rounded px-2 py-1
+            absolute bottom-full mb-3 left-1/2 -translate-x-1/2
+            bg-app-text text-app-surface text-xs font-bold rounded-lg px-3 py-1.5
             whitespace-nowrap z-50
             pointer-events-none
+            shadow-xl
+            animate-in fade-in zoom-in-95 duration-200
           "
         >
           {content}

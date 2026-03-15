@@ -17,7 +17,7 @@ describe('Admin Download Component', () => {
 
         renderWithProviders(<Download />);
 
-        const downloadAllButton = screen.getByRole('button', { name: /Download All Questions/i });
+        const downloadAllButton = screen.getByRole('button', { name: /Download All/i });
         fireEvent.click(downloadAllButton);
 
         await waitFor(() => {
@@ -29,7 +29,7 @@ describe('Admin Download Component', () => {
 
     it('download filtered button is disabled until book is selected', () => {
         renderWithProviders(<Download />);
-        const downloadFilteredButton = screen.getByRole('button', { name: /Download Filtered Questions/i });
+        const downloadFilteredButton = screen.getByRole('button', { name: /Download Filtered/i });
         expect(downloadFilteredButton).toBeDisabled();
     });
 });

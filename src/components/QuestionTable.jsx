@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Edit2 } from 'lucide-react'; // lucide icon
 import themes from '../data/themes.json';
+import Button from './ui/Button';
 import {
     getBibleBooks,
     getChaptersForBook,
@@ -103,12 +104,12 @@ const QuestionTable = ({
 
     return (
         <>
-            <div className="mt-4 max-h-[400px] overflow-auto border border-gray-300 dark:border-gray-700 rounded-lg bg-gray-50 dark:bg-gray-900">
+            <div className="mt-4 max-h-[400px] overflow-auto border border-app-border rounded-lg bg-app-bg/50">
                 <table className="min-w-full table-auto border-collapse">
-                    <thead className="sticky top-0 bg-gray-100 dark:bg-gray-800">
+                    <thead className="sticky top-0 bg-app-surface border-b border-app-border">
                         <tr>
                             {showActions && (
-                                <th className="p-2 border-b border-gray-300 dark:border-gray-700 text-left">
+                                <th className="p-3 border-b border-app-border text-left">
                                     <input
                                         type="checkbox"
                                         className="cursor-pointer"
@@ -129,23 +130,23 @@ const QuestionTable = ({
                                     />
                                 </th>
                             )}
-                            <th className="p-2 border-b border-gray-300 dark:border-gray-700 text-left text-gray-900 dark:text-gray-100">
+                            <th className="p-3 border-b border-app-border text-left text-app-text font-semibold text-sm">
                                 Bible Passage
                             </th>
-                            <th className="p-2 border-b border-gray-300 dark:border-gray-700 text-left text-gray-900 dark:text-gray-100">
+                            <th className="p-3 border-b border-app-border text-left text-app-text font-semibold text-sm">
                                 Theme
                             </th>
-                            <th className="p-2 border-b border-gray-300 dark:border-gray-700 text-left text-gray-900 dark:text-gray-100">
+                            <th className="p-3 border-b border-app-border text-left text-app-text font-semibold text-sm">
                                 Question
                             </th>
                             {showActions && !hideEditActions && (
-                                <th className="p-2 border-b border-gray-300 dark:border-gray-700 text-left text-gray-900 dark:text-gray-100">
+                                <th className="p-3 border-b border-app-border text-left text-app-text font-semibold text-sm">
                                     Actions
                                 </th>
                             )}
                         </tr>
                     </thead>
-                    <tbody>
+                    <tbody className="divide-y divide-app-border bg-app-surface">
                         {sortedQuestionsWithIndices.map((question, index) => {
                             const reference = `${question.book} ${question.chapter}:${question.verseStart}${question.verseEnd && question.verseEnd !== question.verseStart
                                     ? `-${question.verseEnd}`
@@ -155,29 +156,29 @@ const QuestionTable = ({
                             return (
                                 <tr
                                     key={question._id || index}
-                                    className={index % 2 === 0 ? 'bg-white dark:bg-gray-900' : 'bg-gray-50 dark:bg-gray-800'}
+                                    className="hover:bg-primary-50/30 dark:hover:bg-primary-900/10 transition-colors"
                                 >
                                     {showActions && (
-                                        <td className="p-2 border-b border-gray-300 dark:border-gray-700">
+                                        <td className="p-3">
                                             <input
                                                 type="checkbox"
-                                                className="cursor-pointer"
+                                                className="cursor-pointer accent-primary-500 w-4 h-4"
                                                 checked={selectedQuestions.includes(question.originalIndex)}
                                                 onChange={(e) => onQuestionSelect([question.originalIndex], e.target.checked)}
                                             />
                                         </td>
                                     )}
-                                    <td className="p-2 border-b border-gray-300 dark:border-gray-700 text-gray-900 dark:text-gray-100">{reference}</td>
-                                    <td className="p-2 border-b border-gray-300 dark:border-gray-700 text-gray-900 dark:text-gray-100">{question.theme}</td>
-                                    <td className="p-2 border-b border-gray-300 dark:border-gray-700 text-gray-900 dark:text-gray-100">{question.question}</td>
+                                    <td className="p-3 text-sm text-app-text">{reference}</td>
+                                    <td className="p-3 text-sm text-app-text">{question.theme}</td>
+                                    <td className="p-3 text-sm text-app-text">{question.question}</td>
                                     {showActions && !hideEditActions && (
-                                        <td className="p-2 border-b border-gray-300 dark:border-gray-700">
+                                        <td className="p-3">
                                             <button
                                                 onClick={() => handleEdit(question)}
                                                 aria-label="Edit question"
-                                                className="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-600"
+                                                className="text-primary-500 hover:text-primary-700 transition-colors p-2 hover:bg-primary-50 dark:hover:bg-primary-900/20 rounded-lg"
                                             >
-                                                <Edit2 size={20} />
+                                                <Edit2 size={18} />
                                             </button>
                                         </td>
                                     )}
@@ -192,111 +193,123 @@ const QuestionTable = ({
             {/* Edit Modal */}
             {editingId && (
                 <div
-                    className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50"
+                    className="fixed inset-0 flex items-center justify-center bg-black/50 backdrop-blur-sm z-50 p-4"
                     aria-modal="true"
                     role="dialog"
                     aria-labelledby="edit-dialog-title"
-                    onClick={handleCancel}
+                    onMouseDown={(e) => {
+                        if (e.target === e.currentTarget) handleCancel();
+                    }}
                 >
                     <div
-                        className="bg-white dark:bg-gray-900 rounded-lg max-w-4xl w-full p-6"
-                        onClick={(e) => e.stopPropagation()}
+                        className="bg-app-surface border border-app-border shadow-xl rounded-xl max-w-4xl w-full p-8"
                     >
-                        <h2 id="edit-dialog-title" className="text-xl font-semibold mb-4 text-gray-900 dark:text-gray-100">
+                        <h2 id="edit-dialog-title" className="text-2xl font-bold mb-6 text-app-text">
                             Edit Question
                         </h2>
                         <div className="flex flex-col gap-6">
                             {/* Book + Chapter */}
-                            <div className="flex gap-4 items-start">
-                                <select
-                                    className="border border-gray-300 dark:border-gray-700 rounded px-3 py-2 w-72 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
-                                    value={editData.book || ''}
-                                    onChange={(e) =>
-                                        setEditData({
-                                            ...editData,
-                                            book: e.target.value,
-                                            chapter: '',
-                                            verseStart: '',
-                                            verseEnd: '',
-                                        })
-                                    }
-                                    required
-                                >
+                            <div className="flex flex-col sm:flex-row gap-4 items-start">
+                                <div className="w-full sm:w-72">
+                                    <label className="block text-sm font-medium text-app-text mb-1.5">Book</label>
+                                    <select
+                                        className="w-full border-2 border-app-border rounded-lg px-3 py-2.5 bg-app-surface text-app-text focus:outline-none focus:border-primary-400 focus:ring-4 focus:ring-primary-400/20 transition-all duration-200"
+                                        value={editData.book || ''}
+                                        onChange={(e) =>
+                                            setEditData({
+                                                ...editData,
+                                                book: e.target.value,
+                                                chapter: '',
+                                                verseStart: '',
+                                                verseEnd: '',
+                                            })
+                                        }
+                                        required
+                                    >
                                     <option value="" disabled>
                                         Select Book
                                     </option>
-                                    {availableBooks.map((book) => (
-                                        <option key={book} value={book}>
-                                            {book}
-                                        </option>
-                                    ))}
-                                </select>
+                                        {availableBooks.map((book) => (
+                                            <option key={book} value={book}>
+                                                {book}
+                                            </option>
+                                        ))}
+                                    </select>
+                                </div>
 
-                                <select
-                                    className="border border-gray-300 dark:border-gray-700 rounded px-3 py-2 w-28 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
-                                    value={editData.chapter || ''}
-                                    onChange={(e) =>
-                                        setEditData({
-                                            ...editData,
-                                            chapter: e.target.value,
-                                            verseStart: '',
-                                            verseEnd: '',
-                                        })
-                                    }
-                                    disabled={!editData.book}
-                                    required
-                                >
-                                    <option value="" disabled>
-                                        Select Chapter
-                                    </option>
-                                    {availableChapters.map((ch) => (
-                                        <option key={ch} value={ch}>
-                                            {ch}
+                                <div className="w-full sm:w-28">
+                                    <label className="block text-sm font-medium text-app-text mb-1.5">Chapter</label>
+                                    <select
+                                        className="w-full border-2 border-app-border rounded-lg px-3 py-2.5 bg-app-surface text-app-text focus:outline-none focus:border-primary-400 focus:ring-4 focus:ring-primary-400/20 transition-all duration-200 disabled:opacity-50"
+                                        value={editData.chapter || ''}
+                                        onChange={(e) =>
+                                            setEditData({
+                                                ...editData,
+                                                chapter: e.target.value,
+                                                verseStart: '',
+                                                verseEnd: '',
+                                            })
+                                        }
+                                        disabled={!editData.book}
+                                        required
+                                    >
+                                        <option value="" disabled>
+                                            Select
                                         </option>
-                                    ))}
-                                </select>
+                                        {availableChapters.map((ch) => (
+                                            <option key={ch} value={ch}>
+                                                {ch}
+                                            </option>
+                                        ))}
+                                    </select>
+                                </div>
                             </div>
 
                             {/* Verse start + end */}
-                            <div className="flex gap-4">
-                                <select
-                                    className="border border-gray-300 dark:border-gray-700 rounded px-3 py-2 w-28 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
-                                    value={editData.verseStart || ''}
-                                    onChange={(e) => {
-                                        const newValue = e.target.value;
-                                        const newData = { ...editData, verseStart: newValue };
-                                        if (
-                                            newValue &&
-                                            editData.verseEnd &&
-                                            parseInt(newValue) > parseInt(editData.verseEnd)
-                                        ) {
-                                            newData.verseEnd = newValue;
-                                        }
-                                        setEditData(newData);
-                                    }}
-                                    disabled={!editData.chapter}
-                                    required
-                                >
-                                    <option value="" disabled>
-                                        Start Verse
-                                    </option>
-                                    {availableVerses.map((v) => (
-                                        <option key={v} value={v}>
-                                            {v}
+                            <div className="flex flex-col sm:flex-row gap-4">
+                                <div className="w-full sm:w-28">
+                                    <label className="block text-sm font-medium text-app-text mb-1.5">Start</label>
+                                    <select
+                                        className="w-full border-2 border-app-border rounded-lg px-3 py-2.5 bg-app-surface text-app-text focus:outline-none focus:border-primary-400 focus:ring-4 focus:ring-primary-400/20 transition-all duration-200 disabled:opacity-50"
+                                        value={editData.verseStart || ''}
+                                        onChange={(e) => {
+                                            const newValue = e.target.value;
+                                            const newData = { ...editData, verseStart: newValue };
+                                            if (
+                                                newValue &&
+                                                editData.verseEnd &&
+                                                parseInt(newValue) > parseInt(editData.verseEnd)
+                                            ) {
+                                                newData.verseEnd = newValue;
+                                            }
+                                            setEditData(newData);
+                                        }}
+                                        disabled={!editData.chapter}
+                                        required
+                                    >
+                                        <option value="" disabled>
+                                            Verse
                                         </option>
-                                    ))}
-                                </select>
+                                        {availableVerses.map((v) => (
+                                            <option key={v} value={v}>
+                                                {v}
+                                            </option>
+                                        ))}
+                                    </select>
+                                </div>
 
-                                <select
-                                    className="border border-gray-300 dark:border-gray-700 rounded px-3 py-2 w-28 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
-                                    value={editData.verseEnd || ''}
-                                    onChange={(e) => setEditData({ ...editData, verseEnd: e.target.value })}
-                                    disabled={!editData.verseStart}
-                                    required
-                                >
-                                    <option value="" disabled>
-                                        End Verse
-                                    </option>
+                                <div className="w-full sm:w-28">
+                                    <label className="block text-sm font-medium text-app-text mb-1.5">End</label>
+                                    <select
+                                        className="w-full border-2 border-app-border rounded-lg px-3 py-2.5 bg-app-surface text-app-text focus:outline-none focus:border-primary-400 focus:ring-4 focus:ring-primary-400/20 transition-all duration-200 disabled:opacity-50"
+                                        value={editData.verseEnd || ''}
+                                        onChange={(e) => setEditData({ ...editData, verseEnd: e.target.value })}
+                                        disabled={!editData.verseStart}
+                                        required
+                                    >
+                                        <option value="" disabled>
+                                            Verse
+                                        </option>
                                     {availableVerses
                                         .filter((v) => !editData.verseStart || parseInt(v) >= parseInt(editData.verseStart))
                                         .map((v) => (
@@ -308,47 +321,53 @@ const QuestionTable = ({
                             </div>
 
                             {/* Theme */}
-                            <select
-                                className="border border-gray-300 dark:border-gray-700 rounded px-3 py-2 w-full bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
-                                value={editData.theme || ''}
-                                onChange={(e) => setEditData({ ...editData, theme: e.target.value })}
-                                required
-                            >
-                                <option value="" disabled>
-                                    Select Theme
-                                </option>
-                                {themes.map((theme) => (
-                                    <option key={theme} value={theme}>
-                                        {theme}
+                            <div className="flex-1 min-w-[200px]">
+                                <label className="block text-sm font-medium text-app-text mb-1.5">Theme</label>
+                                <select
+                                    className="w-full border-2 border-app-border rounded-lg px-3 py-2.5 bg-app-surface text-app-text focus:outline-none focus:border-primary-400 focus:ring-4 focus:ring-primary-400/20 transition-all duration-200"
+                                    value={editData.theme || ''}
+                                    onChange={(e) => setEditData({ ...editData, theme: e.target.value })}
+                                    required
+                                >
+                                    <option value="" disabled>
+                                        Select Theme
                                     </option>
-                                ))}
-                            </select>
-
-                            {/* Question textarea */}
-                            <textarea
-                                className="border border-gray-300 dark:border-gray-700 rounded px-3 py-2 w-full resize-y bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
-                                value={editData.question || ''}
-                                onChange={(e) => setEditData({ ...editData, question: e.target.value })}
-                                rows={4}
-                                placeholder="Enter your question"
-                                required
-                            />
+                                    {themes.map((theme) => (
+                                        <option key={theme} value={theme}>
+                                            {theme}
+                                        </option>
+                                    ))}
+                                </select>
+                            </div>
                         </div>
 
-                        <div className="flex justify-end gap-4 mt-6">
-                            <button
+                        {/* Question textarea */}
+                            <div>
+                                <label className="block text-sm font-medium text-app-text mb-1.5">Question</label>
+                                <textarea
+                                    className="w-full border-2 border-app-border rounded-lg px-3 py-2.5 bg-app-surface text-app-text focus:outline-none focus:border-primary-400 focus:ring-4 focus:ring-primary-400/20 transition-all duration-200 resize-y"
+                                    value={editData.question || ''}
+                                    onChange={(e) => setEditData({ ...editData, question: e.target.value })}
+                                    rows={4}
+                                    placeholder="Enter your question"
+                                    required
+                                />
+                            </div>
+                        </div>
+
+                        <div className="flex justify-end gap-4 mt-8">
+                            <Button
+                                variant="outline"
                                 onClick={handleCancel}
-                                className="px-4 py-2 rounded border border-gray-400 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition"
                             >
                                 Cancel
-                            </button>
-                            <button
+                            </Button>
+                            <Button
                                 onClick={handleSave}
-                                disabled={isSaving}
-                                className="px-4 py-2 rounded bg-blue-600 text-white disabled:opacity-50 hover:bg-blue-700 transition"
+                                isLoading={isSaving}
                             >
-                                Save
-                            </button>
+                                Save Changes
+                            </Button>
                         </div>
                     </div>
                 </div>

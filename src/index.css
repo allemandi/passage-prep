@@ -1,126 +1,110 @@
 @import 'tailwindcss';
 
 @theme {
-  --color-secondary-100: #fef2f2;
-  --color-secondary-600: #dc2626;
-  --color-secondary-700: #b91c1c;
-  --color-secondary-800: #991b1b;
+  /* Brand Colors - Refined Pastel Palette */
+  /* Primary: Sky Blue */
+  --color-primary-50: #f0f9ff;
+  --color-primary-100: #e0f2fe;
+  --color-primary-200: #bae6fd;
+  --color-primary-300: #7dd3fc;
+  --color-primary-400: #38bdf8;
+  --color-primary-500: #0ea5e9;
+  --color-primary-600: #0284c7;
+  --color-primary-700: #0369a1;
+  --color-primary-800: #075985;
+  --color-primary-900: #0c4a6e;
+
+  /* Secondary: Rose */
+  --color-secondary-50: #fff1f2;
+  --color-secondary-100: #ffe4e6;
+  --color-secondary-200: #fecdd3;
+  --color-secondary-300: #fda4af;
+  --color-secondary-400: #fb7185;
+  --color-secondary-500: #f43f5e;
+  --color-secondary-600: #e11d48;
+  --color-secondary-700: #be123c;
+  --color-secondary-800: #9f1239;
+  --color-secondary-900: #881337;
+
+  /* Application Colors */
+  --color-app-bg: var(--bg-app);
+  --color-app-surface: var(--bg-surface);
+  --color-app-border: var(--border-app);
+  --color-app-text: var(--text-app);
+  --color-app-text-muted: var(--text-app-muted);
+}
+
+:root {
+  /* Light Mode Pastel */
+  --bg-app: #f0f9ff;
+  --bg-surface: #ffffff;
+  --border-app: #bae6fd;
+  --text-app: #0f172a;
+  --text-app-muted: #475569;
+  --select-text-color: #1e293b;
+}
+
+.dark {
+  /* Dark Mode Pastel */
+  --bg-app: #1e293b;
+  --bg-surface: #2d3748;
+  --border-app: #4a5568;
+  --text-app: #f1f5f9;
+  --text-app-muted: #94a3b8;
+  --select-text-color: #f8fafc;
 }
 
 @custom-variant dark (&:where(.dark, .dark *));
 
-/* Global */
+/* Global Styles */
 body {
-  @apply bg-sky-50 dark:bg-gray-950 transition-colors duration-500;
+  @apply bg-app-bg text-app-text transition-colors duration-500 antialiased;
 }
 
-/* Root variables */
-:root {
-  --select-text-color: #1f2937; /* light */
-}
-.dark {
-  --select-text-color: #f3f4f6; /* dark */
-}
-
-/* React Select Base */
+/* React Select Customizations */
 .react-select__control {
-  @apply border-gray-300 bg-white hover:border-gray-400;
-  border-width: 1px !important;
+  @apply bg-app-surface hover:border-primary-300 transition-all duration-300 rounded-lg;
+  border: 2px solid var(--border-app) !important;
 }
 
 .react-select__control--is-focused {
-  @apply border-blue-500 ring-1 ring-blue-500;
-  border-width: 1px !important;
+  border-color: var(--color-primary-400) !important;
+  transition: all 0.3s;
+  box-shadow: 0 0 0 4px rgba(56, 189, 248, 0.2) !important;
 }
 
 .react-select__placeholder {
-  @apply text-gray-400;
-}
-
-.react-select__input > input {
-  color: #1f2937 !important;
+  @apply text-app-text-muted;
 }
 
 .react-select__single-value {
-  @apply text-gray-800;
+  @apply text-app-text;
 }
 
 .react-select__menu {
-  @apply bg-white border border-gray-200;
+  @apply bg-app-surface shadow-2xl rounded-xl mt-2 overflow-hidden;
+  border: 2px solid var(--border-app) !important;
 }
 
 .react-select__option {
-  @apply text-gray-800 bg-white;
+  @apply text-app-text bg-app-surface px-4 py-3 transition-colors duration-200;
 }
 
 .react-select__option--is-focused {
-  background-color: #3b82f6 !important;
-  color: white !important;
+  @apply bg-primary-50 text-primary-600;
+}
+
+.dark .react-select__option--is-focused {
+  @apply bg-primary-900/40 text-primary-200;
 }
 
 .react-select__option--is-selected {
-  background-color: #2563eb !important;
-  color: white !important;
+  @apply bg-primary-500 text-white font-bold;
 }
 
-.react-select__option--is-selected.react-select__option--is-focused {
-  background-color: #1e40af !important;
-}
-
-/* Indicators */
 .react-select__indicator svg {
-  @apply fill-gray-500;
+  @apply fill-app-text-muted;
 }
 .react-select__indicator:hover svg {
-  @apply fill-gray-800;
-}
-
-/* Dark mode */
-.dark {
-  .react-select__control {
-    @apply border-gray-600 bg-gray-800 hover:border-gray-500;
-    border-width: 1px !important;
-  }
-  .react-select__control--is-focused {
-    @apply border-blue-400 ring-1 ring-blue-400;
-    border-width: 1px !important;
-  }
-
-  .react-select__placeholder {
-    @apply text-gray-500;
-  }
-
-  .react-select__input > input {
-    color: #f3f4f6 !important;
-  }
-
-  .react-select__single-value {
-    @apply text-gray-100;
-  }
-
-  .react-select__menu {
-    @apply bg-gray-800 border border-gray-700;
-  }
-
-  .react-select__option {
-    @apply text-gray-100 bg-gray-800;
-  }
-  .react-select__option--is-focused {
-    background-color: #2563eb !important;
-    color: white !important;
-  }
-  .react-select__option--is-selected {
-    background-color: #3b82f6 !important;
-    color: white !important;
-  }
-  .react-select__option--is-selected.react-select__option--is-focused {
-    background-color: #1d4ed8 !important;
-  }
-
-  .react-select__indicator svg {
-    @apply fill-gray-400;
-  }
-  .react-select__indicator:hover svg {
-    @apply fill-gray-100;
-  }
+  @apply fill-app-text;
 }
