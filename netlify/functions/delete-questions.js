@@ -1,4 +1,5 @@
-const { connectToDatabase, deleteQuestions } = require('../utils/db');
+const { connectToDatabase } = require('../utils/db');
+const { deleteQuestions } = require('../services/questionService');
 const { success, error, methodNotAllowed } = require('../utils/response');
 
 exports.handler = async function(event, context) {
@@ -9,10 +10,7 @@ exports.handler = async function(event, context) {
     await connectToDatabase();
     const { questionIds } = JSON.parse(event.body);
     const result = await deleteQuestions(questionIds);
-    if (!result.success) {
-      return error(400, result.error);
-    }
-    return success({ success: true });
+    return success({ success: true, result });
   } catch (err) {
     return error(500, err.message);
   }

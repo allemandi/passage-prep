@@ -1,4 +1,5 @@
-const { connectToDatabase, getAllQuestions } = require('../utils/db');
+const { connectToDatabase } = require('../utils/db');
+const { getAllQuestions } = require('../services/questionService');
 const { success, error } = require('../utils/response');
 
 exports.handler = async function(event, context) {

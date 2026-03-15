@@ -1,4 +1,5 @@
-const { connectToDatabase, saveQuestion } = require('../utils/db');
+const { connectToDatabase } = require('../utils/db');
+const { saveQuestion } = require('../services/questionService');
 const { success, error, methodNotAllowed } = require('../utils/response');
 
 exports.handler = async function(event, context) {
@@ -9,20 +10,14 @@ exports.handler = async function(event, context) {
     await connectToDatabase();
     const { newData } = JSON.parse(event.body);
     
-    if (!newData || !newData.theme || !newData.question || !newData.book || !newData.chapter || !newData.verseStart || !newData.verseEnd ) {
-      return error(400, 'Missing required question data');
-    }
-    
     const result = await saveQuestion(newData);
-    if (!result.success) {
-      return error(400, result.error);
-    }
     
     return success({
       success: true,
-      message: 'Question saved successfully'
+      message: 'Question saved successfully',
+      data: result
     });
   } catch (err) {
-    return error(500, 'Failed to save question', err.message);
+    return error(err.message === 'Missing required question data' ? 400 : 500, err.message);
   }
 };

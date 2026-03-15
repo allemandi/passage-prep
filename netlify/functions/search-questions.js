@@ -1,4 +1,5 @@
-const { connectToDatabase, searchQuestions } = require('../utils/db');
+const { connectToDatabase } = require('../utils/db');
+const { searchQuestions } = require('../services/questionService');
 const { success, error, methodNotAllowed } = require('../utils/response');
 
 exports.handler = async function(event, context) {
