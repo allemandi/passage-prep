@@ -1,13 +1,19 @@
 import { useState } from 'react';
+import Button from '../../ui/Button';
+import Input from '../../ui/Input';
+import { useToast } from '../../ToastMessage/Toast';
 
 const authChannel = new BroadcastChannel('auth');
 
-const Login = ({ setIsLoggedIn, setShowError, setErrorMessage }) => {
+const Login = ({ setIsLoggedIn }) => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+  const showToast = useToast();
 
   const handleLogin = async (e) => {
     e.preventDefault();
+    setIsLoading(true);
     try {
       const response = await fetch('/api/login', {
         method: 'POST',
@@ -19,45 +25,46 @@ const Login = ({ setIsLoggedIn, setShowError, setErrorMessage }) => {
       setIsLoggedIn(true);
       sessionStorage.setItem('isLoggedIn', 'true');
       authChannel.postMessage({ type: 'LOGIN' });
+      showToast('Login successful', 'success');
     } catch (error) {
-      setShowError(true);
-      setErrorMessage(error.message);
+      showToast(error.message, 'error');
+    } finally {
+      setIsLoading(false);
     }
   };
 
   return (
-    <form onSubmit={handleLogin} className="max-w-md mx-auto w-full flex flex-col gap-6"
-    >
-      <label className="flex flex-col">
-        <span className="mb-2 font-semibold text-gray-700">Username</span>
-        <input
-          type="text"
-          value={username}
-          onChange={(e) => setUsername(e.target.value)}
-          required
-          className="px-4 py-3 rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-600 text-lg"
-          placeholder="Enter your username"
-        />
-      </label>
+    <form onSubmit={handleLogin} className="max-w-md mx-auto w-full flex flex-col gap-8 py-8">
+      <Input
+        label="Username"
+        id="username"
+        type="text"
+        value={username}
+        onChange={(e) => setUsername(e.target.value)}
+        required
+        placeholder="Enter your username"
+        isRequired
+      />
 
-      <label className="flex flex-col">
-        <span className="mb-2 font-semibold text-gray-700">Password</span>
-        <input
-          type="password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          required
-          className="px-4 py-3 rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-600 text-lg"
-          placeholder="Enter your password"
-        />
-      </label>
+      <Input
+        label="Password"
+        id="password"
+        type="password"
+        value={password}
+        onChange={(e) => setPassword(e.target.value)}
+        required
+        placeholder="Enter your password"
+        isRequired
+      />
 
-      <button
+      <Button
         type="submit"
-        className="bg-blue-600 text-white py-3 rounded-md text-lg font-semibold hover:bg-blue-700 transition"
+        isLoading={isLoading}
+        size="lg"
+        className="w-full mt-4"
       >
         Login
-      </button>
+      </Button>
     </form>
   );
 };

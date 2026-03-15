@@ -7,7 +7,7 @@ export default function MainContent({ tabValue, isLoading, handleShowStudy, stud
   return (
     <section
       className="
-        w-full max-w-[1200px] mx-auto px-4 sm:px-6 md:px-8
+        w-full max-w-7xl mx-auto
         bg-lightBg text-lightText
         dark:bg-darkBg dark:text-darkText
         transition-colors duration-300

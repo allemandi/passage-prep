@@ -197,7 +197,9 @@ const StudyModal = ({ show, onHide, data }) => {
     return (
         <div
             className="fixed inset-0 z-50 flex items-center justify-center bg-gray-950/60 backdrop-blur-sm p-4 sm:p-6"
-            onClick={onHide}
+            onMouseDown={(e) => {
+                if (e.target === e.currentTarget) onHide();
+            }}
             aria-labelledby="study-modal-title"
             role="dialog"
             aria-modal="true"

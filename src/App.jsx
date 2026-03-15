@@ -44,8 +44,8 @@ function App() {
       <div className="min-h-screen flex flex-col bg-gradient-to-br from-sky-50 to-sky-200 text-gray-900 dark:from-gray-950 dark:to-gray-800 dark:text-gray-100 transition-colors duration-500">
         <Header mode={mode} setMode={setMode} />
 
-        <main className="flex-grow w-full pb-20">
-          <div className="mx-auto w-full max-w-screen-xl px-3 sm:px-4 md:px-6 py-4 sm:py-6 md:py-8 flex flex-col gap-4 sm:gap-6">
+        <main className="flex-grow w-full pb-24">
+          <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8 py-6 sm:py-8 flex flex-col gap-8">
             <Tabs tabValue={tabValue} setTabValue={setTabValue} />
 
             <MainContent
