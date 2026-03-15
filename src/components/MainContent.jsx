@@ -6,12 +6,7 @@ import StudyModal from './StudyModal';
 export default function MainContent({ tabValue, isLoading, handleShowStudy, studyData, setStudyData }) {
   return (
     <section
-      className="
-        w-full max-w-7xl mx-auto
-        bg-lightBg text-lightText
-        dark:bg-darkBg dark:text-darkText
-        transition-colors duration-300
-      "
+      className="w-full transition-colors duration-300"
       role="tabpanel"
       id={`tabpanel-${tabValue}`}
       aria-labelledby={`tab-${tabValue}`}

@@ -7,20 +7,20 @@ const Textarea = ({ label, id, error, className, isRequired, rows = 4, ...props 
       {label && (
         <label
           htmlFor={id}
-          className="block mb-1 text-sm font-medium text-gray-700 dark:text-gray-300"
+          className="block mb-1.5 text-sm font-medium text-app-text"
         >
-          {label} {isRequired && <span className="text-red-500">*</span>}
+          {label} {isRequired && <span className="text-secondary-500">*</span>}
         </label>
       )}
       <textarea
         id={id}
         rows={rows}
         className={clsx(
-          'w-full border rounded-lg p-4 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-sky-500 transition resize-none',
+          'w-full border rounded-lg p-4 bg-app-surface text-app-text focus:outline-none focus:ring-2 focus:ring-primary-500 transition resize-none',
           error
-            ? 'border-red-500 focus:ring-red-500'
-            : 'border-gray-300 dark:border-gray-600 focus:border-sky-500',
-          props.disabled && 'opacity-50 cursor-not-allowed'
+            ? 'border-secondary-500 focus:ring-secondary-500'
+            : 'border-app-border focus:border-primary-500',
+          props.disabled && 'opacity-50 cursor-not-allowed bg-app-bg'
         )}
         {...props}
       />

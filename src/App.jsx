@@ -41,11 +41,11 @@ function App() {
 
   return (
     <ToastProvider>
-      <div className="min-h-screen flex flex-col bg-gradient-to-br from-sky-50 to-sky-200 text-gray-900 dark:from-gray-950 dark:to-gray-800 dark:text-gray-100 transition-colors duration-500">
+      <div className="min-h-screen flex flex-col bg-app-bg text-app-text transition-colors duration-500">
         <Header mode={mode} setMode={setMode} />
 
         <main className="flex-grow w-full pb-24">
-          <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8 py-6 sm:py-8 flex flex-col gap-8">
+          <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8 py-8 flex flex-col gap-10">
             <Tabs tabValue={tabValue} setTabValue={setTabValue} />
 
             <MainContent

@@ -2,10 +2,10 @@ import React from 'react';
 import clsx from 'clsx';
 
 const variants = {
-  primary: 'bg-sky-600 text-white hover:bg-sky-700 disabled:bg-sky-400',
-  secondary: 'bg-secondary-600 text-white hover:bg-secondary-700 disabled:bg-secondary-400',
-  outline: 'border border-sky-600 text-sky-600 hover:bg-sky-100 dark:hover:bg-sky-700/30 disabled:opacity-50',
-  ghost: 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 disabled:opacity-50',
+  primary: 'bg-primary-600 text-white hover:bg-primary-700 disabled:bg-primary-300 shadow-sm',
+  secondary: 'bg-secondary-600 text-white hover:bg-secondary-700 disabled:bg-secondary-300 shadow-sm',
+  outline: 'border border-primary-600 text-primary-600 hover:bg-primary-50 dark:hover:bg-primary-900/20 disabled:opacity-50',
+  ghost: 'text-app-text-muted hover:bg-app-surface hover:text-app-text disabled:opacity-50',
 };
 
 const sizes = {
@@ -25,7 +25,7 @@ const Button = ({
   return (
     <button
       className={clsx(
-        'inline-flex items-center justify-center gap-2 rounded-lg font-semibold transition duration-200 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:ring-offset-2 disabled:cursor-not-allowed',
+        'inline-flex items-center justify-center gap-2 rounded-lg font-semibold transition duration-200 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 disabled:cursor-not-allowed',
         variants[variant],
         sizes[size],
         className

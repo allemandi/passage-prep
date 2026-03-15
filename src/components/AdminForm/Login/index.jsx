@@ -34,7 +34,7 @@ const Login = ({ setIsLoggedIn }) => {
   };
 
   return (
-    <form onSubmit={handleLogin} className="max-w-md mx-auto w-full flex flex-col gap-8 py-8">
+    <form onSubmit={handleLogin} className="max-w-md mx-auto w-full flex flex-col gap-8 py-10">
       <Input
         label="Username"
         id="username"

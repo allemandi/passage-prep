@@ -225,7 +225,7 @@ const RequestForm = ({ onStudyGenerated, isLoading }) => {
     const isGenerateDisabled = searchResults.length === 0 || selectedQuestions.length === 0;
 
     return (
-        <div className="max-w-6xl mx-auto px-4 py-8">
+        <div className="w-full">
             <Card className="flex flex-col gap-12">
                 <MultiScriptureSelector
                     references={activeRefs}
