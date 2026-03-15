@@ -4,7 +4,7 @@ import { getBibleBooks, getChaptersForBook, getVersesForChapter } from '../../..
 import QuestionTable from '../../QuestionTable';
 import { useToast } from '../../ToastMessage/Toast';
 import { searchQuestions, clearSearchCache } from '../../../services/dataService';
-import ThemesMultiSelect, { defaultThemes } from '../../ThemesMultiSelect';
+import ThemeSelect, { defaultThemes } from '../../ui/ThemeSelect';
 
 const EditDelete = () => {
     const [hideUnapproved, setHideUnapproved] = useState(false);
@@ -200,9 +200,11 @@ const EditDelete = () => {
             </div>
 
             <div className="flex justify-center mb-4">
-                <ThemesMultiSelect
+                <ThemeSelect
                     value={selectedThemes}
                     onChange={setSelectedThemes}
+                    isMulti
+                    className="max-w-xs"
                 />
             </div>
 

@@ -1,6 +1,9 @@
 import { useState, useEffect, useRef } from 'react';
 import { X, MoreVertical, Copy, FileText, FileCode } from 'lucide-react';
 import { useToast } from './ToastMessage/Toast';
+import Button from './ui/Button';
+import SectionHeader from './ui/SectionHeader';
+import Card from './ui/Card';
 
 const StudyModal = ({ show, onHide, data }) => {
     const [showCopyMenu, setShowCopyMenu] = useState(false);
@@ -192,187 +195,131 @@ const StudyModal = ({ show, onHide, data }) => {
     if (!show) return null;
 
     return (
-
         <div
-            className="fixed inset-0 z-50 flex items-start justify-center bg-black bg-opacity-50 p-4 pt-12"
+            className="fixed inset-0 z-50 flex items-center justify-center bg-gray-950/60 backdrop-blur-sm p-4 sm:p-6"
             onClick={onHide}
             aria-labelledby="study-modal-title"
             role="dialog"
             aria-modal="true"
         >
-            <div
-                className="
-      relative w-full max-w-[1200px] max-h-[90vh]
-      flex flex-col
-      bg-white/50 dark:bg-gray-900/60
-      border border-gray-200 dark:border-gray-800
-      rounded-xl shadow-sm backdrop-blur-md
-      overflow-hidden
-    "
+            <Card
+                className="relative w-full max-w-5xl max-h-[90vh] flex flex-col p-0 overflow-hidden shadow-2xl border-gray-200 dark:border-gray-800"
                 onClick={(e) => e.stopPropagation()}
-                style={{ transform: 'translateY(-25px)' }}
             >
                 {/* Modal Header */}
                 <div
                     id="study-modal-title"
                     className="
-        bg-white/80 dark:bg-gray-900/80
-        border-b border-gray-200 dark:border-gray-800
-        text-sky-700 dark:text-sky-400
-        py-4 px-6
-        flex justify-between items-center
-        font-semibold text-lg
-        select-none
-      "
+                        bg-gray-50/80 dark:bg-gray-800/80
+                        border-b border-gray-200 dark:border-gray-700
+                        py-4 px-6
+                        flex justify-between items-center
+                        select-none
+                    "
                 >
-                    Bible Study Preparation
+                    <h2 className="text-xl font-bold text-sky-700 dark:text-sky-400">
+                        Bible Study Preparation
+                    </h2>
                     <button
                         aria-label="close"
                         onClick={onHide}
                         className="
-          text-sky-700 dark:text-sky-400
-          hover:bg-sky-100 dark:hover:bg-sky-700/30
-          p-2 rounded-full
-          transition
-          focus:outline-none focus:ring-2 focus:ring-sky-400
-        "
+                            text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200
+                            hover:bg-gray-200 dark:hover:bg-gray-700
+                            p-1.5 rounded-full
+                            transition-colors
+                            focus:outline-none focus:ring-2 focus:ring-sky-500
+                        "
                     >
                         <X size={24} />
                     </button>
                 </div>
+
                 <div
                     id="study-modal-content"
                     className="
-        overflow-y-auto
-        p-8
-        bg-white/60 dark:bg-gray-900/60
-        text-gray-900 dark:text-gray-300
-        flex flex-col gap-10
-      "
-                    style={{ WebkitOverflowScrolling: 'touch', paddingBottom: '5rem' }}
+                        overflow-y-auto
+                        p-6 sm:p-10
+                        bg-white/40 dark:bg-gray-900/40
+                        text-gray-900 dark:text-gray-300
+                        flex flex-col gap-12
+                    "
+                    style={{ WebkitOverflowScrolling: 'touch' }}
                 >
                     <section>
-                        <h3
-                            className="
-    text-2xl font-semibold
-    text-sky-700 dark:text-sky-400
-    border-b-2 border-sky-700 dark:border-sky-400
-    pb-2 mb-6
-    text-left
-  "
-                        >
-                            Bible References
-                        </h3>
-
+                        <SectionHeader centered={false}>Bible References</SectionHeader>
                         {data?.refArr && data.refArr.filter(Boolean).length > 0 ? (
-                            <ul className="list-disc pl-6 mb-8 space-y-2">
+                            <ul className="grid grid-cols-1 sm:grid-cols-2 gap-3 list-none">
                                 {data.refArr.filter(Boolean).map((reference, index) => (
-                                    <li key={index} className="text-base font-normal">
+                                    <li key={index} className="flex items-center gap-2 p-3 rounded-lg bg-sky-50 dark:bg-sky-900/20 text-sky-800 dark:text-sky-200 border border-sky-100 dark:border-sky-800/50">
+                                        <div className="w-1.5 h-1.5 rounded-full bg-sky-500" />
                                         {reference}
                                     </li>
                                 ))}
                             </ul>
                         ) : (
-                            <p className="mb-8 ml-2 opacity-80">
-                                No Bible references specified.
-                            </p>
+                            <p className="italic opacity-70">No Bible references specified.</p>
                         )}
                     </section>
-                    <section>
-                        <h3
-                            className="
-    text-2xl font-semibold
-    text-sky-700 dark:text-sky-400
-    border-b-2 border-sky-700 dark:border-sky-400
-    pb-2 mb-6
-    text-left
-  "
-                        >
-                            General Context
-                        </h3>
 
+                    <section>
+                        <SectionHeader centered={false}>General Context</SectionHeader>
                         {data?.contextArr && data.contextArr.length > 0 ? (
-                            <ul className="list-disc pl-6 mb-8 space-y-2">
+                            <ul className="space-y-3 list-none">
                                 {data.contextArr.map((context, index) => (
-                                    <li key={index} className="text-base font-normal">
+                                    <li key={index} className="p-4 rounded-lg bg-gray-50 dark:bg-gray-800/40 border border-gray-100 dark:border-gray-700 text-gray-700 dark:text-gray-300">
                                         {context}
                                     </li>
                                 ))}
                             </ul>
                         ) : (
-                            <p className="mb-8 ml-2 opacity-80">
-                                No context information available.
-                            </p>
+                            <p className="italic opacity-70">No context information available.</p>
                         )}
                     </section>
-                    <section>
-                        <h3
-                            className="
-    text-2xl font-semibold
-    text-sky-700 dark:text-sky-400
-    border-b-2 border-sky-700 dark:border-sky-400
-    pb-2 mb-6
-    text-left
-  "
-                        >
-                            Questions by Book and Theme
-                        </h3>
 
+                    <section>
+                        <SectionHeader centered={false}>Questions by Book and Theme</SectionHeader>
                         {Object.keys(groupedQuestions).length > 0 ? (
-                            <div className="space-y-8">
+                            <div className="space-y-10">
                                 {orderedBooksList.map((book) => (
-                                    <div key={book}>
-                                        <h4 className="text-xl font-semibold mb-3 text-gray-900 dark:text-gray-300">
+                                    <div key={book} className="space-y-4">
+                                        <h4 className="text-xl font-bold text-gray-900 dark:text-gray-100 flex items-center gap-2">
+                                            <div className="w-2 h-6 bg-sky-500 rounded-full" />
                                             {book}
                                         </h4>
-                                        {Object.entries(groupedQuestions[book]).map(([theme, questions]) => (
-                                            <div key={theme} className="px-4 mb-6">
-                                                <h5 className="text-lg font-medium mb-2 text-gray-700 dark:text-gray-400">
-                                                    {theme}
-                                                </h5>
-                                                <ul className="list-disc pl-5 space-y-1">
-                                                    {questions.map((question, qIndex) => (
-                                                        <li key={qIndex} className="text-sm text-gray-800 dark:text-gray-300">
-                                                            {question.question}
-                                                        </li>
-                                                    ))}
-                                                </ul>
-                                            </div>
-                                        ))}
+                                        <div className="grid grid-cols-1 gap-6">
+                                            {Object.entries(groupedQuestions[book]).map(([theme, questions]) => (
+                                                <div key={theme} className="ml-4 p-5 rounded-xl border border-gray-100 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-800/20">
+                                                    <h5 className="text-lg font-semibold mb-4 text-sky-700 dark:text-sky-400">
+                                                        {theme}
+                                                    </h5>
+                                                    <ul className="space-y-3 list-disc pl-5">
+                                                        {questions.map((question, qIndex) => (
+                                                            <li key={qIndex} className="text-gray-800 dark:text-gray-300 leading-relaxed">
+                                                                {question.question}
+                                                            </li>
+                                                        ))}
+                                                    </ul>
+                                                </div>
+                                            ))}
+                                        </div>
                                     </div>
                                 ))}
                             </div>
                         ) : (
-                            <p className="italic opacity-80 text-center">
+                            <p className="italic opacity-70 text-center py-10 bg-gray-50 dark:bg-gray-800/30 rounded-xl border-2 border-dashed border-gray-200 dark:border-gray-700">
                                 {noQuestionString}
                             </p>
                         )}
                     </section>
                 </div>
-                <hr className="border-gray-200 dark:border-gray-800" />
-                <div
-                    className="
-        p-6
-        bg-white/80 dark:bg-gray-900/80
-        flex justify-between items-center
-        border-t border-gray-200 dark:border-gray-800
-      "
-                >
-                    <button
-                        onClick={onHide}
-                        className="
-          px-4 py-2 rounded-lg
-          border border-sky-600 text-sky-600
-          hover:bg-sky-100 dark:hover:bg-sky-700/30
-          font-semibold
-          transition
-          focus:outline-none focus:ring-2 focus:ring-sky-400
-        "
-                    >
+
+                <div className="p-6 bg-gray-50/80 dark:bg-gray-800/80 border-t border-gray-200 dark:border-gray-700 flex flex-col sm:flex-row justify-between items-center gap-4">
+                    <Button variant="outline" onClick={onHide} className="w-full sm:w-auto">
                         Close
-                    </button>
-                    <div className="flex gap-3 relative">
-                        <button
+                    </Button>
+                    <div className="flex gap-3 w-full sm:w-auto relative">
+                        <Button
                             onClick={async () => {
                                 const plainText = generatePlainTextContent();
                                 const richText = generateRichTextContent();
@@ -389,46 +336,34 @@ const StudyModal = ({ show, onHide, data }) => {
                                     navigator.clipboard.writeText(plainText).then(() => showToast('Successfully copied plain text', 'success'));
                                 }
                             }}
-                            className="
-            px-4 py-2 rounded-lg
-            bg-sky-600 text-white
-            hover:bg-sky-700
-            font-semibold
-            flex items-center gap-2
-            focus:outline-none focus:ring-2 focus:ring-sky-400
-            transition
-          "
+                            className="flex-grow sm:flex-grow-0"
                         >
-                            <Copy size={18} /> Copy
-                        </button>
+                            <Copy size={18} /> Copy Study
+                        </Button>
 
-                        <button
+                        <Button
+                            variant="outline"
                             onClick={(e) => {
                                 e.stopPropagation();
                                 setShowCopyMenu(!showCopyMenu);
                             }}
-                            className="
-            p-2 rounded-lg
-            bg-sky-600 text-white
-            hover:bg-sky-700
-            focus:outline-none focus:ring-2 focus:ring-sky-400
-            transition
-          "
+                            className="px-3"
                         >
-                            <MoreVertical size={24} />
-                        </button>
+                            <MoreVertical size={20} />
+                        </Button>
 
                         {showCopyMenu && (
                             <div
                                 ref={copyMenuRef}
                                 className="
-              absolute right-0 bottom-full mb-2 w-56
-              bg-white/90 dark:bg-gray-900/90
-              border border-gray-200 dark:border-gray-800
-              rounded-lg shadow-lg
-              overflow-hidden
-              z-20
-            "
+                                    absolute right-0 bottom-full mb-3 w-64
+                                    bg-white dark:bg-gray-900
+                                    border border-gray-200 dark:border-gray-700
+                                    rounded-xl shadow-2xl
+                                    overflow-hidden
+                                    z-20
+                                    animate-in slide-in-from-bottom-2 duration-200
+                                "
                             >
                                 <button
                                     onClick={async () => {
@@ -438,13 +373,10 @@ const StudyModal = ({ show, onHide, data }) => {
                                             setShowCopyMenu(false);
                                         });
                                     }}
-                                    className="
-                w-full text-left px-4 py-2 text-gray-900 dark:text-gray-300
-                hover:bg-gray-100 dark:hover:bg-gray-800
-                flex items-center gap-2 text-sm
-              "
+                                    className="w-full text-left px-4 py-3 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 flex items-center gap-3 transition-colors"
                                 >
-                                    <FileText size={16} className="text-gray-500 dark:text-gray-400" /> Copy as Plain Text
+                                    <FileText size={18} className="text-gray-400" />
+                                    <span>Copy as Plain Text</span>
                                 </button>
                                 <button
                                     onClick={async () => {
@@ -454,13 +386,10 @@ const StudyModal = ({ show, onHide, data }) => {
                                             setShowCopyMenu(false);
                                         });
                                     }}
-                                    className="
-                w-full text-left px-4 py-2 text-gray-900 dark:text-gray-300
-                hover:bg-gray-100 dark:hover:bg-gray-800
-                flex items-center gap-2 text-sm
-              "
+                                    className="w-full text-left px-4 py-3 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 flex items-center gap-3 transition-colors border-t border-gray-100 dark:border-gray-800"
                                 >
-                                    <FileCode size={16} className="text-gray-500 dark:text-gray-400" /> Copy as Markdown
+                                    <FileCode size={18} className="text-gray-400" />
+                                    <span>Copy as Markdown</span>
                                 </button>
                                 <button
                                     onClick={async () => {
@@ -476,19 +405,16 @@ const StudyModal = ({ show, onHide, data }) => {
                                             setShowCopyMenu(false);
                                         }
                                     }}
-                                    className="
-                w-full text-left px-4 py-2 text-gray-900 dark:text-gray-300
-                hover:bg-gray-100 dark:hover:bg-gray-800
-                flex items-center gap-2 text-sm
-              "
+                                    className="w-full text-left px-4 py-3 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 flex items-center gap-3 transition-colors border-t border-gray-100 dark:border-gray-800"
                                 >
-                                    <Copy size={16} className="text-gray-500 dark:text-gray-400" /> Copy as Rich Text
+                                    <Copy size={18} className="text-gray-400" />
+                                    <span>Copy as Rich Text</span>
                                 </button>
                             </div>
                         )}
                     </div>
                 </div>
-            </div>
+            </Card>
         </div>
     )
 };

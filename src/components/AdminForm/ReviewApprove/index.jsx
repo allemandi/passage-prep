@@ -5,7 +5,7 @@ import { fetchUnapprovedQuestions, approveQuestions } from '../../../services/da
 import ScriptureCombobox from '../../ScriptureCombobox';
 import { getBibleBooks, getChaptersForBook, getVersesForChapter } from '../../../utils/bibleData';
 import { useToast } from '../../ToastMessage/Toast';
-import ThemesMultiSelect, { defaultThemes } from '../../ThemesMultiSelect';
+import ThemeSelect, { defaultThemes } from '../../ui/ThemeSelect';
 
 const ReviewApprove = () => {
     const [selectedQuestions, setSelectedQuestions] = useState([]);
@@ -240,9 +240,11 @@ const ReviewApprove = () => {
             </div>
 
             <div className="flex flex-col sm:flex-row justify-center items-center mt-4 gap-4">
-                <ThemesMultiSelect
+                <ThemeSelect
                     value={selectedThemes}
                     onChange={setSelectedThemes}
+                    isMulti
+                    className="max-w-xs"
                 />
 
                 <button
