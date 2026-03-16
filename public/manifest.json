@@ -1,8 +1,9 @@
 {
-  "short_name": "BibleStudy",
-  "name": "Bible Study Preparation Tool",
+  "short_name": "Passage Prep",
+  "name": "Passage Prep - Bible Study Preparation Tool",
+  "description": "Build reusable Bible studies in seconds. Format, organize, and export Bible study questions with ease.",
   "start_url": ".",
   "display": "standalone",
-  "theme_color": "#000000",
-  "background_color": "#ffffff"
-} 
+  "theme_color": "#0ea5e9",
+  "background_color": "#f0f9ff"
+}
