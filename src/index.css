@@ -50,7 +50,7 @@
   --bg-surface: #2d3748;
   --border-app: #4a5568;
   --text-app: #f1f5f9;
-  --text-app-muted: #94a3b8;
+  --text-app-muted: #cbd5e1;
   --select-text-color: #f8fafc;
 }
 
@@ -61,9 +61,25 @@ body {
   @apply bg-app-bg text-app-text transition-colors duration-500 antialiased;
 }
 
+/* Autofill styling for dark mode */
+.dark input:-webkit-autofill,
+.dark input:-webkit-autofill:hover,
+.dark input:-webkit-autofill:focus,
+.dark textarea:-webkit-autofill,
+.dark textarea:-webkit-autofill:hover,
+.dark textarea:-webkit-autofill:focus,
+.dark select:-webkit-autofill,
+.dark select:-webkit-autofill:hover,
+.dark select:-webkit-autofill:focus {
+  -webkit-text-fill-color: var(--text-app) !important;
+  -webkit-box-shadow: 0 0 0px 1000px var(--bg-surface) inset !important;
+  transition: background-color 5000s ease-in-out 0s;
+}
+
 /* React Select Customizations */
 .react-select__control {
-  @apply bg-app-surface hover:border-primary-300 transition-all duration-300 rounded-lg;
+  @apply transition-all duration-300 rounded-lg;
+  background-color: var(--bg-surface) !important;
   border: 2px solid var(--border-app) !important;
 }
 
@@ -82,7 +98,8 @@ body {
 }
 
 .react-select__menu {
-  @apply bg-app-surface shadow-2xl rounded-xl mt-2 overflow-hidden;
+  @apply shadow-2xl rounded-xl mt-2 overflow-hidden;
+  background-color: var(--bg-surface) !important;
   border: 2px solid var(--border-app) !important;
 }
 

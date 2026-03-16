@@ -63,6 +63,29 @@ const ScriptureCombobox = ({
                 isClearable
                 isSearchable
                 styles={{
+                    control: (base) => ({
+                        ...base,
+                        backgroundColor: 'var(--bg-surface)',
+                        borderColor: 'var(--border-app)',
+                    }),
+                    menu: (base) => ({
+                        ...base,
+                        backgroundColor: 'var(--bg-surface)',
+                    }),
+                    option: (base, state) => ({
+                        ...base,
+                        backgroundColor: state.isSelected
+                            ? 'var(--color-primary-500)'
+                            : state.isFocused
+                                ? 'rgba(56, 189, 248, 0.15)'
+                                : 'transparent',
+                        color: state.isSelected
+                            ? 'white'
+                            : 'var(--text-app)',
+                        ':active': {
+                            backgroundColor: 'var(--color-primary-500)',
+                        },
+                    }),
                     input: (base) => ({ ...base, color: 'var(--select-text-color)' }),
                     singleValue: (base) => ({ ...base, color: 'var(--select-text-color)' }),
                     placeholder: (base) => ({ ...base, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }),
