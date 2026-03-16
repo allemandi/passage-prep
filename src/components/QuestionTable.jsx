@@ -226,11 +226,11 @@ const QuestionTable = ({
                                         }
                                         required
                                     >
-                                    <option value="" disabled>
+                                    <option value="" disabled className="bg-app-surface text-app-text">
                                         Select Book
                                     </option>
                                         {availableBooks.map((book) => (
-                                            <option key={book} value={book}>
+                                            <option key={book} value={book} className="bg-app-surface text-app-text">
                                                 {book}
                                             </option>
                                         ))}
@@ -253,11 +253,11 @@ const QuestionTable = ({
                                         disabled={!editData.book}
                                         required
                                     >
-                                        <option value="" disabled>
+                                        <option value="" disabled className="bg-app-surface text-app-text">
                                             Select
                                         </option>
                                         {availableChapters.map((ch) => (
-                                            <option key={ch} value={ch}>
+                                            <option key={ch} value={ch} className="bg-app-surface text-app-text">
                                                 {ch}
                                             </option>
                                         ))}
@@ -287,11 +287,11 @@ const QuestionTable = ({
                                         disabled={!editData.chapter}
                                         required
                                     >
-                                        <option value="" disabled>
+                                        <option value="" disabled className="bg-app-surface text-app-text">
                                             Verse
                                         </option>
                                         {availableVerses.map((v) => (
-                                            <option key={v} value={v}>
+                                            <option key={v} value={v} className="bg-app-surface text-app-text">
                                                 {v}
                                             </option>
                                         ))}
@@ -307,13 +307,13 @@ const QuestionTable = ({
                                         disabled={!editData.verseStart}
                                         required
                                     >
-                                        <option value="" disabled>
+                                        <option value="" disabled className="bg-app-surface text-app-text">
                                             Verse
                                         </option>
                                     {availableVerses
                                         .filter((v) => !editData.verseStart || parseInt(v) >= parseInt(editData.verseStart))
                                         .map((v) => (
-                                            <option key={v} value={v}>
+                                            <option key={v} value={v} className="bg-app-surface text-app-text">
                                                 {v}
                                             </option>
                                         ))}
@@ -329,11 +329,11 @@ const QuestionTable = ({
                                     onChange={(e) => setEditData({ ...editData, theme: e.target.value })}
                                     required
                                 >
-                                    <option value="" disabled>
+                                    <option value="" disabled className="bg-app-surface text-app-text">
                                         Select Theme
                                     </option>
                                     {themes.map((theme) => (
-                                        <option key={theme} value={theme}>
+                                        <option key={theme} value={theme} className="bg-app-surface text-app-text">
                                             {theme}
                                         </option>
                                     ))}
