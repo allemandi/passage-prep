@@ -89,6 +89,7 @@ const ScriptureCombobox = ({
                     input: (base) => ({ ...base, color: 'var(--select-text-color)' }),
                     singleValue: (base) => ({ ...base, color: 'var(--select-text-color)' }),
                     placeholder: (base) => ({ ...base, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }),
+                    menuPortal: (base) => ({ ...base, zIndex: 9999 }),
                 }}
                 menuPortalTarget={document.body}
                 menuShouldBlockScroll={true}
