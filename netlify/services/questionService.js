@@ -1,5 +1,6 @@
 const Question = require('../../models/Question');
 const { filterXSS } = require('xss');
+const { isValidReference } = require('@allemandi/bible-validate');
 
 /**
  * Sanitizes input text to prevent XSS attacks.
@@ -21,6 +22,10 @@ const questionService = {
     async saveQuestion(newData) {
         if (!newData || !newData.theme || !newData.question || !newData.book || !newData.chapter || !newData.verseStart || !newData.verseEnd) {
             throw new Error('Missing required question data');
+        }
+
+        if (!isValidReference(newData.book, parseInt(newData.chapter), parseInt(newData.verseStart), parseInt(newData.verseEnd))) {
+            throw new Error(`Invalid Bible reference: ${newData.book} ${newData.chapter}:${newData.verseStart}-${newData.verseEnd}`);
         }
 
         // Basic security check: Check for identical recently submitted questions
@@ -53,6 +58,22 @@ const questionService = {
         if (!questionId || !updatedData) {
             throw new Error('Missing question ID or update data');
         }
+
+        // If updating Bible reference fields, validate the combined result
+        if (updatedData.book || updatedData.chapter || updatedData.verseStart || updatedData.verseEnd) {
+            const existing = await Question.findById(questionId);
+            if (!existing) throw new Error('Question not found');
+
+            const book = updatedData.book || existing.book;
+            const chapter = parseInt(updatedData.chapter || existing.chapter);
+            const verseStart = parseInt(updatedData.verseStart || existing.verseStart);
+            const verseEnd = parseInt(updatedData.verseEnd || existing.verseEnd);
+
+            if (!isValidReference(book, chapter, verseStart, verseEnd)) {
+                throw new Error(`Invalid Bible reference: ${book} ${chapter}:${verseStart}-${verseEnd}`);
+            }
+        }
+
         const updatedQuestion = await Question.findByIdAndUpdate(
             questionId,
             { $set: updatedData },

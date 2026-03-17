@@ -35,17 +35,17 @@ export const useBibleReference = (initialValues = {}) => {
         setReference(prev => {
             const next = { ...prev, ...updates };
 
-            // If book changed, reset chapter and verses
+            // If book changed, reset chapter and verses ONLY IF NOT provided in updates
             if (updates.book !== undefined && updates.book !== prev.book) {
-                next.chapter = '';
-                next.verseStart = '';
-                next.verseEnd = '';
+                if (updates.chapter === undefined) next.chapter = '';
+                if (updates.verseStart === undefined) next.verseStart = '';
+                if (updates.verseEnd === undefined) next.verseEnd = '';
             }
 
-            // If chapter changed, reset verses
+            // If chapter changed, reset verses ONLY IF NOT provided in updates
             if (updates.chapter !== undefined && updates.chapter !== prev.chapter) {
-                next.verseStart = '';
-                next.verseEnd = '';
+                if (updates.verseStart === undefined) next.verseStart = '';
+                if (updates.verseEnd === undefined) next.verseEnd = '';
             }
 
             // Ensure verseEnd is not before verseStart

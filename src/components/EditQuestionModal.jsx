@@ -26,17 +26,17 @@ const EditQuestionModal = ({ isOpen, onClose, question, onSave }) => {
     } = bibleReference;
 
     useEffect(() => {
-        if (question) {
+        if (question && isOpen) {
             setQuestionText(question.question || '');
             setSelectedTheme(question.theme || '');
             updateReference({
                 book: question.book || '',
-                chapter: question.chapter || '',
-                verseStart: question.verseStart || '',
-                verseEnd: question.verseEnd || '',
+                chapter: String(question.chapter || ''),
+                verseStart: String(question.verseStart || ''),
+                verseEnd: String(question.verseEnd || ''),
             });
         }
-    }, [question, updateReference]);
+    }, [question, isOpen, updateReference]);
 
     if (!isOpen || !question) return null;
 
