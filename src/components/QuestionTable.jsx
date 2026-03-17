@@ -114,12 +114,14 @@ const QuestionTable = ({
             </div>
 
 
-            <EditQuestionModal
-                isOpen={!!editingQuestion}
-                onClose={() => setEditingQuestion(null)}
-                question={editingQuestion}
-                onSave={onQuestionUpdate}
-            />
+            {editingQuestion && (
+                <EditQuestionModal
+                    isOpen={!!editingQuestion}
+                    onClose={() => setEditingQuestion(null)}
+                    question={editingQuestion}
+                    onSave={onQuestionUpdate}
+                />
+            )}
         </>
     );
 };
