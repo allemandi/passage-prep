@@ -79,8 +79,7 @@ const ContributeForm = () => {
 
     const resetForm = () => {
         setQuestionText('');
-        setSelectedTheme('');
-        resetBible();
+        // We now keep selectedTheme and bibleReference to improve UX for consecutive submissions
     };
 
     return (
