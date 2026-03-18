@@ -26,7 +26,7 @@ const ContributeForm = () => {
     const {
         book, chapter, verseStart, verseEnd,
         availableChapters, totalChapters, availableVerses,
-        updateReference, reset: resetBible
+        updateReference,
     } = bibleReference;
 
     const matcher = new RegExpMatcher({
