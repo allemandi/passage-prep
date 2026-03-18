@@ -6,31 +6,16 @@ import { defaultThemes } from '../../ui/ThemeSelect';
 import Button from '../../ui/Button';
 import { Trash2 } from 'lucide-react';
 import AdminFilterBar from '../AdminFilterBar';
+import useQuestionSelection from '../../../hooks/useQuestionSelection';
 
 const EditDelete = () => {
     const [hideUnapproved, setHideUnapproved] = useState(false);
-    const [selectedQuestions, setSelectedQuestions] = useState([]);
     const [filteredQuestions, setFilteredQuestions] = useState([]);
+    const { selectedIds, toggleSelection, resetSelection } = useQuestionSelection();
     const showToast = useToast();
 
     // Store current filter values to re-apply after actions
     const currentFilters = useRef({ book: '', chapter: '', verseStart: '', verseEnd: '', themes: defaultThemes });
-
-    const handleQuestionSelect = (indices, isSelected) => {
-        setSelectedQuestions(prev => {
-            if (!Array.isArray(indices)) indices = [indices];
-            if (indices.length === filteredQuestions.length) {
-                return prev.length === filteredQuestions.length ? [] : indices;
-            }
-            if (indices.length === 0) {
-                return prev.length === filteredQuestions.length ? [] :
-                    Array.from({ length: filteredQuestions.length }, (_, i) => i);
-            }
-            return isSelected
-                ? [...new Set([...prev, ...indices])]
-                : prev.filter(i => !indices.includes(i));
-        });
-    };
 
     const applyApiFilters = useCallback(async ({ book, chapter, verseStart, verseEnd, themes }) => {
         currentFilters.current = { book, chapter, verseStart, verseEnd, themes };
@@ -49,38 +34,37 @@ const EditDelete = () => {
             }
             const results = await searchQuestions(filter);
             setFilteredQuestions(results);
-            setSelectedQuestions([]);
+            resetSelection();
         } catch (error) {
             showToast(error.message, 'error');
             setFilteredQuestions([]);
         }
-    }, [hideUnapproved, showToast]);
+    }, [hideUnapproved, showToast, resetSelection]);
 
     const refreshResults = useCallback(() => {
         applyApiFilters({ ...currentFilters.current });
     }, [applyApiFilters]);
 
     const handleDeleteSelected = useCallback(async () => {
-        if (selectedQuestions.length === 0) return;
+        if (selectedIds.length === 0) return;
 
         try {
-            const questionIds = selectedQuestions.map(index => filteredQuestions[index]._id);
-            setSelectedQuestions([]);
             const response = await fetch('/api/delete-questions', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ questionIds }),
+                body: JSON.stringify({ questionIds: selectedIds }),
             });
 
             if (!response.ok) throw new Error('Failed to delete questions');
-            setFilteredQuestions(prev => prev.filter(q => !questionIds.includes(q._id)));
+
             showToast('Questions deleted successfully', 'success');
             clearSearchCache();
+            await refreshResults();
         } catch (error) {
             showToast(error.message, 'error');
             refreshResults();
         }
-    }, [selectedQuestions, filteredQuestions, refreshResults, showToast]);
+    }, [selectedIds, refreshResults, showToast]);
 
     const handleQuestionUpdate = useCallback(async (questionId, updatedData) => {
         try {
@@ -90,11 +74,10 @@ const EditDelete = () => {
                 body: JSON.stringify({ questionId, updatedData }),
             });
             if (!response.ok) throw new Error('Failed to update question');
-            setFilteredQuestions(prev =>
-                prev.map(q => q._id === questionId ? { ...q, ...updatedData } : q)
-            );
+
             showToast('Question updated successfully', 'success');
             clearSearchCache();
+            await refreshResults();
         } catch (error) {
             showToast(error.message, 'error');
             refreshResults();
@@ -119,8 +102,8 @@ const EditDelete = () => {
             <div className="mt-6 w-full">
                 <QuestionTable
                     questions={filteredQuestions}
-                    selectedQuestions={selectedQuestions}
-                    onQuestionSelect={handleQuestionSelect}
+                    selectedIds={selectedIds}
+                    onSelectionChange={toggleSelection}
                     showActions={true}
                     onQuestionUpdate={handleQuestionUpdate}
                     hideUnapproved={hideUnapproved}
@@ -130,11 +113,11 @@ const EditDelete = () => {
             <div className="flex justify-center mt-12">
                 <Button
                     variant="outline"
-                    disabled={selectedQuestions.length === 0}
+                    disabled={selectedIds.length === 0}
                     onClick={handleDeleteSelected}
                     className="w-full sm:w-auto min-w-[240px] border-2 border-secondary-400 text-secondary-600 hover:bg-secondary-100 dark:text-secondary-400 dark:hover:bg-secondary-900/20"
                 >
-                    <Trash2 className="w-5 h-5" /> Delete Selected ({selectedQuestions.length})
+                    <Trash2 className="w-5 h-5" /> Delete Selected ({selectedIds.length})
                 </Button>
             </div>
         </div>

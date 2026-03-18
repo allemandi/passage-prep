@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { Check, Trash2 } from 'lucide-react';
 import QuestionTable from '../../QuestionTable';
 import { fetchUnapprovedQuestions, approveQuestions } from '../../../services/dataService';
@@ -6,11 +6,12 @@ import { useToast } from '../../ToastMessage/Toast';
 import { defaultThemes } from '../../ui/ThemeSelect';
 import Button from '../../ui/Button';
 import AdminFilterBar from '../AdminFilterBar';
+import useQuestionSelection from '../../../hooks/useQuestionSelection';
 
 const ReviewApprove = () => {
-    const [selectedQuestions, setSelectedQuestions] = useState([]);
-    const [filteredQuestions, setFilteredQuestions] = useState([]);
     const [allUnapprovedQuestions, setAllUnapprovedQuestions] = useState([]);
+    const [filteredQuestions, setFilteredQuestions] = useState([]);
+    const { selectedIds, toggleSelection, resetSelection } = useQuestionSelection();
     const showToast = useToast();
 
     // Store current filter values to re-apply after actions
@@ -20,8 +21,9 @@ const ReviewApprove = () => {
         try {
             const unapproved = await fetchUnapprovedQuestions();
             setAllUnapprovedQuestions(unapproved);
-            setFilteredQuestions(unapproved);
-            setSelectedQuestions([]);
+
+            // Re-apply current filters to the newly fetched data
+            applyApiFilters(currentFilters.current, unapproved);
         } catch (error) {
             showToast(error.message, 'error');
             setFilteredQuestions([]);
@@ -30,28 +32,22 @@ const ReviewApprove = () => {
     }, [showToast]);
 
     useEffect(() => {
-        fetchUnapprovedData();
-    }, [fetchUnapprovedData]);
-
-    const handleQuestionSelect = (indices, isSelected) => {
-        setSelectedQuestions(prev => {
-            if (!Array.isArray(indices)) indices = [indices];
-            if (indices.length === filteredQuestions.length) {
-                return prev.length === filteredQuestions.length ? [] : indices;
+        // Initial fetch
+        const initialFetch = async () => {
+            try {
+                const unapproved = await fetchUnapprovedQuestions();
+                setAllUnapprovedQuestions(unapproved);
+                setFilteredQuestions(unapproved); // Initially show all
+            } catch (error) {
+                showToast(error.message, 'error');
             }
-            if (indices.length === 0) {
-                return prev.length === filteredQuestions.length ? [] :
-                    Array.from({ length: filteredQuestions.length }, (_, i) => i);
-            }
-            return isSelected
-                ? [...new Set([...prev, ...indices])]
-                : prev.filter(i => !indices.includes(i));
-        });
-    };
+        };
+        initialFetch();
+    }, [showToast]);
 
-    const applyApiFilters = useCallback(({ book, chapter, verseStart, verseEnd, themes }) => {
+    const applyApiFilters = useCallback(({ book, chapter, verseStart, verseEnd, themes }, sourceData = allUnapprovedQuestions) => {
         currentFilters.current = { book, chapter, verseStart, verseEnd, themes };
-        let filtered = [...allUnapprovedQuestions];
+        let filtered = [...sourceData];
 
         if (book) {
             filtered = filtered.filter(q => q.book === book);
@@ -77,38 +73,28 @@ const ReviewApprove = () => {
         }
 
         setFilteredQuestions(filtered);
-        setSelectedQuestions([]);
-    }, [allUnapprovedQuestions]);
-
-    const refreshResults = useCallback(() => {
-        applyApiFilters({ ...currentFilters.current });
-    }, [applyApiFilters]);
+        resetSelection();
+    }, [allUnapprovedQuestions, resetSelection]);
 
     const handleDeleteSelected = useCallback(async () => {
-        if (selectedQuestions.length === 0) return;
+        if (selectedIds.length === 0) return;
 
         try {
-            const questionIds = selectedQuestions.map(index => filteredQuestions[index]._id);
-            setSelectedQuestions([]);
             const response = await fetch('/api/delete-questions', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ questionIds }),
+                body: JSON.stringify({ questionIds: selectedIds }),
             });
 
             if (!response.ok) throw new Error('Failed to delete questions');
-            setFilteredQuestions(prev => prev.filter(q => !questionIds.includes(q._id)));
-            setAllUnapprovedQuestions(prev => prev.filter(q => !questionIds.includes(q._id)));
+
             showToast('Questions deleted successfully', 'success');
-            setTimeout(() => {
-                fetchUnapprovedData();
-                refreshResults();
-            }, 500);
+            await fetchUnapprovedData();
         } catch (error) {
             showToast(error.message, 'error');
             fetchUnapprovedData();
         }
-    }, [selectedQuestions, filteredQuestions, fetchUnapprovedData, refreshResults, showToast]);
+    }, [selectedIds, fetchUnapprovedData, showToast]);
 
     const handleQuestionUpdate = useCallback(async (questionId, updatedData) => {
         try {
@@ -119,44 +105,27 @@ const ReviewApprove = () => {
             });
 
             if (!response.ok) throw new Error('Failed to update question');
-            const updateQuestion = (questions) =>
-                questions.map(q => q._id === questionId ? { ...q, ...updatedData } : q);
-
-            setFilteredQuestions(updateQuestion);
-            setAllUnapprovedQuestions(updateQuestion);
 
             showToast('Question updated successfully', 'success');
-            setTimeout(() => {
-                fetchUnapprovedData();
-                refreshResults();
-            }, 500);
+            await fetchUnapprovedData();
         } catch (error) {
             showToast(error.message, 'error');
             fetchUnapprovedData();
         }
-    }, [fetchUnapprovedData, refreshResults, showToast]);
+    }, [fetchUnapprovedData, showToast]);
 
     const handleApproveSelected = useCallback(async () => {
-        if (selectedQuestions.length === 0) return;
+        if (selectedIds.length === 0) return;
 
         try {
-            const questionIds = selectedQuestions.map(index => filteredQuestions[index]._id);
-            setSelectedQuestions([]);
-
-            await approveQuestions(questionIds);
-            setFilteredQuestions(prev => prev.filter(q => !questionIds.includes(q._id)));
-            setAllUnapprovedQuestions(prev => prev.filter(q => !questionIds.includes(q._id)));
-
+            await approveQuestions(selectedIds);
             showToast('Questions approved successfully', 'success');
-            setTimeout(() => {
-                fetchUnapprovedData();
-                refreshResults();
-            }, 500);
+            await fetchUnapprovedData();
         } catch (error) {
             showToast(error.message, 'error');
             fetchUnapprovedData();
         }
-    }, [selectedQuestions, filteredQuestions, fetchUnapprovedData, refreshResults, showToast]);
+    }, [selectedIds, fetchUnapprovedData, showToast]);
 
     return (
         <div className="w-full mb-10">
@@ -168,8 +137,8 @@ const ReviewApprove = () => {
             <div className="mt-6">
                 <QuestionTable
                     questions={filteredQuestions}
-                    selectedQuestions={selectedQuestions}
-                    onQuestionSelect={handleQuestionSelect}
+                    selectedIds={selectedIds}
+                    onSelectionChange={toggleSelection}
                     showActions={true}
                     onQuestionUpdate={handleQuestionUpdate}
                 />
@@ -178,18 +147,18 @@ const ReviewApprove = () => {
             <div className="flex flex-col sm:flex-row justify-center gap-6 mt-12">
                 <Button
                     onClick={handleApproveSelected}
-                    disabled={selectedQuestions.length === 0}
+                    disabled={selectedIds.length === 0}
                     className="w-full sm:w-auto min-w-[240px]"
                 >
-                    <Check className="w-5 h-5" /> Approve Selected ({selectedQuestions.length})
+                    <Check className="w-5 h-5" /> Approve Selected ({selectedIds.length})
                 </Button>
                 <Button
                     onClick={handleDeleteSelected}
-                    disabled={selectedQuestions.length === 0}
+                    disabled={selectedIds.length === 0}
                     variant="outline"
                     className="w-full sm:w-auto min-w-[240px] border-2 border-secondary-400 text-secondary-600 hover:bg-secondary-50 dark:text-secondary-400 dark:hover:bg-secondary-900/20"
                 >
-                    <Trash2 className="w-5 h-5" /> Delete Selected ({selectedQuestions.length})
+                    <Trash2 className="w-5 h-5" /> Delete Selected ({selectedIds.length})
                 </Button>
             </div>
         </div>
