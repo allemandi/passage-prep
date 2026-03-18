@@ -36,6 +36,7 @@ const QuestionTable = ({
                                 <th className="p-3 border-b border-app-border text-left">
                                     <input
                                         type="checkbox"
+                                        aria-label="Select all questions"
                                         className="cursor-pointer accent-primary-500 w-4 h-4"
                                         checked={allSelected}
                                         ref={(input) => {
@@ -86,6 +87,7 @@ const QuestionTable = ({
                                         <td className="p-3">
                                             <input
                                                 type="checkbox"
+                                                aria-label={`Select question: ${question.question}`}
                                                 className="cursor-pointer accent-primary-500 w-4 h-4"
                                                 checked={selectedQuestions.includes(question.originalIndex)}
                                                 onChange={(e) => onQuestionSelect([question.originalIndex], e.target.checked)}

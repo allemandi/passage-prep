@@ -1,29 +1,20 @@
-import { useState, useCallback } from 'react';
-import ScriptureCombobox from '../../ScriptureCombobox';
-import { getBibleBooks, getChaptersForBook, getVersesForChapter } from '../../../utils/bibleData';
+import { useState, useCallback, useRef } from 'react';
 import QuestionTable from '../../QuestionTable';
 import { useToast } from '../../ToastMessage/Toast';
 import { searchQuestions, clearSearchCache } from '../../../services/dataService';
-import ThemeSelect, { defaultThemes } from '../../ui/ThemeSelect';
+import { defaultThemes } from '../../ui/ThemeSelect';
 import Button from '../../ui/Button';
-import { Trash2, Filter } from 'lucide-react';
+import { Trash2 } from 'lucide-react';
+import AdminFilterBar from '../AdminFilterBar';
 
 const EditDelete = () => {
     const [hideUnapproved, setHideUnapproved] = useState(false);
-    const [selectedThemes, setSelectedThemes] = useState(defaultThemes);
     const [selectedQuestions, setSelectedQuestions] = useState([]);
     const [filteredQuestions, setFilteredQuestions] = useState([]);
     const showToast = useToast();
 
-    const [scriptureRefs, setScriptureRefs] = useState([{
-        id: 1,
-        selectedBook: '',
-        selectedChapter: '',
-        verseStart: '',
-        verseEnd: '',
-        availableChapters: [],
-        availableVerses: [],
-    }]);
+    // Store current filter values to re-apply after actions
+    const currentFilters = useRef({ book: '', chapter: '', verseStart: '', verseEnd: '', themes: defaultThemes });
 
     const handleQuestionSelect = (indices, isSelected) => {
         setSelectedQuestions(prev => {
@@ -41,62 +32,17 @@ const EditDelete = () => {
         });
     };
 
-    const updateScriptureRef = (index, updates) => {
-        setScriptureRefs(prev => {
-            const newRefs = [...prev];
-            const currentRef = newRefs[index];
-            if (updates.verseStart !== undefined) {
-                const newStart = updates.verseStart;
-                const currentEnd = updates.verseEnd !== undefined ? updates.verseEnd : currentRef.verseEnd;
-                if (currentEnd === undefined || currentEnd === '' || isNaN(Number(currentEnd))) {
-                    updates.verseEnd = newStart;
-                } else if (parseInt(currentEnd) < parseInt(newStart)) {
-                    updates.verseEnd = newStart;
-                }
-            }
-            if (updates.selectedBook !== undefined) {
-                const chapters = getChaptersForBook(updates.selectedBook);
-                newRefs[index] = {
-                    ...currentRef,
-                    ...updates,
-                    selectedChapter: '',
-                    verseStart: '',
-                    verseEnd: '',
-                    availableChapters: chapters,
-                    availableVerses: [],
-                };
-            }
-            else if (updates.selectedChapter !== undefined) {
-                const verses = Array.from(
-                    { length: getVersesForChapter(currentRef.selectedBook, updates.selectedChapter) },
-                    (_, i) => (i + 1).toString()
-                );
-                newRefs[index] = {
-                    ...currentRef,
-                    ...updates,
-                    verseStart: '',
-                    verseEnd: '',
-                    availableVerses: verses,
-                };
-            }
-            else {
-                newRefs[index] = { ...currentRef, ...updates };
-            }
+    const applyApiFilters = useCallback(async ({ book, chapter, verseStart, verseEnd, themes }) => {
+        currentFilters.current = { book, chapter, verseStart, verseEnd, themes };
 
-            return newRefs;
-        });
-    };
-
-    const applyApiFilters = useCallback(async () => {
         try {
-            const ref = scriptureRefs[0];
             const filter = {};
-            if (ref.selectedBook) filter.book = ref.selectedBook;
-            filter.chapter = ref.selectedChapter || null;
-            filter.verseStart = ref.verseStart || null;
-            filter.verseEnd = ref.verseEnd || null;
-            if (selectedThemes.length !== defaultThemes.length) {
-                filter.themeArr = selectedThemes;
+            if (book) filter.book = book;
+            filter.chapter = chapter || null;
+            filter.verseStart = verseStart || null;
+            filter.verseEnd = verseEnd || null;
+            if (themes.length !== defaultThemes.length) {
+                filter.themeArr = themes;
             }
             if (hideUnapproved) {
                 filter.isApproved = true;
@@ -108,7 +54,11 @@ const EditDelete = () => {
             showToast(error.message, 'error');
             setFilteredQuestions([]);
         }
-    }, [scriptureRefs, selectedThemes, hideUnapproved]);
+    }, [hideUnapproved, showToast]);
+
+    const refreshResults = useCallback(() => {
+        applyApiFilters({ ...currentFilters.current });
+    }, [applyApiFilters]);
 
     const handleDeleteSelected = useCallback(async () => {
         if (selectedQuestions.length === 0) return;
@@ -128,9 +78,9 @@ const EditDelete = () => {
             clearSearchCache();
         } catch (error) {
             showToast(error.message, 'error');
-            applyApiFilters();
+            refreshResults();
         }
-    }, [selectedQuestions, filteredQuestions, applyApiFilters]);
+    }, [selectedQuestions, filteredQuestions, refreshResults, showToast]);
 
     const handleQuestionUpdate = useCallback(async (questionId, updatedData) => {
         try {
@@ -147,78 +97,24 @@ const EditDelete = () => {
             clearSearchCache();
         } catch (error) {
             showToast(error.message, 'error');
-            applyApiFilters();
+            refreshResults();
         }
-    }, [applyApiFilters]);
+    }, [refreshResults, showToast]);
 
     return (
         <div className="mb-10 w-full">
-            <h2 className="text-xl font-bold mb-8 text-center text-app-text">
-                Filter for Editing/Deleting Questions
-            </h2>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6 justify-center mb-8">
-                <ScriptureCombobox
-                    label="Book"
-                    value={scriptureRefs[0].selectedBook}
-                    onChange={(book) => updateScriptureRef(0, { selectedBook: book })}
-                    options={getBibleBooks()}
-                    placeholder="Select a book"
-                />
-                <ScriptureCombobox
-                    label="Chapter"
-                    value={scriptureRefs[0].selectedChapter}
-                    onChange={(chapter) => updateScriptureRef(0, { selectedChapter: chapter })}
-                    options={scriptureRefs[0].availableChapters}
-                    disabled={!scriptureRefs[0].selectedBook}
-                    placeholder={scriptureRefs[0].selectedBook ? "Select chapter" : "Select book first"}
-                />
-                <ScriptureCombobox
-                    label="Start Verse"
-                    value={scriptureRefs[0].verseStart}
-                    onChange={(verse) => updateScriptureRef(0, { verseStart: verse })}
-                    options={scriptureRefs[0].availableVerses}
-                    disabled={!scriptureRefs[0].selectedChapter}
-                    placeholder={scriptureRefs[0].selectedChapter ? "Start verse" : "..."}
-                />
-                <ScriptureCombobox
-                    label="End Verse"
-                    value={scriptureRefs[0].verseEnd}
-                    onChange={(verse) => updateScriptureRef(0, { verseEnd: verse })}
-                    options={scriptureRefs[0].availableVerses}
-                    disabled={!scriptureRefs[0].selectedChapter}
-                    placeholder={scriptureRefs[0].selectedChapter ? "End verse" : "..."}
-                    isEndVerse
-                    startVerseValue={scriptureRefs[0].verseStart}
-                />
-            </div>
-
-            <div className="flex flex-col sm:flex-row justify-center items-center gap-6 mb-8">
-                <div className="w-full max-w-xs">
-                    <ThemeSelect
-                        value={selectedThemes}
-                        onChange={setSelectedThemes}
-                        isMulti
-                        label="Themes"
-                    />
-                </div>
-
-                <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto">
-                    <Button
-                        onClick={applyApiFilters}
-                        className="w-full sm:w-auto min-w-[160px]"
-                    >
-                        <Filter className="w-5 h-5" /> Apply Filters
-                    </Button>
-                    <Button
-                        variant={hideUnapproved ? 'secondary' : 'outline'}
-                        onClick={() => setHideUnapproved(v => !v)}
-                        className="w-full sm:w-auto min-w-[200px]"
-                    >
-                        {hideUnapproved ? 'Show Unapproved' : 'Hide Unapproved'}
-                    </Button>
-                </div>
-            </div>
+            <AdminFilterBar
+                title="Filter for Editing/Deleting Questions"
+                onApply={applyApiFilters}
+            >
+                <Button
+                    variant={hideUnapproved ? 'secondary' : 'outline'}
+                    onClick={() => setHideUnapproved(v => !v)}
+                    className="w-full sm:w-auto min-w-[200px]"
+                >
+                    {hideUnapproved ? 'Show Unapproved' : 'Hide Unapproved'}
+                </Button>
+            </AdminFilterBar>
 
             <div className="mt-6 w-full">
                 <QuestionTable
