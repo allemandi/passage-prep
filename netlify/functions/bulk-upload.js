@@ -1,4 +1,5 @@
-const { connectToDatabase, saveQuestion } = require('../utils/db');
+const { connectToDatabase } = require('../utils/db');
+const questionService = require('../services/questionService');
 const { processBulkUpload } = require('../utils/dataProcessor');
 const Papa = require('papaparse');
 
@@ -48,7 +49,7 @@ exports.handler = async function (event, context) {
             };
         }
 
-        const results = await processBulkUpload(questions, saveQuestion);
+        const results = await processBulkUpload(questions, (qs) => questionService.bulkSaveQuestions(qs));
 
         return {
             statusCode: 200,
@@ -65,4 +66,4 @@ exports.handler = async function (event, context) {
             })
         };
     }
-}; 
+};
