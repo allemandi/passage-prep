@@ -4,7 +4,7 @@ import { useState, useCallback } from 'react';
  * Custom hook to manage selection of questions by ID.
  * Standardizes selection logic across the application.
  */
-export default function useQuestionSelection(allIds = []) {
+export default function useQuestionSelection() {
     const [selectedIds, setSelectedIds] = useState([]);
 
     const toggleSelection = useCallback((ids, isSelected) => {
