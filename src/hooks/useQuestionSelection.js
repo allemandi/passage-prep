@@ -19,19 +19,6 @@ export default function useQuestionSelection() {
         });
     }, []);
 
-    const toggleAll = useCallback((ids) => {
-        setSelectedIds(prev => {
-            // If all provided IDs are already selected, deselect them.
-            // Otherwise, select all of them.
-            const areAllSelected = ids.every(id => prev.includes(id));
-            if (areAllSelected) {
-                return prev.filter(id => !ids.includes(id));
-            } else {
-                return [...new Set([...prev, ...ids])];
-            }
-        });
-    }, []);
-
     const resetSelection = useCallback(() => {
         setSelectedIds([]);
     }, []);
@@ -42,7 +29,6 @@ export default function useQuestionSelection() {
         selectedIds,
         setSelectedIds,
         toggleSelection,
-        toggleAll,
         resetSelection,
         isSelected
     };

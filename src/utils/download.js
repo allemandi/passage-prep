@@ -50,8 +50,8 @@ const downloadFilteredCSV = async ({
 }) => {
   try {
     const results = await searchQuestions({
-      book: downloadRef.selectedBook || null,
-      chapter: downloadRef.selectedChapter || null,
+      book: downloadRef.book || null,
+      chapter: downloadRef.chapter || null,
       verseStart: downloadRef.verseStart || null,
       verseEnd: downloadRef.verseEnd || null,
       themeArr: [],
