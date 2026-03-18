@@ -26,7 +26,7 @@ const ContributeForm = () => {
     const {
         book, chapter, verseStart, verseEnd,
         availableChapters, totalChapters, availableVerses,
-        updateReference, reset: resetBible
+        updateReference,
     } = bibleReference;
 
     const matcher = new RegExpMatcher({
@@ -79,8 +79,7 @@ const ContributeForm = () => {
 
     const resetForm = () => {
         setQuestionText('');
-        setSelectedTheme('');
-        resetBible();
+        // We now keep selectedTheme and bibleReference to improve UX for consecutive submissions
     };
 
     return (

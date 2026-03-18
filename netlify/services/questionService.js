@@ -19,7 +19,7 @@ const questionService = {
         return await Question.find();
     },
 
-    async saveQuestion(newData) {
+    async saveQuestion(newData, isAdmin = false) {
         if (!newData || !newData.theme || !newData.question || !newData.book || !newData.chapter || !newData.verseStart || !newData.verseEnd) {
             throw new Error('Missing required question data');
         }
@@ -30,14 +30,17 @@ const questionService = {
 
         // Basic security check: Check for identical recently submitted questions
         // (within the last 5 minutes to prevent rapid duplicate spam)
-        const fiveMinutesAgo = new Date(Date.now() - 5 * 60 * 1000);
-        const existing = await Question.findOne({
-            question: sanitizeInput(newData.question),
-            createdAt: { $gte: fiveMinutesAgo }
-        });
+        // Skip this check for admin uploads
+        if (!isAdmin) {
+            const fiveMinutesAgo = new Date(Date.now() - 5 * 60 * 1000);
+            const existing = await Question.findOne({
+                question: sanitizeInput(newData.question),
+                createdAt: { $gte: fiveMinutesAgo }
+            });
 
-        if (existing) {
-            throw new Error('Duplicate question detected. Please wait a few minutes before submitting again.');
+            if (existing) {
+                throw new Error('Duplicate question detected. Please wait a few minutes before submitting again.');
+            }
         }
 
         const question = new Question({
@@ -125,6 +128,24 @@ const questionService = {
             throw new Error('No question IDs provided');
         }
         return await Question.deleteMany({ _id: { $in: questionIds } });
+    },
+
+    async bulkSaveQuestions(questions) {
+        if (!Array.isArray(questions) || questions.length === 0) {
+            throw new Error('No questions provided');
+        }
+
+        const sanitizedQuestions = questions.map(q => ({
+            theme: sanitizeInput(q.theme),
+            question: sanitizeInput(q.question),
+            book: sanitizeInput(q.book),
+            chapter: parseInt(q.chapter),
+            verseStart: parseInt(q.verseStart),
+            verseEnd: parseInt(q.verseEnd),
+            isApproved: q.isApproved === true || false
+        }));
+
+        return await Question.insertMany(sanitizedQuestions, { ordered: false });
     }
 };
 

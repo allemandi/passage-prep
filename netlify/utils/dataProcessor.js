@@ -2,7 +2,7 @@ const fs = require('fs');
 const path = require('path');
 const { getBook, isValidChapter, isValidReference } = require('@allemandi/bible-validate')
 
-async function processBulkUpload(questions, saveQuestionFn) {
+async function processBulkUpload(questions, bulkSaveFn) {
   const results = {
     totalQuestions: questions.length,
     successful: 0,
@@ -12,6 +12,8 @@ async function processBulkUpload(questions, saveQuestionFn) {
   const themesPath = path.join(__dirname, '../../src/data/themes.json');
   const themes = JSON.parse(fs.readFileSync(themesPath, 'utf8'));
   
+  const validQuestions = [];
+
   for (const question of questions) {
     try {
       if (!question.theme || !question.question || !question.book || !question.chapter || !question.verseStart) {
@@ -38,7 +40,7 @@ async function processBulkUpload(questions, saveQuestionFn) {
         throw new Error(`Invalid verse references for ${standardBookName} ${chapterNum}.`);
       }
 
-      const validatedQuestion = {
+      validQuestions.push({
         theme: question.theme,
         question: question.question,
         book: standardBookName,
@@ -46,21 +48,40 @@ async function processBulkUpload(questions, saveQuestionFn) {
         verseStart: verseStart,
         verseEnd: verseEnd,
         isApproved: question.isApproved === 'true' || question.isApproved === true || false
-      };
-
-      const saveResult = await saveQuestionFn(validatedQuestion);
-      
-      if (!saveResult.success) {
-        throw new Error(saveResult.error || 'Failed to save question');
-      }
-      
-      results.successful++;
+      });
     } catch (error) {
       results.failed++;
       results.errors.push({
         question: question.question ? question.question.substring(0, 50) + '...' : 'Invalid question entry',
         error: error.message
       });
+    }
+  }
+
+  if (validQuestions.length > 0) {
+    try {
+        await bulkSaveFn(validQuestions);
+        results.successful = validQuestions.length;
+    } catch (error) {
+        // If insertMany fails (e.g. some validation failed in mongoose even if it passed here, or DB error)
+        // Note: with ordered: false, it might still have inserted some.
+        // But for simplicity in this refined version, we'll try to handle it.
+        if (error.writeErrors) {
+            results.successful = error.nInserted;
+            results.failed += error.writeErrors.length;
+            error.writeErrors.forEach(we => {
+                results.errors.push({
+                    question: 'Bulk insertion error',
+                    error: we.errmsg || 'Failed to save question in bulk'
+                });
+            });
+        } else {
+            results.failed += validQuestions.length;
+            results.errors.push({
+                question: 'Bulk insertion failed',
+                error: error.message
+            });
+        }
     }
   }
   
