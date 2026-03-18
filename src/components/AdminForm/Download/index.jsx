@@ -15,7 +15,7 @@ const Download = () => {
   const showToast = useToast();
   const bibleRef = useBibleReference();
 
-  const excludeFields = ['_id', '__v'];
+  const excludeFields = ['_id', '__v', 'updatedAt'];
 
   const handleDownloadFilteredCSV = () => {
     downloadFilteredCSV({
