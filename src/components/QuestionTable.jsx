@@ -4,9 +4,9 @@ import { getSortedQuestions } from '../utils/bibleData';
 import EditQuestionModal from './EditQuestionModal';
 
 const QuestionTable = ({
-    questions,
-    selectedQuestions,
-    onQuestionSelect,
+    questions = [],
+    selectedIds = [],
+    onSelectionChange,
     showActions,
     onQuestionUpdate,
     hideUnapproved = false,
@@ -14,17 +14,20 @@ const QuestionTable = ({
 }) => {
     const [editingQuestion, setEditingQuestion] = useState(null);
 
-    const filtered = hideUnapproved ? questions.filter((q) => q.isApproved !== false) : questions;
-    const questionsWithIndices = filtered.map((question) => ({
-        ...question,
-        originalIndex: questions.indexOf(question),
-    }));
-    const sortedQuestionsWithIndices = getSortedQuestions(questionsWithIndices);
+    // Filter unapproved questions if necessary
+    const filteredQuestions = hideUnapproved ? questions.filter((q) => q.isApproved !== false) : questions;
 
-    // Handle select all checkbox logic
+    // Sort questions based on Bible order
+    const sortedQuestions = getSortedQuestions(filteredQuestions);
+
+    // Check if all filtered questions are selected
     const allSelected =
-        filtered.length > 0 && selectedQuestions.length === filtered.length;
-    const someSelected = selectedQuestions.length > 0 && !allSelected;
+        sortedQuestions.length > 0 &&
+        sortedQuestions.every(q => selectedIds.includes(q._id));
+
+    const someSelected =
+        sortedQuestions.some(q => selectedIds.includes(q._id)) &&
+        !allSelected;
 
     return (
         <>
@@ -36,20 +39,15 @@ const QuestionTable = ({
                                 <th className="p-3 border-b border-app-border text-left">
                                     <input
                                         type="checkbox"
+                                        aria-label="Select all questions"
                                         className="cursor-pointer accent-primary-500 w-4 h-4"
                                         checked={allSelected}
                                         ref={(input) => {
                                             if (input) input.indeterminate = someSelected;
                                         }}
                                         onChange={(e) => {
-                                            if (e.target.checked) {
-                                                const allOriginalIndices = sortedQuestionsWithIndices.map(
-                                                    (q) => q.originalIndex
-                                                );
-                                                onQuestionSelect(allOriginalIndices, true);
-                                            } else {
-                                                onQuestionSelect([], false);
-                                            }
+                                            const ids = sortedQuestions.map(q => q._id);
+                                            onSelectionChange(ids, e.target.checked);
                                         }}
                                     />
                                 </th>
@@ -71,7 +69,7 @@ const QuestionTable = ({
                         </tr>
                     </thead>
                     <tbody className="divide-y divide-app-border bg-app-surface">
-                        {sortedQuestionsWithIndices.map((question, index) => {
+                        {sortedQuestions.map((question) => {
                             const reference = `${question.book} ${question.chapter}:${question.verseStart}${question.verseEnd && question.verseEnd !== question.verseStart
                                     ? `-${question.verseEnd}`
                                     : ''
@@ -79,20 +77,21 @@ const QuestionTable = ({
 
                             return (
                                 <tr
-                                    key={question._id || index}
+                                    key={question._id}
                                     className="hover:bg-primary-50/30 dark:hover:bg-primary-900/10 transition-colors"
                                 >
                                     {showActions && (
                                         <td className="p-3">
                                             <input
                                                 type="checkbox"
+                                                aria-label={`Select question: ${question.question}`}
                                                 className="cursor-pointer accent-primary-500 w-4 h-4"
-                                                checked={selectedQuestions.includes(question.originalIndex)}
-                                                onChange={(e) => onQuestionSelect([question.originalIndex], e.target.checked)}
+                                                checked={selectedIds.includes(question._id)}
+                                                onChange={(e) => onSelectionChange([question._id], e.target.checked)}
                                             />
                                         </td>
                                     )}
-                                    <td className="p-3 text-sm text-app-text">{reference}</td>
+                                    <td className="p-3 text-sm text-app-text whitespace-nowrap">{reference}</td>
                                     <td className="p-3 text-sm text-app-text">{question.theme}</td>
                                     <td className="p-3 text-sm text-app-text">{question.question}</td>
                                     {showActions && !hideEditActions && (

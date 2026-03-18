@@ -8,6 +8,7 @@ import { getBibleBooks } from '../utils/bibleData';
 import { processInput } from '../utils/inputUtils';
 import { useToast } from './ToastMessage/Toast';
 import useBibleReference from '../hooks/useBibleReference';
+import useQuestionSelection from '../hooks/useQuestionSelection';
 
 import Button from './ui/Button';
 import Card from './ui/Card';
@@ -147,7 +148,7 @@ const RequestForm = ({ onStudyGenerated, isLoading }) => {
     const [selectedThemes, setSelectedThemes] = useState(defaultThemes);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [searchResults, setSearchResults] = useState([]);
-    const [selectedQuestions, setSelectedQuestions] = useState([]);
+    const { selectedIds, toggleSelection, resetSelection } = useQuestionSelection();
     const [hideUnapproved, setHideUnapproved] = useState(false);
     const [showSearchResults, setShowSearchResults] = useState(false);
 
@@ -168,9 +169,9 @@ const RequestForm = ({ onStudyGenerated, isLoading }) => {
 
             const themeArr = selectedThemes.length === defaultThemes.length ? [] : selectedThemes;
             const studyBaseData = await processForm({ refArr, themeArr });
-            const filteredQuestions = selectedQuestions.map(i => searchResults[i]).filter(Boolean);
+            const selectedQuestionsData = searchResults.filter(q => selectedIds.includes(q._id));
 
-            onStudyGenerated({ ...studyBaseData, filteredQuestions });
+            onStudyGenerated({ ...studyBaseData, filteredQuestions: selectedQuestionsData });
             showToast('Study generated successfully!', 'success');
         } catch (err) {
             showToast(err?.message || 'An error occurred while generating your study.', 'error');
@@ -204,25 +205,14 @@ const RequestForm = ({ onStudyGenerated, isLoading }) => {
 
             setSearchResults(combinedResults);
             setShowSearchResults(true);
+            resetSelection();
             showToast(combinedResults.length ? 'Search completed successfully.' : 'No questions found.', combinedResults.length ? 'success' : 'info');
         } catch (err) {
             showToast(err?.message || 'Search failed.', 'error');
         }
     };
 
-    const handleQuestionSelect = (indices, isSelected) => {
-        setSelectedQuestions(prev => {
-            if (indices.length === searchResults.length) {
-                return prev.length === searchResults.length ? [] : indices;
-            }
-            if (indices.length === 0) {
-                return prev.length === searchResults.length ? [] : Array.from({ length: searchResults.length }, (_, i) => i);
-            }
-            return isSelected ? Array.from(new Set([...prev, ...indices])) : prev.filter(i => !indices.includes(i));
-        });
-    };
-
-    const isGenerateDisabled = searchResults.length === 0 || selectedQuestions.length === 0;
+    const isGenerateDisabled = searchResults.length === 0 || selectedIds.length === 0;
 
     return (
         <div className="w-full">
@@ -288,8 +278,8 @@ const RequestForm = ({ onStudyGenerated, isLoading }) => {
                         <SectionHeader centered={false}>Search Results</SectionHeader>
                         <QuestionTable
                             questions={searchResults}
-                            selectedQuestions={selectedQuestions}
-                            onQuestionSelect={handleQuestionSelect}
+                            selectedIds={selectedIds}
+                            onSelectionChange={toggleSelection}
                             showActions
                             hideUnapproved={hideUnapproved}
                             hideEditActions
