@@ -55,6 +55,7 @@ const ScriptureCombobox = ({
             </label>
             <Select
                 inputId={id}
+                aria-label={label}
                 options={processedOptions}
                 value={selectedValue}
                 onChange={handleChange}
@@ -94,7 +95,6 @@ const ScriptureCombobox = ({
                 menuPortalTarget={document.body}
                 menuShouldBlockScroll={true}
                 classNamePrefix="react-select"
-                aria-label={label}
                 aria-required={isRequired}
                 aria-disabled={finalIsDisabled}
                 aria-describedby={helperText ? `${id}-helper` : undefined}

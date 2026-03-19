@@ -2,17 +2,6 @@ import { Sun, Moon, BookOpen } from 'lucide-react';
 import React from 'react';
 
 export default function Header({ mode, setMode }) {
-  React.useEffect(() => {
-    const root = window.document.documentElement;
-    if (mode === 'dark') {
-      root.classList.add('dark');
-      localStorage.setItem('theme', 'dark');
-    } else {
-      root.classList.remove('dark');
-      localStorage.setItem('theme', 'light');
-    }
-  }, [mode]);
-
   return (
  <header
   className="
