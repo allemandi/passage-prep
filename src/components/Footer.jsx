@@ -1,4 +1,4 @@
-import { HelpCircle } from 'lucide-react';
+import { HelpCircle, Github } from 'lucide-react';
 
 export default function Footer({ onHelpClick }) {
   return (
@@ -30,18 +30,9 @@ export default function Footer({ onHelpClick }) {
     transition-all duration-200
   "
 >
-  <img
-    src="./assets/github-mark-white.svg"
-    alt="GitHub Logo"
-    width={20}
-    height={20}
-    className="
-      filter
-      transition-all duration-200
-    "
-    style={{
-      filter: 'invert(32%) sepia(87%) saturate(3189%) hue-rotate(186deg) brightness(88%) contrast(89%)',
-    }}
+  <Github
+    size={20}
+    className="text-primary-600 dark:text-primary-400"
   />
 </a>
   <button

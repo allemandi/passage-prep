@@ -69,7 +69,17 @@ const QuestionTable = ({
                         </tr>
                     </thead>
                     <tbody className="divide-y divide-app-border bg-app-surface">
-                        {sortedQuestions.map((question) => {
+                        {sortedQuestions.length === 0 ? (
+                            <tr>
+                                <td
+                                    colSpan={showActions ? 5 : 3}
+                                    className="p-8 text-center text-app-text-muted italic"
+                                >
+                                    No questions found matching your criteria.
+                                </td>
+                            </tr>
+                        ) : (
+                            sortedQuestions.map((question) => {
                             const reference = `${question.book} ${question.chapter}:${question.verseStart}${question.verseEnd && question.verseEnd !== question.verseStart
                                     ? `-${question.verseEnd}`
                                     : ''
@@ -107,7 +117,8 @@ const QuestionTable = ({
                                     )}
                                 </tr>
                             );
-                        })}
+                        })
+                    )}
                     </tbody>
                 </table>
             </div>
