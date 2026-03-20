@@ -8,12 +8,15 @@ import HelpModal from './components/HelpModal';
 import { getBooks } from './services/dataService';
 import { useDarkMode } from './components/useDarkMode';
 
+const authChannel = new BroadcastChannel('auth');
+
 function App() {
   const [studyData, setStudyData] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [tabValue, setTabValue] = useState(0);
   const [mode, setMode] = useDarkMode();
   const [helpOpen, setHelpOpen] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(sessionStorage.getItem('isLoggedIn') === 'true');
 
   useEffect(() => {
     const loadInitialData = async () => {
@@ -27,15 +30,32 @@ function App() {
     setStudyData(data);
   }, []);
 
-  useEffect(() => {
-    const authChannel = new BroadcastChannel('auth');
-    const handleTabChange = () => {
+  const handleSetIsLoggedIn = useCallback((value) => {
+    setIsLoggedIn(value);
+    if (value) {
+      sessionStorage.setItem('isLoggedIn', 'true');
+      authChannel.postMessage({ type: 'LOGIN' });
+    } else {
+      sessionStorage.removeItem('isLoggedIn');
       authChannel.postMessage({ type: 'LOGOUT' });
+    }
+  }, []);
+
+  useEffect(() => {
+    const handleMessage = (event) => {
+      if (event.data.type === 'LOGIN') {
+        setIsLoggedIn(true);
+        sessionStorage.setItem('isLoggedIn', 'true');
+      } else if (event.data.type === 'LOGOUT') {
+        setIsLoggedIn(false);
+        sessionStorage.removeItem('isLoggedIn');
+      }
     };
-    window.addEventListener('beforeunload', handleTabChange);
+
+    authChannel.addEventListener('message', handleMessage);
+
     return () => {
-      window.removeEventListener('beforeunload', handleTabChange);
-      authChannel.close();
+      authChannel.removeEventListener('message', handleMessage);
     };
   }, []);
 
@@ -54,6 +74,8 @@ function App() {
               handleShowStudy={handleShowStudy}
               studyData={studyData}
               setStudyData={setStudyData}
+              isLoggedIn={isLoggedIn}
+              setIsLoggedIn={handleSetIsLoggedIn}
             />
           </div>
         </main>

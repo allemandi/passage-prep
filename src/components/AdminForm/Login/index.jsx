@@ -3,8 +3,6 @@ import Button from '../../ui/Button';
 import Input from '../../ui/Input';
 import { useToast } from '../../ToastMessage/Toast';
 
-const authChannel = new BroadcastChannel('auth');
-
 const Login = ({ setIsLoggedIn }) => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
@@ -23,8 +21,6 @@ const Login = ({ setIsLoggedIn }) => {
       if (!response.ok) throw new Error('Invalid credentials');
 
       setIsLoggedIn(true);
-      sessionStorage.setItem('isLoggedIn', 'true');
-      authChannel.postMessage({ type: 'LOGIN' });
       showToast('Login successful', 'success');
     } catch (error) {
       showToast(error.message, 'error');

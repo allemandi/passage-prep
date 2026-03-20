@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useCallback } from 'react';
 import useSessionTimeout from './useSessionTimeout';
 import Login from './Login';
 import ReviewApprove from './ReviewApprove';
@@ -20,15 +20,13 @@ const buttons = [
     { name: 'upload', label: 'Bulk Upload' },
 ];
 
-export default function AdminForm() {
-    const [isLoggedIn, setIsLoggedIn] = useState(false);
+export default function AdminForm({ isLoggedIn, setIsLoggedIn }) {
     const [activeButton, setActiveButton] = useState(null);
     const showToast = useToast();
 
     const handleLogout = useCallback(
         (reason) => {
             setIsLoggedIn(false);
-            sessionStorage.removeItem('isLoggedIn');
 
             if (reason === 'inactivity') {
                 showToast('Logged out due to inactivity', 'error');
@@ -36,16 +34,10 @@ export default function AdminForm() {
                 showToast('Logged out successfully', 'success');
             }
         },
-        [showToast]
+        [setIsLoggedIn, showToast]
     );
 
     useSessionTimeout(() => handleLogout('inactivity'), isLoggedIn, SESSION_TIMEOUT_MS);
-
-    useEffect(() => {
-        if (sessionStorage.getItem('isLoggedIn') === 'true') {
-            setIsLoggedIn(true);
-        }
-    }, []);
 
     const renderContent = () => {
         switch (activeButton) {
