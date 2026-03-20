@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { ToastProvider } from './components/ToastMessage/Toast';
 import Header from './components/Header';
 import Tabs from './components/Tabs';
@@ -7,6 +7,8 @@ import Footer from './components/Footer';
 import HelpModal from './components/HelpModal';
 import { getBooks } from './services/dataService';
 import { useDarkMode } from './components/useDarkMode';
+
+const authChannel = new BroadcastChannel('auth');
 
 function App() {
   const [studyData, setStudyData] = useState(null);
@@ -28,8 +30,6 @@ function App() {
     setStudyData(data);
   }, []);
 
-  const authChannel = useMemo(() => new BroadcastChannel('auth'), []);
-
   const handleSetIsLoggedIn = useCallback((value) => {
     setIsLoggedIn(value);
     if (value) {
@@ -39,7 +39,7 @@ function App() {
       sessionStorage.removeItem('isLoggedIn');
       authChannel.postMessage({ type: 'LOGOUT' });
     }
-  }, [authChannel]);
+  }, []);
 
   useEffect(() => {
     const handleMessage = (event) => {
@@ -56,9 +56,8 @@ function App() {
 
     return () => {
       authChannel.removeEventListener('message', handleMessage);
-      authChannel.close();
     };
-  }, [authChannel]);
+  }, []);
 
   return (
     <ToastProvider>
