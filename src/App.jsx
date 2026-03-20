@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { ToastProvider } from './components/ToastMessage/Toast';
 import Header from './components/Header';
 import Tabs from './components/Tabs';
@@ -14,6 +14,7 @@ function App() {
   const [tabValue, setTabValue] = useState(0);
   const [mode, setMode] = useDarkMode();
   const [helpOpen, setHelpOpen] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(sessionStorage.getItem('isLoggedIn') === 'true');
 
   useEffect(() => {
     const loadInitialData = async () => {
@@ -27,17 +28,37 @@ function App() {
     setStudyData(data);
   }, []);
 
-  useEffect(() => {
-    const authChannel = new BroadcastChannel('auth');
-    const handleTabChange = () => {
+  const authChannel = useMemo(() => new BroadcastChannel('auth'), []);
+
+  const handleSetIsLoggedIn = useCallback((value) => {
+    setIsLoggedIn(value);
+    if (value) {
+      sessionStorage.setItem('isLoggedIn', 'true');
+      authChannel.postMessage({ type: 'LOGIN' });
+    } else {
+      sessionStorage.removeItem('isLoggedIn');
       authChannel.postMessage({ type: 'LOGOUT' });
+    }
+  }, [authChannel]);
+
+  useEffect(() => {
+    const handleMessage = (event) => {
+      if (event.data.type === 'LOGIN') {
+        setIsLoggedIn(true);
+        sessionStorage.setItem('isLoggedIn', 'true');
+      } else if (event.data.type === 'LOGOUT') {
+        setIsLoggedIn(false);
+        sessionStorage.removeItem('isLoggedIn');
+      }
     };
-    window.addEventListener('beforeunload', handleTabChange);
+
+    authChannel.addEventListener('message', handleMessage);
+
     return () => {
-      window.removeEventListener('beforeunload', handleTabChange);
+      authChannel.removeEventListener('message', handleMessage);
       authChannel.close();
     };
-  }, []);
+  }, [authChannel]);
 
   return (
     <ToastProvider>
@@ -54,6 +75,8 @@ function App() {
               handleShowStudy={handleShowStudy}
               studyData={studyData}
               setStudyData={setStudyData}
+              isLoggedIn={isLoggedIn}
+              setIsLoggedIn={handleSetIsLoggedIn}
             />
           </div>
         </main>

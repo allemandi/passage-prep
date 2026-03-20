@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { Edit2 } from 'lucide-react';
 import { getSortedQuestions } from '../utils/bibleData';
 import EditQuestionModal from './EditQuestionModal';
@@ -15,19 +15,25 @@ const QuestionTable = ({
     const [editingQuestion, setEditingQuestion] = useState(null);
 
     // Filter unapproved questions if necessary
-    const filteredQuestions = hideUnapproved ? questions.filter((q) => q.isApproved !== false) : questions;
+    const filteredQuestions = useMemo(() => {
+        return hideUnapproved ? questions.filter((q) => q.isApproved !== false) : questions;
+    }, [questions, hideUnapproved]);
 
     // Sort questions based on Bible order
-    const sortedQuestions = getSortedQuestions(filteredQuestions);
+    const sortedQuestions = useMemo(() => {
+        return getSortedQuestions(filteredQuestions);
+    }, [filteredQuestions]);
 
     // Check if all filtered questions are selected
-    const allSelected =
-        sortedQuestions.length > 0 &&
+    const allSelected = useMemo(() => {
+        return sortedQuestions.length > 0 &&
         sortedQuestions.every(q => selectedIds.includes(q._id));
+    }, [sortedQuestions, selectedIds]);
 
-    const someSelected =
-        sortedQuestions.some(q => selectedIds.includes(q._id)) &&
+    const someSelected = useMemo(() => {
+        return sortedQuestions.some(q => selectedIds.includes(q._id)) &&
         !allSelected;
+    }, [sortedQuestions, selectedIds, allSelected]);
 
     return (
         <>

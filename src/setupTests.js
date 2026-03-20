@@ -25,6 +25,8 @@ class MockBroadcastChannel {
     this.name = name;
   }
   postMessage() {}
+  addEventListener() {}
+  removeEventListener() {}
   close() {}
 }
 global.BroadcastChannel = MockBroadcastChannel;
