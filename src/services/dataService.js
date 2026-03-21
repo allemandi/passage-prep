@@ -129,6 +129,10 @@ export const searchQuestions = async (payload) => {
 
 export const deleteQuestions = (questionIds) => apiClient.post('delete-questions', { questionIds });
 
+export const updateQuestion = (questionId, updatedData) => apiClient.post('update-question', { questionId, updatedData });
+
+export const login = (username, password) => apiClient.post('login', { username, password });
+
 export const fetchAllQuestions = async () => {
   if (allQuestionsCache) return allQuestionsCache;
   const questions = await apiClient.get('questions');
