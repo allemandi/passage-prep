@@ -2,6 +2,7 @@ import { useState } from 'react';
 import Button from '../../ui/Button';
 import Input from '../../ui/Input';
 import { useToast } from '../../ToastMessage/Toast';
+import { login } from '../../../services/dataService';
 
 const Login = ({ setIsLoggedIn }) => {
   const [username, setUsername] = useState('');
@@ -13,13 +14,7 @@ const Login = ({ setIsLoggedIn }) => {
     e.preventDefault();
     setIsLoading(true);
     try {
-      const response = await fetch('/api/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ username, password }),
-      });
-      if (!response.ok) throw new Error('Invalid credentials');
-
+      await login(username, password);
       setIsLoggedIn(true);
       showToast('Login successful', 'success');
     } catch (error) {
