@@ -1,17 +1,13 @@
 import React, { useState, useCallback } from 'react';
-import useSessionTimeout from './useSessionTimeout';
 import Login from './Login';
 import ReviewApprove from './ReviewApprove';
 import Upload from './Upload';
 import EditDelete from './EditDelete';
 import Download from './Download';
 
-import { useToast } from '../ToastMessage/Toast';
 import Card from '../ui/Card';
 import Button from '../ui/Button';
 import SectionHeader from '../ui/SectionHeader';
-
-const SESSION_TIMEOUT_MS = 300000; // 5 mins
 
 const buttons = [
     { name: 'edit', label: 'Edit/Delete' },
@@ -22,22 +18,10 @@ const buttons = [
 
 export default function AdminForm({ isLoggedIn, setIsLoggedIn }) {
     const [activeButton, setActiveButton] = useState(null);
-    const showToast = useToast();
 
-    const handleLogout = useCallback(
-        (reason) => {
-            setIsLoggedIn(false);
-
-            if (reason === 'inactivity') {
-                showToast('Logged out due to inactivity', 'error');
-            } else if (reason === 'manual') {
-                showToast('Logged out successfully', 'success');
-            }
-        },
-        [setIsLoggedIn, showToast]
-    );
-
-    useSessionTimeout(() => handleLogout('inactivity'), isLoggedIn, SESSION_TIMEOUT_MS);
+    const handleLogout = useCallback(() => {
+        setIsLoggedIn(false);
+    }, [setIsLoggedIn]);
 
     const renderContent = () => {
         switch (activeButton) {
@@ -83,7 +67,7 @@ export default function AdminForm({ isLoggedIn, setIsLoggedIn }) {
                         <div className="flex justify-center mt-12">
                             <Button
                                 variant="outline"
-                                onClick={() => handleLogout('manual')}
+                                onClick={handleLogout}
                                 className="w-full max-w-xs border-2 border-secondary-400 text-secondary-600 hover:bg-secondary-50 dark:text-secondary-400 dark:hover:bg-secondary-900/20"
                             >
                                 Logout
