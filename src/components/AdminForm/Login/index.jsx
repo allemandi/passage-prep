@@ -34,7 +34,6 @@ const Login = ({ setIsLoggedIn }) => {
         onChange={(e) => setUsername(e.target.value)}
         required
         placeholder="Enter your username"
-        isRequired
       />
 
       <Input
@@ -45,7 +44,6 @@ const Login = ({ setIsLoggedIn }) => {
         onChange={(e) => setPassword(e.target.value)}
         required
         placeholder="Enter your password"
-        isRequired
       />
 
       <Button

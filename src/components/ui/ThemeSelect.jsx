@@ -11,7 +11,7 @@ const ThemeSelect = ({
   onChange,
   themes = defaultThemes,
   label = "Theme(s)",
-  isRequired = false,
+  required = false,
   isMulti = false,
   placeholder = "Select theme(s)",
   className,
@@ -56,7 +56,7 @@ const ThemeSelect = ({
         {({ open }) => (
           <>
             <Label className="block mb-1.5 text-sm font-medium text-app-text">
-              {label} {isRequired && <span className="text-secondary-500">*</span>}
+              {label} {required && <span className="text-secondary-500">*</span>}
             </Label>
             <div className="relative">
               <ListboxButton

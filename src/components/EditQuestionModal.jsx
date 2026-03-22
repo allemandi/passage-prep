@@ -101,7 +101,7 @@ const EditQuestionModal = ({ isOpen, onClose, question, onSave }) => {
                                                 value={book}
                                                 onChange={(val) => updateReference({ book: val })}
                                                 options={getBibleBooks()}
-                                                isRequired
+                                                required
                                             />
 
                                             <ScriptureCombobox
@@ -112,7 +112,7 @@ const EditQuestionModal = ({ isOpen, onClose, question, onSave }) => {
                                                 options={availableChapters}
                                                 placeholder={book ? `Select (1-${totalChapters})` : "Select book first"}
                                                 disabled={!book}
-                                                isRequired
+                                                required
                                             />
 
                                             <div className="grid grid-cols-2 gap-4">
@@ -124,7 +124,7 @@ const EditQuestionModal = ({ isOpen, onClose, question, onSave }) => {
                                                     options={availableVerses}
                                                     placeholder={chapter ? "Select" : "..."}
                                                     disabled={!chapter}
-                                                    isRequired
+                                                    required
                                                 />
 
                                                 <ScriptureCombobox
@@ -148,7 +148,7 @@ const EditQuestionModal = ({ isOpen, onClose, question, onSave }) => {
                                                 label="Theme"
                                                 value={selectedTheme}
                                                 onChange={setSelectedTheme}
-                                                isRequired
+                                                required
                                             />
 
                                             <Textarea
@@ -157,7 +157,7 @@ const EditQuestionModal = ({ isOpen, onClose, question, onSave }) => {
                                                 value={questionText}
                                                 onChange={(e) => setQuestionText(e.target.value)}
                                                 placeholder="Enter your question"
-                                                isRequired
+                                                required
                                                 rows={4}
                                             />
                                         </div>

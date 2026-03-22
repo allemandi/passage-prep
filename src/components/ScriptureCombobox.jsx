@@ -10,7 +10,7 @@ const ScriptureCombobox = ({
     options = [],
     placeholder,
     disabled = false,
-    isRequired = false,
+    required = false,
     helperText = '',
     isEndVerse = false,
     startVerseValue = '',
@@ -51,7 +51,7 @@ const ScriptureCombobox = ({
                 htmlFor={id}
                 className="block mb-1.5 text-sm font-medium text-app-text"
             >
-                {label} {isRequired && <span className="text-secondary-500">*</span>}
+                {label} {required && <span className="text-secondary-500">*</span>}
             </label>
             <Select
                 inputId={id}
@@ -95,7 +95,7 @@ const ScriptureCombobox = ({
                 menuPortalTarget={document.body}
                 menuShouldBlockScroll={true}
                 classNamePrefix="react-select"
-                aria-required={isRequired}
+                aria-required={required}
                 aria-disabled={finalIsDisabled}
                 aria-describedby={helperText ? `${id}-helper` : undefined}
             />

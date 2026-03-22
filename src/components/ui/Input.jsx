@@ -1,7 +1,7 @@
 import React from 'react';
 import clsx from 'clsx';
 
-const Input = ({ label, id, error, className, isRequired, ...props }) => {
+const Input = ({ label, id, error, className, ...props }) => {
   return (
     <div className={clsx('w-full', className)}>
       {label && (
@@ -9,7 +9,7 @@ const Input = ({ label, id, error, className, isRequired, ...props }) => {
           htmlFor={id}
           className="block mb-1.5 text-sm font-medium text-app-text"
         >
-          {label} {isRequired && <span className="text-secondary-500">*</span>}
+          {label} {props.required && <span className="text-secondary-500">*</span>}
         </label>
       )}
       <input
