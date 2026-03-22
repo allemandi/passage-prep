@@ -98,7 +98,7 @@ const ContributeForm = () => {
                                 onChange={(val) => updateReference({ book: val })}
                                 options={bibleBooks}
                                 placeholder="Select a book..."
-                                isRequired
+                                required
                             />
 
                             <ScriptureCombobox
@@ -109,7 +109,7 @@ const ContributeForm = () => {
                                 options={availableChapters}
                                 placeholder={book ? `Select chapter (1-${totalChapters})` : "Select a book first"}
                                 disabled={!book}
-                                isRequired
+                                required
                             />
 
                             <div className="grid grid-cols-2 gap-4">
@@ -121,7 +121,7 @@ const ContributeForm = () => {
                                     options={availableVerses}
                                     placeholder={chapter ? "Select" : "..."}
                                     disabled={!chapter}
-                                    isRequired
+                                    required
                                 />
 
                                 <ScriptureCombobox
@@ -146,7 +146,7 @@ const ContributeForm = () => {
                                 <ThemeSelect
                                     value={selectedTheme}
                                     onChange={setSelectedTheme}
-                                    isRequired
+                                    required
                                     label="Theme"
                                 />
 
@@ -156,7 +156,7 @@ const ContributeForm = () => {
                                     value={questionText}
                                     onChange={(e) => setQuestionText(e.target.value)}
                                     placeholder="Type your Bible study question here..."
-                                    isRequired
+                                    required
                                     rows={6}
                                 />
                             </div>

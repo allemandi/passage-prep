@@ -50,7 +50,7 @@ const ScriptureReferenceItem = ({ id, index, onRemove, bibleBooks, referenceStat
                     onChange={(val) => updateReference({ book: val })}
                     options={bibleBooks}
                     placeholder="Select a book..."
-                    isRequired={index === 0}
+                    required={index === 0}
                 />
                 <ScriptureCombobox
                     id={`chapterSelect-${index}`}

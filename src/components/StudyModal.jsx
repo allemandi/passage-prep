@@ -4,7 +4,6 @@ import { Dialog, DialogPanel, DialogTitle, Transition, TransitionChild, Menu, Me
 import { useToast } from './ToastMessage/Toast';
 import Button from './ui/Button';
 import SectionHeader from './ui/SectionHeader';
-import Card from './ui/Card';
 import clsx from 'clsx';
 
 const StudyModal = ({ show, onHide, data }) => {
