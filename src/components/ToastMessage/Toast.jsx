@@ -1,4 +1,4 @@
-import { createContext, useCallback, useContext, useState } from "react";
+import { createContext, useCallback, useContext, useState, useEffect, memo } from "react";
 import { X } from "lucide-react";
 
 const toastStyles = {
@@ -12,22 +12,36 @@ const toastStyles = {
 const ToastContext = createContext();
 
 export const ToastProvider = ({ children }) => {
-  const [toast, setToast] = useState(null);
+  const [toasts, setToasts] = useState([]);
 
   const showToast = useCallback((message, variant = 'info', duration = 3000) => {
-    setToast({ message, variant });
-
-    setTimeout(() => setToast(null), duration);
+    const id = Date.now() + Math.random();
+    setToasts((prev) => [...prev, { id, message, variant, duration }]);
   }, []);
 
-  const hideToast = () => setToast(null);
+  const hideToast = useCallback((id) => {
+    setToasts((prev) => prev.filter((t) => t.id !== id));
+  }, []);
 
   return (
     <ToastContext.Provider value={{ showToast }}>
       {children}
-      {toast && (
-        <Toast message={toast.message} variant={toast.variant} onDismiss={hideToast} />
-      )}
+      <div
+        className="fixed bottom-16 sm:bottom-6 left-1/2 -translate-x-1/2 z-50 flex flex-col gap-3 items-center pointer-events-none"
+        aria-live="polite"
+        aria-relevant="additions"
+      >
+        {toasts.map((toast) => (
+          <Toast
+            key={toast.id}
+            id={toast.id}
+            message={toast.message}
+            variant={toast.variant}
+            duration={toast.duration}
+            onDismiss={hideToast}
+          />
+        ))}
+      </div>
     </ToastContext.Provider>
   );
 };
@@ -39,24 +53,33 @@ export const useToast = () => {
 };
 
 // Toast component
-const Toast = ({ message, variant = "info", onDismiss }) => {
+const Toast = memo(({ id, message, variant = "info", duration, onDismiss }) => {
   const baseStyle = toastStyles[variant] || toastStyles.info;
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      onDismiss(id);
+    }, duration);
+
+    return () => clearTimeout(timer);
+  }, [id, duration, onDismiss]);
 
   return (
     <div
       role="status"
       className={`
-        fixed bottom-16 sm:bottom-6 left-1/2 -translate-x-1/2 z-50
+        pointer-events-auto
         px-5 py-3 rounded-2xl shadow-xl
         flex items-center gap-4
-        max-w-sm w-[90%] sm:w-fit
+        max-w-sm w-full sm:w-fit
         animate-fade-in-up
         ${baseStyle}
+        transition-all duration-300
       `}
     >
       <span className="text-sm font-medium">{message}</span>
       <button
-        onClick={onDismiss}
+        onClick={() => onDismiss(id)}
         aria-label="Dismiss toast"
         className="ml-auto p-1 rounded-full hover:bg-white/20 focus:outline-none focus:ring-2 focus:ring-white dark:focus:ring-gray-300"
       >
@@ -64,4 +87,6 @@ const Toast = ({ message, variant = "info", onDismiss }) => {
       </button>
     </div>
   );
-};
+});
+
+Toast.displayName = 'Toast';
