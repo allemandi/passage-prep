@@ -1,10 +1,10 @@
 import { useState, useRef } from 'react';
 import { UploadCloud, Download as DownloadIcon, FileText, X } from 'lucide-react';
 import UploadResultsPanel from './UploadResultsPanel';
-import themes from '../../../data/themes.json';
-import { bulkUploadQuestions } from '../../../utils/upload';
-import { useToast } from '../../ToastMessage/Toast';
-import Button from '../../ui/Button';
+import themes from '../../data/themes.json';
+import { bulkUploadQuestions } from '../../utils/upload';
+import { useToast } from '../ToastMessage/Toast';
+import Button from '../ui/Button';
 import clsx from 'clsx';
 
 const Upload = () => {
@@ -238,6 +238,7 @@ const Upload = () => {
                         variant="ghost"
                         onClick={clearSelection}
                         className="w-full"
+                id="reset-upload-button"
                     >
                         Reset & Upload Another
                     </Button>

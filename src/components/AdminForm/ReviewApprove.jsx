@@ -1,12 +1,13 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { Check, Trash2, Loader2 } from 'lucide-react';
-import QuestionTable from '../../QuestionTable';
-import { fetchUnapprovedQuestions, approveQuestions, deleteQuestions, updateQuestion } from '../../../services/dataService';
-import { useToast } from '../../ToastMessage/Toast';
-import { defaultThemes } from '../../ui/ThemeSelect';
-import Button from '../../ui/Button';
-import AdminFilterBar from '../AdminFilterBar';
-import useQuestionSelection from '../../../hooks/useQuestionSelection';
+import { Check, Trash2 } from 'lucide-react';
+import QuestionTable from '../QuestionTable';
+import LoadingOverlay from '../ui/LoadingOverlay';
+import { fetchUnapprovedQuestions, approveQuestions, deleteQuestions, updateQuestion } from '../../services/dataService';
+import { useToast } from '../ToastMessage/Toast';
+import { defaultThemes } from '../ui/ThemeSelect';
+import Button from '../ui/Button';
+import AdminFilterBar from './AdminFilterBar';
+import useQuestionSelection from '../../hooks/useQuestionSelection';
 
 const ReviewApprove = () => {
     const [allUnapprovedQuestions, setAllUnapprovedQuestions] = useState([]);
@@ -118,12 +119,8 @@ const ReviewApprove = () => {
                 onApply={applyApiFilters}
             />
 
-            <div className="mt-6 relative min-h-[200px]">
-                {isFetching ? (
-                    <div className="absolute inset-0 flex items-center justify-center bg-app-bg/50 z-10 rounded-lg">
-                        <Loader2 className="w-10 h-10 text-primary-500 animate-spin" />
-                    </div>
-                ) : (
+            <div className="mt-6">
+                <LoadingOverlay isLoading={isFetching}>
                     <QuestionTable
                         questions={filteredQuestions}
                         selectedIds={selectedIds}
@@ -131,7 +128,7 @@ const ReviewApprove = () => {
                         showActions={true}
                         onQuestionUpdate={handleQuestionUpdate}
                     />
-                )}
+                </LoadingOverlay>
             </div>
 
             <div className="flex flex-col sm:flex-row justify-center gap-6 mt-12">
