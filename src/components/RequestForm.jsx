@@ -227,6 +227,7 @@ const RequestForm = ({ onStudyGenerated, isLoading }) => {
     return (
         <div className="w-full">
             <form onSubmit={handleFormSubmit} noValidate>
+                <LoadingOverlay isLoading={isSearching && !showSearchResults}>
                 <Card className="flex flex-col gap-12">
                     <MultiScriptureSelector
                         references={activeRefs}
@@ -302,6 +303,7 @@ const RequestForm = ({ onStudyGenerated, isLoading }) => {
                         </section>
                     )}
                 </Card>
+                </LoadingOverlay>
             </form>
         </div>
     );

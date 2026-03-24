@@ -15,6 +15,7 @@ import SectionHeader from './ui/SectionHeader';
 import ThemeSelect from './ui/ThemeSelect';
 import Textarea from './ui/Textarea';
 import ScriptureCombobox from './ScriptureCombobox';
+import LoadingOverlay from './ui/LoadingOverlay';
 
 const ContributeForm = () => {
     const showToast = useToast();
@@ -85,6 +86,7 @@ const ContributeForm = () => {
     return (
         <div className="w-full">
             <form onSubmit={handleSubmit} noValidate>
+                <LoadingOverlay isLoading={isSubmitting}>
                 <Card className="grid grid-cols-1 md:grid-cols-2 gap-12">
                     {/* Left Column: Bible Reference */}
                     <div className="flex flex-col gap-8">
@@ -175,6 +177,7 @@ const ContributeForm = () => {
                         </Button>
                     </div>
                 </Card>
+                </LoadingOverlay>
             </form>
         </div>
     );
