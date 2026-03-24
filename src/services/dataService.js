@@ -74,7 +74,9 @@ export const saveQuestion = async (theme, question, reference) => {
     verseEnd: reference.verseEnd || reference.verseStart,
   };
 
-  return await apiClient.post('save-question', { newData: newQuestion });
+  const response = await apiClient.post('save-question', { newData: newQuestion });
+  clearSearchCache();
+  return response;
 };
 
 export const processForm = async (formData) => {
@@ -127,9 +129,17 @@ export const searchQuestions = async (payload) => {
   return questions;
 };
 
-export const deleteQuestions = (questionIds) => apiClient.post('delete-questions', { questionIds });
+export const deleteQuestions = async (questionIds) => {
+  const response = await apiClient.post('delete-questions', { questionIds });
+  clearSearchCache();
+  return response;
+};
 
-export const updateQuestion = (questionId, updatedData) => apiClient.post('update-question', { questionId, updatedData });
+export const updateQuestion = async (questionId, updatedData) => {
+  const response = await apiClient.post('update-question', { questionId, updatedData });
+  clearSearchCache();
+  return response;
+};
 
 export const login = (username, password) => apiClient.post('login', { username, password });
 
@@ -152,4 +162,8 @@ export const fetchUnapprovedQuestions = async () => {
   }
 };
 
-export const approveQuestions = (questionIds) => apiClient.post('approve-questions', { questionIds });
+export const approveQuestions = async (questionIds) => {
+  const response = await apiClient.post('approve-questions', { questionIds });
+  clearSearchCache();
+  return response;
+};

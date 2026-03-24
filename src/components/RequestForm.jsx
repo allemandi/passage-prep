@@ -214,79 +214,88 @@ const RequestForm = ({ onStudyGenerated, isLoading }) => {
 
     const isGenerateDisabled = searchResults.length === 0 || selectedIds.length === 0;
 
+    const handleFormSubmit = (e) => {
+        e.preventDefault();
+        handleSearch();
+    };
+
     return (
         <div className="w-full">
-            <Card className="flex flex-col gap-12">
-                <MultiScriptureSelector
-                    references={activeRefs}
-                    onAdd={addReference}
-                    onRemove={removeReference}
-                    bibleBooks={bibleBooks}
-                />
+            <form onSubmit={handleFormSubmit} noValidate>
+                <Card className="flex flex-col gap-12">
+                    <MultiScriptureSelector
+                        references={activeRefs}
+                        onAdd={addReference}
+                        onRemove={removeReference}
+                        bibleBooks={bibleBooks}
+                    />
 
-                <section className="pt-8 border-t-2 border-app-border">
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 items-end">
-                        <ThemeSelect
-                            value={selectedThemes}
-                            onChange={setSelectedThemes}
-                            isMulti
-                            label="Themes"
-                        />
+                    <section className="pt-8 border-t-2 border-app-border">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 items-end">
+                            <ThemeSelect
+                                value={selectedThemes}
+                                onChange={setSelectedThemes}
+                                isMulti
+                                label="Themes"
+                            />
 
-                        <Button
-                            variant={hideUnapproved ? 'secondary' : 'outline'}
-                            onClick={() => setHideUnapproved(!hideUnapproved)}
-                            className="w-full"
-                        >
-                            {hideUnapproved ? 'Show Unapproved' : 'Hide Unapproved'}
-                        </Button>
+                            <Button
+                                type="button"
+                                variant={hideUnapproved ? 'secondary' : 'outline'}
+                                onClick={() => setHideUnapproved(!hideUnapproved)}
+                                className="w-full"
+                            >
+                                {hideUnapproved ? 'Show Unapproved' : 'Hide Unapproved'}
+                            </Button>
 
-                        <Button
-                            onClick={handleSearch}
-                            isLoading={isLoading || isSubmitting}
-                            className="w-full"
-                        >
-                            <Search size={18} />
-                            Search Questions
-                        </Button>
+                            <Button
+                                type="submit"
+                                isLoading={isLoading || isSubmitting}
+                                className="w-full"
+                            >
+                                <Search size={18} />
+                                Search Questions
+                            </Button>
 
-                        <div className="w-full">
-                            {isGenerateDisabled ? (
-                                <Tooltip content="Select at least one question from search results">
-                                    <Button disabled variant="outline" className="w-full opacity-50 cursor-not-allowed">
+                            <div className="w-full">
+                                {isGenerateDisabled ? (
+                                    <Tooltip content="Select at least one question from search results">
+                                        <Button type="button" disabled variant="outline" className="w-full opacity-50 cursor-not-allowed">
+                                            <BookOpen size={18} />
+                                            Generate Study
+                                        </Button>
+                                    </Tooltip>
+                                ) : (
+                                    <Button
+                                        type="button"
+                                        onClick={handleSubmit}
+                                        variant="outline"
+                                        isLoading={isLoading || isSubmitting}
+                                        className="w-full"
+                                    >
                                         <BookOpen size={18} />
                                         Generate Study
                                     </Button>
-                                </Tooltip>
-                            ) : (
-                                <Button
-                                    onClick={handleSubmit}
-                                    variant="outline"
-                                    isLoading={isLoading || isSubmitting}
-                                    className="w-full"
-                                >
-                                    <BookOpen size={18} />
-                                    Generate Study
-                                </Button>
-                            )}
+                                )}
+                            </div>
                         </div>
-                    </div>
-                </section>
-
-                {showSearchResults && (
-                    <section className="mt-4 animate-in fade-in slide-in-from-bottom-4 duration-500">
-                        <SectionHeader centered={false}>Search Results</SectionHeader>
-                        <QuestionTable
-                            questions={searchResults}
-                            selectedIds={selectedIds}
-                            onSelectionChange={toggleSelection}
-                            showActions
-                            hideUnapproved={hideUnapproved}
-                            hideEditActions
-                        />
                     </section>
-                )}
-            </Card>
+
+                    {showSearchResults && (
+                        <section className="mt-4 animate-in fade-in slide-in-from-bottom-4 duration-500">
+                            <SectionHeader centered={false}>Search Results</SectionHeader>
+                            <QuestionTable
+                                questions={searchResults}
+                                selectedIds={selectedIds}
+                                onSelectionChange={toggleSelection}
+                                showActions
+                                hideUnapproved={hideUnapproved}
+                                hideEditActions
+                            />
+                        </section>
+                    )}
+                </Card>
+            </form>
         </div>
     );
 };
