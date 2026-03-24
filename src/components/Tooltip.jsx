@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import React, { useState, useRef } from 'react';
 
 const Tooltip = ({ content, children }) => {
   const [visible, setVisible] = useState(false);
@@ -12,15 +12,61 @@ const Tooltip = ({ content, children }) => {
     setVisible(false);
   };
 
+  const handleKeyDown = (e) => {
+    if (e.key === 'Escape') {
+      hideTip();
+    }
+  };
+
+  const isInteractive = (element) => {
+    if (!element || !React.isValidElement(element)) return false;
+    const type = element.type;
+    const props = element.props || {};
+
+    // Check for HTML elements
+    if (
+      type === 'button' ||
+      type === 'a' ||
+      type === 'input' ||
+      type === 'select' ||
+      type === 'textarea'
+    ) {
+      return true;
+    }
+
+    // Check for common component names that are interactive
+    // Note: type.name/displayName might be minified in production,
+    // but this serves as a best-effort for development.
+    const typeName = typeof type === 'string' ? type : type.displayName || type.name;
+    if (typeName === 'Button' || typeName === 'Input' || typeName === 'Textarea') {
+        return true;
+    }
+
+    // Check for interactive props
+    if (props.onClick || props.tabIndex !== undefined) {
+      return true;
+    }
+
+    // Recursively check children if it's a Fragment or another component that might just be a wrapper
+    if (props.children) {
+        return React.Children.toArray(props.children).some(isInteractive);
+    }
+
+    return false;
+  };
+
+  const hasInteractiveChild = React.Children.toArray(children).some(isInteractive);
+
   return (
     <span
       className="relative inline-block"
       onMouseEnter={showTip}
       onMouseLeave={hideTip}
-      onFocus={showTip}
-      onBlur={hideTip}
-      tabIndex={0}
-      aria-describedby="tooltip"
+      onFocusCapture={showTip}
+      onBlurCapture={hideTip}
+      onKeyDown={handleKeyDown}
+      tabIndex={hasInteractiveChild ? -1 : 0}
+      aria-describedby={visible ? "tooltip" : undefined}
     >
       {children}
       {visible && (
