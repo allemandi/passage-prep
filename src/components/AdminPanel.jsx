@@ -1,13 +1,13 @@
 import React, { useState, useCallback } from 'react';
-import Login from './Login';
-import ReviewApprove from './ReviewApprove';
-import Upload from './Upload';
-import EditDelete from './EditDelete';
-import Download from './Download';
+import Login from './AdminForm/Login';
+import ReviewApprove from './AdminForm/ReviewApprove';
+import Upload from './AdminForm/Upload';
+import EditDelete from './AdminForm/EditDelete';
+import Download from './AdminForm/Download';
 
-import Card from '../ui/Card';
-import Button from '../ui/Button';
-import SectionHeader from '../ui/SectionHeader';
+import Card from './ui/Card';
+import Button from './ui/Button';
+import SectionHeader from './ui/SectionHeader';
 
 const buttons = [
     { name: 'edit', label: 'Edit/Delete' },

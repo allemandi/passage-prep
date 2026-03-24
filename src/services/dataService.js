@@ -52,14 +52,6 @@ export const clearSearchCache = () => {
 
 export const getBooks = () => bibleContext;
 
-export const getQuestions = async () => {
-  try {
-    return await apiClient.get('questions');
-  } catch {
-    return [];
-  }
-};
-
 export const saveQuestion = async (theme, question, reference) => {
   if (!theme || !question || !reference?.book || !reference?.chapter || !reference?.verseStart) {
     throw new Error("Missing required fields: theme, question, book, chapter, or verseStart");

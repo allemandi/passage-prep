@@ -1,8 +1,8 @@
 import { useState } from 'react';
-import Button from '../../ui/Button';
-import Input from '../../ui/Input';
-import { useToast } from '../../ToastMessage/Toast';
-import { login } from '../../../services/dataService';
+import Button from '../ui/Button';
+import Input from '../ui/Input';
+import { useToast } from '../ToastMessage/Toast';
+import { login } from '../../services/dataService';
 
 const Login = ({ setIsLoggedIn }) => {
   const [username, setUsername] = useState('');

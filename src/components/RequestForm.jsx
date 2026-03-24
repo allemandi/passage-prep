@@ -17,6 +17,7 @@ import ThemeSelect, { defaultThemes } from './ui/ThemeSelect';
 import ScriptureCombobox from './ScriptureCombobox';
 import Tooltip from './Tooltip';
 import QuestionTable from './QuestionTable';
+import LoadingOverlay from './ui/LoadingOverlay';
 
 const ScriptureReferenceItem = ({ id, index, onRemove, bibleBooks, referenceState }) => {
     const {
@@ -147,6 +148,7 @@ const RequestForm = ({ onStudyGenerated, isLoading }) => {
 
     const [selectedThemes, setSelectedThemes] = useState(defaultThemes);
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [isSearching, setIsSearching] = useState(false);
     const [searchResults, setSearchResults] = useState([]);
     const { selectedIds, toggleSelection, resetSelection } = useQuestionSelection();
     const [hideUnapproved, setHideUnapproved] = useState(false);
@@ -187,6 +189,7 @@ const RequestForm = ({ onStudyGenerated, isLoading }) => {
             return;
         }
 
+        setIsSearching(true);
         try {
             const themeArr = selectedThemes.length === defaultThemes.length ? [] : selectedThemes;
             const combinedResults = (
@@ -209,6 +212,8 @@ const RequestForm = ({ onStudyGenerated, isLoading }) => {
             showToast(combinedResults.length ? 'Search completed successfully.' : 'No questions found.', combinedResults.length ? 'success' : 'info');
         } catch (err) {
             showToast(err?.message || 'Search failed.', 'error');
+        } finally {
+            setIsSearching(false);
         }
     };
 
@@ -222,6 +227,7 @@ const RequestForm = ({ onStudyGenerated, isLoading }) => {
     return (
         <div className="w-full">
             <form onSubmit={handleFormSubmit} noValidate>
+                <LoadingOverlay isLoading={isSearching && !showSearchResults}>
                 <Card className="flex flex-col gap-12">
                     <MultiScriptureSelector
                         references={activeRefs}
@@ -284,17 +290,20 @@ const RequestForm = ({ onStudyGenerated, isLoading }) => {
                     {showSearchResults && (
                         <section className="mt-4 animate-in fade-in slide-in-from-bottom-4 duration-500">
                             <SectionHeader centered={false}>Search Results</SectionHeader>
-                            <QuestionTable
-                                questions={searchResults}
-                                selectedIds={selectedIds}
-                                onSelectionChange={toggleSelection}
-                                showActions
-                                hideUnapproved={hideUnapproved}
-                                hideEditActions
-                            />
+                            <LoadingOverlay isLoading={isSearching}>
+                                <QuestionTable
+                                    questions={searchResults}
+                                    selectedIds={selectedIds}
+                                    onSelectionChange={toggleSelection}
+                                    showActions
+                                    hideUnapproved={hideUnapproved}
+                                    hideEditActions
+                                />
+                            </LoadingOverlay>
                         </section>
                     )}
                 </Card>
+                </LoadingOverlay>
             </form>
         </div>
     );

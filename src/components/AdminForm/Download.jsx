@@ -1,13 +1,13 @@
 import React from 'react';
-import { getBibleBooks, getSortedQuestions } from '../../../utils/bibleData';
-import { fetchAllQuestions } from '../../../services/dataService';
-import { downloadAllCSV, downloadFilteredCSV } from '../../../utils/download';
-import { useToast } from '../../ToastMessage/Toast';
-import useBibleReference from '../../../hooks/useBibleReference';
-import ScriptureCombobox from '../../ScriptureCombobox';
+import { getBibleBooks, getSortedQuestions } from '../../utils/bibleData';
+import { fetchAllQuestions } from '../../services/dataService';
+import { downloadAllCSV, downloadFilteredCSV } from '../../utils/download';
+import { useToast } from '../ToastMessage/Toast';
+import useBibleReference from '../../hooks/useBibleReference';
+import ScriptureCombobox from '../ScriptureCombobox';
 import { DownloadIcon } from 'lucide-react';
-import Button from '../../ui/Button';
-import SectionHeader from '../../ui/SectionHeader';
+import Button from '../ui/Button';
+import SectionHeader from '../ui/SectionHeader';
 
 const bibleBooks = getBibleBooks();
 

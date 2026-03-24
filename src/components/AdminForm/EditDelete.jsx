@@ -1,12 +1,13 @@
 import { useState, useCallback, useRef } from 'react';
-import QuestionTable from '../../QuestionTable';
-import { useToast } from '../../ToastMessage/Toast';
-import { searchQuestions, clearSearchCache, deleteQuestions, updateQuestion } from '../../../services/dataService';
-import { defaultThemes } from '../../ui/ThemeSelect';
-import Button from '../../ui/Button';
-import { Trash2, Loader2 } from 'lucide-react';
-import AdminFilterBar from '../AdminFilterBar';
-import useQuestionSelection from '../../../hooks/useQuestionSelection';
+import QuestionTable from '../QuestionTable';
+import { useToast } from '../ToastMessage/Toast';
+import { searchQuestions, clearSearchCache, deleteQuestions, updateQuestion } from '../../services/dataService';
+import { defaultThemes } from '../ui/ThemeSelect';
+import Button from '../ui/Button';
+import { Trash2 } from 'lucide-react';
+import AdminFilterBar from './AdminFilterBar';
+import LoadingOverlay from '../ui/LoadingOverlay';
+import useQuestionSelection from '../../hooks/useQuestionSelection';
 
 const EditDelete = () => {
     const [hideUnapproved, setHideUnapproved] = useState(false);
@@ -92,12 +93,8 @@ const EditDelete = () => {
                 </Button>
             </AdminFilterBar>
 
-            <div className="mt-6 w-full relative min-h-[200px]">
-                {isFetching ? (
-                    <div className="absolute inset-0 flex items-center justify-center bg-app-bg/50 z-10 rounded-lg">
-                        <Loader2 className="w-10 h-10 text-primary-500 animate-spin" />
-                    </div>
-                ) : (
+            <div className="mt-6 w-full">
+                <LoadingOverlay isLoading={isFetching}>
                     <QuestionTable
                         questions={filteredQuestions}
                         selectedIds={selectedIds}
@@ -106,7 +103,7 @@ const EditDelete = () => {
                         onQuestionUpdate={handleQuestionUpdate}
                         hideUnapproved={hideUnapproved}
                     />
-                )}
+                </LoadingOverlay>
             </div>
 
             <div className="flex justify-center mt-12">

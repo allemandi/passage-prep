@@ -1,7 +1,7 @@
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { describe, it, expect, vi } from 'vitest';
-import Download from './index';
-import { ToastProvider } from '../../ToastMessage/Toast';
+import Download from './Download';
+import { ToastProvider } from '../ToastMessage/Toast';
 
 // Mocking URL.createObjectURL and Blob since JSDOM doesn't support them fully
 global.URL.createObjectURL = vi.fn(() => 'mock-url');

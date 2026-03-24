@@ -1,17 +1,22 @@
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { describe, it, expect, vi } from 'vitest';
-import Upload from './index';
-import { ToastProvider } from '../../ToastMessage/Toast';
+import Upload from './Upload';
+import { ToastProvider } from '../ToastMessage/Toast';
 
 // Mock dependencies
-vi.mock('../../../utils/upload', () => ({
-  bulkUploadQuestions: vi.fn().mockImplementation(({ setUploadResults }) => {
+vi.mock('../../utils/upload', () => ({
+  bulkUploadQuestions: vi.fn().mockImplementation(async ({ setUploadResults, setIsUploading, showToast }) => {
+    setIsUploading(true);
+    // Use a small delay to ensure React processes the state update
+    await new Promise(resolve => setTimeout(resolve, 0));
     setUploadResults({
       totalQuestions: 1,
       successful: 1,
       failed: 0,
       errors: []
     });
+    showToast('Uploaded', 'success');
+    setIsUploading(false);
   })
 }));
 
@@ -65,11 +70,12 @@ describe('Admin Upload Component', () => {
     const uploadButton = screen.getByRole('button', { name: /Upload Questions/i });
     fireEvent.click(uploadButton);
 
+    // Look for the results panel title which should appear after upload
     await waitFor(() => {
       expect(screen.getByText('Upload Results')).toBeInTheDocument();
-      expect(screen.getByText('Successfully uploaded: 1')).toBeInTheDocument();
-    });
+    }, { timeout: 3000 });
 
+    expect(screen.getByText('Successfully uploaded: 1')).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /Reset & Upload Another/i })).toBeInTheDocument();
   });
 
@@ -83,7 +89,7 @@ describe('Admin Upload Component', () => {
 
     await waitFor(() => {
       expect(screen.getByText('Upload Results')).toBeInTheDocument();
-    });
+    }, { timeout: 3000 });
 
     const resetButton = screen.getByRole('button', { name: /Reset & Upload Another/i });
     fireEvent.click(resetButton);

@@ -1,6 +1,6 @@
 import RequestForm from './RequestForm';
 import ContributeForm from './ContributeForm';
-import AdminForm from './AdminForm';
+import AdminPanel from './AdminPanel';
 import StudyModal from './StudyModal';
 
 export default function MainContent({
@@ -21,7 +21,7 @@ export default function MainContent({
     >
       {tabValue === 0 && <RequestForm onStudyGenerated={handleShowStudy} isLoading={isLoading} />}
       {tabValue === 1 && <ContributeForm isLoading={isLoading} />}
-      {tabValue === 2 && <AdminForm isLoggedIn={isLoggedIn} setIsLoggedIn={setIsLoggedIn} />}
+      {tabValue === 2 && <AdminPanel isLoggedIn={isLoggedIn} setIsLoggedIn={setIsLoggedIn} />}
 
       <StudyModal show={!!studyData} onHide={() => setStudyData(null)} data={studyData} />
     </section>
