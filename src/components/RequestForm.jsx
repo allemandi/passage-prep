@@ -27,11 +27,11 @@ const ScriptureReferenceItem = ({ id, index, onRemove, bibleBooks, referenceStat
     } = referenceState;
 
     return (
-        <div className="relative w-full flex flex-col gap-5 p-5 rounded-2xl bg-app-surface/40 border-2 border-app-border">
+        <fieldset className="relative w-full flex flex-col gap-5 p-5 rounded-2xl bg-app-surface/40 border-2 border-app-border">
             <div className="flex justify-between items-center">
-                <p className="text-sm font-bold text-app-text-muted">
+                <legend className="text-sm font-bold text-app-text-muted">
                     Reference {index + 1}
-                </p>
+                </legend>
                 {index > 0 && (
                     <button
                         aria-label={`Remove reference ${index + 1}`}
@@ -84,7 +84,7 @@ const ScriptureReferenceItem = ({ id, index, onRemove, bibleBooks, referenceStat
                     />
                 </div>
             </div>
-        </div>
+        </fieldset>
     );
 };
 
@@ -250,6 +250,7 @@ const RequestForm = ({ onStudyGenerated, isLoading }) => {
                                 variant={hideUnapproved ? 'secondary' : 'outline'}
                                 onClick={() => setHideUnapproved(!hideUnapproved)}
                                 className="w-full"
+                                aria-pressed={hideUnapproved}
                             >
                                 {hideUnapproved ? 'Show Unapproved' : 'Hide Unapproved'}
                             </Button>
@@ -288,7 +289,11 @@ const RequestForm = ({ onStudyGenerated, isLoading }) => {
                     </section>
 
                     {showSearchResults && (
-                        <section className="mt-4 animate-in fade-in slide-in-from-bottom-4 duration-500">
+                        <section
+                            className="mt-4 animate-in fade-in slide-in-from-bottom-4 duration-500"
+                            role="region"
+                            aria-live="polite"
+                        >
                             <SectionHeader centered={false}>Search Results</SectionHeader>
                             <LoadingOverlay isLoading={isSearching}>
                                 <QuestionTable

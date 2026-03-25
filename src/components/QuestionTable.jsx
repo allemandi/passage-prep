@@ -42,7 +42,7 @@ const QuestionTable = ({
                     <thead className="sticky top-0 bg-app-surface border-b border-app-border">
                         <tr>
                             {showActions && (
-                                <th className="p-3 border-b border-app-border text-left">
+                                <th scope="col" className="p-3 border-b border-app-border text-left">
                                     <input
                                         type="checkbox"
                                         aria-label="Select all questions"
@@ -58,17 +58,17 @@ const QuestionTable = ({
                                     />
                                 </th>
                             )}
-                            <th className="p-3 border-b border-app-border text-left text-app-text font-semibold text-sm">
+                            <th scope="col" className="p-3 border-b border-app-border text-left text-app-text font-semibold text-sm">
                                 Bible Passage
                             </th>
-                            <th className="p-3 border-b border-app-border text-left text-app-text font-semibold text-sm">
+                            <th scope="col" className="p-3 border-b border-app-border text-left text-app-text font-semibold text-sm">
                                 Theme
                             </th>
-                            <th className="p-3 border-b border-app-border text-left text-app-text font-semibold text-sm">
+                            <th scope="col" className="p-3 border-b border-app-border text-left text-app-text font-semibold text-sm">
                                 Question
                             </th>
                             {showActions && !hideEditActions && (
-                                <th className="p-3 border-b border-app-border text-left text-app-text font-semibold text-sm">
+                                <th scope="col" className="p-3 border-b border-app-border text-left text-app-text font-semibold text-sm">
                                     Actions
                                 </th>
                             )}
@@ -100,14 +100,14 @@ const QuestionTable = ({
                                         <td className="p-3">
                                             <input
                                                 type="checkbox"
-                                                aria-label={`Select question: ${question.question}`}
+                                                aria-label={`Select question for ${reference}: ${question.question}`}
                                                 className="cursor-pointer accent-primary-500 w-4 h-4"
                                                 checked={selectedIds.includes(question._id)}
                                                 onChange={(e) => onSelectionChange([question._id], e.target.checked)}
                                             />
                                         </td>
                                     )}
-                                    <td className="p-3 text-sm text-app-text whitespace-nowrap">{reference}</td>
+                                    <th scope="row" className="p-3 text-sm text-app-text whitespace-nowrap text-left font-normal">{reference}</th>
                                     <td className="p-3 text-sm text-app-text">{question.theme}</td>
                                     <td className="p-3 text-sm text-app-text">{question.question}</td>
                                     {showActions && !hideEditActions && (

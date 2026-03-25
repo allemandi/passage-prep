@@ -89,8 +89,10 @@ const ContributeForm = () => {
                 <LoadingOverlay isLoading={isSubmitting}>
                 <Card className="grid grid-cols-1 md:grid-cols-2 gap-12">
                     {/* Left Column: Bible Reference */}
-                    <div className="flex flex-col gap-8">
-                        <SectionHeader>Bible Reference</SectionHeader>
+                    <fieldset className="flex flex-col gap-8">
+                        <legend className="contents">
+                            <SectionHeader>Bible Reference</SectionHeader>
+                        </legend>
 
                         <div className="space-y-6">
                             <ScriptureCombobox
@@ -138,12 +140,14 @@ const ContributeForm = () => {
                                 />
                             </div>
                         </div>
-                    </div>
+                    </fieldset>
 
                     {/* Right Column: Theme and Question */}
-                    <div className="flex flex-col gap-8">
-                        <div>
+                    <fieldset className="flex flex-col gap-8">
+                        <legend className="contents">
                             <SectionHeader>Theme & Question</SectionHeader>
+                        </legend>
+                        <div>
                             <div className="space-y-6">
                                 <ThemeSelect
                                     value={selectedTheme}
@@ -163,7 +167,7 @@ const ContributeForm = () => {
                                 />
                             </div>
                         </div>
-                    </div>
+                    </fieldset>
 
                     {/* Submit Button */}
                     <div className="md:col-span-2 flex justify-center pt-4">
