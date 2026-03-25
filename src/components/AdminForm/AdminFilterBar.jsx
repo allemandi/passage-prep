@@ -23,8 +23,14 @@ const AdminFilterBar = ({ onApply, initialThemes = defaultThemes, title, childre
     };
 
     return (
-        <div className="w-full mb-10">
-            {title && <h2 className="text-xl font-bold mb-8 text-center text-app-text">{title}</h2>}
+        <fieldset className="w-full mb-10">
+            {title && (
+                <legend className="contents">
+                    <h2 className="text-xl font-bold mb-8 text-center text-app-text w-full block">
+                        {title}
+                    </h2>
+                </legend>
+            )}
 
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6 justify-center mb-8">
                 <ScriptureCombobox
@@ -83,7 +89,7 @@ const AdminFilterBar = ({ onApply, initialThemes = defaultThemes, title, childre
                     {children}
                 </div>
             </div>
-        </div>
+        </fieldset>
     );
 };
 

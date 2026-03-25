@@ -12,7 +12,12 @@ const LoadingOverlay = ({
   return (
     <div className={clsx("relative w-full", className)} style={{ minHeight: isLoading ? minHeight : 'auto' }}>
       {isLoading && (
-        <div className="absolute inset-0 flex items-center justify-center bg-app-bg/50 z-10 rounded-lg backdrop-blur-[1px]">
+        <div
+          className="absolute inset-0 flex items-center justify-center bg-app-bg/50 z-10 rounded-lg backdrop-blur-[1px]"
+          role="progressbar"
+          aria-busy="true"
+          aria-live="polite"
+        >
           <Loader2
             className="text-primary-500 animate-spin"
             size={spinnerSize}
