@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import { Edit2 } from 'lucide-react';
-import { getSortedQuestions } from '../utils/bibleData';
+import { getSortedQuestions, formatReference } from '../utils/bibleData';
 import EditQuestionModal from './EditQuestionModal';
 
 const QuestionTable = ({
@@ -86,10 +86,12 @@ const QuestionTable = ({
                             </tr>
                         ) : (
                             sortedQuestions.map((question) => {
-                            const reference = `${question.book} ${question.chapter}:${question.verseStart}${question.verseEnd && question.verseEnd !== question.verseStart
-                                    ? `-${question.verseEnd}`
-                                    : ''
-                                }`;
+                            const reference = formatReference(
+                                question.book,
+                                question.chapter,
+                                question.verseStart,
+                                question.verseEnd
+                            );
 
                             return (
                                 <tr

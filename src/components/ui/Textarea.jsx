@@ -9,12 +9,14 @@ const Textarea = ({ label, id, error, className, rows = 4, ...props }) => {
           htmlFor={id}
           className="block mb-1.5 text-sm font-medium text-app-text"
         >
-          {label} {props.required && <span className="text-secondary-500">*</span>}
+          {label} {props.required && <span className="text-secondary-600 font-bold">*</span>}
         </label>
       )}
       <textarea
         id={id}
         rows={rows}
+        aria-invalid={!!error}
+        aria-describedby={error ? `${id}-error` : undefined}
         className={clsx(
           'w-full border-2 rounded-lg p-4 bg-app-surface text-app-text focus:outline-none focus:ring-4 focus:ring-primary-400/20 transition-all duration-200 resize-none',
           error
@@ -24,7 +26,11 @@ const Textarea = ({ label, id, error, className, rows = 4, ...props }) => {
         )}
         {...props}
       />
-      {error && <p className="mt-1 text-xs text-red-500">{error}</p>}
+      {error && (
+        <p id={`${id}-error`} className="mt-1 text-xs text-secondary-600 font-medium">
+          {error}
+        </p>
+      )}
     </div>
   );
 };

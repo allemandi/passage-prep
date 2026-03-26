@@ -56,7 +56,7 @@ const ThemeSelect = ({
         {({ open }) => (
           <>
             <Label className="block mb-1.5 text-sm font-medium text-app-text">
-              {label} {required && <span className="text-secondary-500">*</span>}
+              {label} {required && <span className="text-secondary-600 font-bold">*</span>}
             </Label>
             <div className="relative">
               <ListboxButton

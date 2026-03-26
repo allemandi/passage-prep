@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Filter } from 'lucide-react';
+import { Filter, X } from 'lucide-react';
 import ScriptureCombobox from '../ScriptureCombobox';
 import ThemeSelect, { defaultThemes } from '../ui/ThemeSelect';
 import Button from '../ui/Button';
@@ -19,6 +19,18 @@ const AdminFilterBar = ({ onApply, initialThemes = defaultThemes, title, childre
             verseStart: bibleRef.verseStart,
             verseEnd: bibleRef.verseEnd,
             themes: selectedThemes
+        });
+    };
+
+    const handleClear = () => {
+        bibleRef.reset();
+        setSelectedThemes(initialThemes);
+        onApply({
+            book: '',
+            chapter: '',
+            verseStart: '',
+            verseEnd: '',
+            themes: initialThemes
         });
     };
 
@@ -85,6 +97,14 @@ const AdminFilterBar = ({ onApply, initialThemes = defaultThemes, title, childre
                         className="w-full sm:w-auto min-w-[160px]"
                     >
                         <Filter className="w-5 h-5" /> Apply Filters
+                    </Button>
+
+                    <Button
+                        onClick={handleClear}
+                        variant="outline"
+                        className="w-full sm:w-auto min-w-[160px]"
+                    >
+                        <X className="w-5 h-5" /> Clear Filters
                     </Button>
                     {children}
                 </div>
