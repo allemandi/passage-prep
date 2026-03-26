@@ -5,6 +5,7 @@ import LoadingOverlay from '../ui/LoadingOverlay';
 import { fetchUnapprovedQuestions, approveQuestions, deleteQuestions, updateQuestion } from '../../services/dataService';
 import { useToast } from '../ToastMessage/Toast';
 import { defaultThemes } from '../ui/ThemeSelect';
+import { filterQuestions } from '../../utils/bibleData';
 import Button from '../ui/Button';
 import AdminFilterBar from './AdminFilterBar';
 import useQuestionSelection from '../../hooks/useQuestionSelection';
@@ -41,33 +42,9 @@ const ReviewApprove = () => {
         fetchUnapprovedData(true);
     }, [fetchUnapprovedData]);
 
-    const applyApiFilters = useCallback(({ book, chapter, verseStart, verseEnd, themes }, sourceData = allUnapprovedQuestions) => {
-        currentFilters.current = { book, chapter, verseStart, verseEnd, themes };
-        let filtered = [...sourceData];
-
-        if (book) {
-            filtered = filtered.filter(q => q.book === book);
-        }
-        if (chapter) {
-            filtered = filtered.filter(q => String(q.chapter) === String(chapter));
-        }
-        if (verseStart && verseEnd) {
-            filtered = filtered.filter(q =>
-                parseInt(q.verseStart) <= Number(verseEnd) &&
-                parseInt(q.verseEnd || q.verseStart) >= Number(verseStart)
-            );
-        } else {
-            if (verseStart) {
-                filtered = filtered.filter(q => parseInt(q.verseStart) >= Number(verseStart));
-            }
-            if (verseEnd) {
-                filtered = filtered.filter(q => parseInt(q.verseEnd || q.verseStart) <= Number(verseEnd));
-            }
-        }
-        if (themes.length !== defaultThemes.length) {
-            filtered = filtered.filter(q => themes.includes(q.theme));
-        }
-
+    const applyApiFilters = useCallback((filters, sourceData = allUnapprovedQuestions) => {
+        currentFilters.current = filters;
+        const filtered = filterQuestions(sourceData, filters, defaultThemes);
         setFilteredQuestions(filtered);
         resetSelection();
     }, [allUnapprovedQuestions, resetSelection]);

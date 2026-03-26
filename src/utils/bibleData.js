@@ -48,6 +48,35 @@ export const formatReference = (book, chapter, startVerse = '', endVerse = '') =
     return ref;
 };
 
+export const filterQuestions = (questions, { book, chapter, verseStart, verseEnd, themes }, defaultThemes) => {
+    let filtered = [...questions];
+
+    if (book) {
+        filtered = filtered.filter(q => q.book === book);
+    }
+    if (chapter) {
+        filtered = filtered.filter(q => String(q.chapter) === String(chapter));
+    }
+    if (verseStart && verseEnd) {
+        filtered = filtered.filter(q =>
+            parseInt(q.verseStart) <= Number(verseEnd) &&
+            parseInt(q.verseEnd || q.verseStart) >= Number(verseStart)
+        );
+    } else {
+        if (verseStart) {
+            filtered = filtered.filter(q => parseInt(q.verseStart) >= Number(verseStart));
+        }
+        if (verseEnd) {
+            filtered = filtered.filter(q => parseInt(q.verseEnd || q.verseStart) <= Number(verseEnd));
+        }
+    }
+    if (themes && defaultThemes && themes.length !== defaultThemes.length) {
+        filtered = filtered.filter(q => themes.includes(q.theme));
+    }
+
+    return filtered;
+};
+
 export const getSortedQuestions = (questionsArray = []) => {
     if (!questionsArray.length) return [];
     const currentBibleBooks = listBibleBooks();

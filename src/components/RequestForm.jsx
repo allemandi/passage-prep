@@ -4,7 +4,6 @@ import {
     processForm,
     searchQuestions,
 } from '../services/dataService';
-import { getBibleBooks } from '../utils/bibleData';
 import { processInput } from '../utils/inputUtils';
 import { useToast } from './ToastMessage/Toast';
 import useBibleReference from '../hooks/useBibleReference';
@@ -14,18 +13,12 @@ import Button from './ui/Button';
 import Card from './ui/Card';
 import SectionHeader from './ui/SectionHeader';
 import ThemeSelect, { defaultThemes } from './ui/ThemeSelect';
-import ScriptureCombobox from './ScriptureCombobox';
+import BibleReferenceSelector from './BibleReferenceSelector';
 import Tooltip from './Tooltip';
 import QuestionTable from './QuestionTable';
 import LoadingOverlay from './ui/LoadingOverlay';
 
-const ScriptureReferenceItem = ({ id, index, onRemove, bibleBooks, referenceState }) => {
-    const {
-        book, chapter, verseStart, verseEnd,
-        availableChapters, totalChapters, availableVerses,
-        updateReference
-    } = referenceState;
-
+const ScriptureReferenceItem = ({ id, index, onRemove, referenceState }) => {
     return (
         <fieldset className="relative w-full flex flex-col gap-5 p-5 rounded-2xl bg-app-surface/40 border-2 border-app-border">
             <div className="flex justify-between items-center">
@@ -43,53 +36,17 @@ const ScriptureReferenceItem = ({ id, index, onRemove, bibleBooks, referenceStat
                 )}
             </div>
 
-            <div className="grid grid-cols-1 gap-4">
-                <ScriptureCombobox
-                    id={`bookSelect-${index}`}
-                    label="Book"
-                    value={book}
-                    onChange={(val) => updateReference({ book: val })}
-                    options={bibleBooks}
-                    placeholder="Select a book..."
-                    required={index === 0}
-                />
-                <ScriptureCombobox
-                    id={`chapterSelect-${index}`}
-                    label="Chapter"
-                    value={chapter}
-                    onChange={(val) => updateReference({ chapter: val })}
-                    options={availableChapters}
-                    placeholder={book ? `Select (1-${totalChapters})` : "Select a book first"}
-                    disabled={!book}
-                />
-                <div className="grid grid-cols-2 gap-4">
-                    <ScriptureCombobox
-                        id={`verseStartSelect-${index}`}
-                        label="Start"
-                        value={verseStart}
-                        onChange={(val) => updateReference({ verseStart: val })}
-                        options={availableVerses}
-                        placeholder={chapter ? "Verse" : "..."}
-                        disabled={!chapter}
-                    />
-                    <ScriptureCombobox
-                        id={`verseEndSelect-${index}`}
-                        label="End"
-                        value={verseEnd}
-                        onChange={(val) => updateReference({ verseEnd: val })}
-                        options={availableVerses}
-                        isEndVerse
-                        startVerseValue={verseStart}
-                        disabled={!chapter}
-                    />
-                </div>
-            </div>
+            <BibleReferenceSelector
+                bibleReference={referenceState}
+                idPrefix={`ref-${id}-`}
+                required={index === 0}
+            />
         </fieldset>
     );
 };
 
 // Wrapper component to manage multiple useBibleReference hooks
-const MultiScriptureSelector = ({ references, onAdd, onRemove, bibleBooks }) => {
+const MultiScriptureSelector = ({ references, onAdd, onRemove }) => {
     return (
         <section className="flex flex-col gap-6">
             <SectionHeader>Bible References</SectionHeader>
@@ -100,7 +57,6 @@ const MultiScriptureSelector = ({ references, onAdd, onRemove, bibleBooks }) => 
                         id={ref.id}
                         index={idx}
                         onRemove={onRemove}
-                        bibleBooks={bibleBooks}
                         referenceState={ref.state}
                     />
                 ))}
@@ -117,7 +73,6 @@ const MultiScriptureSelector = ({ references, onAdd, onRemove, bibleBooks }) => 
 
 const RequestForm = ({ onStudyGenerated, isLoading }) => {
     const showToast = useToast();
-    const bibleBooks = getBibleBooks();
 
     // Custom state management for multiple references
     const [refIds, setRefIds] = useState([1, 2]);
@@ -233,7 +188,6 @@ const RequestForm = ({ onStudyGenerated, isLoading }) => {
                         references={activeRefs}
                         onAdd={addReference}
                         onRemove={removeReference}
-                        bibleBooks={bibleBooks}
                     />
 
                     <section className="pt-8 border-t-2 border-app-border">

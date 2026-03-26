@@ -51,7 +51,7 @@ const ScriptureCombobox = ({
                 htmlFor={id}
                 className="block mb-1.5 text-sm font-medium text-app-text"
             >
-                {label} {required && <span className="text-secondary-500">*</span>}
+                {label} {required && <span className="text-secondary-600 font-bold">*</span>}
             </label>
             <Select
                 inputId={id}

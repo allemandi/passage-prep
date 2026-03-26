@@ -2,8 +2,7 @@ import React, { useState } from 'react';
 import { X } from 'lucide-react';
 import { Dialog, DialogPanel, DialogTitle, Transition, TransitionChild } from '@headlessui/react';
 import useBibleReference from '../hooks/useBibleReference';
-import { getBibleBooks } from '../utils/bibleData';
-import ScriptureCombobox from './ScriptureCombobox';
+import BibleReferenceSelector from './BibleReferenceSelector';
 import ThemeSelect from './ui/ThemeSelect';
 import Textarea from './ui/Textarea';
 import Button from './ui/Button';
@@ -20,11 +19,7 @@ const EditQuestionModal = ({ isOpen, onClose, question, onSave }) => {
         verseEnd: String(question?.verseEnd || ''),
     });
 
-    const {
-        book, chapter, verseStart, verseEnd,
-        availableChapters, totalChapters, availableVerses,
-        updateReference
-    } = bibleReference;
+    const { book, chapter, verseStart, verseEnd } = bibleReference;
 
     const handleSave = async () => {
         if (!book || !chapter || !verseStart || !selectedTheme || !questionText) {
@@ -94,50 +89,12 @@ const EditQuestionModal = ({ isOpen, onClose, question, onSave }) => {
                                 <div className="p-8 overflow-y-auto space-y-8">
                                     <section className="space-y-6">
                                         <h3 className="text-sm font-bold text-app-text-muted uppercase tracking-wider">Bible Reference</h3>
-                                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                                            <ScriptureCombobox
-                                                id="edit-bookSelect"
-                                                label="Book"
-                                                value={book}
-                                                onChange={(val) => updateReference({ book: val })}
-                                                options={getBibleBooks()}
+                                        <div>
+                                            <BibleReferenceSelector
+                                                bibleReference={bibleReference}
+                                                idPrefix="edit-"
                                                 required
                                             />
-
-                                            <ScriptureCombobox
-                                                id="edit-chapterSelect"
-                                                label="Chapter"
-                                                value={chapter}
-                                                onChange={(val) => updateReference({ chapter: val })}
-                                                options={availableChapters}
-                                                placeholder={book ? `Select (1-${totalChapters})` : "Select book first"}
-                                                disabled={!book}
-                                                required
-                                            />
-
-                                            <div className="grid grid-cols-2 gap-4">
-                                                <ScriptureCombobox
-                                                    id="edit-verseStartSelect"
-                                                    label="Start Verse"
-                                                    value={verseStart}
-                                                    onChange={(val) => updateReference({ verseStart: val })}
-                                                    options={availableVerses}
-                                                    placeholder={chapter ? "Select" : "..."}
-                                                    disabled={!chapter}
-                                                    required
-                                                />
-
-                                                <ScriptureCombobox
-                                                    id="edit-verseEndSelect"
-                                                    label="End Verse"
-                                                    value={verseEnd}
-                                                    onChange={(val) => updateReference({ verseEnd: val })}
-                                                    options={availableVerses}
-                                                    isEndVerse
-                                                    startVerseValue={verseStart}
-                                                    disabled={!chapter}
-                                                />
-                                            </div>
                                         </div>
                                     </section>
 
