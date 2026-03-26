@@ -20,23 +20,21 @@ const EditDelete = () => {
     // Store current filter values to re-apply after actions
     const currentFilters = useRef({ book: '', chapter: '', verseStart: '', verseEnd: '', themes: defaultThemes });
 
-    const applyApiFilters = useCallback(async ({ book, chapter, verseStart, verseEnd, themes }) => {
-        currentFilters.current = { book, chapter, verseStart, verseEnd, themes };
+    const applyApiFilters = useCallback(async (filters) => {
+        currentFilters.current = filters;
 
         setIsFetching(true);
         try {
-            const filter = {};
-            if (book) filter.book = book;
-            filter.chapter = chapter || null;
-            filter.verseStart = verseStart || null;
-            filter.verseEnd = verseEnd || null;
-            if (themes.length !== defaultThemes.length) {
-                filter.themeArr = themes;
-            }
-            if (hideUnapproved) {
-                filter.isApproved = true;
-            }
-            const results = await searchQuestions(filter);
+            const apiFilter = {
+                book: filters.book || undefined,
+                chapter: filters.chapter || null,
+                verseStart: filters.verseStart || null,
+                verseEnd: filters.verseEnd || null,
+                themeArr: filters.themes.length !== defaultThemes.length ? filters.themes : undefined,
+                isApproved: hideUnapproved ? true : undefined,
+            };
+
+            const results = await searchQuestions(apiFilter);
             setFilteredQuestions(results);
             resetSelection();
         } catch (error) {

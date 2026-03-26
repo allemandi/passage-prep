@@ -1,12 +1,9 @@
 import React, { useState } from 'react';
-import { Filter, X } from 'lucide-react';
-import ScriptureCombobox from '../ScriptureCombobox';
+import { Filter } from 'lucide-react';
+import BibleReferenceSelector from '../BibleReferenceSelector';
 import ThemeSelect, { defaultThemes } from '../ui/ThemeSelect';
 import Button from '../ui/Button';
 import useBibleReference from '../../hooks/useBibleReference';
-import { getBibleBooks } from '../../utils/bibleData';
-
-const bibleBooks = getBibleBooks();
 
 const AdminFilterBar = ({ onApply, initialThemes = defaultThemes, title, children }) => {
     const bibleRef = useBibleReference();
@@ -22,18 +19,6 @@ const AdminFilterBar = ({ onApply, initialThemes = defaultThemes, title, childre
         });
     };
 
-    const handleClear = () => {
-        bibleRef.reset();
-        setSelectedThemes(initialThemes);
-        onApply({
-            book: '',
-            chapter: '',
-            verseStart: '',
-            verseEnd: '',
-            themes: initialThemes
-        });
-    };
-
     return (
         <fieldset className="w-full mb-10">
             {title && (
@@ -45,38 +30,9 @@ const AdminFilterBar = ({ onApply, initialThemes = defaultThemes, title, childre
             )}
 
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6 justify-center mb-8">
-                <ScriptureCombobox
-                    label="Book"
-                    value={bibleRef.book}
-                    onChange={(book) => bibleRef.updateReference({ book })}
-                    options={bibleBooks}
-                    placeholder="Select a book"
-                />
-                <ScriptureCombobox
-                    label="Chapter"
-                    value={bibleRef.chapter}
-                    onChange={(chapter) => bibleRef.updateReference({ chapter })}
-                    options={bibleRef.availableChapters}
-                    disabled={!bibleRef.book}
-                    placeholder={bibleRef.book ? "Select chapter" : "Select book first"}
-                />
-                <ScriptureCombobox
-                    label="Start Verse"
-                    value={bibleRef.verseStart}
-                    onChange={(verseStart) => bibleRef.updateReference({ verseStart })}
-                    options={bibleRef.availableVerses}
-                    disabled={!bibleRef.chapter}
-                    placeholder={bibleRef.chapter ? "Start verse" : "..."}
-                />
-                <ScriptureCombobox
-                    label="End Verse"
-                    value={bibleRef.verseEnd}
-                    onChange={(verseEnd) => bibleRef.updateReference({ verseEnd })}
-                    options={bibleRef.availableVerses}
-                    disabled={!bibleRef.chapter}
-                    placeholder={bibleRef.chapter ? "End verse" : "..."}
-                    isEndVerse
-                    startVerseValue={bibleRef.verseStart}
+                <BibleReferenceSelector
+                    bibleReference={bibleRef}
+                    layout="grid"
                 />
             </div>
 
@@ -97,14 +53,6 @@ const AdminFilterBar = ({ onApply, initialThemes = defaultThemes, title, childre
                         className="w-full sm:w-auto min-w-[160px]"
                     >
                         <Filter className="w-5 h-5" /> Apply Filters
-                    </Button>
-
-                    <Button
-                        onClick={handleClear}
-                        variant="outline"
-                        className="w-full sm:w-auto min-w-[160px]"
-                    >
-                        <X className="w-5 h-5" /> Clear Filters
                     </Button>
                     {children}
                 </div>

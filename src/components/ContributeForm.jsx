@@ -6,7 +6,6 @@ import {
 } from 'obscenity';
 import { saveQuestion } from '../services/dataService';
 import { useToast } from './ToastMessage/Toast';
-import { getBibleBooks } from '../utils/bibleData';
 import useBibleReference from '../hooks/useBibleReference';
 
 import Button from './ui/Button';
@@ -14,7 +13,7 @@ import Card from './ui/Card';
 import SectionHeader from './ui/SectionHeader';
 import ThemeSelect from './ui/ThemeSelect';
 import Textarea from './ui/Textarea';
-import ScriptureCombobox from './ScriptureCombobox';
+import BibleReferenceSelector from './BibleReferenceSelector';
 import LoadingOverlay from './ui/LoadingOverlay';
 
 const ContributeForm = () => {
@@ -24,18 +23,12 @@ const ContributeForm = () => {
     const [isSubmitting, setIsSubmitting] = useState(false);
 
     const bibleReference = useBibleReference();
-    const {
-        book, chapter, verseStart, verseEnd,
-        availableChapters, totalChapters, availableVerses,
-        updateReference,
-    } = bibleReference;
+    const { book, chapter, verseStart, verseEnd } = bibleReference;
 
     const matcher = new RegExpMatcher({
         ...englishDataset.build(),
         ...englishRecommendedTransformers,
     });
-
-    const bibleBooks = getBibleBooks();
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -94,51 +87,11 @@ const ContributeForm = () => {
                             <SectionHeader>Bible Reference</SectionHeader>
                         </legend>
 
-                        <div className="space-y-6">
-                            <ScriptureCombobox
-                                id="bookSelect"
-                                label="Book"
-                                value={book}
-                                onChange={(val) => updateReference({ book: val })}
-                                options={bibleBooks}
-                                placeholder="Select a book..."
+                        <div>
+                            <BibleReferenceSelector
+                                bibleReference={bibleReference}
                                 required
                             />
-
-                            <ScriptureCombobox
-                                id="chapterSelect"
-                                label="Chapter"
-                                value={chapter}
-                                onChange={(val) => updateReference({ chapter: val })}
-                                options={availableChapters}
-                                placeholder={book ? `Select chapter (1-${totalChapters})` : "Select a book first"}
-                                disabled={!book}
-                                required
-                            />
-
-                            <div className="grid grid-cols-2 gap-4">
-                                <ScriptureCombobox
-                                    id="verseStartSelect"
-                                    label="Start Verse"
-                                    value={verseStart}
-                                    onChange={(val) => updateReference({ verseStart: val })}
-                                    options={availableVerses}
-                                    placeholder={chapter ? "Select" : "..."}
-                                    disabled={!chapter}
-                                    required
-                                />
-
-                                <ScriptureCombobox
-                                    id="verseEndSelect"
-                                    label="End Verse"
-                                    value={verseEnd}
-                                    onChange={(val) => updateReference({ verseEnd: val })}
-                                    options={availableVerses}
-                                    isEndVerse
-                                    startVerseValue={verseStart}
-                                    disabled={!chapter}
-                                />
-                            </div>
                         </div>
                     </fieldset>
 
