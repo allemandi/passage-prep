@@ -32,6 +32,9 @@
   --color-app-border: var(--border-app);
   --color-app-text: var(--text-app);
   --color-app-text-muted: var(--text-app-muted);
+
+  /* Helper for translucent primary colors */
+  --color-primary-400-alpha-15: rgba(56, 189, 248, 0.15);
 }
 
 :root {
@@ -46,6 +49,7 @@
 
 .dark {
   /* Dark Mode Pastel */
+  --color-primary-400-alpha-15: rgba(56, 189, 248, 0.25);
   --bg-app: #1e293b;
   --bg-surface: #2d3748;
   --border-app: #4a5568;
@@ -59,6 +63,15 @@
 /* Global Styles */
 body {
   @apply bg-app-bg text-app-text transition-colors duration-500 antialiased;
+}
+
+/* Utilities */
+@utility no-scrollbar {
+  -ms-overflow-style: none; /* IE and Edge */
+  scrollbar-width: none; /* Firefox */
+  &::-webkit-scrollbar {
+    display: none; /* Chrome, Safari, and Opera */
+  }
 }
 
 /* Autofill styling for dark mode */

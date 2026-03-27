@@ -39,6 +39,7 @@ const ScriptureReferenceItem = ({ id, index, onRemove, referenceState }) => {
             <BibleReferenceSelector
                 bibleReference={referenceState}
                 idPrefix={`ref-${id}-`}
+                labelPrefix={`Reference ${index + 1}: `}
                 required={index === 0}
             />
         </fieldset>
@@ -205,6 +206,7 @@ const RequestForm = ({ onStudyGenerated, isLoading }) => {
                                 onClick={() => setHideUnapproved(!hideUnapproved)}
                                 className="w-full"
                                 aria-pressed={hideUnapproved}
+                                title={hideUnapproved ? 'Include unapproved questions in results' : 'Exclude unapproved questions from results'}
                             >
                                 {hideUnapproved ? 'Show Unapproved' : 'Hide Unapproved'}
                             </Button>

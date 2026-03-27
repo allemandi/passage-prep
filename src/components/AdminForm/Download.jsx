@@ -43,6 +43,7 @@ const Download = () => {
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6 justify-center mb-8">
         <ScriptureCombobox
           label="Book"
+          ariaLabel="Download Filter: Book"
           value={bibleRef.book}
           onChange={(book) => bibleRef.updateReference({ book })}
           options={bibleBooks}
@@ -50,6 +51,7 @@ const Download = () => {
         />
         <ScriptureCombobox
           label="Chapter"
+          ariaLabel="Download Filter: Chapter"
           value={bibleRef.chapter}
           onChange={(chapter) => bibleRef.updateReference({ chapter })}
           options={bibleRef.availableChapters}
@@ -58,6 +60,7 @@ const Download = () => {
         />
         <ScriptureCombobox
           label="Start Verse"
+          ariaLabel="Download Filter: Start Verse"
           value={bibleRef.verseStart}
           onChange={(verseStart) => bibleRef.updateReference({ verseStart })}
           options={bibleRef.availableVerses}
@@ -66,6 +69,7 @@ const Download = () => {
         />
         <ScriptureCombobox
           label="End Verse"
+          ariaLabel="Download Filter: End Verse"
           value={bibleRef.verseEnd}
           onChange={(verseEnd) => bibleRef.updateReference({ verseEnd })}
           options={bibleRef.availableVerses}
