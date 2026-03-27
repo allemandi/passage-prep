@@ -93,6 +93,7 @@ const EditQuestionModal = ({ isOpen, onClose, question, onSave }) => {
                                             <BibleReferenceSelector
                                                 bibleReference={bibleReference}
                                                 idPrefix="edit-"
+                                                labelPrefix="Edit: "
                                                 required
                                             />
                                         </div>

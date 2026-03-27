@@ -90,6 +90,7 @@ const ContributeForm = () => {
                         <div>
                             <BibleReferenceSelector
                                 bibleReference={bibleReference}
+                                labelPrefix="Contribute: "
                                 required
                             />
                         </div>

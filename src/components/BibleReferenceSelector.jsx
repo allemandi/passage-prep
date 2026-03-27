@@ -9,6 +9,7 @@ const BibleReferenceSelector = ({
     required = false,
     idPrefix = '',
     layout = 'vertical',
+    labelPrefix = '',
 }) => {
     const {
         book, chapter, verseStart, verseEnd,
@@ -22,6 +23,7 @@ const BibleReferenceSelector = ({
                 <ScriptureCombobox
                     id={`${idPrefix}bookSelect`}
                     label="Book"
+                    ariaLabel={`${labelPrefix}Book`}
                     value={book}
                     onChange={(val) => updateReference({ book: val })}
                     options={bibleBooks}
@@ -32,6 +34,7 @@ const BibleReferenceSelector = ({
                 <ScriptureCombobox
                     id={`${idPrefix}chapterSelect`}
                     label="Chapter"
+                    ariaLabel={`${labelPrefix}Chapter`}
                     value={chapter}
                     onChange={(val) => updateReference({ chapter: val })}
                     options={availableChapters}
@@ -43,6 +46,7 @@ const BibleReferenceSelector = ({
                 <ScriptureCombobox
                     id={`${idPrefix}verseStartSelect`}
                     label="Start Verse"
+                    ariaLabel={`${labelPrefix}Start Verse`}
                     value={verseStart}
                     onChange={(val) => updateReference({ verseStart: val })}
                     options={availableVerses}
@@ -54,6 +58,7 @@ const BibleReferenceSelector = ({
                 <ScriptureCombobox
                     id={`${idPrefix}verseEndSelect`}
                     label="End Verse"
+                    ariaLabel={`${labelPrefix}End Verse`}
                     value={verseEnd}
                     onChange={(val) => updateReference({ verseEnd: val })}
                     options={availableVerses}
@@ -70,6 +75,7 @@ const BibleReferenceSelector = ({
             <ScriptureCombobox
                 id={`${idPrefix}bookSelect`}
                 label="Book"
+                ariaLabel={`${labelPrefix}Book`}
                 value={book}
                 onChange={(val) => updateReference({ book: val })}
                 options={bibleBooks}
@@ -80,6 +86,7 @@ const BibleReferenceSelector = ({
             <ScriptureCombobox
                 id={`${idPrefix}chapterSelect`}
                 label="Chapter"
+                ariaLabel={`${labelPrefix}Chapter`}
                 value={chapter}
                 onChange={(val) => updateReference({ chapter: val })}
                 options={availableChapters}
@@ -92,6 +99,7 @@ const BibleReferenceSelector = ({
                 <ScriptureCombobox
                     id={`${idPrefix}verseStartSelect`}
                     label="Start Verse"
+                    ariaLabel={`${labelPrefix}Start Verse`}
                     value={verseStart}
                     onChange={(val) => updateReference({ verseStart: val })}
                     options={availableVerses}
@@ -103,6 +111,7 @@ const BibleReferenceSelector = ({
                 <ScriptureCombobox
                     id={`${idPrefix}verseEndSelect`}
                     label="End Verse"
+                    ariaLabel={`${labelPrefix}End Verse`}
                     value={verseEnd}
                     onChange={(val) => updateReference({ verseEnd: val })}
                     options={availableVerses}

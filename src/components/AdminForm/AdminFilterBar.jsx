@@ -33,6 +33,7 @@ const AdminFilterBar = ({ onApply, initialThemes = defaultThemes, title, childre
                 <BibleReferenceSelector
                     bibleReference={bibleRef}
                     layout="grid"
+                    labelPrefix="Filter: "
                 />
             </div>
 

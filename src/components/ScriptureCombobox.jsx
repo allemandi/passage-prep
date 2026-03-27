@@ -5,6 +5,7 @@ import clsx from 'clsx';
 const ScriptureCombobox = ({
     id,
     label,
+    ariaLabel,
     value,
     onChange,
     options = [],
@@ -55,7 +56,7 @@ const ScriptureCombobox = ({
             </label>
             <Select
                 inputId={id}
-                aria-label={label}
+                aria-label={ariaLabel || label}
                 options={processedOptions}
                 value={selectedValue}
                 onChange={handleChange}
@@ -78,7 +79,7 @@ const ScriptureCombobox = ({
                         backgroundColor: state.isSelected
                             ? 'var(--color-primary-500)'
                             : state.isFocused
-                                ? 'rgba(56, 189, 248, 0.15)'
+                                ? 'var(--color-primary-400-alpha-15, rgba(56, 189, 248, 0.15))'
                                 : 'transparent',
                         color: state.isSelected
                             ? 'white'
