@@ -10,6 +10,7 @@ const BibleReferenceSelector = ({
     idPrefix = '',
     layout = 'vertical',
     labelPrefix = '',
+    errors = {},
 }) => {
     const {
         book, chapter, verseStart, verseEnd,
@@ -29,6 +30,7 @@ const BibleReferenceSelector = ({
                     options={bibleBooks}
                     placeholder="Select a book..."
                     required={required}
+                    error={errors.book}
                 />
 
                 <ScriptureCombobox
@@ -41,6 +43,7 @@ const BibleReferenceSelector = ({
                     placeholder={book ? `Select chapter (1-${totalChapters})` : "Select a book first"}
                     disabled={!book}
                     required={required}
+                    error={errors.chapter}
                 />
 
                 <ScriptureCombobox
@@ -53,6 +56,7 @@ const BibleReferenceSelector = ({
                     placeholder={chapter ? "Select" : "..."}
                     disabled={!chapter}
                     required={required}
+                    error={errors.verseStart}
                 />
 
                 <ScriptureCombobox
@@ -65,6 +69,7 @@ const BibleReferenceSelector = ({
                     isEndVerse
                     startVerseValue={verseStart}
                     disabled={!chapter}
+                    error={errors.verseEnd}
                 />
             </>
         );
@@ -81,6 +86,7 @@ const BibleReferenceSelector = ({
                 options={bibleBooks}
                 placeholder="Select a book..."
                 required={required}
+                error={errors.book}
             />
 
             <ScriptureCombobox
@@ -93,6 +99,7 @@ const BibleReferenceSelector = ({
                 placeholder={book ? `Select chapter (1-${totalChapters})` : "Select a book first"}
                 disabled={!book}
                 required={required}
+                error={errors.chapter}
             />
 
             <div className="grid grid-cols-2 gap-4">
@@ -106,6 +113,7 @@ const BibleReferenceSelector = ({
                     placeholder={chapter ? "Select" : "..."}
                     disabled={!chapter}
                     required={required}
+                    error={errors.verseStart}
                 />
 
                 <ScriptureCombobox
@@ -118,6 +126,7 @@ const BibleReferenceSelector = ({
                     isEndVerse
                     startVerseValue={verseStart}
                     disabled={!chapter}
+                    error={errors.verseEnd}
                 />
             </div>
         </div>

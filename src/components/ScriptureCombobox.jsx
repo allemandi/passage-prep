@@ -15,6 +15,7 @@ const ScriptureCombobox = ({
     helperText = '',
     isEndVerse = false,
     startVerseValue = '',
+    error,
     className,
 }) => {
     const processedOptions = useMemo(() => {
@@ -68,7 +69,11 @@ const ScriptureCombobox = ({
                     control: (base) => ({
                         ...base,
                         backgroundColor: 'var(--bg-surface)',
-                        borderColor: 'var(--border-app)',
+                        borderColor: error ? 'var(--color-secondary-400)' : 'var(--border-app)',
+                        borderWidth: '2px',
+                        '&:hover': {
+                            borderColor: error ? 'var(--color-secondary-500)' : 'var(--color-primary-300)',
+                        }
                     }),
                     menu: (base) => ({
                         ...base,
@@ -98,9 +103,17 @@ const ScriptureCombobox = ({
                 classNamePrefix="react-select"
                 aria-required={required}
                 aria-disabled={finalIsDisabled}
-                aria-describedby={helperText ? `${id}-helper` : undefined}
+                aria-describedby={clsx(
+                    helperText && `${id}-helper`,
+                    error && `${id}-error`
+                )}
             />
-            {helperText && (
+            {error && (
+                <p id={`${id}-error`} className="mt-1 text-xs text-secondary-600 font-medium">
+                    {error}
+                </p>
+            )}
+            {helperText && !error && (
                 <p id={`${id}-helper`} className="mt-1 text-xs text-app-text-muted">
                     {helperText}
                 </p>

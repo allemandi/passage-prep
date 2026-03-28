@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import clsx from 'clsx';
 import {
     RegExpMatcher,
     englishDataset,
@@ -21,28 +22,53 @@ const ContributeForm = () => {
     const [questionText, setQuestionText] = useState('');
     const [selectedTheme, setSelectedTheme] = useState('');
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [errors, setErrors] = useState({});
 
     const bibleReference = useBibleReference();
     const { book, chapter, verseStart, verseEnd } = bibleReference;
+
+    // Clear field-specific errors when they change
+    useEffect(() => {
+        if (book && errors.book) setErrors(prev => ({ ...prev, book: null }));
+    }, [book, errors.book]);
+
+    useEffect(() => {
+        if (chapter && errors.chapter) setErrors(prev => ({ ...prev, chapter: null }));
+    }, [chapter, errors.chapter]);
+
+    useEffect(() => {
+        if (verseStart && errors.verseStart) setErrors(prev => ({ ...prev, verseStart: null }));
+    }, [verseStart, errors.verseStart]);
 
     const matcher = new RegExpMatcher({
         ...englishDataset.build(),
         ...englishRecommendedTransformers,
     });
 
+    const validate = () => {
+        const newErrors = {};
+        if (!book) newErrors.book = 'Book is required';
+        if (!chapter) newErrors.chapter = 'Chapter is required';
+        if (!verseStart) newErrors.verseStart = 'Start verse is required';
+        if (!selectedTheme) newErrors.theme = 'Theme is required';
+        if (!questionText.trim()) {
+            newErrors.question = 'Question is required';
+        } else if (questionText.length < 5) {
+            newErrors.question = 'Question must be at least 5 characters';
+        } else if (matcher.hasMatch(questionText)) {
+            newErrors.question = 'Possible profanity detected. Please revise.';
+        }
+
+        setErrors(newErrors);
+        return Object.keys(newErrors).length === 0;
+    };
+
     const handleSubmit = async (e) => {
         e.preventDefault();
 
-        if (!book || !chapter || !verseStart || !selectedTheme || !questionText) {
-            return showToast('Please complete all required fields.', 'error');
-        }
-
-        if (matcher.hasMatch(questionText)) {
-            return showToast('Possible profanity detected. Please revise your question.', 'error');
-        }
-
-        if (questionText.length < 5) {
-            return showToast('Question is too short.', 'error');
+        if (!validate()) {
+            showToast('Please correct the errors in the form.', 'error');
+            return;
         }
 
         setIsSubmitting(true);
@@ -92,6 +118,7 @@ const ContributeForm = () => {
                                 bibleReference={bibleReference}
                                 labelPrefix="Contribute: "
                                 required
+                                errors={errors}
                             />
                         </div>
                     </fieldset>
@@ -105,20 +132,38 @@ const ContributeForm = () => {
                             <div className="space-y-6">
                                 <ThemeSelect
                                     value={selectedTheme}
-                                    onChange={setSelectedTheme}
+                                    onChange={(val) => {
+                                        setSelectedTheme(val);
+                                        if (errors.theme) setErrors(prev => ({ ...prev, theme: null }));
+                                    }}
                                     required
                                     label="Theme"
+                                    error={errors.theme}
                                 />
 
-                                <Textarea
-                                    id="questionText"
-                                    label="Question Details"
-                                    value={questionText}
-                                    onChange={(e) => setQuestionText(e.target.value)}
-                                    placeholder="Type your Bible study question here..."
-                                    required
-                                    rows={6}
-                                />
+                                <div className="space-y-1">
+                                    <Textarea
+                                        id="questionText"
+                                        label="Question Details"
+                                        value={questionText}
+                                        onChange={(e) => {
+                                            setQuestionText(e.target.value);
+                                            if (errors.question) setErrors(prev => ({ ...prev, question: null }));
+                                        }}
+                                        placeholder="Type your Bible study question here..."
+                                        required
+                                        rows={6}
+                                        error={errors.question}
+                                    />
+                                    <div className="flex justify-end">
+                                        <span className={clsx(
+                                            "text-xs font-medium",
+                                            questionText.length >= 5 ? "text-app-text-muted" : "text-secondary-500"
+                                        )}>
+                                            {questionText.length} characters
+                                        </span>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </fieldset>
