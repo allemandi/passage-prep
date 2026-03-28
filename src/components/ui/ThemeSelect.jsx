@@ -14,6 +14,7 @@ const ThemeSelect = ({
   required = false,
   isMulti = false,
   placeholder = "Select theme(s)",
+  error,
   className,
 }) => {
   const displayText = isMulti
@@ -62,13 +63,14 @@ const ThemeSelect = ({
               <ListboxButton
                 className={clsx(
                   "flex justify-between items-center w-full rounded-lg px-3 py-2.5 text-sm",
-                  "border-2 border-app-border transition-all duration-200",
+                  "border-2 transition-all duration-200",
                   "bg-app-surface text-app-text shadow-sm",
-                  "focus:outline-none focus:ring-4 focus:ring-primary-400/20",
-                  "overflow-hidden text-left",
-                  open
+                  "focus:outline-none focus:ring-4 overflow-hidden text-left",
+                  error
+                    ? "border-secondary-400 focus:ring-secondary-400/20"
+                    : open
                     ? "border-primary-400 ring-4 ring-primary-400/20"
-                    : "hover:border-primary-300"
+                    : "border-app-border hover:border-primary-300"
                 )}
               >
                 <span className={clsx("truncate flex-grow", isMulti ? (!value || value.length === 0) && "text-app-text-muted" : !value && "text-app-text-muted")}>
@@ -81,6 +83,12 @@ const ThemeSelect = ({
                   )}
                 />
               </ListboxButton>
+
+              {error && (
+                <p className="mt-1 text-xs text-secondary-600 font-medium">
+                  {error}
+                </p>
+              )}
 
               <Transition
                 as={React.Fragment}
