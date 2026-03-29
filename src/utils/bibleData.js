@@ -27,20 +27,6 @@ export const getVersesForChapter = (bookName, chapterNum) => {
     return versesArray.length > 0 ? Math.max(...versesArray) : 0;
 };
 
-export const validateBook = (bookName) => isValidBook(bookName);
-
-export const validateChapter = (bookName, chapterNum) => {
-    return isValidChapter(bookName, parseInt(chapterNum, 10));
-};
-
-export const validateVerse = (bookName, chapterNum, verseNum) => {
-    return isValidReference(bookName, parseInt(chapterNum, 10), parseInt(verseNum, 10));
-};
-
-export const validateVerseRange = (bookName, chapterNum, startVerse, endVerse) => {
-    return isValidReference(bookName, parseInt(chapterNum, 10), parseInt(startVerse, 10), parseInt(endVerse, 10));
-};
-
 export const formatReference = (book, chapter, startVerse = '', endVerse = '') => {
     let ref = `${book} ${chapter}`;
     if (startVerse) ref += `:${startVerse}`;

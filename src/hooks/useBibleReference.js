@@ -76,7 +76,6 @@ export const useBibleReference = (initialValues = {}) => {
 
     return {
         ...reference,
-        reference,
         availableChapters,
         totalChapters,
         availableVerses,

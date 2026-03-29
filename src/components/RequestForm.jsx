@@ -27,6 +27,7 @@ const ScriptureReferenceItem = ({ id, index, onRemove, referenceState }) => {
                 </legend>
                 {index > 0 && (
                     <button
+                        type="button"
                         aria-label={`Remove reference ${index + 1}`}
                         onClick={() => onRemove(id)}
                         className="p-1.5 rounded-xl bg-secondary-50 text-secondary-600 hover:bg-secondary-100 dark:bg-secondary-900/30 dark:text-secondary-400 dark:hover:bg-secondary-900/50 transition-all duration-200"
@@ -63,7 +64,7 @@ const MultiScriptureSelector = ({ references, onAdd, onRemove }) => {
                 ))}
             </div>
             <div className="flex justify-center">
-                <Button variant="outline" onClick={onAdd} className="w-full max-w-xs">
+                <Button type="button" variant="outline" onClick={onAdd} className="w-full max-w-xs">
                     <Plus size={18} />
                     Add Another Reference
                 </Button>
@@ -75,32 +76,32 @@ const MultiScriptureSelector = ({ references, onAdd, onRemove }) => {
 const RequestForm = ({ onStudyGenerated, isLoading }) => {
     const showToast = useToast();
 
-    // Custom state management for multiple references
-    const [refIds, setRefIds] = useState([1, 2]);
-    const refStates = {
-        1: useBibleReference(),
-        2: useBibleReference(),
-        3: useBibleReference(),
-        4: useBibleReference(),
-        5: useBibleReference(),
-        6: useBibleReference(),
-    };
+    // Custom state management for multiple references (up to 6)
+    const [activeIndices, setActiveIndices] = useState([0, 1]);
+    const refSlots = [
+        useBibleReference(),
+        useBibleReference(),
+        useBibleReference(),
+        useBibleReference(),
+        useBibleReference(),
+        useBibleReference(),
+    ];
 
     const addReference = () => {
-        if (refIds.length >= 6) {
+        if (activeIndices.length >= 6) {
             showToast('Maximum of 6 references allowed.', 'info');
             return;
         }
-        const nextId = [1, 2, 3, 4, 5, 6].find(n => !refIds.includes(n));
-        setRefIds(prev => [...prev, nextId].sort((a, b) => a - b));
+        const nextIndex = [0, 1, 2, 3, 4, 5].find(idx => !activeIndices.includes(idx));
+        setActiveIndices(prev => [...prev, nextIndex].sort((a, b) => a - b));
     };
 
-    const removeReference = (id) => {
-        setRefIds(prev => prev.filter(refId => refId !== id));
-        refStates[id].reset();
+    const removeReference = (idx) => {
+        setActiveIndices(prev => prev.filter(i => i !== idx));
+        refSlots[idx].reset();
     };
 
-    const activeRefs = refIds.map(id => ({ id, state: refStates[id] }));
+    const activeRefs = activeIndices.map(idx => ({ id: idx, state: refSlots[idx] }));
 
     const [selectedThemes, setSelectedThemes] = useState(defaultThemes);
     const [isSubmitting, setIsSubmitting] = useState(false);
