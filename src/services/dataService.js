@@ -98,7 +98,7 @@ export const processForm = async (formData) => {
   }).filter(Boolean);
 
   let contextArr = bibleContext
-    .filter(i => scriptureRefs.some(ref => i.book.toLowerCase().includes(ref.book)))
+    .filter(i => scriptureRefs.some(ref => i.book.toLowerCase() === ref.book))
     .map(i => `${i.book} is about ${i.context} The author is ${i.author}.`);
 
   contextArr.sort((a, b) => {
