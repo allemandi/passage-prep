@@ -5,7 +5,6 @@ import {
     listVerses,
     isValidBook,
     isValidChapter,
-    isValidReference,
 } from '@allemandi/bible-validate';
 
 export const getBibleBooks = () => listBibleBooks();
@@ -25,20 +24,6 @@ export const getVersesForChapter = (bookName, chapterNum) => {
     if (!isValidChapter(bookName, chapterNumber)) return 0;
     const versesArray = listVerses(bookName, chapterNumber);
     return versesArray.length > 0 ? Math.max(...versesArray) : 0;
-};
-
-export const validateBook = (bookName) => isValidBook(bookName);
-
-export const validateChapter = (bookName, chapterNum) => {
-    return isValidChapter(bookName, parseInt(chapterNum, 10));
-};
-
-export const validateVerse = (bookName, chapterNum, verseNum) => {
-    return isValidReference(bookName, parseInt(chapterNum, 10), parseInt(verseNum, 10));
-};
-
-export const validateVerseRange = (bookName, chapterNum, startVerse, endVerse) => {
-    return isValidReference(bookName, parseInt(chapterNum, 10), parseInt(startVerse, 10), parseInt(endVerse, 10));
 };
 
 export const formatReference = (book, chapter, startVerse = '', endVerse = '') => {

@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback, Fragment } from 'react';
-import { Dialog, DialogPanel, DialogTitle, Transition, TransitionChild } from '@headlessui/react';
+import { Dialog, DialogPanel, DialogTitle, Transition, TransitionChild, TabGroup } from '@headlessui/react';
 import { AlertCircle, LogOut, Clock } from 'lucide-react';
 
 import { ToastProvider, useToast } from './components/ToastMessage/Toast';
@@ -94,19 +94,20 @@ function AppContent() {
       <Header mode={mode} setMode={setMode} />
 
       <main className="flex-grow w-full pb-24">
-        <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8 py-8 flex flex-col gap-10">
-          <Tabs tabValue={tabValue} setTabValue={setTabValue} />
+        <TabGroup selectedIndex={tabValue} onChange={setTabValue}>
+          <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8 py-8 flex flex-col gap-10">
+            <Tabs />
 
-          <MainContent
-            tabValue={tabValue}
-            isLoading={isLoading}
-            handleShowStudy={handleShowStudy}
-            studyData={studyData}
-            setStudyData={setStudyData}
-            isLoggedIn={isLoggedIn}
-            setIsLoggedIn={handleSetIsLoggedIn}
-          />
-        </div>
+            <MainContent
+              isLoading={isLoading}
+              handleShowStudy={handleShowStudy}
+              studyData={studyData}
+              setStudyData={setStudyData}
+              isLoggedIn={isLoggedIn}
+              setIsLoggedIn={handleSetIsLoggedIn}
+            />
+          </div>
+        </TabGroup>
       </main>
 
       <Footer onHelpClick={() => setHelpOpen(true)} />
