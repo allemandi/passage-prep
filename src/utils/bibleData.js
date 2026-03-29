@@ -5,7 +5,6 @@ import {
     listVerses,
     isValidBook,
     isValidChapter,
-    isValidReference,
 } from '@allemandi/bible-validate';
 
 export const getBibleBooks = () => listBibleBooks();
