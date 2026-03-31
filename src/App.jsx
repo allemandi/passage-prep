@@ -105,6 +105,7 @@ function AppContent() {
               setStudyData={setStudyData}
               isLoggedIn={isLoggedIn}
               setIsLoggedIn={handleSetIsLoggedIn}
+              setTabValue={setTabValue}
             />
           </div>
         </TabGroup>

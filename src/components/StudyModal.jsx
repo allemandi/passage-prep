@@ -1,10 +1,16 @@
-import React, { Fragment } from 'react';
+import React, { Fragment, useMemo } from 'react';
 import { X, MoreVertical, Copy, FileText, FileCode } from 'lucide-react';
 import { Dialog, DialogPanel, DialogTitle, Transition, TransitionChild, Menu, MenuButton, MenuItem, MenuItems } from '@headlessui/react';
 import { useToast } from './ToastMessage/Toast';
 import Button from './ui/Button';
 import SectionHeader from './ui/SectionHeader';
 import clsx from 'clsx';
+import {
+    groupQuestionsByBookAndTheme,
+    generatePlainTextContent,
+    generateMarkdownContent,
+    generateRichTextContent
+} from '../utils/studyUtils';
 
 const StudyModal = ({ show, onHide, data }) => {
     const showToast = useToast();
@@ -14,169 +20,46 @@ const StudyModal = ({ show, onHide, data }) => {
         return null;
     }
 
-    const groupQuestionsByBookAndTheme = (questions) => {
-        const grouped = {};
-        questions.forEach(question => {
-            if (!grouped[question.book]) {
-                grouped[question.book] = {};
+    const groupedQuestions = useMemo(() =>
+        groupQuestionsByBookAndTheme(data.filteredQuestions || [])
+    , [data.filteredQuestions]);
+
+    const orderedBooksList = useMemo(() => {
+        const bookOrder = (data.refArr || [])
+            .map(ref => {
+                const match = ref.match(/^((?:\d+\s+)?[A-Za-z]+(?:\s+[A-Za-z]+)*)/i);
+                return match ? match[1].trim() : null;
+            })
+            .filter(Boolean);
+
+        const uniqueBookOrder = [...new Set(bookOrder)];
+
+        return [...Object.keys(groupedQuestions)].sort((a, b) => {
+            const indexA = uniqueBookOrder.indexOf(a);
+            const indexB = uniqueBookOrder.indexOf(b);
+
+            if (indexA !== -1 && indexB !== -1) {
+                return indexA - indexB;
             }
 
-            if (!grouped[question.book][question.theme]) {
-                grouped[question.book][question.theme] = [];
-            }
+            if (indexA !== -1) return -1;
+            if (indexB !== -1) return 1;
 
-            grouped[question.book][question.theme].push(question);
+            return a.localeCompare(b);
         });
-        return grouped;
-    };
+    }, [data.refArr, groupedQuestions]);
 
-    const groupedQuestions = groupQuestionsByBookAndTheme(data.filteredQuestions || []);
+    const plainTextContent = useMemo(() =>
+        generatePlainTextContent(data, groupedQuestions, orderedBooksList)
+    , [data, groupedQuestions, orderedBooksList]);
 
-    const bookOrder = (data.refArr || [])
-        .map(ref => {
-            const match = ref.match(/^((?:\d+\s+)?[A-Za-z]+(?:\s+[A-Za-z]+)*)/i);
-            return match ? match[1].trim() : null;
-        })
-        .filter(Boolean);
+    const markdownContent = useMemo(() =>
+        generateMarkdownContent(data, groupedQuestions, orderedBooksList)
+    , [data, groupedQuestions, orderedBooksList]);
 
-    const uniqueBookOrder = [...new Set(bookOrder)];
-
-    const orderedBooksList = [...Object.keys(groupedQuestions)].sort((a, b) => {
-        const indexA = uniqueBookOrder.indexOf(a);
-        const indexB = uniqueBookOrder.indexOf(b);
-
-        if (indexA !== -1 && indexB !== -1) {
-            return indexA - indexB;
-        }
-
-        if (indexA !== -1) return -1;
-        if (indexB !== -1) return 1;
-
-        return a.localeCompare(b);
-    });
-
-    const generatePlainTextContent = () => {
-        let plainText = '';
-        plainText += 'Bible References:\n';
-        if (data?.refArr && data.refArr.filter(ref => ref).length > 0) {
-            data.refArr.filter(ref => ref).forEach(reference => {
-                plainText += `- ${reference}\n`;
-            });
-        } else {
-            plainText += 'No Bible references specified.\n';
-        }
-        plainText += '\n';
-        plainText += 'General Context:\n';
-        if (data?.contextArr && data.contextArr.length > 0) {
-            data.contextArr.forEach(context => {
-                plainText += `- ${context}\n`;
-            });
-        } else {
-            plainText += 'No context information available.\n';
-        }
-        plainText += '\n';
-
-        plainText += 'Questions by Book and Theme:\n';
-        if (Object.keys(groupedQuestions).length > 0) {
-            orderedBooksList.forEach(book => {
-                plainText += `${book}:\n`;
-                Object.entries(groupedQuestions[book]).forEach(([theme, questions]) => {
-                    plainText += `  ${theme}:\n`;
-                    questions.forEach(question => {
-                        plainText += `    - ${question.question}\n`;
-                    });
-                });
-                plainText += '\n';
-            });
-        } else {
-            plainText += '';
-        }
-
-        return plainText;
-    };
-
-    const generateMarkdownContent = () => {
-        let markdown = '';
-        markdown += '## Bible References\n\n';
-        if (data?.refArr && data.refArr.filter(ref => ref).length > 0) {
-            data.refArr.filter(ref => ref).forEach(reference => {
-                markdown += `- ${reference}\n`;
-            });
-        } else {
-            markdown += '_No Bible references specified._\n';
-        }
-        markdown += '\n## General Context\n\n';
-        if (data?.contextArr && data.contextArr.length > 0) {
-            data.contextArr.forEach(context => {
-                markdown += `- ${context}\n`;
-            });
-        } else {
-            markdown += '_No context information available._\n';
-        }
-        markdown += '\n## Questions by Book and Theme\n\n';
-        if (Object.keys(groupedQuestions).length > 0) {
-            orderedBooksList.forEach(book => {
-                markdown += `### ${book}\n`;
-                Object.entries(groupedQuestions[book]).forEach(([theme, questions]) => {
-                    markdown += `#### ${theme}\n`;
-                    questions.forEach(question => {
-                        markdown += `- ${question.question}\n`;
-                    });
-                    markdown += '\n';
-                });
-            });
-        } else {
-            markdown += '_No questions available._\n';
-        }
-        return markdown.trim();
-    };
-
-
-    const generateRichTextContent = () => {
-        let html = '<div style="font-family: Arial, sans-serif; font-size: 12pt; line-height: 1.4;">';
-
-        html += '<h3 style="color: #1976d2; font-size: 1rem; font-weight: 600; margin: 0.7rem 0 0.3rem; border-bottom: 1px solid #e0e0e0; padding-bottom: 0.2rem;">Bible References</h3>';
-        if (data?.refArr && data.refArr.filter(ref => ref).length > 0) {
-            html += '<ul style="margin: 0.3rem 0 0.7rem; padding-left: 1rem;">';
-            data.refArr.filter(ref => ref).forEach(reference => {
-                html += `<li style="margin-bottom: 0.15rem; font-size: 0.9rem;">${reference}</li>`;
-            });
-            html += '</ul>';
-        } else {
-            html += '<p style="margin: 0.3rem 0 0.7rem; font-size: 0.9rem;">No Bible references specified.</p>';
-        }
-
-        html += '<h3 style="color: #1976d2; font-size: 1rem; font-weight: 600; margin: 0.7rem 0 0.3rem; border-bottom: 1px solid #e0e0e0; padding-bottom: 0.2rem;">General Context</h3>';
-        if (data?.contextArr && data.contextArr.length > 0) {
-            html += '<ul style="margin: 0.3rem 0 0.7rem; padding-left: 1rem;">';
-            data.contextArr.forEach(context => {
-                html += `<li style="margin-bottom: 0.15rem; font-size: 0.9rem;">${context}</li>`;
-            });
-            html += '</ul>';
-        } else {
-            html += '<p style="margin: 0.3rem 0 0.7rem; font-size: 0.9rem;">No context information available.</p>';
-        }
-
-        html += '<h3 style="color: #1976d2; font-size: 1rem; font-weight: 600; margin: 0.7rem 0 0.3rem; border-bottom: 1px solid #e0e0e0; padding-bottom: 0.2rem;">Questions by Book and Theme</h3>';
-        if (Object.keys(groupedQuestions).length > 0) {
-            orderedBooksList.forEach(book => {
-                html += `<h4 style="font-size: 0.95rem; font-weight: 500; margin: 0.6rem 0 0.25rem; color: #1976d2;">${book}</h4>`;
-                Object.entries(groupedQuestions[book]).forEach(([theme, questions]) => {
-                    html += `<p style="margin: 0.4rem 0 0.15rem 0.6rem; font-weight: 500; font-size: 0.9rem;">${theme}</p>`;
-                    html += '<ul style="margin: 0.15rem 0 0.6rem 1.2rem; padding-left: 0.6rem;">';
-                    questions.forEach(question => {
-                        html += `<li style="margin-bottom: 0.15rem; list-style-type: circle; font-size: 0.9rem;">${question.question}</li>`;
-                    });
-                    html += '</ul>';
-                });
-            });
-        } else {
-            html += '';
-        }
-
-        html += '</div>';
-        return html;
-    };
+    const richTextContent = useMemo(() =>
+        generateRichTextContent(data, groupedQuestions, orderedBooksList)
+    , [data, groupedQuestions, orderedBooksList]);
 
     return (
         <Transition show={show} as={Fragment}>
@@ -295,19 +178,17 @@ const StudyModal = ({ show, onHide, data }) => {
                                     <div className="flex gap-3 w-full sm:w-auto relative">
                                         <Button
                                             onClick={async () => {
-                                                const plainText = generatePlainTextContent();
-                                                const richText = generateRichTextContent();
                                                 try {
-                                                    const blob = new Blob([richText], { type: 'text/html' });
+                                                    const blob = new Blob([richTextContent], { type: 'text/html' });
                                                     const clipboardItem = new ClipboardItem({
                                                         'text/html': blob,
-                                                        'text/plain': new Blob([plainText], { type: 'text/plain' }),
+                                                        'text/plain': new Blob([plainTextContent], { type: 'text/plain' }),
                                                     });
                                                     await navigator.clipboard.write([clipboardItem]);
                                                     showToast('Successfully copied to clipboard', 'success');
                                                 } catch (err) {
                                                     showToast(err.message, 'error');
-                                                    navigator.clipboard.writeText(plainText).then(() => showToast('Successfully copied plain text', 'success'));
+                                                    navigator.clipboard.writeText(plainTextContent).then(() => showToast('Successfully copied plain text', 'success'));
                                                 }
                                             }}
                                             className="flex-grow sm:flex-grow-0"
@@ -340,8 +221,7 @@ const StudyModal = ({ show, onHide, data }) => {
                                                             {({ focus }) => (
                                                                 <button
                                                                     onClick={async () => {
-                                                                        const plainText = generatePlainTextContent();
-                                                                        navigator.clipboard.writeText(plainText).then(() => {
+                                                                        navigator.clipboard.writeText(plainTextContent).then(() => {
                                                                             showToast('Successfully copied plain text', 'success');
                                                                         });
                                                                     }}
@@ -359,8 +239,7 @@ const StudyModal = ({ show, onHide, data }) => {
                                                             {({ focus }) => (
                                                                 <button
                                                                     onClick={async () => {
-                                                                        const markdown = generateMarkdownContent();
-                                                                        navigator.clipboard.writeText(markdown).then(() => {
+                                                                        navigator.clipboard.writeText(markdownContent).then(() => {
                                                                             showToast('Successfully copied markdown', 'success');
                                                                         });
                                                                     }}
@@ -378,9 +257,8 @@ const StudyModal = ({ show, onHide, data }) => {
                                                             {({ focus }) => (
                                                                 <button
                                                                     onClick={async () => {
-                                                                        const richText = generateRichTextContent();
                                                                         try {
-                                                                            const blob = new Blob([richText], { type: 'text/html' });
+                                                                            const blob = new Blob([richTextContent], { type: 'text/html' });
                                                                             const clipboardItem = new ClipboardItem({ 'text/html': blob });
                                                                             await navigator.clipboard.write([clipboardItem]);
                                                                             showToast('Successfully copied rich text', 'success');
