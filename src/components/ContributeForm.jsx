@@ -113,7 +113,7 @@ const ContributeForm = () => {
                             <SectionHeader>Bible Reference</SectionHeader>
                         </legend>
 
-                        <div>
+                        <div className="animate-in fade-in slide-in-from-left-4 duration-500">
                             <BibleReferenceSelector
                                 bibleReference={bibleReference}
                                 labelPrefix="Contribute: "
@@ -128,7 +128,7 @@ const ContributeForm = () => {
                         <legend className="contents">
                             <SectionHeader>Theme & Question</SectionHeader>
                         </legend>
-                        <div>
+                        <div className="animate-in fade-in slide-in-from-right-4 duration-500">
                             <div className="space-y-6">
                                 <ThemeSelect
                                     value={selectedTheme}
@@ -154,11 +154,15 @@ const ContributeForm = () => {
                                         required
                                         rows={6}
                                         error={errors.question}
+                                        helperText="Explain the context or specific thought behind your question."
                                     />
-                                    <div className="flex justify-end">
+                                    <div className="flex justify-between items-center px-1">
+                                        <p className="text-[10px] text-app-text-muted italic">
+                                            Minimum 5 characters required
+                                        </p>
                                         <span className={clsx(
-                                            "text-xs font-medium",
-                                            questionText.length >= 5 ? "text-app-text-muted" : "text-secondary-500"
+                                            "text-xs font-bold transition-colors duration-300",
+                                            questionText.length >= 5 ? "text-primary-500" : "text-secondary-500"
                                         )}>
                                             {questionText.length} characters
                                         </span>
@@ -174,7 +178,7 @@ const ContributeForm = () => {
                             type="submit"
                             isLoading={isSubmitting}
                             size="lg"
-                            className="w-full max-w-md"
+                            className="w-full max-w-md shadow-lg shadow-primary-500/10"
                         >
                             Submit Question
                         </Button>
