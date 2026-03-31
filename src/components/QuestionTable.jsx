@@ -37,6 +37,9 @@ const QuestionTable = ({
 
     return (
         <>
+            <div className="sr-only" aria-live="polite">
+                {sortedQuestions.length} {sortedQuestions.length === 1 ? 'question' : 'questions'} found.
+            </div>
             <div className="mt-4 max-h-[400px] overflow-auto border border-app-border rounded-lg bg-app-bg/50">
                 <table className="min-w-full table-auto border-collapse">
                     <thead className="sticky top-0 bg-app-surface border-b border-app-border">

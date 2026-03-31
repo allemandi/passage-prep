@@ -10,14 +10,19 @@ export default function MainContent({
   studyData,
   setStudyData,
   isLoggedIn,
-  setIsLoggedIn
+  setIsLoggedIn,
+  setTabValue
 }) {
   return (
     <TabPanels
       className="w-full transition-colors duration-300"
     >
       <TabPanel>
-        <RequestForm onStudyGenerated={handleShowStudy} isLoading={isLoading} />
+        <RequestForm
+          onStudyGenerated={handleShowStudy}
+          isLoading={isLoading}
+          setTabValue={setTabValue}
+        />
       </TabPanel>
       <TabPanel>
         <ContributeForm isLoading={isLoading} />

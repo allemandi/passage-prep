@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { X, Plus, Search, BookOpen } from 'lucide-react';
+import { useState, useRef, useEffect } from 'react';
+import { X, Plus, Search, BookOpen, RotateCcw, MessageSquarePlus } from 'lucide-react';
 import {
     processForm,
     searchQuestions,
@@ -73,8 +73,9 @@ const MultiScriptureSelector = ({ references, onAdd, onRemove }) => {
     );
 };
 
-const RequestForm = ({ onStudyGenerated, isLoading }) => {
+const RequestForm = ({ onStudyGenerated, isLoading, setTabValue }) => {
     const showToast = useToast();
+    const resultsRef = useRef(null);
 
     // Custom state management for multiple references (up to 6)
     const [activeIndices, setActiveIndices] = useState([0, 1]);
@@ -110,6 +111,18 @@ const RequestForm = ({ onStudyGenerated, isLoading }) => {
     const { selectedIds, toggleSelection, resetSelection } = useQuestionSelection();
     const [hideUnapproved, setHideUnapproved] = useState(false);
     const [showSearchResults, setShowSearchResults] = useState(false);
+
+    useEffect(() => {
+        if (showSearchResults && resultsRef.current && typeof resultsRef.current.scrollIntoView === 'function') {
+            resultsRef.current.scrollIntoView({ behavior: 'smooth' });
+        }
+    }, [showSearchResults]);
+
+    const handleClearResults = () => {
+        setSearchResults([]);
+        setShowSearchResults(false);
+        resetSelection();
+    };
 
     const handleSubmit = async e => {
         e?.preventDefault();
@@ -212,14 +225,27 @@ const RequestForm = ({ onStudyGenerated, isLoading }) => {
                                 {hideUnapproved ? 'Show Unapproved' : 'Hide Unapproved'}
                             </Button>
 
-                            <Button
-                                type="submit"
-                                isLoading={isLoading || isSubmitting}
-                                className="w-full"
-                            >
-                                <Search size={18} />
-                                Search Questions
-                            </Button>
+                            <div className="w-full flex gap-2">
+                                <Button
+                                    type="submit"
+                                    isLoading={isLoading || isSubmitting}
+                                    className="flex-grow"
+                                >
+                                    <Search size={18} />
+                                    Search
+                                </Button>
+                                {showSearchResults && (
+                                    <Button
+                                        type="button"
+                                        variant="outline"
+                                        onClick={handleClearResults}
+                                        className="px-3"
+                                        title="Clear results"
+                                    >
+                                        <RotateCcw size={18} />
+                                    </Button>
+                                )}
+                            </div>
 
                             <div className="w-full">
                                 {isGenerateDisabled ? (
@@ -247,20 +273,41 @@ const RequestForm = ({ onStudyGenerated, isLoading }) => {
 
                     {showSearchResults && (
                         <section
+                            ref={resultsRef}
                             className="mt-4 animate-in fade-in slide-in-from-bottom-4 duration-500"
                             role="region"
                             aria-live="polite"
                         >
                             <SectionHeader centered={false}>Search Results</SectionHeader>
                             <LoadingOverlay isLoading={isSearching}>
-                                <QuestionTable
-                                    questions={searchResults}
-                                    selectedIds={selectedIds}
-                                    onSelectionChange={toggleSelection}
-                                    showActions
-                                    hideUnapproved={hideUnapproved}
-                                    hideEditActions
-                                />
+                                {searchResults.length === 0 ? (
+                                    <Card className="flex flex-col items-center justify-center py-12 px-6 text-center border-dashed border-4 border-app-border bg-app-bg/30">
+                                        <div className="p-4 bg-secondary-50 dark:bg-secondary-900/20 rounded-full mb-6">
+                                            <Search size={48} className="text-secondary-400" />
+                                        </div>
+                                        <h3 className="text-xl font-bold text-app-text mb-2">No questions found</h3>
+                                        <p className="text-app-text-muted mb-8 max-w-md">
+                                            We couldn&apos;t find any questions matching your current filters. You can try adjusting your search or contribute a new question.
+                                        </p>
+                                        <Button
+                                            onClick={() => setTabValue(1)}
+                                            variant="outline"
+                                            className="flex items-center gap-2"
+                                        >
+                                            <MessageSquarePlus size={20} />
+                                            Contribute a Question
+                                        </Button>
+                                    </Card>
+                                ) : (
+                                    <QuestionTable
+                                        questions={searchResults}
+                                        selectedIds={selectedIds}
+                                        onSelectionChange={toggleSelection}
+                                        showActions
+                                        hideUnapproved={hideUnapproved}
+                                        hideEditActions
+                                    />
+                                )}
                             </LoadingOverlay>
                         </section>
                     )}
