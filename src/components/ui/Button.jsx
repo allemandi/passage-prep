@@ -14,16 +14,17 @@ const sizes = {
   lg: 'px-8 py-3.5 text-lg',
 };
 
-const Button = ({
+const Button = React.forwardRef(({
   children,
   className,
   variant = 'primary',
   size = 'md',
   isLoading,
   ...props
-}) => {
+}, ref) => {
   return (
     <button
+      ref={ref}
       className={clsx(
         'inline-flex items-center justify-center gap-2 rounded-lg font-semibold transition duration-200 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 disabled:cursor-not-allowed',
         variants[variant],
@@ -58,6 +59,8 @@ const Button = ({
       {children}
     </button>
   );
-};
+});
+
+Button.displayName = 'Button';
 
 export default Button;
