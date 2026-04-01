@@ -1,9 +1,10 @@
 import { useState, useRef, useEffect } from 'react';
-import { X, Plus, Search, BookOpen, RotateCcw, MessageSquarePlus } from 'lucide-react';
+import { X, Plus, Search, BookOpen, RotateCcw, MessageSquarePlus, Eye, EyeOff } from 'lucide-react';
 import {
     processForm,
     searchQuestions,
 } from '../services/dataService';
+import { getSortedQuestions } from '../utils/bibleData';
 import { processInput } from '../utils/inputUtils';
 import { useToast } from './ToastMessage/Toast';
 import useBibleReference from '../hooks/useBibleReference';
@@ -76,6 +77,8 @@ const MultiScriptureSelector = ({ references, onAdd, onRemove }) => {
 const RequestForm = ({ onStudyGenerated, isLoading, setTabValue }) => {
     const showToast = useToast();
     const resultsRef = useRef(null);
+    const resultsHeaderRef = useRef(null);
+    const searchButtonRef = useRef(null);
 
     // Custom state management for multiple references (up to 6)
     const [activeIndices, setActiveIndices] = useState([0, 1]);
@@ -115,6 +118,8 @@ const RequestForm = ({ onStudyGenerated, isLoading, setTabValue }) => {
     useEffect(() => {
         if (showSearchResults && resultsRef.current && typeof resultsRef.current.scrollIntoView === 'function') {
             resultsRef.current.scrollIntoView({ behavior: 'smooth' });
+            // Focus the results header for screen readers
+            resultsHeaderRef.current?.focus();
         }
     }, [showSearchResults]);
 
@@ -122,6 +127,10 @@ const RequestForm = ({ onStudyGenerated, isLoading, setTabValue }) => {
         setSearchResults([]);
         setShowSearchResults(false);
         resetSelection();
+        // Return focus to search button for accessibility
+        setTimeout(() => {
+            searchButtonRef.current?.focus();
+        }, 0);
     };
 
     const handleSubmit = async e => {
@@ -162,7 +171,7 @@ const RequestForm = ({ onStudyGenerated, isLoading, setTabValue }) => {
         setIsSearching(true);
         try {
             const themeArr = selectedThemes.length === defaultThemes.length ? [] : selectedThemes;
-            const combinedResults = (
+            const apiResults = (
                 await Promise.all(
                     refsWithBooks.map(ref =>
                         searchQuestions({
@@ -176,10 +185,20 @@ const RequestForm = ({ onStudyGenerated, isLoading, setTabValue }) => {
                 )
             ).flat();
 
-            setSearchResults(combinedResults);
+            // Deduplicate by _id
+            const uniqueResultsMap = new Map();
+            apiResults.forEach(q => {
+                if (q._id) uniqueResultsMap.set(q._id.toString(), q);
+            });
+            const deduplicatedResults = Array.from(uniqueResultsMap.values());
+
+            // Sort results using Bible order
+            const sortedResults = getSortedQuestions(deduplicatedResults);
+
+            setSearchResults(sortedResults);
             setShowSearchResults(true);
             resetSelection();
-            showToast(combinedResults.length ? 'Search completed successfully.' : 'No questions found.', combinedResults.length ? 'success' : 'info');
+            showToast(sortedResults.length ? 'Search completed successfully.' : 'No questions found.', sortedResults.length ? 'success' : 'info');
         } catch (err) {
             showToast(err?.message || 'Search failed.', 'error');
         } finally {
@@ -222,11 +241,13 @@ const RequestForm = ({ onStudyGenerated, isLoading, setTabValue }) => {
                                 aria-pressed={hideUnapproved}
                                 title={hideUnapproved ? 'Include unapproved questions in results' : 'Exclude unapproved questions from results'}
                             >
+                                {hideUnapproved ? <Eye size={18} /> : <EyeOff size={18} />}
                                 {hideUnapproved ? 'Show Unapproved' : 'Hide Unapproved'}
                             </Button>
 
                             <div className="w-full flex gap-2">
                                 <Button
+                                    ref={searchButtonRef}
                                     type="submit"
                                     isLoading={isLoading || isSubmitting}
                                     className="flex-grow"
@@ -278,7 +299,14 @@ const RequestForm = ({ onStudyGenerated, isLoading, setTabValue }) => {
                             role="region"
                             aria-live="polite"
                         >
-                            <SectionHeader centered={false}>Search Results</SectionHeader>
+                            <SectionHeader
+                                ref={resultsHeaderRef}
+                                tabIndex={-1}
+                                centered={false}
+                                className="focus:outline-none"
+                            >
+                                Search Results
+                            </SectionHeader>
                             <LoadingOverlay isLoading={isSearching}>
                                 {searchResults.length === 0 ? (
                                     <Card className="flex flex-col items-center justify-center py-12 px-6 text-center border-dashed border-4 border-app-border bg-app-bg/30">
