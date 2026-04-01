@@ -50,7 +50,7 @@ const questionService = {
             chapter: newData.chapter,
             verseStart: newData.verseStart,
             verseEnd: newData.verseEnd,
-            isApproved: newData.isApproved === true || false
+            isApproved: newData.isApproved === true
         });
 
         await question.validate();
@@ -142,7 +142,7 @@ const questionService = {
             chapter: parseInt(q.chapter),
             verseStart: parseInt(q.verseStart),
             verseEnd: parseInt(q.verseEnd),
-            isApproved: q.isApproved === true || false
+            isApproved: q.isApproved === true
         }));
 
         return await Question.insertMany(sanitizedQuestions, { ordered: false });
