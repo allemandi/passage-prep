@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback, Fragment } from 'react';
 import { Dialog, DialogPanel, DialogTitle, Transition, TransitionChild, TabGroup } from '@headlessui/react';
-import { AlertCircle, LogOut, Clock } from 'lucide-react';
+import { CircleAlert, LogOut, Clock } from 'lucide-react';
 
 import { ToastProvider, useToast } from './components/ToastMessage/Toast';
 import Header from './components/Header';
@@ -142,7 +142,7 @@ function AppContent() {
               >
                 <DialogPanel className="w-full max-w-md transform overflow-hidden rounded-2xl bg-app-surface border border-app-border p-6 text-left align-middle shadow-xl transition-all">
                   <div className="flex items-center gap-3 mb-4 text-secondary-500">
-                    <AlertCircle size={28} />
+                    <CircleAlert size={28} />
                     <DialogTitle as="h3" className="text-xl font-bold text-app-text">
                       Session Expiring
                     </DialogTitle>

@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import { Edit2 } from 'lucide-react';
+import { Pen } from 'lucide-react';
 import { getSortedQuestions, formatReference } from '../utils/bibleData';
 import EditQuestionModal from './EditQuestionModal';
 
@@ -122,7 +122,7 @@ const QuestionTable = ({
                                                 aria-label="Edit question"
                                                 className="text-primary-500 hover:text-primary-700 transition-colors p-2 hover:bg-primary-50 dark:hover:bg-primary-900/20 rounded-lg"
                                             >
-                                                <Edit2 size={18} />
+                                                <Pen size={18} />
                                             </button>
                                         </td>
                                     )}

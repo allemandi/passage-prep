@@ -1,5 +1,5 @@
 import React, { Fragment, useMemo } from 'react';
-import { X, MoreVertical, Copy, FileText, FileCode } from 'lucide-react';
+import { X, EllipsisVertical, Copy, FileText, FileCode } from 'lucide-react';
 import { Dialog, DialogPanel, DialogTitle, Transition, TransitionChild, Menu, MenuButton, MenuItem, MenuItems } from '@headlessui/react';
 import { useToast } from './ToastMessage/Toast';
 import Button from './ui/Button';
@@ -202,7 +202,7 @@ const StudyModal = ({ show, onHide, data }) => {
                                                     variant="outline"
                                                     className="px-3 h-full"
                                                 >
-                                                    <MoreVertical size={20} />
+                                                    <EllipsisVertical size={20} />
                                                 </Button>
                                             </MenuButton>
 

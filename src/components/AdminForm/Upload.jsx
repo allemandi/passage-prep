@@ -1,5 +1,5 @@
 import { useState, useRef } from 'react';
-import { UploadCloud, Download as DownloadIcon, FileText, X } from 'lucide-react';
+import { CloudUpload, Download as DownloadIcon, FileText, X } from 'lucide-react';
 import UploadResultsPanel from './UploadResultsPanel';
 import themes from '../../data/themes.json';
 import { bulkUploadQuestions } from '../../utils/upload';
@@ -194,7 +194,7 @@ const Upload = () => {
                     )}
                 >
                     <div className="p-4 bg-primary-100 dark:bg-primary-900/40 rounded-full group-hover:scale-110 transition-transform duration-300">
-                        <UploadCloud className="w-8 h-8 text-primary-600 dark:text-primary-400" />
+                        <CloudUpload className="w-8 h-8 text-primary-600 dark:text-primary-400" />
                     </div>
                     <div>
                         <span className="text-lg font-bold block mb-1">Select CSV File</span>
