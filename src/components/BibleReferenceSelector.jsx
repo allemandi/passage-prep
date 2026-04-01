@@ -18,116 +18,85 @@ const BibleReferenceSelector = ({
         updateReference,
     } = bibleReference;
 
+    const config = [
+        {
+            id: 'bookSelect',
+            label: 'Book',
+            value: book,
+            options: bibleBooks,
+            placeholder: 'Select a book...',
+            onChange: (val) => updateReference({ book: val }),
+            error: errors.book,
+            required: required,
+        },
+        {
+            id: 'chapterSelect',
+            label: 'Chapter',
+            value: chapter,
+            options: availableChapters,
+            placeholder: book ? `Select chapter (1-${totalChapters})` : "Select a book first",
+            disabled: !book,
+            onChange: (val) => updateReference({ chapter: val }),
+            error: errors.chapter,
+            required: required,
+        },
+        {
+            id: 'verseStartSelect',
+            label: 'Start Verse',
+            value: verseStart,
+            options: availableVerses,
+            placeholder: chapter ? "Select" : "...",
+            disabled: !chapter,
+            onChange: (val) => updateReference({ verseStart: val }),
+            error: errors.verseStart,
+            required: required,
+        },
+        {
+            id: 'verseEndSelect',
+            label: 'End Verse',
+            value: verseEnd,
+            options: availableVerses,
+            isEndVerse: true,
+            startVerseValue: verseStart,
+            disabled: !chapter,
+            onChange: (val) => updateReference({ verseEnd: val }),
+            error: errors.verseEnd,
+        }
+    ];
+
+    const renderCombobox = (item) => (
+        <ScriptureCombobox
+            key={item.id}
+            id={`${idPrefix}${item.id}`}
+            label={item.label}
+            ariaLabel={`${labelPrefix}${item.label}`}
+            value={item.value}
+            onChange={item.onChange}
+            options={item.options}
+            placeholder={item.placeholder}
+            disabled={item.disabled}
+            required={item.required}
+            error={item.error}
+            isEndVerse={item.isEndVerse}
+            startVerseValue={item.startVerseValue}
+        />
+    );
+
     if (layout === 'grid') {
         return (
-            <>
-                <ScriptureCombobox
-                    id={`${idPrefix}bookSelect`}
-                    label="Book"
-                    ariaLabel={`${labelPrefix}Book`}
-                    value={book}
-                    onChange={(val) => updateReference({ book: val })}
-                    options={bibleBooks}
-                    placeholder="Select a book..."
-                    required={required}
-                    error={errors.book}
-                />
-
-                <ScriptureCombobox
-                    id={`${idPrefix}chapterSelect`}
-                    label="Chapter"
-                    ariaLabel={`${labelPrefix}Chapter`}
-                    value={chapter}
-                    onChange={(val) => updateReference({ chapter: val })}
-                    options={availableChapters}
-                    placeholder={book ? `Select chapter (1-${totalChapters})` : "Select a book first"}
-                    disabled={!book}
-                    required={required}
-                    error={errors.chapter}
-                />
-
-                <ScriptureCombobox
-                    id={`${idPrefix}verseStartSelect`}
-                    label="Start Verse"
-                    ariaLabel={`${labelPrefix}Start Verse`}
-                    value={verseStart}
-                    onChange={(val) => updateReference({ verseStart: val })}
-                    options={availableVerses}
-                    placeholder={chapter ? "Select" : "..."}
-                    disabled={!chapter}
-                    required={required}
-                    error={errors.verseStart}
-                />
-
-                <ScriptureCombobox
-                    id={`${idPrefix}verseEndSelect`}
-                    label="End Verse"
-                    ariaLabel={`${labelPrefix}End Verse`}
-                    value={verseEnd}
-                    onChange={(val) => updateReference({ verseEnd: val })}
-                    options={availableVerses}
-                    isEndVerse
-                    startVerseValue={verseStart}
-                    disabled={!chapter}
-                    error={errors.verseEnd}
-                />
-            </>
+            <div className="contents">
+                {config.map(renderCombobox)}
+            </div>
         );
     }
 
     return (
         <div className="space-y-6">
-            <ScriptureCombobox
-                id={`${idPrefix}bookSelect`}
-                label="Book"
-                ariaLabel={`${labelPrefix}Book`}
-                value={book}
-                onChange={(val) => updateReference({ book: val })}
-                options={bibleBooks}
-                placeholder="Select a book..."
-                required={required}
-                error={errors.book}
-            />
-
-            <ScriptureCombobox
-                id={`${idPrefix}chapterSelect`}
-                label="Chapter"
-                ariaLabel={`${labelPrefix}Chapter`}
-                value={chapter}
-                onChange={(val) => updateReference({ chapter: val })}
-                options={availableChapters}
-                placeholder={book ? `Select chapter (1-${totalChapters})` : "Select a book first"}
-                disabled={!book}
-                required={required}
-                error={errors.chapter}
-            />
-
+            {renderCombobox(config[0])}
+            {renderCombobox(config[1])}
             <div className="grid grid-cols-2 gap-4">
-                <ScriptureCombobox
-                    id={`${idPrefix}verseStartSelect`}
-                    label="Start Verse"
-                    ariaLabel={`${labelPrefix}Start Verse`}
-                    value={verseStart}
-                    onChange={(val) => updateReference({ verseStart: val })}
-                    options={availableVerses}
-                    placeholder={chapter ? "Select" : "..."}
-                    disabled={!chapter}
-                    required={required}
-                    error={errors.verseStart}
-                />
-
-                <ScriptureCombobox
-                    id={`${idPrefix}verseEndSelect`}
-                    label="End Verse"
-                    ariaLabel={`${labelPrefix}End Verse`}
-                    value={verseEnd}
-                    onChange={(val) => updateReference({ verseEnd: val })}
-                    options={availableVerses}
-                    isEndVerse
-                    startVerseValue={verseStart}
-                    disabled={!chapter}
-                    error={errors.verseEnd}
-                />
+                {renderCombobox(config[2])}
+                {renderCombobox(config[3])}
             </div>
         </div>
     );
