@@ -1,5 +1,5 @@
 import React from 'react';
-import { Loader2 } from 'lucide-react';
+import { LoaderCircle } from 'lucide-react';
 import clsx from 'clsx';
 
 const LoadingOverlay = ({
@@ -18,7 +18,7 @@ const LoadingOverlay = ({
           aria-busy="true"
           aria-live="polite"
         >
-          <Loader2
+          <LoaderCircle
             className="text-primary-500 animate-spin"
             size={spinnerSize}
           />
