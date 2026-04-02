@@ -285,7 +285,7 @@ const RequestForm = ({ onStudyGenerated, isLoading, setTabValue }) => {
                                         className="w-full"
                                     >
                                         <BookOpen size={18} />
-                                        Generate Study
+                                        Generate Study {selectedIds.length > 0 && `(${selectedIds.length})`}
                                     </Button>
                                 )}
                             </div>
