@@ -3,11 +3,24 @@ const { filterXSS } = require('xss');
 const { isValidReference } = require('@allemandi/bible-validate');
 
 /**
- * Sanitizes input text to prevent XSS attacks.
+ * Standardizes common symbols like smart quotes, dashes, and ellipses to their ASCII equivalents.
+ */
+const standardizeSymbols = (text) => {
+    if (typeof text !== 'string') return text;
+    return text
+        .replace(/[\u2018\u2019\u201A\u201B\u2032\u2035]/g, "'") // single quotes/apostrophes
+        .replace(/[\u201C\u201D\u201E\u201F\u2033\u2036]/g, '"') // double quotes
+        .replace(/[\u2013\u2014\u2015]/g, '-') // dashes
+        .replace(/\u2026/g, '...'); // ellipses
+};
+
+/**
+ * Sanitizes input text to prevent XSS attacks and standardizes symbols.
  */
 const sanitizeInput = (input) => {
     if (typeof input !== 'string') return input;
-    return filterXSS(input, {
+    const standardized = standardizeSymbols(input);
+    return filterXSS(standardized, {
         whiteList: {},
         stripIgnoreTag: true,
         stripIgnoreTagBody: ['script'],
@@ -28,13 +41,21 @@ const questionService = {
             throw new Error(`Invalid Bible reference: ${newData.book} ${newData.chapter}:${newData.verseStart}-${newData.verseEnd}`);
         }
 
+        // Sanitize string inputs
+        const sanitizedNewData = { ...newData };
+        Object.keys(sanitizedNewData).forEach(key => {
+            if (typeof sanitizedNewData[key] === 'string') {
+                sanitizedNewData[key] = sanitizeInput(sanitizedNewData[key]);
+            }
+        });
+
         // Basic security check: Check for identical recently submitted questions
         // (within the last 5 minutes to prevent rapid duplicate spam)
         // Skip this check for admin uploads
         if (!isAdmin) {
             const fiveMinutesAgo = new Date(Date.now() - 5 * 60 * 1000);
             const existing = await Question.findOne({
-                question: sanitizeInput(newData.question),
+                question: sanitizedNewData.question,
                 createdAt: { $gte: fiveMinutesAgo }
             });
 
@@ -44,13 +65,13 @@ const questionService = {
         }
 
         const question = new Question({
-            theme: sanitizeInput(newData.theme),
-            question: sanitizeInput(newData.question),
-            book: sanitizeInput(newData.book),
-            chapter: newData.chapter,
-            verseStart: newData.verseStart,
-            verseEnd: newData.verseEnd,
-            isApproved: newData.isApproved === true
+            theme: sanitizedNewData.theme,
+            question: sanitizedNewData.question,
+            book: sanitizedNewData.book,
+            chapter: sanitizedNewData.chapter,
+            verseStart: sanitizedNewData.verseStart,
+            verseEnd: sanitizedNewData.verseEnd,
+            isApproved: sanitizedNewData.isApproved === true
         });
 
         await question.validate();
@@ -77,9 +98,16 @@ const questionService = {
             }
         }
 
+        const sanitizedData = { ...updatedData };
+        Object.keys(sanitizedData).forEach(key => {
+            if (typeof sanitizedData[key] === 'string') {
+                sanitizedData[key] = sanitizeInput(sanitizedData[key]);
+            }
+        });
+
         const updatedQuestion = await Question.findByIdAndUpdate(
             questionId,
-            { $set: updatedData },
+            { $set: sanitizedData },
             { new: true }
         );
         if (!updatedQuestion) {
@@ -135,15 +163,23 @@ const questionService = {
             throw new Error('No questions provided');
         }
 
-        const sanitizedQuestions = questions.map(q => ({
-            theme: sanitizeInput(q.theme),
-            question: sanitizeInput(q.question),
-            book: sanitizeInput(q.book),
-            chapter: parseInt(q.chapter),
-            verseStart: parseInt(q.verseStart),
-            verseEnd: parseInt(q.verseEnd),
-            isApproved: q.isApproved === true
-        }));
+        const sanitizedQuestions = questions.map(q => {
+            const sanitizedQ = { ...q };
+            Object.keys(sanitizedQ).forEach(key => {
+                if (typeof sanitizedQ[key] === 'string') {
+                    sanitizedQ[key] = sanitizeInput(sanitizedQ[key]);
+                }
+            });
+            return {
+                theme: sanitizedQ.theme,
+                question: sanitizedQ.question,
+                book: sanitizedQ.book,
+                chapter: parseInt(sanitizedQ.chapter),
+                verseStart: parseInt(sanitizedQ.verseStart),
+                verseEnd: parseInt(sanitizedQ.verseEnd),
+                isApproved: sanitizedQ.isApproved === true
+            };
+        });
 
         return await Question.insertMany(sanitizedQuestions, { ordered: false });
     }
