@@ -12,6 +12,16 @@ describe('inputUtils', () => {
       const input = 'Normal text';
       expect(sanitizeInput(input)).toBe('Normal text');
     });
+
+    it('should standardize smart quotes and other symbols', () => {
+      const input = '“It’s a test—really…”';
+      // “ -> "
+      // ’ -> '
+      // — -> -
+      // … -> ...
+      // ” -> "
+      expect(sanitizeInput(input)).toBe('"It\'s a test-really..."');
+    });
   });
 
   describe('validateRequired', () => {
