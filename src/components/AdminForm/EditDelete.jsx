@@ -86,6 +86,7 @@ const EditDelete = () => {
                     variant={hideUnapproved ? 'secondary' : 'outline'}
                     onClick={() => setHideUnapproved(v => !v)}
                     className="w-full sm:w-auto min-w-[200px]"
+                    title={hideUnapproved ? 'Include unapproved questions' : 'Exclude unapproved questions'}
                 >
                     {hideUnapproved ? 'Show Unapproved' : 'Hide Unapproved'}
                 </Button>

@@ -2,7 +2,7 @@ import React, { useMemo } from 'react';
 import Select from 'react-select';
 import clsx from 'clsx';
 
-const ScriptureCombobox = ({
+const ScriptureCombobox = React.forwardRef(({
     id,
     label,
     ariaLabel,
@@ -17,7 +17,7 @@ const ScriptureCombobox = ({
     startVerseValue = '',
     error,
     className,
-}) => {
+}, ref) => {
     const processedOptions = useMemo(() => {
         let opts = options;
         if (isEndVerse && startVerseValue) {
@@ -56,6 +56,7 @@ const ScriptureCombobox = ({
                 {label} {required && <span className="text-secondary-600 font-bold">*</span>}
             </label>
             <Select
+                ref={ref}
                 inputId={id}
                 aria-label={ariaLabel || label}
                 options={processedOptions}
@@ -120,6 +121,8 @@ const ScriptureCombobox = ({
             )}
         </div>
     );
-};
+});
+
+ScriptureCombobox.displayName = 'ScriptureCombobox';
 
 export default ScriptureCombobox;

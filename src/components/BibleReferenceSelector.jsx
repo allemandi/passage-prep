@@ -11,6 +11,7 @@ const BibleReferenceSelector = ({
     layout = 'vertical',
     labelPrefix = '',
     errors = {},
+    firstSelectRef = null,
 }) => {
     const {
         book, chapter, verseStart, verseEnd,
@@ -64,7 +65,7 @@ const BibleReferenceSelector = ({
         }
     ];
 
-    const renderCombobox = (item) => (
+    const renderCombobox = (item, ref = null) => (
         <ScriptureCombobox
             key={item.id}
             id={`${idPrefix}${item.id}`}
@@ -79,6 +80,7 @@ const BibleReferenceSelector = ({
             error={item.error}
             isEndVerse={item.isEndVerse}
             startVerseValue={item.startVerseValue}
+            ref={ref}
         />
     );
 
@@ -92,7 +94,7 @@ const BibleReferenceSelector = ({
 
     return (
         <div className="space-y-6">
-            {renderCombobox(config[0])}
+            {renderCombobox(config[0], firstSelectRef)}
             {renderCombobox(config[1])}
             <div className="grid grid-cols-2 gap-4">
                 {renderCombobox(config[2])}

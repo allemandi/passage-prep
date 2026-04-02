@@ -62,13 +62,13 @@ export const filterQuestions = (questions, { book, chapter, verseStart, verseEnd
     return filtered;
 };
 
+const bookOrderMap = listBibleBooks().reduce((map, book, idx) => {
+    map[book] = idx;
+    return map;
+}, {});
+
 export const getSortedQuestions = (questionsArray = []) => {
     if (!questionsArray.length) return [];
-    const currentBibleBooks = listBibleBooks();
-    const bookOrderMap = currentBibleBooks.reduce((map, book, idx) => {
-        map[book] = idx;
-        return map;
-    }, {});
 
     return [...questionsArray].sort((a, b) => {
         const bookAIndex = bookOrderMap[a.book] ?? Infinity;

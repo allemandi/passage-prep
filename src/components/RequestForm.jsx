@@ -19,13 +19,11 @@ import Tooltip from './Tooltip';
 import QuestionTable from './QuestionTable';
 import LoadingOverlay from './ui/LoadingOverlay';
 
-const ScriptureReferenceItem = ({ id, index, onRemove, referenceState }) => {
+const ScriptureReferenceItem = ({ id, index, onRemove, referenceState, firstSelectRef }) => {
     return (
         <fieldset className="relative w-full flex flex-col gap-5 p-5 rounded-2xl bg-app-surface/40 border-2 border-app-border">
-            <div className="flex justify-between items-center">
-                <legend className="text-sm font-bold text-app-text-muted">
-                    Reference {index + 1}
-                </legend>
+            <legend className="text-sm font-bold text-app-text-muted mb-5 w-full flex justify-between items-center">
+                Reference {index + 1}
                 {index > 0 && (
                     <button
                         type="button"
@@ -36,20 +34,29 @@ const ScriptureReferenceItem = ({ id, index, onRemove, referenceState }) => {
                         <X size={16} />
                     </button>
                 )}
-            </div>
+            </legend>
 
             <BibleReferenceSelector
                 bibleReference={referenceState}
                 idPrefix={`ref-${id}-`}
                 labelPrefix={`Reference ${index + 1}: `}
                 required={index === 0}
+                firstSelectRef={firstSelectRef}
             />
         </fieldset>
     );
 };
 
 // Wrapper component to manage multiple useBibleReference hooks
-const MultiScriptureSelector = ({ references, onAdd, onRemove }) => {
+const MultiScriptureSelector = ({ references, onAdd, onRemove, newRefId }) => {
+    const newRefBookSelectRef = useRef(null);
+
+    useEffect(() => {
+        if (newRefId !== null && newRefBookSelectRef.current) {
+            newRefBookSelectRef.current.focus();
+        }
+    }, [newRefId]);
+
     return (
         <section className="flex flex-col gap-6">
             <SectionHeader>Bible References</SectionHeader>
@@ -61,6 +68,7 @@ const MultiScriptureSelector = ({ references, onAdd, onRemove }) => {
                         index={idx}
                         onRemove={onRemove}
                         referenceState={ref.state}
+                        firstSelectRef={ref.id === newRefId ? newRefBookSelectRef : null}
                     />
                 ))}
             </div>
@@ -82,6 +90,7 @@ const RequestForm = ({ onStudyGenerated, isLoading, setTabValue }) => {
 
     // Custom state management for multiple references (up to 6)
     const [activeIndices, setActiveIndices] = useState([0, 1]);
+    const [newRefId, setNewRefId] = useState(null);
     const refSlots = [
         useBibleReference(),
         useBibleReference(),
@@ -98,11 +107,13 @@ const RequestForm = ({ onStudyGenerated, isLoading, setTabValue }) => {
         }
         const nextIndex = [0, 1, 2, 3, 4, 5].find(idx => !activeIndices.includes(idx));
         setActiveIndices(prev => [...prev, nextIndex].sort((a, b) => a - b));
+        setNewRefId(nextIndex);
     };
 
     const removeReference = (idx) => {
         setActiveIndices(prev => prev.filter(i => i !== idx));
         refSlots[idx].reset();
+        if (newRefId === idx) setNewRefId(null);
     };
 
     const activeRefs = activeIndices.map(idx => ({ id: idx, state: refSlots[idx] }));
@@ -222,6 +233,7 @@ const RequestForm = ({ onStudyGenerated, isLoading, setTabValue }) => {
                         references={activeRefs}
                         onAdd={addReference}
                         onRemove={removeReference}
+                        newRefId={newRefId}
                     />
 
                     <section className="pt-8 border-t-2 border-app-border">
@@ -238,8 +250,7 @@ const RequestForm = ({ onStudyGenerated, isLoading, setTabValue }) => {
                                 variant={hideUnapproved ? 'secondary' : 'outline'}
                                 onClick={() => setHideUnapproved(!hideUnapproved)}
                                 className="w-full"
-                                aria-pressed={hideUnapproved}
-                                title={hideUnapproved ? 'Include unapproved questions in results' : 'Exclude unapproved questions from results'}
+                                title={hideUnapproved ? 'Include unapproved questions' : 'Exclude unapproved questions'}
                             >
                                 {hideUnapproved ? <Eye size={18} /> : <EyeOff size={18} />}
                                 {hideUnapproved ? 'Show Unapproved' : 'Hide Unapproved'}
