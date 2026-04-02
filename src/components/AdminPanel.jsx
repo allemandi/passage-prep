@@ -1,4 +1,6 @@
-import React, { useState, useCallback } from 'react';
+import React, { useCallback, Fragment } from 'react';
+import { Tab, TabGroup, TabList, TabPanel, TabPanels } from '@headlessui/react';
+import clsx from 'clsx';
 import Login from './AdminForm/Login';
 import ReviewApprove from './AdminForm/ReviewApprove';
 import Upload from './AdminForm/Upload';
@@ -17,26 +19,9 @@ const buttons = [
 ];
 
 export default function AdminForm({ isLoggedIn, setIsLoggedIn }) {
-    const [activeButton, setActiveButton] = useState(null);
-
     const handleLogout = useCallback(() => {
         setIsLoggedIn(false);
     }, [setIsLoggedIn]);
-
-    const renderContent = () => {
-        switch (activeButton) {
-            case 'edit':
-                return <EditDelete />;
-            case 'review':
-                return <ReviewApprove />;
-            case 'download':
-                return <Download />;
-            case 'upload':
-                return <Upload />;
-            default:
-                return null;
-        }
-    };
 
     return (
         <div className="w-full">
@@ -45,34 +30,44 @@ export default function AdminForm({ isLoggedIn, setIsLoggedIn }) {
                     <Login setIsLoggedIn={setIsLoggedIn} />
                 ) : (
                     <>
-                        <SectionHeader centered={false}>Admin Mode</SectionHeader>
-
-                        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-                            {buttons.map(({ name, label }) => (
-                                <Button
-                                    key={name}
-                                    variant={activeButton === name ? 'primary' : 'outline'}
-                                    onClick={() => setActiveButton(name)}
-                                    className="w-full"
-                                >
-                                    {label}
-                                </Button>
-                            ))}
-                        </div>
-
-                        <div className="min-h-[300px] text-gray-900 dark:text-gray-300 mb-4">
-                            {renderContent()}
-                        </div>
-
-                        <div className="flex justify-center mt-12">
+                        <div className="flex flex-col sm:flex-row justify-between items-center gap-4 border-b-2 border-app-border pb-6">
+                            <SectionHeader centered={false} className="!mb-0 !border-b-0 !pb-0">Admin Mode</SectionHeader>
                             <Button
                                 variant="outline"
                                 onClick={handleLogout}
-                                className="w-full max-w-xs border-2 border-secondary-400 text-secondary-600 hover:bg-secondary-50 dark:text-secondary-400 dark:hover:bg-secondary-900/20"
+                                size="sm"
+                                className="border-2 border-secondary-400 text-secondary-600 hover:bg-secondary-50 dark:text-secondary-400 dark:hover:bg-secondary-900/20"
                             >
                                 Logout
                             </Button>
                         </div>
+
+                        <TabGroup>
+                            <TabList className="flex flex-wrap gap-2 p-1 bg-app-bg/50 rounded-xl border-2 border-app-border">
+                                {buttons.map(({ name, label }) => (
+                                    <Tab
+                                        key={name}
+                                        className={({ selected }) =>
+                                            clsx(
+                                                'flex-grow px-4 py-2.5 text-sm font-bold rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-primary-500',
+                                                selected
+                                                    ? 'bg-primary-500 text-white shadow-md'
+                                                    : 'text-app-text-muted hover:bg-app-surface hover:text-app-text'
+                                            )
+                                        }
+                                    >
+                                        {label}
+                                    </Tab>
+                                ))}
+                            </TabList>
+
+                            <TabPanels className="mt-8 min-h-[400px]">
+                                <TabPanel><EditDelete /></TabPanel>
+                                <TabPanel><ReviewApprove /></TabPanel>
+                                <TabPanel><Download /></TabPanel>
+                                <TabPanel><Upload /></TabPanel>
+                            </TabPanels>
+                        </TabGroup>
                     </>
                 )}
             </Card>
