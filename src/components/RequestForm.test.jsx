@@ -44,14 +44,14 @@ describe('RequestForm', () => {
         fireEvent.click(option);
 
         // Click Search to show results
-        const searchButton = screen.getByRole('button', { name: /^Search$/i });
+        const searchButton = screen.getByRole('button', { name: /Search Questions/i });
         fireEvent.click(searchButton);
         await waitFor(() => {
             expect(screen.getByText(/Search Results/i)).toBeInTheDocument();
         });
 
         // Click Clear Form
-        const clearFormButton = screen.getByTitle(/Clear form/i);
+        const clearFormButton = screen.getByTitle(/Reset Form/i);
         fireEvent.click(clearFormButton);
 
         // Verify search results are gone

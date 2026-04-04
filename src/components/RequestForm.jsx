@@ -21,8 +21,8 @@ import LoadingOverlay from './ui/LoadingOverlay';
 
 const ScriptureReferenceItem = ({ id, index, onRemove, referenceState, firstSelectRef }) => {
     return (
-        <fieldset className="relative w-full flex flex-col gap-5 p-5 rounded-2xl bg-app-surface/40 border-2 border-app-border">
-            <legend className="text-sm font-bold text-app-text-muted mb-5 w-full flex justify-between items-center">
+        <div className="relative w-full flex flex-col gap-5 p-5 rounded-2xl bg-app-surface/40 border-2 border-app-border">
+            <div className="text-sm font-bold text-app-text-muted mb-5 w-full flex justify-between items-center">
                 Reference {index + 1}
                 {index > 0 && (
                     <button
@@ -34,7 +34,7 @@ const ScriptureReferenceItem = ({ id, index, onRemove, referenceState, firstSele
                         <X size={16} />
                     </button>
                 )}
-            </legend>
+            </div>
 
             <BibleReferenceSelector
                 bibleReference={referenceState}
@@ -43,7 +43,7 @@ const ScriptureReferenceItem = ({ id, index, onRemove, referenceState, firstSele
                 required={index === 0}
                 firstSelectRef={firstSelectRef}
             />
-        </fieldset>
+        </div>
     );
 };
 
@@ -245,8 +245,9 @@ const RequestForm = ({ onStudyGenerated, isLoading, setTabValue }) => {
                         newRefId={newRefId}
                     />
 
-                    <section className="pt-8 border-t-2 border-app-border">
-                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 items-end">
+                    <section className="pt-8 border-t-2 border-app-border flex flex-col gap-8">
+                        {/* Filter Row */}
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 items-end">
                             <ThemeSelect
                                 value={selectedThemes}
                                 onChange={setSelectedThemes}
@@ -258,49 +259,43 @@ const RequestForm = ({ onStudyGenerated, isLoading, setTabValue }) => {
                                 type="button"
                                 variant={hideUnapproved ? 'secondary' : 'outline'}
                                 onClick={() => setHideUnapproved(!hideUnapproved)}
-                                className="w-full"
+                                className="w-full h-11"
                                 title={hideUnapproved ? 'Include unapproved questions' : 'Exclude unapproved questions'}
                             >
                                 {hideUnapproved ? <Eye size={18} /> : <EyeOff size={18} />}
                                 {hideUnapproved ? 'Show Unapproved' : 'Hide Unapproved'}
                             </Button>
+                        </div>
 
-                            <div className="w-full flex gap-2">
+                        {/* Primary Action Bar */}
+                        <div className="flex flex-col sm:flex-row justify-between items-center gap-4 bg-app-bg/30 p-4 rounded-2xl border-2 border-app-border">
+                            <div className="flex gap-2 w-full sm:w-auto order-2 sm:order-1">
+                                <Button
+                                    type="button"
+                                    variant="ghost"
+                                    onClick={handleClearForm}
+                                    className="flex-grow sm:flex-grow-0 text-app-text-muted hover:text-secondary-600"
+                                    title="Reset Form"
+                                >
+                                    <RotateCcw size={18} />
+                                    Reset Form
+                                </Button>
+                            </div>
+
+                            <div className="flex gap-3 w-full sm:w-auto order-1 sm:order-2">
                                 <Button
                                     ref={searchButtonRef}
                                     type="submit"
-                                    isLoading={isLoading || isSubmitting}
-                                    className="flex-grow"
+                                    isLoading={isLoading || isSearching || isSubmitting}
+                                    className="flex-grow sm:min-w-[140px]"
                                 >
                                     <Search size={18} />
-                                    Search
+                                    Search Questions
                                 </Button>
-                                <Button
-                                    type="button"
-                                    variant="outline"
-                                    onClick={handleClearForm}
-                                    className="px-3"
-                                    title="Clear form"
-                                >
-                                    <RotateCcw size={18} />
-                                </Button>
-                                {showSearchResults && (
-                                    <Button
-                                        type="button"
-                                        variant="outline"
-                                        onClick={handleClearResults}
-                                        className="px-3 text-secondary-600 border-secondary-400 hover:bg-secondary-50 dark:text-secondary-400 dark:border-secondary-500/50 dark:hover:bg-secondary-900/20"
-                                        title="Clear results"
-                                    >
-                                        <X size={18} />
-                                    </Button>
-                                )}
-                            </div>
 
-                            <div className="w-full">
                                 {isGenerateDisabled ? (
                                     <Tooltip content="Select at least one question from search results">
-                                        <Button type="button" disabled variant="outline" className="w-full opacity-50 cursor-not-allowed">
+                                        <Button type="button" disabled variant="outline" className="flex-grow opacity-50 cursor-not-allowed">
                                             <BookOpen size={18} />
                                             Generate Study
                                         </Button>
@@ -311,7 +306,7 @@ const RequestForm = ({ onStudyGenerated, isLoading, setTabValue }) => {
                                         onClick={handleSubmit}
                                         variant="outline"
                                         isLoading={isLoading || isSubmitting}
-                                        className="w-full"
+                                        className="flex-grow border-2"
                                     >
                                         <BookOpen size={18} />
                                         Generate Study {selectedIds.length > 0 && `(${selectedIds.length})`}
@@ -328,14 +323,26 @@ const RequestForm = ({ onStudyGenerated, isLoading, setTabValue }) => {
                             role="region"
                             aria-live="polite"
                         >
-                            <SectionHeader
-                                ref={resultsHeaderRef}
-                                tabIndex={-1}
-                                centered={false}
-                                className="focus:outline-none"
-                            >
-                                Search Results
-                            </SectionHeader>
+                            <div className="flex justify-between items-center mb-8 border-b-4 border-primary-500/20 pb-4">
+                                <SectionHeader
+                                    ref={resultsHeaderRef}
+                                    tabIndex={-1}
+                                    centered={false}
+                                    className="focus:outline-none !mb-0 !pb-0 !border-b-0"
+                                >
+                                    Search Results
+                                </SectionHeader>
+                                <Button
+                                    type="button"
+                                    variant="ghost"
+                                    onClick={handleClearResults}
+                                    className="text-secondary-600 hover:bg-secondary-50 dark:text-secondary-400 dark:hover:bg-secondary-900/20 flex items-center gap-2 px-3 py-1.5"
+                                    title="Clear results"
+                                >
+                                    <X size={18} />
+                                    <span className="hidden sm:inline">Clear Results</span>
+                                </Button>
+                            </div>
                             <LoadingOverlay isLoading={isSearching}>
                                 {searchResults.length === 0 ? (
                                     <Card className="flex flex-col items-center justify-center py-12 px-6 text-center border-dashed border-4 border-app-border bg-app-bg/30">
