@@ -144,6 +144,15 @@ const RequestForm = ({ onStudyGenerated, isLoading, setTabValue }) => {
         }, 0);
     };
 
+    const handleClearForm = () => {
+        setActiveIndices([0, 1]);
+        refSlots.forEach(slot => slot.reset());
+        setSelectedThemes(defaultThemes);
+        setNewRefId(null);
+        handleClearResults();
+        showToast('Form cleared.', 'success');
+    };
+
     const handleSubmit = async e => {
         e?.preventDefault();
         const validRefs = activeRefs.filter(ref => ref.state.formattedReference.trim());
@@ -266,15 +275,24 @@ const RequestForm = ({ onStudyGenerated, isLoading, setTabValue }) => {
                                     <Search size={18} />
                                     Search
                                 </Button>
+                                <Button
+                                    type="button"
+                                    variant="outline"
+                                    onClick={handleClearForm}
+                                    className="px-3"
+                                    title="Clear form"
+                                >
+                                    <RotateCcw size={18} />
+                                </Button>
                                 {showSearchResults && (
                                     <Button
                                         type="button"
                                         variant="outline"
                                         onClick={handleClearResults}
-                                        className="px-3"
+                                        className="px-3 text-secondary-600 border-secondary-400 hover:bg-secondary-50 dark:text-secondary-400 dark:border-secondary-500/50 dark:hover:bg-secondary-900/20"
                                         title="Clear results"
                                     >
-                                        <RotateCcw size={18} />
+                                        <X size={18} />
                                     </Button>
                                 )}
                             </div>
