@@ -1,5 +1,6 @@
 import themes from '../data/themes.json';
 import bibleContext from '../data/bibleContext.json';
+import { BIBLE_BOOK_REGEX, BIBLE_REFERENCE_PARSE_REGEX } from '../utils/bibleData';
 
 const API_BASE = import.meta.env.MODE === 'production' ? '/.netlify/functions' : '/api';
 
@@ -79,14 +80,14 @@ export const processForm = async (formData) => {
   const themeArrFiltered = themeArr.length === themes.length ? [] : [...new Set(themeArr)].filter(n => n);
 
   const extractBookFromReference = (ref) => {
-    const match = ref.match(/^((?:\d\s+)?[A-Za-z]+(?:\s+[A-Za-z]+)*)/i);
+    const match = ref.match(BIBLE_BOOK_REGEX);
     return match ? match[1].trim() : null;
   };
 
   const orderedBooks = [...new Set(refArrFiltered.map(extractBookFromReference).filter(Boolean))];
 
   const scriptureRefs = refArrFiltered.map(ref => {
-    const match = ref.match(/^((?:\d\s+)?[A-Za-z]+(?:\s+[A-Za-z]+)*)\s*(\d+)?(?::(\d+)(?:-(\d+))?)?/i);
+    const match = ref.match(BIBLE_REFERENCE_PARSE_REGEX);
     if (!match) return null;
     const [, book, chapter, verseStart, verseEnd] = match;
     return {
