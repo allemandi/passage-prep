@@ -11,6 +11,7 @@ import {
     generateMarkdownContent,
     generateRichTextContent
 } from '../utils/studyUtils';
+import { BIBLE_BOOK_REGEX } from '../utils/bibleData';
 
 const StudyModal = ({ show, onHide, data }) => {
     const showToast = useToast();
@@ -27,7 +28,7 @@ const StudyModal = ({ show, onHide, data }) => {
     const orderedBooksList = useMemo(() => {
         const bookOrder = (data.refArr || [])
             .map(ref => {
-                const match = ref.match(/^((?:\d+\s+)?[A-Za-z]+(?:\s+[A-Za-z]+)*)/i);
+                const match = ref.match(BIBLE_BOOK_REGEX);
                 return match ? match[1].trim() : null;
             })
             .filter(Boolean);

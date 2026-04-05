@@ -1,31 +1,6 @@
 const Question = require('../../models/Question');
-const { filterXSS } = require('xss');
 const { isValidReference } = require('@allemandi/bible-validate');
-
-/**
- * Standardizes common symbols like smart quotes, dashes, and ellipses to their ASCII equivalents.
- */
-const standardizeSymbols = (text) => {
-    if (typeof text !== 'string') return text;
-    return text
-        .replace(/[\u2018\u2019\u201A\u201B\u2032\u2035]/g, "'") // single quotes/apostrophes
-        .replace(/[\u201C\u201D\u201E\u201F\u2033\u2036]/g, '"') // double quotes
-        .replace(/[\u2013\u2014\u2015]/g, '-') // dashes
-        .replace(/\u2026/g, '...'); // ellipses
-};
-
-/**
- * Sanitizes input text to prevent XSS attacks and standardizes symbols.
- */
-const sanitizeInput = (input) => {
-    if (typeof input !== 'string') return input;
-    const standardized = standardizeSymbols(input);
-    return filterXSS(standardized, {
-        whiteList: {},
-        stripIgnoreTag: true,
-        stripIgnoreTagBody: ['script'],
-    });
-};
+const { sanitizeInput } = require('../../src/utils/sanitization.cjs');
 
 const questionService = {
     async getAllQuestions() {
@@ -116,11 +91,16 @@ const questionService = {
         return updatedQuestion;
     },
 
-    async searchQuestions({ book, chapter, verseStart, verseEnd, themeArr }) {
+    async searchQuestions({ book, chapter, verseStart, verseEnd, themeArr, isApproved }) {
         const query = {};
         if (book) query.book = new RegExp(book, 'i');
         if (chapter) query.chapter = parseInt(chapter, 10);
         if (themeArr && themeArr.length > 0) query.theme = { $in: themeArr };
+
+        // Add support for isApproved filter
+        if (isApproved !== undefined && isApproved !== null) {
+            query.isApproved = isApproved === true || isApproved === 'true';
+        }
 
         const vStart = Number(verseStart);
         const vEnd = Number(verseEnd);

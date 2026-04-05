@@ -1,15 +1,13 @@
 import React from 'react';
-import { getBibleBooks, getSortedQuestions } from '../../utils/bibleData';
+import { getSortedQuestions } from '../../utils/bibleData';
 import { fetchAllQuestions } from '../../services/dataService';
 import { downloadAllCSV, downloadFilteredCSV } from '../../utils/download';
 import { useToast } from '../ToastMessage/Toast';
 import useBibleReference from '../../hooks/useBibleReference';
-import ScriptureCombobox from '../ScriptureCombobox';
-import { DownloadIcon } from 'lucide-react';
+import BibleReferenceSelector from '../BibleReferenceSelector';
+import { Download as DownloadIcon } from 'lucide-react';
 import Button from '../ui/Button';
 import SectionHeader from '../ui/SectionHeader';
-
-const bibleBooks = getBibleBooks();
 
 const Download = () => {
   const showToast = useToast();
@@ -41,42 +39,10 @@ const Download = () => {
       <SectionHeader>Download Options</SectionHeader>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6 justify-center mb-8">
-        <ScriptureCombobox
-          label="Book"
-          ariaLabel="Download Filter: Book"
-          value={bibleRef.book}
-          onChange={(book) => bibleRef.updateReference({ book })}
-          options={bibleBooks}
-          placeholder="Select a book"
-        />
-        <ScriptureCombobox
-          label="Chapter"
-          ariaLabel="Download Filter: Chapter"
-          value={bibleRef.chapter}
-          onChange={(chapter) => bibleRef.updateReference({ chapter })}
-          options={bibleRef.availableChapters}
-          disabled={!bibleRef.book}
-          placeholder={bibleRef.book ? "Select chapter" : "Select book first"}
-        />
-        <ScriptureCombobox
-          label="Start Verse"
-          ariaLabel="Download Filter: Start Verse"
-          value={bibleRef.verseStart}
-          onChange={(verseStart) => bibleRef.updateReference({ verseStart })}
-          options={bibleRef.availableVerses}
-          disabled={!bibleRef.chapter}
-          placeholder={bibleRef.chapter ? "Start verse" : "..."}
-        />
-        <ScriptureCombobox
-          label="End Verse"
-          ariaLabel="Download Filter: End Verse"
-          value={bibleRef.verseEnd}
-          onChange={(verseEnd) => bibleRef.updateReference({ verseEnd })}
-          options={bibleRef.availableVerses}
-          disabled={!bibleRef.chapter}
-          placeholder={bibleRef.chapter ? "End verse" : "..."}
-          isEndVerse
-          startVerseValue={bibleRef.verseStart}
+        <BibleReferenceSelector
+          bibleReference={bibleRef}
+          layout="grid"
+          labelPrefix="Download Filter: "
         />
       </div>
 

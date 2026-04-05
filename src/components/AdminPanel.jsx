@@ -1,10 +1,9 @@
-import React, { useCallback, Fragment } from 'react';
+import React, { useCallback } from 'react';
 import { Tab, TabGroup, TabList, TabPanel, TabPanels } from '@headlessui/react';
 import clsx from 'clsx';
 import Login from './AdminForm/Login';
-import ReviewApprove from './AdminForm/ReviewApprove';
+import QuestionManager from './AdminForm/QuestionManager';
 import Upload from './AdminForm/Upload';
-import EditDelete from './AdminForm/EditDelete';
 import Download from './AdminForm/Download';
 
 import Card from './ui/Card';
@@ -62,8 +61,12 @@ export default function AdminForm({ isLoggedIn, setIsLoggedIn }) {
                             </TabList>
 
                             <TabPanels className="mt-8 min-h-[400px]">
-                                <TabPanel><EditDelete /></TabPanel>
-                                <TabPanel><ReviewApprove /></TabPanel>
+                                <TabPanel>
+                                    <QuestionManager title="Filter for Editing/Deleting Questions" />
+                                </TabPanel>
+                                <TabPanel>
+                                    <QuestionManager title="Filter for Reviewing/Approving Questions" showApproveAction />
+                                </TabPanel>
                                 <TabPanel><Download /></TabPanel>
                                 <TabPanel><Upload /></TabPanel>
                             </TabPanels>
