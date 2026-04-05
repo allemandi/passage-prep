@@ -4,6 +4,61 @@ import clsx from 'clsx';
 import { getSortedQuestions, formatReference } from '../utils/bibleData';
 import EditQuestionModal from './EditQuestionModal';
 
+const QuestionRow = React.memo(({
+    question,
+    isSelected,
+    showActions,
+    hideEditActions,
+    onSelectionChange,
+    onEdit
+}) => {
+    const reference = formatReference(
+        question.book,
+        question.chapter,
+        question.verseStart,
+        question.verseEnd
+    );
+
+    return (
+        <tr
+            className={clsx(
+                "transition-colors duration-150",
+                isSelected
+                    ? "bg-primary-50/50 dark:bg-primary-900/20"
+                    : "hover:bg-primary-50/30 dark:hover:bg-primary-900/10"
+            )}
+        >
+            {showActions && (
+                <td className="p-4">
+                    <input
+                        type="checkbox"
+                        aria-label={`Select question for ${reference}: ${question.question}`}
+                        className="cursor-pointer accent-primary-500 w-4 h-4 rounded focus:ring-primary-500 focus:ring-offset-2"
+                        checked={isSelected}
+                        onChange={(e) => onSelectionChange([question._id], e.target.checked)}
+                    />
+                </td>
+            )}
+            <th scope="row" className="p-4 text-sm text-app-text whitespace-nowrap text-left font-semibold">{reference}</th>
+            <td className="p-4 text-sm text-app-text font-medium text-primary-600 dark:text-primary-400">{question.theme}</td>
+            <td className="p-4 text-sm text-app-text leading-relaxed">{question.question}</td>
+            {showActions && !hideEditActions && (
+                <td className="p-4">
+                    <button
+                        onClick={() => onEdit(question)}
+                        aria-label="Edit question"
+                        className="text-primary-500 hover:text-primary-700 transition-colors p-2 hover:bg-primary-50 dark:hover:bg-primary-900/20 rounded-lg"
+                    >
+                        <Pen size={18} />
+                    </button>
+                </td>
+            )}
+        </tr>
+    );
+});
+
+QuestionRow.displayName = 'QuestionRow';
+
 const QuestionTable = ({
     questions = [],
     selectedIds = [],
@@ -107,54 +162,18 @@ const QuestionTable = ({
                                 </td>
                             </tr>
                         ) : (
-                            sortedQuestions.map((question) => {
-                            const isSelected = selectedIds.includes(question._id);
-                            const reference = formatReference(
-                                question.book,
-                                question.chapter,
-                                question.verseStart,
-                                question.verseEnd
-                            );
-
-                            return (
-                                <tr
+                            sortedQuestions.map((question) => (
+                                <QuestionRow
                                     key={question._id}
-                                    className={clsx(
-                                        "transition-colors duration-150",
-                                        isSelected
-                                            ? "bg-primary-50/50 dark:bg-primary-900/20"
-                                            : "hover:bg-primary-50/30 dark:hover:bg-primary-900/10"
-                                    )}
-                                >
-                                    {showActions && (
-                                        <td className="p-4">
-                                            <input
-                                                type="checkbox"
-                                                aria-label={`Select question for ${reference}: ${question.question}`}
-                                                className="cursor-pointer accent-primary-500 w-4 h-4 rounded focus:ring-primary-500 focus:ring-offset-2"
-                                                checked={isSelected}
-                                                onChange={(e) => onSelectionChange([question._id], e.target.checked)}
-                                            />
-                                        </td>
-                                    )}
-                                    <th scope="row" className="p-4 text-sm text-app-text whitespace-nowrap text-left font-semibold">{reference}</th>
-                                    <td className="p-4 text-sm text-app-text font-medium text-primary-600 dark:text-primary-400">{question.theme}</td>
-                                    <td className="p-4 text-sm text-app-text leading-relaxed">{question.question}</td>
-                                    {showActions && !hideEditActions && (
-                                        <td className="p-4">
-                                            <button
-                                                onClick={() => setEditingQuestion(question)}
-                                                aria-label="Edit question"
-                                                className="text-primary-500 hover:text-primary-700 transition-colors p-2 hover:bg-primary-50 dark:hover:bg-primary-900/20 rounded-lg"
-                                            >
-                                                <Pen size={18} />
-                                            </button>
-                                        </td>
-                                    )}
-                                </tr>
-                            );
-                        })
-                    )}
+                                    question={question}
+                                    isSelected={selectedIds.includes(question._id)}
+                                    showActions={showActions}
+                                    hideEditActions={hideEditActions}
+                                    onSelectionChange={onSelectionChange}
+                                    onEdit={setEditingQuestion}
+                                />
+                            ))
+                        )}
                     </tbody>
                 </table>
             </div>

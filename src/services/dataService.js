@@ -143,17 +143,6 @@ export const fetchAllQuestions = async () => {
   return questions;
 };
 
-export const fetchUnapprovedQuestions = async () => {
-  try {
-    return await apiClient.get('unapproved-questions');
-  } catch (error) {
-    if (import.meta.env.MODE !== 'production') {
-      const all = await fetchAllQuestions();
-      return all.filter(q => !q.isApproved);
-    }
-    throw error;
-  }
-};
 
 export const approveQuestions = async (questionIds) => {
   const response = await apiClient.post('approve-questions', { questionIds });

@@ -7,6 +7,7 @@ import defaultThemes from "../../data/themes.json";
 export { defaultThemes };
 
 const ThemeSelect = ({
+  id,
   value,
   onChange,
   themes = defaultThemes,
@@ -17,10 +18,14 @@ const ThemeSelect = ({
   error,
   className,
 }) => {
+  const selectId = id || `theme-select-${label.replace(/\s+/g, '-').toLowerCase()}`;
+
+  const allSelected = isMulti && Array.isArray(value) && value.length === themes.length;
+
   const displayText = isMulti
-    ? (Array.isArray(value) && value.length === themes.length)
-      ? "All"
-      : Array.isArray(value) ? value.join(", ") : placeholder
+    ? allSelected
+      ? "All Themes"
+      : Array.isArray(value) && value.length > 0 ? value.join(", ") : placeholder
     : value || placeholder;
 
   const handleSelectionChange = (newSelection) => {
@@ -29,26 +34,17 @@ const ThemeSelect = ({
       return;
     }
 
-    const currentValues = Array.isArray(value) ? value : [];
-    const allSelected = currentValues.length === themes.length;
-
-    if (allSelected) {
-      // In multiple mode, if we were at "All" and clicked one theme,
-      // Headless UI returns an array with all OTHER themes (it toggles the clicked one OFF).
-      // We want to detect which one was toggled and make it the ONLY selected one.
-      const toggledOff = themes.find(t => !newSelection.includes(t));
-      if (toggledOff) {
-        onChange([toggledOff]);
-        return;
+    // "Select All" logic
+    if (newSelection.includes("all")) {
+      if (allSelected) {
+        onChange([]); // Deselect everything if "All" was already selected
+      } else {
+        onChange([...themes]); // Select all themes
       }
+      return;
     }
 
-    if (newSelection.length === 0) {
-      // If everything is deselected, reset to all themes
-      onChange(themes);
-    } else {
-      onChange(newSelection);
-    }
+    onChange(newSelection);
   };
 
   return (
@@ -56,11 +52,15 @@ const ThemeSelect = ({
       <Listbox value={value} onChange={handleSelectionChange} multiple={isMulti}>
         {({ open }) => (
           <>
-            <Label className="block mb-1.5 text-sm font-medium text-app-text">
+            <Label
+              htmlFor={selectId}
+              className="block mb-1.5 text-sm font-medium text-app-text"
+            >
               {label} {required && <span className="text-secondary-600 font-bold">*</span>}
             </Label>
             <div className="relative">
               <ListboxButton
+                id={selectId}
                 className={clsx(
                   "flex justify-between items-center w-full rounded-lg px-3 py-2.5 text-sm",
                   "border-2 transition-all duration-200",
@@ -102,6 +102,26 @@ const ThemeSelect = ({
                     "bg-app-surface shadow-2xl py-1 focus:outline-none"
                   )}
                 >
+                  {isMulti && (
+                    <ListboxOption
+                      value="all"
+                      className={({ focus }) =>
+                        clsx(
+                          "flex items-center justify-between px-4 py-3 text-sm cursor-pointer select-none transition-all duration-200 border-b border-app-border mb-1",
+                          allSelected
+                            ? "bg-primary-500 text-white font-bold"
+                            : focus
+                            ? "bg-primary-50 text-primary-600 dark:bg-primary-900/30 dark:text-primary-200"
+                            : "text-app-text font-semibold italic"
+                        )
+                      }
+                    >
+                      <div className="flex items-center justify-between w-full">
+                        <span className="truncate">{allSelected ? "Deselect All" : "Select All"}</span>
+                        {allSelected && <Check className="w-4 h-4 ml-2 flex-shrink-0" />}
+                      </div>
+                    </ListboxOption>
+                  )}
                   {themes.map((theme) => (
                     <ListboxOption
                       key={theme}

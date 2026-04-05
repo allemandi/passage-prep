@@ -50,6 +50,7 @@ const ScriptureCombobox = React.forwardRef(({
     return (
         <div className={clsx("relative w-full", className)}>
             <label
+                id={id ? `${id}-label` : undefined}
                 htmlFor={id}
                 className="block mb-1.5 text-sm font-medium text-app-text"
             >
@@ -59,6 +60,7 @@ const ScriptureCombobox = React.forwardRef(({
                 ref={ref}
                 inputId={id}
                 aria-label={ariaLabel || label}
+                aria-labelledby={id ? `${id}-label` : undefined}
                 options={processedOptions}
                 value={selectedValue}
                 onChange={handleChange}

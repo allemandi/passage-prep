@@ -22,6 +22,7 @@ const ContributeForm = () => {
     const [questionText, setQuestionText] = useState('');
     const [selectedTheme, setSelectedTheme] = useState('');
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [lastSubmittedId, setLastSubmittedId] = useState(null);
     const [errors, setErrors] = useState({});
 
     const bibleReference = useBibleReference();
@@ -85,6 +86,7 @@ const ContributeForm = () => {
                 }
             );
             if (saved) {
+                setLastSubmittedId(Date.now());
                 resetForm();
                 showToast('Your question has been submitted successfully!', 'success');
             }
@@ -102,8 +104,24 @@ const ContributeForm = () => {
         // We now keep selectedTheme and bibleReference to improve UX for consecutive submissions
     };
 
+    useEffect(() => {
+        if (lastSubmittedId) {
+            const timer = setTimeout(() => setLastSubmittedId(null), 5000);
+            return () => clearTimeout(timer);
+        }
+    }, [lastSubmittedId]);
+
     return (
         <div className="w-full">
+            {lastSubmittedId && (
+                <div
+                    role="status"
+                    aria-live="polite"
+                    className="mb-6 p-4 rounded-xl bg-primary-100 dark:bg-primary-900/40 border-2 border-primary-300 dark:border-primary-700 text-primary-800 dark:text-primary-200 text-center font-bold animate-in fade-in slide-in-from-top-4"
+                >
+                    ✓ Question submitted successfully! Thank you for contributing.
+                </div>
+            )}
             <form onSubmit={handleSubmit} noValidate>
                 <LoadingOverlay isLoading={isSubmitting}>
                 <Card className="grid grid-cols-1 md:grid-cols-2 gap-12">
@@ -160,10 +178,13 @@ const ContributeForm = () => {
                                         <p className="text-[10px] text-app-text-muted italic">
                                             Minimum 5 characters required
                                         </p>
-                                        <span className={clsx(
-                                            "text-xs font-bold transition-colors duration-300",
-                                            questionText.length >= 5 ? "text-primary-500" : "text-secondary-500"
-                                        )}>
+                                        <span
+                                            aria-live="polite"
+                                            className={clsx(
+                                                "text-xs font-bold transition-colors duration-300",
+                                                questionText.length >= 5 ? "text-primary-500" : "text-secondary-500"
+                                            )}
+                                        >
                                             {questionText.length} characters
                                         </span>
                                     </div>

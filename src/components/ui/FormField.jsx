@@ -58,7 +58,7 @@ const FormField = ({
       )}
 
       {helperText && !error && (
-        <p id={`${id}-helper`} className="mt-1.5 text-xs text-app-text-muted flex items-center gap-1">
+        <p id={`${id}-helper`} aria-live="polite" className="mt-1.5 text-xs text-app-text-muted flex items-center gap-1">
            <span className="inline-block w-1 h-1 rounded-full bg-current opacity-50" />
            {helperText}
         </p>
