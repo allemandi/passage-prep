@@ -2,7 +2,6 @@ import { useState, useRef } from 'react';
 import { CloudUpload, Download as DownloadIcon, FileText, X } from 'lucide-react';
 import UploadResultsPanel from './UploadResultsPanel';
 import themes from '../../data/themes.json';
-import { bulkUploadQuestions } from '../../utils/upload';
 import { useToast } from '../ToastMessage/Toast';
 import Button from '../ui/Button';
 import clsx from 'clsx';
@@ -60,20 +59,57 @@ const Upload = () => {
   const handleBulkUpload = async (e) => {
     e.preventDefault();
     if (!selectedFile) {
-        showToast('Please select a file first', 'info');
-        return;
+      showToast('Please select a file first', 'info');
+      return;
     }
 
-    await bulkUploadQuestions({
-      e,
-      fileInputRef,
-      setIsUploading,
-      setUploadResults,
-      showToast,
-    });
+    setIsUploading(true);
+    try {
+      const reader = new FileReader();
+      reader.onload = async (event) => {
+        try {
+          const csvContent = event.target.result;
+          const url = import.meta.env.MODE === 'production' ? '/.netlify/functions/bulk-upload' : '/api/bulk-upload';
+          const response = await fetch(url, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ csvText: csvContent }),
+          });
 
-    // Clear selected file after upload attempt
-    setSelectedFile(null);
+          if (!response.ok) {
+            const errorText = await response.text();
+            throw new Error(errorText || 'Failed to upload questions');
+          }
+
+          const results = await response.json();
+          setUploadResults(results);
+
+          if (results.successful > 0) {
+            showToast(`${results.successful} question(s) uploaded successfully`, 'success');
+          }
+
+          if (results.failed > 0) {
+            showToast(`${results.failed} question(s) failed to upload. Check results for details.`, 'warning');
+          }
+
+          if (fileInputRef.current) fileInputRef.current.value = null;
+        } catch (error) {
+          showToast(error.message, 'error');
+        } finally {
+          setIsUploading(false);
+          setSelectedFile(null);
+        }
+      };
+
+      reader.onerror = () => {
+        showToast('Error reading file', 'error');
+        setIsUploading(false);
+      };
+      reader.readAsText(selectedFile);
+    } catch (error) {
+      showToast(error.message, 'error');
+      setIsUploading(false);
+    }
   };
 
   const clearSelection = () => {

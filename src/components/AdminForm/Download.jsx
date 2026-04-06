@@ -1,7 +1,7 @@
 import React from 'react';
+import Papa from 'papaparse';
 import { getSortedQuestions } from '../../utils/bibleData';
-import { fetchAllQuestions } from '../../services/dataService';
-import { downloadAllCSV, downloadFilteredCSV } from '../../utils/download';
+import { fetchAllQuestions, searchQuestions } from '../../services/dataService';
 import { useToast } from '../ToastMessage/Toast';
 import useBibleReference from '../../hooks/useBibleReference';
 import BibleReferenceSelector from '../BibleReferenceSelector';
@@ -15,23 +15,56 @@ const Download = () => {
 
   const excludeFields = ['_id', '__v', 'updatedAt'];
 
-  const handleDownloadFilteredCSV = () => {
-    downloadFilteredCSV({
-      fetchAllQuestions,
-      downloadRef: bibleRef,
-      excludeFields,
-      getSortedQuestions,
-      showToast,
+  const generateAndDownloadCSV = (results, filename) => {
+    if (!results?.length) {
+      showToast('No questions available to download', 'info');
+      return;
+    }
+
+    const sortedResults = getSortedQuestions(results);
+    const dataForCsv = sortedResults.map(item => {
+      const filtered = {};
+      Object.keys(item).forEach(key => {
+        if (!excludeFields.includes(key)) {
+          filtered[key] = item[key];
+        }
+      });
+      return filtered;
     });
+
+    const csvContent = Papa.unparse(dataForCsv, { header: true });
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = filename;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
   };
 
-  const handleDownloadAllCSV = () => {
-    downloadAllCSV({
-      fetchAllQuestions,
-      excludeFields,
-      getSortedQuestions,
-      showToast,
-    });
+  const handleDownloadFilteredCSV = async () => {
+    try {
+      const results = await searchQuestions({
+        book: bibleRef.book || null,
+        chapter: bibleRef.chapter || null,
+        verseStart: bibleRef.verseStart || null,
+        verseEnd: bibleRef.verseEnd || null,
+        themeArr: [],
+      });
+      generateAndDownloadCSV(results, 'filtered_questions.csv');
+    } catch {
+      showToast('Download failed', 'error');
+    }
+  };
+
+  const handleDownloadAllCSV = async () => {
+    try {
+      const results = await fetchAllQuestions();
+      generateAndDownloadCSV(results, `questions_${new Date().toISOString().slice(0, 10)}.csv`);
+    } catch (error) {
+      showToast(error.message, 'error');
+    }
   };
 
   return (

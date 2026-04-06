@@ -5,7 +5,7 @@ import {
     searchQuestions,
 } from '../services/dataService';
 import { getSortedQuestions } from '../utils/bibleData';
-import { processInput } from '../utils/inputUtils';
+import { sanitizeInput } from '../utils/sanitization.cjs';
 import { useToast } from './ToastMessage/Toast';
 import useBibleReference from '../hooks/useBibleReference';
 import useQuestionSelection from '../hooks/useQuestionSelection';
@@ -165,7 +165,7 @@ const RequestForm = ({ onStudyGenerated, isLoading, setTabValue }) => {
         setIsSubmitting(true);
         try {
             const refArr = validRefs.map(ref =>
-                processInput(ref.state.formattedReference, 'scripture reference').sanitizedValue
+                sanitizeInput(ref.state.formattedReference)
             ).filter(Boolean);
 
             const themeArr = selectedThemes.length === defaultThemes.length ? [] : selectedThemes;
