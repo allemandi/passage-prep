@@ -48,7 +48,7 @@
     "postcss": "^8.5.8",
     "react-select-event": "^5.5.1",
     "tailwindcss": "^4.2.1",
-    "vite": "^8.0.3",
+    "vite": "^8.0.5",
     "vitest": "^4.1.2"
   }
 }
