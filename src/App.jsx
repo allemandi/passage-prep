@@ -6,6 +6,7 @@ import { ToastProvider, useToast } from './components/ToastMessage/Toast';
 import Header from './components/Header';
 import Tabs from './components/Tabs';
 import MainContent from './components/MainContent';
+import AdminPanel from './components/AdminPanel';
 import Footer from './components/Footer';
 import HelpModal from './components/HelpModal';
 import Button from './components/ui/Button';
@@ -91,24 +92,27 @@ function AppContent() {
 
   return (
     <div className="min-h-screen flex flex-col bg-app-bg text-app-text transition-colors duration-500">
-      <Header mode={mode} setMode={setMode} />
+      <Header mode={mode} setMode={setMode} tabValue={tabValue} setTabValue={setTabValue} />
 
       <main className="flex-grow w-full pb-24">
-        <TabGroup selectedIndex={tabValue} onChange={setTabValue}>
-          <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8 py-8 flex flex-col gap-10">
-            <Tabs />
-
-            <MainContent
-              isLoading={isLoading}
-              handleShowStudy={handleShowStudy}
-              studyData={studyData}
-              setStudyData={setStudyData}
-              isLoggedIn={isLoggedIn}
-              setIsLoggedIn={handleSetIsLoggedIn}
-              setTabValue={setTabValue}
-            />
-          </div>
-        </TabGroup>
+        <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8 py-8 flex flex-col gap-10">
+          {tabValue === 2 ? (
+            <AdminPanel isLoggedIn={isLoggedIn} setIsLoggedIn={handleSetIsLoggedIn} />
+          ) : (
+            <TabGroup selectedIndex={tabValue} onChange={setTabValue}>
+              <div className="flex flex-col gap-10">
+                <Tabs />
+                <MainContent
+                  isLoading={isLoading}
+                  handleShowStudy={handleShowStudy}
+                  studyData={studyData}
+                  setStudyData={setStudyData}
+                  setTabValue={setTabValue}
+                />
+              </div>
+            </TabGroup>
+          )}
+        </div>
       </main>
 
       <Footer onHelpClick={() => setHelpOpen(true)} />

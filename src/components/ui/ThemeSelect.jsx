@@ -1,6 +1,6 @@
 import React from "react";
 import { Listbox, ListboxButton, ListboxOptions, ListboxOption, Label, Transition } from "@headlessui/react";
-import { ChevronDown, Check } from "lucide-react";
+import { ChevronDown, Check, Square, CheckSquare, X } from "lucide-react";
 import clsx from "clsx";
 import defaultThemes from "../../data/themes.json";
 
@@ -17,38 +17,29 @@ const ThemeSelect = ({
   error,
   className,
 }) => {
-  const displayText = isMulti
-    ? (Array.isArray(value) && value.length === themes.length)
-      ? "All"
-      : Array.isArray(value) ? value.join(", ") : placeholder
-    : value || placeholder;
+  const isAllSelected = Array.isArray(value) && value.length === themes.length;
+  const isNoneSelected = !Array.isArray(value) || value.length === 0;
+
+  const displayText = React.useMemo(() => {
+    if (!isMulti) return value || placeholder;
+    if (!Array.isArray(value) || value.length === 0) return "Any theme";
+    if (isAllSelected) return "All themes";
+    if (value.length > 2) return `${value.length} themes selected`;
+    return value.join(", ");
+  }, [isMulti, value, isAllSelected, placeholder]);
 
   const handleSelectionChange = (newSelection) => {
-    if (!isMulti) {
-      onChange(newSelection);
-      return;
-    }
+    onChange(newSelection);
+  };
 
-    const currentValues = Array.isArray(value) ? value : [];
-    const allSelected = currentValues.length === themes.length;
+  const selectAll = (e) => {
+    e.stopPropagation();
+    onChange(themes);
+  };
 
-    if (allSelected) {
-      // In multiple mode, if we were at "All" and clicked one theme,
-      // Headless UI returns an array with all OTHER themes (it toggles the clicked one OFF).
-      // We want to detect which one was toggled and make it the ONLY selected one.
-      const toggledOff = themes.find(t => !newSelection.includes(t));
-      if (toggledOff) {
-        onChange([toggledOff]);
-        return;
-      }
-    }
-
-    if (newSelection.length === 0) {
-      // If everything is deselected, reset to all themes
-      onChange(themes);
-    } else {
-      onChange(newSelection);
-    }
+  const clearAll = (e) => {
+    e.stopPropagation();
+    onChange([]);
   };
 
   return (
@@ -73,7 +64,7 @@ const ThemeSelect = ({
                     : "border-app-border hover:border-primary-300"
                 )}
               >
-                <span className={clsx("truncate flex-grow", isMulti ? (!value || value.length === 0) && "text-app-text-muted" : !value && "text-app-text-muted")}>
+                <span className={clsx("truncate flex-grow", isMulti ? isNoneSelected && "text-app-text-muted" : !value && "text-app-text-muted")}>
                   {displayText}
                 </span>
                 <ChevronDown
@@ -98,10 +89,30 @@ const ThemeSelect = ({
               >
                 <ListboxOptions
                   className={clsx(
-                    "absolute z-50 mt-2 w-full max-h-60 overflow-y-auto rounded-xl border-2 border-app-border",
+                    "absolute z-50 mt-2 w-full max-h-72 overflow-y-auto rounded-xl border-2 border-app-border",
                     "bg-app-surface shadow-2xl py-1 focus:outline-none"
                   )}
                 >
+                  {isMulti && (
+                    <div className="sticky top-0 z-10 bg-app-surface border-b border-app-border px-2 py-2 flex gap-2">
+                        <button
+                            type="button"
+                            onClick={selectAll}
+                            className="flex-1 flex items-center justify-center gap-1.5 py-1.5 text-xs font-bold rounded-lg bg-primary-50 text-primary-600 hover:bg-primary-100 dark:bg-primary-900/20 dark:text-primary-400 transition-colors"
+                        >
+                            <CheckSquare size={14} />
+                            Select All
+                        </button>
+                        <button
+                            type="button"
+                            onClick={clearAll}
+                            className="flex-1 flex items-center justify-center gap-1.5 py-1.5 text-xs font-bold rounded-lg bg-secondary-50 text-secondary-600 hover:bg-secondary-100 dark:bg-secondary-900/20 dark:text-secondary-400 transition-colors"
+                        >
+                            <X size={14} />
+                            Clear
+                        </button>
+                    </div>
+                  )}
                   {themes.map((theme) => (
                     <ListboxOption
                       key={theme}
@@ -119,8 +130,13 @@ const ThemeSelect = ({
                     >
                       {({ selected }) => (
                         <>
-                          <span className="truncate">{theme}</span>
-                          {selected && <Check className="w-4 h-4 ml-2 flex-shrink-0" />}
+                          <span className="truncate flex items-center gap-3">
+                            {isMulti && (
+                                selected ? <CheckSquare size={16} /> : <Square size={16} className="text-app-text-muted opacity-50" />
+                            )}
+                            {theme}
+                          </span>
+                          {selected && !isMulti && <Check className="w-4 h-4 ml-2 flex-shrink-0" />}
                         </>
                       )}
                     </ListboxOption>
