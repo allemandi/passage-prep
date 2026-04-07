@@ -3,6 +3,12 @@ const { isValidReference } = require('@allemandi/bible-validate');
 const { sanitizeInput } = require('../../src/utils/sanitization.cjs');
 
 const questionService = {
+    async findDuplicate(sanitizedQuestion, excludeId = null) {
+        const query = { question: sanitizedQuestion };
+        if (excludeId) query._id = { $ne: excludeId };
+        return await Question.findOne(query);
+    },
+
     async getAllQuestions() {
         return await Question.find();
     },
@@ -24,19 +30,10 @@ const questionService = {
             }
         });
 
-        // Basic security check: Check for identical recently submitted questions
-        // (within the last 5 minutes to prevent rapid duplicate spam)
-        // Skip this check for admin uploads
-        if (!isAdmin) {
-            const fiveMinutesAgo = new Date(Date.now() - 5 * 60 * 1000);
-            const existing = await Question.findOne({
-                question: sanitizedNewData.question,
-                createdAt: { $gte: fiveMinutesAgo }
-            });
-
-            if (existing) {
-                throw new Error('Duplicate question detected. Please wait a few minutes before submitting again.');
-            }
+        // Check for duplicates
+        const existing = await this.findDuplicate(sanitizedNewData.question);
+        if (existing) {
+            throw new Error('This question already exists in our database.');
         }
 
         const question = new Question({
@@ -58,15 +55,15 @@ const questionService = {
             throw new Error('Missing question ID or update data');
         }
 
+        const existingQuestion = await Question.findById(questionId);
+        if (!existingQuestion) throw new Error('Question not found');
+
         // If updating Bible reference fields, validate the combined result
         if (updatedData.book || updatedData.chapter || updatedData.verseStart || updatedData.verseEnd) {
-            const existing = await Question.findById(questionId);
-            if (!existing) throw new Error('Question not found');
-
-            const book = updatedData.book || existing.book;
-            const chapter = parseInt(updatedData.chapter || existing.chapter);
-            const verseStart = parseInt(updatedData.verseStart || existing.verseStart);
-            const verseEnd = parseInt(updatedData.verseEnd || existing.verseEnd);
+            const book = updatedData.book || existingQuestion.book;
+            const chapter = parseInt(updatedData.chapter || existingQuestion.chapter);
+            const verseStart = parseInt(updatedData.verseStart || existingQuestion.verseStart);
+            const verseEnd = parseInt(updatedData.verseEnd || existingQuestion.verseEnd);
 
             if (!isValidReference(book, chapter, verseStart, verseEnd)) {
                 throw new Error(`Invalid Bible reference: ${book} ${chapter}:${verseStart}-${verseEnd}`);
@@ -79,6 +76,14 @@ const questionService = {
                 sanitizedData[key] = sanitizeInput(sanitizedData[key]);
             }
         });
+
+        // Check for duplicates if question text is updated
+        if (sanitizedData.question) {
+            const duplicate = await this.findDuplicate(sanitizedData.question, questionId);
+            if (duplicate) {
+                throw new Error('Update failed: This would create a duplicate question.');
+            }
+        }
 
         const updatedQuestion = await Question.findByIdAndUpdate(
             questionId,
@@ -121,6 +126,29 @@ const questionService = {
         if (!Array.isArray(questionIds) || questionIds.length === 0) {
             throw new Error('No question IDs provided');
         }
+
+        const questionsToApprove = await Question.find({ _id: { $in: questionIds } });
+
+        // Check for duplicates within the approval batch
+        const textsInBatch = new Set();
+        for (const q of questionsToApprove) {
+            if (textsInBatch.has(q.question)) {
+                throw new Error(`Cannot approve: Multiple questions with the exact same text found in the selection.`);
+            }
+            textsInBatch.add(q.question);
+        }
+
+        // Check for duplicates in the database (Approved only)
+        const existingApproved = await Question.find({
+            question: { $in: Array.from(textsInBatch) },
+            isApproved: true,
+            _id: { $nin: questionIds }
+        });
+
+        if (existingApproved.length > 0) {
+            throw new Error(`Cannot approve: One or more questions already exist as approved questions.`);
+        }
+
         return await Question.updateMany(
             { _id: { $in: questionIds } },
             { $set: { isApproved: true } }
