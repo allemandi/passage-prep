@@ -38,11 +38,15 @@ const QuestionManager = ({
     // Store current filter values to re-apply after actions
     const currentFilters = useRef({ book: '', chapter: '', verseStart: '', verseEnd: '', themes: defaultThemes });
 
-    const fetchFilteredData = useCallback(async (filters) => {
+    const fetchFilteredData = useCallback(async (filters, isManualRefresh = false) => {
         if (filters !== undefined) {
             currentFilters.current = filters;
         }
         const activeFilters = currentFilters.current;
+
+        if (isManualRefresh) {
+            clearSearchCache();
+        }
 
         setIsFetching(true);
         try {
@@ -50,15 +54,14 @@ const QuestionManager = ({
 
             // Logic for isApproved:
             // 1. In Review Mode (showApproveAction = true):
-            //    - If showUnapproved is true -> isApproved: undefined (Show All)
-            //    - If showUnapproved is false -> isApproved: false (Show Pending Only) - THIS IS THE FIX
+            //    - isApproved: false (Always show pending only)
             // 2. In Edit Mode (showApproveAction = false):
             //    - If showUnapproved is true -> isApproved: undefined (Show All)
             //    - If showUnapproved is false -> isApproved: true (Show Approved Only)
 
-            const isApprovedParam = showUnapproved
-                ? undefined
-                : (showApproveAction ? false : true);
+            const isApprovedParam = showApproveAction
+                ? false
+                : (showUnapproved ? undefined : true);
 
             const apiFilter = {
                 book: activeFilters?.book || undefined,
@@ -153,32 +156,32 @@ const QuestionManager = ({
                     <Button
                         type="button"
                         variant="ghost"
-                        onClick={() => fetchFilteredData()}
+                        onClick={() => fetchFilteredData(undefined, true)}
                         className="w-full sm:w-auto"
                         title="Refresh list"
+                        disabled={isFetching}
                     >
-                        <RotateCcw size={18} />
-                        Refresh
+                        <RotateCcw
+                            size={18}
+                            className={clsx(isFetching && "animate-spin text-primary-500")}
+                        />
+                        {isFetching ? 'Refreshing...' : 'Refresh'}
                     </Button>
-                    <Button
-                        type="button"
-                        variant={showUnapproved ? 'secondary' : 'outline'}
-                        onClick={() => setShowUnapproved(v => !v)}
-                        className={clsx(
-                            "w-full sm:w-auto min-w-[200px] transition-all duration-300",
-                            showUnapproved && "ring-2 ring-secondary-500/50 border-secondary-500 shadow-md shadow-secondary-500/10"
-                        )}
-                        title={showApproveAction
-                            ? (showUnapproved ? 'Show only unapproved questions' : 'Show all questions (approved and unapproved)')
-                            : (showUnapproved ? 'Hide unapproved questions from results' : 'Include unapproved questions in results')
-                        }
-                    >
-                        {showUnapproved ? <EyeOff size={18} /> : <Eye size={18} />}
-                        {showApproveAction
-                            ? (showUnapproved ? 'Show Pending Only' : 'Show All Questions')
-                            : (showUnapproved ? 'Hide Unapproved' : 'Show Unapproved')
-                        }
-                    </Button>
+                    {!showApproveAction && (
+                        <Button
+                            type="button"
+                            variant={showUnapproved ? 'secondary' : 'outline'}
+                            onClick={() => setShowUnapproved(v => !v)}
+                            className={clsx(
+                                "w-full sm:w-auto min-w-[200px] transition-all duration-300",
+                                showUnapproved && "ring-2 ring-secondary-500/50 border-secondary-500 shadow-md shadow-secondary-500/10"
+                            )}
+                            title={showUnapproved ? 'Hide unapproved questions from results' : 'Include unapproved questions in results'}
+                        >
+                            {showUnapproved ? <EyeOff size={18} /> : <Eye size={18} />}
+                            {showUnapproved ? 'Hide Unapproved' : 'Show Unapproved'}
+                        </Button>
+                    )}
                 </div>
             </AdminFilterBar>
 

@@ -49,22 +49,12 @@ const QuestionTable = ({
 }) => {
     const [editingQuestion, setEditingQuestion] = useState(null);
 
-    // Filter unapproved questions if necessary
-    // If showUnapproved is true, we show everything.
-    // Otherwise, we show based on mode (Review shows pending, Edit shows approved).
-    const filteredQuestions = useMemo(() => {
-        if (showUnapproved) return questions;
-        return isReviewMode
-            ? questions.filter((q) => q.isApproved === false)
-            : questions.filter((q) => q.isApproved !== false);
-    }, [questions, showUnapproved, isReviewMode]);
-
     // Sort questions based on Bible order
     const sortedQuestions = useMemo(() => {
-        return getSortedQuestions(filteredQuestions);
-    }, [filteredQuestions]);
+        return getSortedQuestions(questions);
+    }, [questions]);
 
-    // Check if all filtered questions are selected
+    // Check if all questions are selected
     const allSelected = useMemo(() => {
         return sortedQuestions.length > 0 &&
         sortedQuestions.every(q => selectedIds.includes(q._id));
