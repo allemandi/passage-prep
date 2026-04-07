@@ -47,13 +47,26 @@ const QuestionManager = ({
         setIsFetching(true);
         try {
             const themes = activeFilters?.themes || [];
+
+            // Logic for isApproved:
+            // 1. In Review Mode (showApproveAction = true):
+            //    - If showUnapproved is true -> isApproved: undefined (Show All)
+            //    - If showUnapproved is false -> isApproved: false (Show Pending Only) - THIS IS THE FIX
+            // 2. In Edit Mode (showApproveAction = false):
+            //    - If showUnapproved is true -> isApproved: undefined (Show All)
+            //    - If showUnapproved is false -> isApproved: true (Show Approved Only)
+
+            const isApprovedParam = showUnapproved
+                ? undefined
+                : (showApproveAction ? false : true);
+
             const apiFilter = {
                 book: activeFilters?.book || undefined,
                 chapter: activeFilters?.chapter || null,
                 verseStart: activeFilters?.verseStart || null,
                 verseEnd: activeFilters?.verseEnd || null,
                 themeArr: (themes.length === defaultThemes.length || themes.length === 0) ? undefined : themes,
-                isApproved: showUnapproved ? undefined : (showApproveAction ? false : true),
+                isApproved: isApprovedParam,
             };
 
             const results = await searchQuestions(apiFilter);
