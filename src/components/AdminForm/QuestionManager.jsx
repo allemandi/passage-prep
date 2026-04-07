@@ -38,23 +38,36 @@ const QuestionManager = ({
     // Store current filter values to re-apply after actions
     const currentFilters = useRef({ book: '', chapter: '', verseStart: '', verseEnd: '', themes: defaultThemes });
 
-    const fetchFilteredData = useCallback(async (filters) => {
+    const fetchFilteredData = useCallback(async (filters, isManualRefresh = false) => {
         if (filters !== undefined) {
             currentFilters.current = filters;
         }
         const activeFilters = currentFilters.current;
 
+        if (isManualRefresh) {
+            clearSearchCache();
+        }
+
         setIsFetching(true);
         try {
             const themes = activeFilters?.themes || [];
+
+            // Logic for isApproved:
+            // 1. In Review Mode (showApproveAction = true):
+            //    - isApproved: false (Always show pending only)
+            // 2. In Edit Mode (showApproveAction = false):
+            //    - If showUnapproved is true -> isApproved: undefined (Show All)
+            //    - If showUnapproved is false -> isApproved: true (Show Approved Only)
+
             const apiFilter = {
-                book: activeFilters?.book || undefined,
+                ...activeFilters,
                 chapter: activeFilters?.chapter || null,
                 verseStart: activeFilters?.verseStart || null,
                 verseEnd: activeFilters?.verseEnd || null,
                 themeArr: (themes.length === defaultThemes.length || themes.length === 0) ? undefined : themes,
-                isApproved: showUnapproved ? undefined : (showApproveAction ? false : true),
+                isApproved: showApproveAction ? false : (showUnapproved ? undefined : true),
             };
+            delete apiFilter.themes;
 
             const results = await searchQuestions(apiFilter);
             setQuestions(results);
@@ -140,32 +153,32 @@ const QuestionManager = ({
                     <Button
                         type="button"
                         variant="ghost"
-                        onClick={() => fetchFilteredData()}
+                        onClick={() => fetchFilteredData(undefined, true)}
                         className="w-full sm:w-auto"
                         title="Refresh list"
+                        disabled={isFetching}
                     >
-                        <RotateCcw size={18} />
-                        Refresh
+                        <RotateCcw
+                            size={18}
+                            className={clsx(isFetching && "animate-spin text-primary-500")}
+                        />
+                        {isFetching ? 'Refreshing...' : 'Refresh'}
                     </Button>
-                    <Button
-                        type="button"
-                        variant={showUnapproved ? 'secondary' : 'outline'}
-                        onClick={() => setShowUnapproved(v => !v)}
-                        className={clsx(
-                            "w-full sm:w-auto min-w-[200px] transition-all duration-300",
-                            showUnapproved && "ring-2 ring-secondary-500/50 border-secondary-500 shadow-md shadow-secondary-500/10"
-                        )}
-                        title={showApproveAction
-                            ? (showUnapproved ? 'Show only unapproved questions' : 'Show all questions (approved and unapproved)')
-                            : (showUnapproved ? 'Hide unapproved questions from results' : 'Include unapproved questions in results')
-                        }
-                    >
-                        {showUnapproved ? <EyeOff size={18} /> : <Eye size={18} />}
-                        {showApproveAction
-                            ? (showUnapproved ? 'Show Pending Only' : 'Show All Questions')
-                            : (showUnapproved ? 'Hide Unapproved' : 'Show Unapproved')
-                        }
-                    </Button>
+                    {!showApproveAction && (
+                        <Button
+                            type="button"
+                            variant={showUnapproved ? 'secondary' : 'outline'}
+                            onClick={() => setShowUnapproved(v => !v)}
+                            className={clsx(
+                                "w-full sm:w-auto min-w-[200px] transition-all duration-300",
+                                showUnapproved && "ring-2 ring-secondary-500/50 border-secondary-500 shadow-md shadow-secondary-500/10"
+                            )}
+                            title={showUnapproved ? 'Hide unapproved questions from results' : 'Include unapproved questions in results'}
+                        >
+                            {showUnapproved ? <EyeOff size={18} /> : <Eye size={18} />}
+                            {showUnapproved ? 'Hide Unapproved' : 'Show Unapproved'}
+                        </Button>
+                    )}
                 </div>
             </AdminFilterBar>
 
@@ -177,7 +190,6 @@ const QuestionManager = ({
                         onSelectionChange={toggleSelection}
                         showActions={true}
                         onQuestionUpdate={handleQuestionUpdate}
-                        showUnapproved={showUnapproved}
                         isReviewMode={showApproveAction}
                     />
                 </LoadingOverlay>

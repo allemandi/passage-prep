@@ -42,24 +42,18 @@ const QuestionTable = ({
     onSelectionChange,
     showActions,
     onQuestionUpdate,
-    showUnapproved = false,
     hideEditActions = false,
     isReviewMode = false,
     setTabValue
 }) => {
     const [editingQuestion, setEditingQuestion] = useState(null);
 
-    // Filter unapproved questions if necessary
-    const filteredQuestions = useMemo(() => {
-        return showUnapproved ? questions : questions.filter((q) => q.isApproved !== false);
-    }, [questions, showUnapproved]);
-
     // Sort questions based on Bible order
     const sortedQuestions = useMemo(() => {
-        return getSortedQuestions(filteredQuestions);
-    }, [filteredQuestions]);
+        return getSortedQuestions(questions);
+    }, [questions]);
 
-    // Check if all filtered questions are selected
+    // Check if all questions are selected
     const allSelected = useMemo(() => {
         return sortedQuestions.length > 0 &&
         sortedQuestions.every(q => selectedIds.includes(q._id));
