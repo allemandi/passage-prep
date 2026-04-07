@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import clsx from 'clsx';
-import { X, Plus, Search, BookOpen, RotateCcw, MessageSquarePlus, Eye, EyeOff } from 'lucide-react';
+import { X, Plus, Search, BookOpen, RotateCcw, Eye, EyeOff } from 'lucide-react';
 import {
     processForm,
     searchQuestions,

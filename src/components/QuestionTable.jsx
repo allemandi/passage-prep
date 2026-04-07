@@ -74,8 +74,6 @@ const QuestionTable = ({
         return <EmptyState isReviewMode={isReviewMode} setTabValue={setTabValue} />;
     }
 
-    const totalCols = (showActions ? 1 : 0) + 3 + (showActions && !hideEditActions ? 1 : 0);
-
     return (
         <>
             <div className="flex flex-col sm:flex-row justify-between items-end gap-4 mb-2 px-1">
