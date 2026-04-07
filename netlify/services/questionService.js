@@ -31,7 +31,7 @@ const questionService = {
         });
 
         // Check for duplicates
-        const existing = await this.findDuplicate(sanitizedNewData.question);
+        const existing = await questionService.findDuplicate(sanitizedNewData.question);
         if (existing) {
             throw new Error('This question already exists in our database.');
         }
@@ -79,7 +79,7 @@ const questionService = {
 
         // Check for duplicates if question text is updated
         if (sanitizedData.question) {
-            const duplicate = await this.findDuplicate(sanitizedData.question, questionId);
+            const duplicate = await questionService.findDuplicate(sanitizedData.question, questionId);
             if (duplicate) {
                 throw new Error('Update failed: This would create a duplicate question.');
             }
