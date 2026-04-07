@@ -38,16 +38,20 @@ const QuestionManager = ({
     // Store current filter values to re-apply after actions
     const currentFilters = useRef({ book: '', chapter: '', verseStart: '', verseEnd: '', themes: defaultThemes });
 
-    const fetchFilteredData = useCallback(async (filters = currentFilters.current) => {
-        currentFilters.current = filters;
+    const fetchFilteredData = useCallback(async (filters) => {
+        if (filters !== undefined) {
+            currentFilters.current = filters;
+        }
+        const activeFilters = currentFilters.current;
+
         setIsFetching(true);
         try {
-            const themes = filters?.themes || [];
+            const themes = activeFilters?.themes || [];
             const apiFilter = {
-                book: filters?.book || undefined,
-                chapter: filters?.chapter || null,
-                verseStart: filters?.verseStart || null,
-                verseEnd: filters?.verseEnd || null,
+                book: activeFilters?.book || undefined,
+                chapter: activeFilters?.chapter || null,
+                verseStart: activeFilters?.verseStart || null,
+                verseEnd: activeFilters?.verseEnd || null,
                 themeArr: (themes.length === defaultThemes.length || themes.length === 0) ? undefined : themes,
                 isApproved: showUnapproved ? undefined : (showApproveAction ? false : true),
             };

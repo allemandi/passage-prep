@@ -1,7 +1,6 @@
 import { TabPanels, TabPanel } from '@headlessui/react';
 import RequestForm from './RequestForm';
 import ContributeForm from './ContributeForm';
-import AdminPanel from './AdminPanel';
 import StudyModal from './StudyModal';
 
 export default function MainContent({
@@ -9,8 +8,6 @@ export default function MainContent({
   handleShowStudy,
   studyData,
   setStudyData,
-  isLoggedIn,
-  setIsLoggedIn,
   setTabValue
 }) {
   return (
@@ -26,9 +23,6 @@ export default function MainContent({
       </TabPanel>
       <TabPanel>
         <ContributeForm isLoading={isLoading} />
-      </TabPanel>
-      <TabPanel>
-        <AdminPanel isLoggedIn={isLoggedIn} setIsLoggedIn={setIsLoggedIn} />
       </TabPanel>
 
       <StudyModal show={!!studyData} onHide={() => setStudyData(null)} data={studyData} />

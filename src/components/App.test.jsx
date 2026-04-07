@@ -24,13 +24,16 @@ describe('App navigation', () => {
         expect(screen.getByText(/Submit Question/i)).toBeInTheDocument();
 
         // Switch to Admin
-        const adminTab = screen.getByRole('tab', { name: /Admin/i });
-        fireEvent.click(adminTab);
+        const adminButton = screen.getByRole('button', { name: /Enter admin mode/i });
+        fireEvent.click(adminButton);
 
-        expect(adminTab).toHaveAttribute('aria-selected', 'true');
+        expect(adminButton).toHaveAttribute('title', 'Exit admin mode');
         // Since we're not logged in, it should show the login form
-        expect(screen.getByText(/Username/i)).toBeInTheDocument();
-        expect(screen.getByText(/Password/i)).toBeInTheDocument();
-        expect(screen.getByRole('button', { name: /Login/i })).toBeInTheDocument();
+        // Tab index for Admin is 2.
+        await waitFor(() => {
+            expect(screen.getByPlaceholderText(/Enter your username/i)).toBeInTheDocument();
+            expect(screen.getByPlaceholderText(/Enter your password/i)).toBeInTheDocument();
+            expect(screen.getByRole('button', { name: /Login/i })).toBeInTheDocument();
+        });
     });
 });
