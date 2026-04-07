@@ -156,10 +156,10 @@ const QuestionManager = ({
                             : (showUnapproved ? 'Hide unapproved questions from results' : 'Include unapproved questions in results')
                         }
                     >
-                        {showUnapproved ? <Eye size={18} /> : <EyeOff size={18} />}
+                        {showUnapproved ? <EyeOff size={18} /> : <Eye size={18} />}
                         {showApproveAction
-                            ? (showUnapproved ? 'Showing All' : 'Show All')
-                            : (showUnapproved ? 'Including Unapproved' : 'Include Unapproved')
+                            ? (showUnapproved ? 'Show Pending Only' : 'Show All Questions')
+                            : (showUnapproved ? 'Hide Unapproved' : 'Show Unapproved')
                         }
                     </Button>
                 </div>

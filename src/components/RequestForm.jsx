@@ -267,8 +267,8 @@ const RequestForm = ({ onStudyGenerated, isLoading, setTabValue }) => {
                                 )}
                                 title={showUnapproved ? 'Hide unapproved questions from results' : 'Include unapproved questions in results'}
                             >
-                                {showUnapproved ? <Eye size={18} /> : <EyeOff size={18} />}
-                                {showUnapproved ? 'Including Unapproved' : 'Include Unapproved'}
+                                {showUnapproved ? <EyeOff size={18} /> : <Eye size={18} />}
+                                {showUnapproved ? 'Hide Unapproved' : 'Show Unapproved'}
                             </Button>
                         </div>
 
