@@ -59,18 +59,15 @@ const QuestionManager = ({
             //    - If showUnapproved is true -> isApproved: undefined (Show All)
             //    - If showUnapproved is false -> isApproved: true (Show Approved Only)
 
-            const isApprovedParam = showApproveAction
-                ? false
-                : (showUnapproved ? undefined : true);
-
             const apiFilter = {
-                book: activeFilters?.book || undefined,
+                ...activeFilters,
                 chapter: activeFilters?.chapter || null,
                 verseStart: activeFilters?.verseStart || null,
                 verseEnd: activeFilters?.verseEnd || null,
                 themeArr: (themes.length === defaultThemes.length || themes.length === 0) ? undefined : themes,
-                isApproved: isApprovedParam,
+                isApproved: showApproveAction ? false : (showUnapproved ? undefined : true),
             };
+            delete apiFilter.themes;
 
             const results = await searchQuestions(apiFilter);
             setQuestions(results);
@@ -193,7 +190,6 @@ const QuestionManager = ({
                         onSelectionChange={toggleSelection}
                         showActions={true}
                         onQuestionUpdate={handleQuestionUpdate}
-                        showUnapproved={showUnapproved}
                         isReviewMode={showApproveAction}
                     />
                 </LoadingOverlay>

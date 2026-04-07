@@ -42,7 +42,6 @@ const QuestionTable = ({
     onSelectionChange,
     showActions,
     onQuestionUpdate,
-    showUnapproved = false,
     hideEditActions = false,
     isReviewMode = false,
     setTabValue
