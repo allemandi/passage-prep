@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
+import clsx from 'clsx';
 import { X, Plus, Search, BookOpen, RotateCcw, MessageSquarePlus, Eye, EyeOff } from 'lucide-react';
 import {
     processForm,
@@ -123,7 +124,7 @@ const RequestForm = ({ onStudyGenerated, isLoading, setTabValue }) => {
     const [isSearching, setIsSearching] = useState(false);
     const [searchResults, setSearchResults] = useState([]);
     const { selectedIds, toggleSelection, resetSelection } = useQuestionSelection();
-    const [hideUnapproved, setHideUnapproved] = useState(false);
+    const [showUnapproved, setShowUnapproved] = useState(false);
     const [showSearchResults, setShowSearchResults] = useState(false);
 
     useEffect(() => {
@@ -199,7 +200,8 @@ const RequestForm = ({ onStudyGenerated, isLoading, setTabValue }) => {
                             chapter: ref.state.chapter || null,
                             verseStart: ref.state.verseStart || null,
                             verseEnd: ref.state.verseEnd || null,
-                            themeArr,
+                                themeArr: themeArr.length === 0 ? undefined : themeArr,
+                                isApproved: showUnapproved ? undefined : true,
                         })
                     )
                 )
@@ -257,13 +259,16 @@ const RequestForm = ({ onStudyGenerated, isLoading, setTabValue }) => {
 
                             <Button
                                 type="button"
-                                variant={hideUnapproved ? 'secondary' : 'outline'}
-                                onClick={() => setHideUnapproved(!hideUnapproved)}
-                                className="w-full h-11"
-                                title={hideUnapproved ? 'Include unapproved questions' : 'Exclude unapproved questions'}
+                                variant={showUnapproved ? 'secondary' : 'outline'}
+                                onClick={() => setShowUnapproved(!showUnapproved)}
+                                className={clsx(
+                                    "w-full h-11 transition-all duration-300",
+                                    showUnapproved && "ring-2 ring-secondary-500/50 border-secondary-500 shadow-md shadow-secondary-500/10"
+                                )}
+                                title={showUnapproved ? 'Hide unapproved questions from results' : 'Include unapproved questions in results'}
                             >
-                                {hideUnapproved ? <Eye size={18} /> : <EyeOff size={18} />}
-                                {hideUnapproved ? 'Show Unapproved' : 'Hide Unapproved'}
+                                {showUnapproved ? <Eye size={18} /> : <EyeOff size={18} />}
+                                {showUnapproved ? 'Including Unapproved' : 'Include Unapproved'}
                             </Button>
                         </div>
 
@@ -344,34 +349,15 @@ const RequestForm = ({ onStudyGenerated, isLoading, setTabValue }) => {
                                 </Button>
                             </div>
                             <LoadingOverlay isLoading={isSearching}>
-                                {searchResults.length === 0 ? (
-                                    <Card className="flex flex-col items-center justify-center py-12 px-6 text-center border-dashed border-4 border-app-border bg-app-bg/30">
-                                        <div className="p-4 bg-secondary-50 dark:bg-secondary-900/20 rounded-full mb-6">
-                                            <Search size={48} className="text-secondary-400" />
-                                        </div>
-                                        <h3 className="text-xl font-bold text-app-text mb-2">No questions found</h3>
-                                        <p className="text-app-text-muted mb-8 max-w-md">
-                                            We couldn&apos;t find any questions matching your current filters. You can try adjusting your search or contribute a new question.
-                                        </p>
-                                        <Button
-                                            onClick={() => setTabValue(1)}
-                                            variant="outline"
-                                            className="flex items-center gap-2"
-                                        >
-                                            <MessageSquarePlus size={20} />
-                                            Contribute a Question
-                                        </Button>
-                                    </Card>
-                                ) : (
-                                    <QuestionTable
-                                        questions={searchResults}
-                                        selectedIds={selectedIds}
-                                        onSelectionChange={toggleSelection}
-                                        showActions
-                                        hideUnapproved={hideUnapproved}
-                                        hideEditActions
-                                    />
-                                )}
+                                <QuestionTable
+                                    questions={searchResults}
+                                    selectedIds={selectedIds}
+                                    onSelectionChange={toggleSelection}
+                                    showActions
+                                    showUnapproved={showUnapproved}
+                                    hideEditActions
+                                    setTabValue={setTabValue}
+                                />
                             </LoadingOverlay>
                         </section>
                     )}

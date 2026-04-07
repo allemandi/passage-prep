@@ -10,24 +10,25 @@ import {
 } from '../../services/dataService';
 import { defaultThemes } from '../ui/ThemeSelect';
 import Button from '../ui/Button';
-import { Trash2, Check, Eye, EyeOff } from 'lucide-react';
+import { Trash2, Check, Eye, EyeOff, RotateCcw } from 'lucide-react';
 import AdminFilterBar from './AdminFilterBar';
 import LoadingOverlay from '../ui/LoadingOverlay';
 import useQuestionSelection from '../../hooks/useQuestionSelection';
+import clsx from 'clsx';
 
 /**
  * Unified component for managing questions (both review and edit modes).
  *
  * @param {string} title - Title for the filter bar
  * @param {boolean} showApproveAction - Whether to show the "Approve" button
- * @param {boolean} initialHideUnapproved - Default state for the "Hide Unapproved" toggle
+ * @param {boolean} initialShowUnapproved - Default state for the "Show Unapproved" toggle
  */
 const QuestionManager = ({
     title,
     showApproveAction = false,
-    initialHideUnapproved = false
+    initialShowUnapproved = false
 }) => {
-    const [hideUnapproved, setHideUnapproved] = useState(initialHideUnapproved);
+    const [showUnapproved, setShowUnapproved] = useState(initialShowUnapproved);
     const [questions, setQuestions] = useState([]);
     const [isFetching, setIsFetching] = useState(false);
     const [isProcessing, setIsProcessing] = useState(false);
@@ -41,13 +42,14 @@ const QuestionManager = ({
         currentFilters.current = filters;
         setIsFetching(true);
         try {
+            const themes = filters?.themes || [];
             const apiFilter = {
-                book: filters.book || undefined,
-                chapter: filters.chapter || null,
-                verseStart: filters.verseStart || null,
-                verseEnd: filters.verseEnd || null,
-                themeArr: filters.themes.length !== defaultThemes.length ? filters.themes : undefined,
-                isApproved: hideUnapproved ? true : (showApproveAction ? false : undefined),
+                book: filters?.book || undefined,
+                chapter: filters?.chapter || null,
+                verseStart: filters?.verseStart || null,
+                verseEnd: filters?.verseEnd || null,
+                themeArr: (themes.length === defaultThemes.length || themes.length === 0) ? undefined : themes,
+                isApproved: showUnapproved ? undefined : (showApproveAction ? false : true),
             };
 
             const results = await searchQuestions(apiFilter);
@@ -59,11 +61,22 @@ const QuestionManager = ({
         } finally {
             setIsFetching(false);
         }
-    }, [hideUnapproved, showApproveAction, showToast, resetSelection]);
+    }, [showUnapproved, showApproveAction, showToast, resetSelection]);
 
-    // Re-fetch when hideUnapproved changes
+    // Re-fetch when showUnapproved changes
     useEffect(() => {
         fetchFilteredData();
+    }, [fetchFilteredData]);
+
+    // Auto-refresh when the component is focused/visible or when tab changes (handled by parent typically, but we can detect visibility)
+    useEffect(() => {
+        const handleVisibilityChange = () => {
+            if (document.visibilityState === 'visible') {
+                fetchFilteredData();
+            }
+        };
+        document.addEventListener('visibilitychange', handleVisibilityChange);
+        return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
     }, [fetchFilteredData]);
 
     const handleApplyFilters = (filters) => {
@@ -119,18 +132,37 @@ const QuestionManager = ({
                 title={title}
                 onApply={handleApplyFilters}
             >
-                {!showApproveAction && (
+                <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto">
                     <Button
                         type="button"
-                        variant={hideUnapproved ? 'secondary' : 'outline'}
-                        onClick={() => setHideUnapproved(v => !v)}
-                        className="w-full sm:w-auto min-w-[200px]"
-                        title={hideUnapproved ? 'Include unapproved questions' : 'Exclude unapproved questions'}
+                        variant="ghost"
+                        onClick={() => fetchFilteredData()}
+                        className="w-full sm:w-auto"
+                        title="Refresh list"
                     >
-                        {hideUnapproved ? <Eye size={18} /> : <EyeOff size={18} />}
-                        {hideUnapproved ? 'Show Unapproved' : 'Hide Unapproved'}
+                        <RotateCcw size={18} />
+                        Refresh
                     </Button>
-                )}
+                    <Button
+                        type="button"
+                        variant={showUnapproved ? 'secondary' : 'outline'}
+                        onClick={() => setShowUnapproved(v => !v)}
+                        className={clsx(
+                            "w-full sm:w-auto min-w-[200px] transition-all duration-300",
+                            showUnapproved && "ring-2 ring-secondary-500/50 border-secondary-500 shadow-md shadow-secondary-500/10"
+                        )}
+                        title={showApproveAction
+                            ? (showUnapproved ? 'Show only unapproved questions' : 'Show all questions (approved and unapproved)')
+                            : (showUnapproved ? 'Hide unapproved questions from results' : 'Include unapproved questions in results')
+                        }
+                    >
+                        {showUnapproved ? <Eye size={18} /> : <EyeOff size={18} />}
+                        {showApproveAction
+                            ? (showUnapproved ? 'Showing All' : 'Show All')
+                            : (showUnapproved ? 'Including Unapproved' : 'Include Unapproved')
+                        }
+                    </Button>
+                </div>
             </AdminFilterBar>
 
             <div className="mt-6 w-full">
@@ -141,7 +173,8 @@ const QuestionManager = ({
                         onSelectionChange={toggleSelection}
                         showActions={true}
                         onQuestionUpdate={handleQuestionUpdate}
-                        hideUnapproved={hideUnapproved}
+                        showUnapproved={showUnapproved}
+                        isReviewMode={showApproveAction}
                     />
                 </LoadingOverlay>
             </div>

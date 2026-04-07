@@ -1,8 +1,40 @@
 import React, { useState, useMemo } from 'react';
-import { Pen } from 'lucide-react';
+import { Search, MessageSquarePlus, CheckCircle2, Pen } from 'lucide-react';
 import clsx from 'clsx';
 import { getSortedQuestions, formatReference } from '../utils/bibleData';
 import EditQuestionModal from './EditQuestionModal';
+import Button from './ui/Button';
+
+const EmptyState = ({ setTabValue, isReviewMode }) => (
+    <div className="flex flex-col items-center justify-center py-16 px-6 text-center border-dashed border-4 border-app-border bg-app-bg/30 rounded-3xl">
+        <div className="p-5 bg-secondary-50 dark:bg-secondary-900/20 rounded-full mb-8">
+            {isReviewMode ? (
+                <CheckCircle2 size={56} className="text-primary-400" />
+            ) : (
+                <Search size={56} className="text-secondary-400" />
+            )}
+        </div>
+        <h3 className="text-2xl font-bold text-app-text mb-3">
+            {isReviewMode ? 'All Caught Up!' : 'No questions found'}
+        </h3>
+        <p className="text-app-text-muted mb-10 max-w-md text-lg leading-relaxed">
+            {isReviewMode
+                ? 'There are currently no new questions waiting for review. Great job!'
+                : "We couldn't find any questions matching your current filters. You can try adjusting your search or contribute a new question."
+            }
+        </p>
+        {!isReviewMode && (
+            <Button
+                onClick={() => setTabValue?.(1)}
+                variant="outline"
+                className="flex items-center gap-3 px-8 py-3 text-lg font-bold"
+            >
+                <MessageSquarePlus size={24} />
+                Contribute a Question
+            </Button>
+        )}
+    </div>
+);
 
 const QuestionTable = ({
     questions = [],
@@ -10,15 +42,17 @@ const QuestionTable = ({
     onSelectionChange,
     showActions,
     onQuestionUpdate,
-    hideUnapproved = false,
+    showUnapproved = false,
     hideEditActions = false,
+    isReviewMode = false,
+    setTabValue
 }) => {
     const [editingQuestion, setEditingQuestion] = useState(null);
 
     // Filter unapproved questions if necessary
     const filteredQuestions = useMemo(() => {
-        return hideUnapproved ? questions.filter((q) => q.isApproved !== false) : questions;
-    }, [questions, hideUnapproved]);
+        return showUnapproved ? questions : questions.filter((q) => q.isApproved !== false);
+    }, [questions, showUnapproved]);
 
     // Sort questions based on Bible order
     const sortedQuestions = useMemo(() => {
@@ -35,6 +69,10 @@ const QuestionTable = ({
         return sortedQuestions.some(q => selectedIds.includes(q._id)) &&
         !allSelected;
     }, [sortedQuestions, selectedIds, allSelected]);
+
+    if (sortedQuestions.length === 0) {
+        return <EmptyState isReviewMode={isReviewMode} setTabValue={setTabValue} />;
+    }
 
     const totalCols = (showActions ? 1 : 0) + 3 + (showActions && !hideEditActions ? 1 : 0);
 
@@ -97,17 +135,7 @@ const QuestionTable = ({
                         </tr>
                     </thead>
                     <tbody className="divide-y divide-app-border bg-app-surface/40">
-                        {sortedQuestions.length === 0 ? (
-                            <tr>
-                                <td
-                                    colSpan={totalCols}
-                                    className="p-12 text-center text-app-text-muted italic"
-                                >
-                                    No questions found matching your criteria.
-                                </td>
-                            </tr>
-                        ) : (
-                            sortedQuestions.map((question) => {
+                        {sortedQuestions.map((question) => {
                             const isSelected = selectedIds.includes(question._id);
                             const reference = formatReference(
                                 question.book,
@@ -153,8 +181,7 @@ const QuestionTable = ({
                                     )}
                                 </tr>
                             );
-                        })
-                    )}
+                        })}
                     </tbody>
                 </table>
             </div>
