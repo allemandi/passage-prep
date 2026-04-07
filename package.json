@@ -43,7 +43,7 @@
     "eslint-plugin-react-hooks": "^7.0.1",
     "globals": "^17.4.0",
     "jsdom": "^29.0.2",
-    "msw": "^2.12.14",
+    "msw": "^2.13.0",
     "netlify-cli": "^24.9.0",
     "postcss": "^8.5.8",
     "react-select-event": "^5.5.1",
