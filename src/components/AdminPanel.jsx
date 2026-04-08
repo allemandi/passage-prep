@@ -1,6 +1,7 @@
 import React, { useCallback } from 'react';
 import { Tab, TabGroup, TabList, TabPanel, TabPanels } from '@headlessui/react';
 import clsx from 'clsx';
+import { Edit, CheckCircle, Download as DownloadIcon, CloudUpload } from 'lucide-react';
 import Login from './AdminForm/Login';
 import QuestionManager from './AdminForm/QuestionManager';
 import Upload from './AdminForm/Upload';
@@ -11,10 +12,10 @@ import Button from './ui/Button';
 import SectionHeader from './ui/SectionHeader';
 
 const buttons = [
-    { name: 'edit', label: 'Edit/Delete' },
-    { name: 'review', label: 'Review/Approve' },
-    { name: 'download', label: 'Download' },
-    { name: 'upload', label: 'Bulk Upload' },
+    { name: 'edit', label: 'Edit/Delete', icon: Edit },
+    { name: 'review', label: 'Review/Approve', icon: CheckCircle },
+    { name: 'download', label: 'Download', icon: DownloadIcon },
+    { name: 'upload', label: 'Bulk Upload', icon: CloudUpload },
 ];
 
 export default function AdminForm({ isLoggedIn, setIsLoggedIn }) {
@@ -43,18 +44,19 @@ export default function AdminForm({ isLoggedIn, setIsLoggedIn }) {
 
                         <TabGroup>
                             <TabList className="flex flex-wrap gap-2 p-1 bg-app-bg/50 rounded-xl border-2 border-app-border">
-                                {buttons.map(({ name, label }) => (
+                                {buttons.map(({ name, label, icon: Icon }) => (
                                     <Tab
                                         key={name}
                                         className={({ selected }) =>
                                             clsx(
-                                                'flex-grow px-4 py-2.5 text-sm font-bold rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-primary-500',
+                                                'flex-grow flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-bold rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-primary-500',
                                                 selected
                                                     ? 'bg-primary-500 text-white shadow-md'
                                                     : 'text-app-text-muted hover:bg-app-surface hover:text-app-text'
                                             )
                                         }
                                     >
+                                        <Icon size={16} />
                                         {label}
                                     </Tab>
                                 ))}

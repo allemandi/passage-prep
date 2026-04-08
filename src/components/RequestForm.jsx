@@ -22,8 +22,11 @@ import LoadingOverlay from './ui/LoadingOverlay';
 
 const ScriptureReferenceItem = ({ id, index, onRemove, referenceState, firstSelectRef }) => {
     return (
-        <div className="relative w-full flex flex-col gap-5 p-5 rounded-2xl bg-app-bg/50 border-2 border-app-border shadow-sm">
-            <div className="text-sm font-bold text-app-text-muted mb-5 w-full flex justify-between items-center">
+        <fieldset className="relative w-full flex flex-col gap-5 p-5 rounded-2xl bg-app-bg/50 border-2 border-app-border shadow-sm">
+            <legend className="contents">
+                <span className="sr-only">Reference {index + 1}</span>
+            </legend>
+            <div className="text-sm font-bold text-app-text-muted mb-5 w-full flex justify-between items-center" aria-hidden="true">
                 Reference {index + 1}
                 {index > 0 && (
                     <button
@@ -44,7 +47,7 @@ const ScriptureReferenceItem = ({ id, index, onRemove, referenceState, firstSele
                 required={index === 0}
                 firstSelectRef={firstSelectRef}
             />
-        </div>
+        </fieldset>
     );
 };
 
