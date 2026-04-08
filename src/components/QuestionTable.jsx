@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import { Search, MessageSquarePlus, CheckCircle2, Pen } from 'lucide-react';
+import { Search, MessageSquarePlus, CheckCircle2, Pen, RotateCcw } from 'lucide-react';
 import clsx from 'clsx';
 import { getSortedQuestions, formatReference } from '../utils/bibleData';
 import EditQuestionModal from './EditQuestionModal';
@@ -82,8 +82,9 @@ const QuestionTable = ({
                 {selectedIds.length > 0 && (
                     <button
                         onClick={() => onSelectionChange(sortedQuestions.map(q => q._id), false)}
-                        className="text-xs font-bold text-secondary-600 hover:text-secondary-700 dark:text-secondary-400 dark:hover:text-secondary-300 transition-colors"
+                        className="text-xs font-bold text-secondary-600 hover:text-secondary-700 dark:text-secondary-400 dark:hover:text-secondary-300 transition-colors flex items-center gap-1 group"
                     >
+                        <RotateCcw size={12} className="group-hover:-rotate-45 transition-transform" />
                         Clear Selection
                     </button>
                 )}
@@ -91,6 +92,7 @@ const QuestionTable = ({
 
             <div className="max-h-[400px] overflow-auto border-2 border-app-border rounded-xl bg-app-bg/30 shadow-inner">
                 <table className="min-w-full table-auto border-collapse">
+                    <caption className="sr-only">Bible study questions matching your criteria</caption>
                     <thead className="sticky top-0 bg-app-surface border-b-2 border-app-border z-10">
                         <tr>
                             {showActions && (
