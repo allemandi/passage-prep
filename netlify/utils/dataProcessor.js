@@ -1,7 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 const { getBook, isValidChapter, isValidReference } = require('@allemandi/bible-validate')
-const { sanitizeInput } = require('../../src/utils/sanitization.cjs');
+const { sanitizeInput } = require('./shared/sanitization');
 
 const Question = require('../../models/Question');
 

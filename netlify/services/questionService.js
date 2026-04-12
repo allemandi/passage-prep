@@ -1,6 +1,6 @@
 const Question = require('../../models/Question');
 const { isValidReference } = require('@allemandi/bible-validate');
-const { sanitizeInput } = require('../../src/utils/sanitization.cjs');
+const { sanitizeInput } = require('../utils/shared/sanitization');
 
 const questionService = {
     async findDuplicate(sanitizedQuestion, excludeId = null) {
