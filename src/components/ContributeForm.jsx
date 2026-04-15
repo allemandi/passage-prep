@@ -7,6 +7,7 @@ import {
 } from 'obscenity';
 import { saveQuestion } from '../services/dataService';
 import { useToast } from './ToastMessage/Toast';
+import { sanitizeInput } from '../utils/sanitization';
 import useBibleReference from '../hooks/useBibleReference';
 
 import Button from './ui/Button';
@@ -76,7 +77,7 @@ const ContributeForm = () => {
         try {
             const saved = await saveQuestion(
                 selectedTheme,
-                questionText,
+                sanitizeInput(questionText),
                 {
                     book,
                     chapter,

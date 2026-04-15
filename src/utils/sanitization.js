@@ -22,11 +22,12 @@ export const standardizeSymbols = (text) => {
 export const sanitizeInput = (input) => {
   if (typeof input !== 'string') return input;
   const standardized = standardizeSymbols(input);
-  return filterXSS(standardized, {
+  const filtered = filterXSS(standardized, {
     whiteList: {}, // No HTML tags allowed
     stripIgnoreTag: true, // Remove all HTML tags
     stripIgnoreTagBody: ['script'], // Remove script tags and their content
   });
+  return filtered.trim();
 };
 
 const defaultExport = {

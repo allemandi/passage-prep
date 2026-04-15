@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { X } from 'lucide-react';
 import { Dialog, DialogPanel, DialogTitle, Transition, TransitionChild } from '@headlessui/react';
+import { sanitizeInput } from '../utils/sanitization';
 import useBibleReference from '../hooks/useBibleReference';
 import BibleReferenceSelector from './BibleReferenceSelector';
 import ThemeSelect from './ui/ThemeSelect';
@@ -34,7 +35,7 @@ const EditQuestionModal = ({ isOpen, onClose, question, onSave }) => {
                 verseStart,
                 verseEnd: verseEnd || verseStart,
                 theme: selectedTheme,
-                question: questionText,
+                question: sanitizeInput(questionText),
             });
             onClose();
         } catch (error) {
