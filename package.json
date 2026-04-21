@@ -9,7 +9,7 @@
     "clsx": "^2.1.1",
     "dotenv": "^17.4.2",
     "lucide-react": "^1.8.0",
-    "mongodb": "^7.1.1",
+    "mongodb": "^7.2.0",
     "mongoose": "^9.4.1",
     "obscenity": "^0.4.6",
     "papaparse": "^5.5.2",
