@@ -55,7 +55,20 @@ const Tooltip = ({ content, children }) => {
     return false;
   };
 
+  const checkDisabledChild = (element) => {
+    if (!element || !React.isValidElement(element)) return false;
+    const props = element.props || {};
+    if (props.disabled || props['aria-disabled'] === true || props['aria-disabled'] === 'true') {
+      return true;
+    }
+    if (props.children) {
+      return React.Children.toArray(props.children).some(checkDisabledChild);
+    }
+    return false;
+  };
+
   const hasInteractiveChild = React.Children.toArray(children).some(isInteractive);
+  const hasDisabledChild = React.Children.toArray(children).some(checkDisabledChild);
 
   return (
     <span
@@ -65,7 +78,7 @@ const Tooltip = ({ content, children }) => {
       onFocusCapture={showTip}
       onBlurCapture={hideTip}
       onKeyDown={handleKeyDown}
-      tabIndex={hasInteractiveChild ? -1 : 0}
+      tabIndex={hasDisabledChild ? 0 : (hasInteractiveChild ? -1 : 0)}
       aria-describedby={visible ? "tooltip" : undefined}
     >
       {children}
