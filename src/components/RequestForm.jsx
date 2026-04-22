@@ -308,7 +308,7 @@ const RequestForm = ({ onStudyGenerated, isLoading, setTabValue }) => {
                     <div className="flex justify-center pt-8 border-t-2 border-app-border">
                         {isGenerateDisabled ? (
                             <Tooltip content="Select at least one question from search results">
-                                <Button type="button" disabled variant="outline" className="flex-grow max-w-xs opacity-50 cursor-not-allowed">
+                                <Button type="button" aria-disabled="true" variant="outline" className="flex-grow max-w-xs opacity-50 cursor-not-allowed">
                                     <BookOpen size={18} />
                                     Generate Study
                                 </Button>

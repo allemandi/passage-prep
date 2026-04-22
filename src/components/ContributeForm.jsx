@@ -18,6 +18,11 @@ import Textarea from './ui/Textarea';
 import BibleReferenceSelector from './BibleReferenceSelector';
 import LoadingOverlay from './ui/LoadingOverlay';
 
+const matcher = new RegExpMatcher({
+    ...englishDataset.build(),
+    ...englishRecommendedTransformers,
+});
+
 const ContributeForm = () => {
     const showToast = useToast();
     const [questionText, setQuestionText] = useState('');
@@ -40,11 +45,6 @@ const ContributeForm = () => {
     useEffect(() => {
         if (verseStart && errors.verseStart) setErrors(prev => ({ ...prev, verseStart: null }));
     }, [verseStart, errors.verseStart]);
-
-    const matcher = new RegExpMatcher({
-        ...englishDataset.build(),
-        ...englishRecommendedTransformers,
-    });
 
     const validate = () => {
         const newErrors = {};
