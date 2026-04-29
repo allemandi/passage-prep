@@ -259,13 +259,6 @@ const RequestForm = ({ onStudyGenerated, isLoading, setTabValue }) => {
                         <SectionHeader id="search-settings-title">Search Settings</SectionHeader>
                         <div className="p-6 rounded-2xl bg-app-bg/50 border-2 border-app-border shadow-sm flex flex-col gap-8">
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-start">
-                                <ThemeSelect
-                                    value={selectedThemes}
-                                    onChange={setSelectedThemes}
-                                    isMulti
-                                    label="Themes"
-                                />
-
                                 <Checkbox
                                     id="show-unapproved"
                                     label="Show Unapproved"
@@ -273,6 +266,13 @@ const RequestForm = ({ onStudyGenerated, isLoading, setTabValue }) => {
                                     onChange={setShowUnapproved}
                                     helperText="Include questions that haven't been reviewed by an admin yet."
                                     className="mt-1"
+                                />
+
+                                <ThemeSelect
+                                    value={selectedThemes}
+                                    onChange={setSelectedThemes}
+                                    isMulti
+                                    label="Themes"
                                 />
                             </div>
 
