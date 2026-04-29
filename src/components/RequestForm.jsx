@@ -1,6 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
-import clsx from 'clsx';
-import { X, Plus, Search, BookOpen, RotateCcw, Eye, EyeOff, Check } from 'lucide-react';
+import { X, Plus, Search, BookOpen, RotateCcw } from 'lucide-react';
 import {
     processForm,
     searchQuestions,
@@ -19,6 +18,7 @@ import BibleReferenceSelector from './BibleReferenceSelector';
 import Tooltip from './Tooltip';
 import QuestionTable from './QuestionTable';
 import LoadingOverlay from './ui/LoadingOverlay';
+import Checkbox from './ui/Checkbox';
 
 const ScriptureReferenceItem = ({ id, index, onRemove, referenceState, firstSelectRef }) => {
     return (
@@ -258,7 +258,7 @@ const RequestForm = ({ onStudyGenerated, isLoading, setTabValue }) => {
                     <section aria-labelledby="search-settings-title" className="flex flex-col gap-6">
                         <SectionHeader id="search-settings-title">Search Settings</SectionHeader>
                         <div className="p-6 rounded-2xl bg-app-bg/50 border-2 border-app-border shadow-sm flex flex-col gap-8">
-                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 items-end">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-start">
                                 <ThemeSelect
                                     value={selectedThemes}
                                     onChange={setSelectedThemes}
@@ -266,19 +266,14 @@ const RequestForm = ({ onStudyGenerated, isLoading, setTabValue }) => {
                                     label="Themes"
                                 />
 
-                                <Button
-                                    type="button"
-                                    variant={showUnapproved ? 'secondary' : 'outline'}
-                                    onClick={() => setShowUnapproved(!showUnapproved)}
-                                    className={clsx(
-                                        "w-full h-11 transition-all duration-300",
-                                        showUnapproved && "ring-2 ring-secondary-500/50 border-secondary-500 shadow-md shadow-secondary-500/10"
-                                    )}
-                                    title={showUnapproved ? 'Hide unapproved questions from results' : 'Include unapproved questions in results'}
-                                >
-                                    {showUnapproved ? <EyeOff size={18} /> : <Eye size={18} />}
-                                    {showUnapproved ? 'Hide Unapproved' : 'Show Unapproved'}
-                                </Button>
+                                <Checkbox
+                                    id="show-unapproved"
+                                    label="Show Unapproved"
+                                    checked={showUnapproved}
+                                    onChange={setShowUnapproved}
+                                    helperText="Include questions that haven't been reviewed by an admin yet."
+                                    className="mt-1"
+                                />
                             </div>
 
                             <div className="flex flex-col sm:flex-row justify-between items-center gap-4 pt-6 border-t border-app-border/50">
@@ -287,7 +282,7 @@ const RequestForm = ({ onStudyGenerated, isLoading, setTabValue }) => {
                                         type="button"
                                         variant="ghost"
                                         onClick={handleClearForm}
-                                        className="flex-grow sm:flex-grow-0 text-app-text-muted hover:text-secondary-600"
+                                        className="w-full sm:w-auto text-app-text-muted hover:text-secondary-600"
                                         title="Reset Form"
                                     >
                                         <RotateCcw size={18} />
@@ -300,7 +295,7 @@ const RequestForm = ({ onStudyGenerated, isLoading, setTabValue }) => {
                                         ref={searchButtonRef}
                                         type="submit"
                                         isLoading={isLoading || isSearching || isSubmitting}
-                                        className="flex-grow sm:min-w-[140px]"
+                                        className="w-full sm:min-w-[180px]"
                                     >
                                         <Search size={18} />
                                         Search Questions
@@ -312,42 +307,18 @@ const RequestForm = ({ onStudyGenerated, isLoading, setTabValue }) => {
 
                     <section aria-labelledby="study-generation-title" className="flex flex-col gap-6">
                         <SectionHeader id="study-generation-title">Study Generation</SectionHeader>
-                        <div className="p-6 rounded-2xl bg-app-bg/50 border-2 border-app-border shadow-sm flex flex-col sm:flex-row justify-between items-center gap-8">
-                            <div className="flex flex-col gap-1">
-                                <div
-                                    className="flex items-center gap-3 cursor-pointer group"
-                                    onClick={() => setIncludeReferences(!includeReferences)}
-                                >
-                                    <div className="relative flex items-center justify-center">
-                                        <input
-                                            id="include-refs"
-                                            type="checkbox"
-                                            checked={includeReferences}
-                                            onChange={(e) => setIncludeReferences(e.target.checked)}
-                                            onClick={(e) => e.stopPropagation()}
-                                            className="peer h-5 w-5 cursor-pointer appearance-none rounded-md border-2 border-app-border transition-all checked:bg-primary-500 checked:border-primary-500 focus:outline-none focus:ring-4 focus:ring-primary-500/10"
-                                        />
-                                        <Check
-                                            size={14}
-                                            className="absolute text-white opacity-0 peer-checked:opacity-100 transition-opacity pointer-events-none stroke-[3]"
-                                        />
-                                    </div>
-                                    <label
-                                        htmlFor="include-refs"
-                                        className="text-base font-bold text-app-text cursor-pointer select-none group-hover:text-primary-600 dark:group-hover:text-primary-400 transition-colors"
-                                        onClick={(e) => e.stopPropagation()}
-                                    >
-                                        Include References
-                                    </label>
-                                </div>
-                                <p className="text-xs text-app-text-muted ml-8">
-                                    Add Bible verse citations to each question in the study.
-                                </p>
-                            </div>
+                        <div className="p-6 rounded-2xl bg-app-bg/50 border-2 border-app-border shadow-sm flex flex-col md:flex-row justify-between items-center gap-8">
+                            <Checkbox
+                                id="include-refs"
+                                label="Include References"
+                                checked={includeReferences}
+                                onChange={setIncludeReferences}
+                                helperText="Add Bible verse citations to each question in the study."
+                            />
 
                             {isGenerateDisabled ? (
                                 <Tooltip content="Select at least one question from search results">
-                                    <Button type="button" aria-disabled="true" variant="outline" className="w-full sm:w-auto min-w-[200px] opacity-50 cursor-not-allowed">
+                                    <Button type="button" aria-disabled="true" variant="outline" className="w-full md:w-auto min-w-[220px] opacity-50 cursor-not-allowed">
                                         <BookOpen size={18} />
                                         Generate Study
                                     </Button>
@@ -358,7 +329,7 @@ const RequestForm = ({ onStudyGenerated, isLoading, setTabValue }) => {
                                     onClick={handleSubmit}
                                     variant="outline"
                                     isLoading={isLoading || isSubmitting}
-                                    className="w-full sm:w-auto min-w-[200px] border-2"
+                                    className="w-full md:w-auto min-w-[220px] border-2 shadow-sm"
                                 >
                                     <BookOpen size={18} />
                                     Generate Study {selectedIds.length > 0 && `(${selectedIds.length})`}

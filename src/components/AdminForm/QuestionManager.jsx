@@ -10,9 +10,10 @@ import {
 } from '../../services/dataService';
 import { defaultThemes } from '../ui/ThemeSelect';
 import Button from '../ui/Button';
-import { Trash2, Check, Eye, EyeOff, RotateCcw } from 'lucide-react';
+import { Trash2, Check, RotateCcw } from 'lucide-react';
 import AdminFilterBar from './AdminFilterBar';
 import LoadingOverlay from '../ui/LoadingOverlay';
+import Checkbox from '../ui/Checkbox';
 import useQuestionSelection from '../../hooks/useQuestionSelection';
 import clsx from 'clsx';
 
@@ -165,19 +166,13 @@ const QuestionManager = ({
                         {isFetching ? 'Refreshing...' : 'Refresh'}
                     </Button>
                     {!showApproveAction && (
-                        <Button
-                            type="button"
-                            variant={showUnapproved ? 'secondary' : 'outline'}
-                            onClick={() => setShowUnapproved(v => !v)}
-                            className={clsx(
-                                "w-full sm:w-auto min-w-[200px] transition-all duration-300",
-                                showUnapproved && "ring-2 ring-secondary-500/50 border-secondary-500 shadow-md shadow-secondary-500/10"
-                            )}
-                            title={showUnapproved ? 'Hide unapproved questions from results' : 'Include unapproved questions in results'}
-                        >
-                            {showUnapproved ? <EyeOff size={18} /> : <Eye size={18} />}
-                            {showUnapproved ? 'Hide Unapproved' : 'Show Unapproved'}
-                        </Button>
+                        <Checkbox
+                            id="show-unapproved-admin"
+                            label="Show Unapproved"
+                            checked={showUnapproved}
+                            onChange={setShowUnapproved}
+                            className="min-w-[180px]"
+                        />
                     )}
                 </div>
             </AdminFilterBar>
