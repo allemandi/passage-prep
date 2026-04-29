@@ -310,54 +310,62 @@ const RequestForm = ({ onStudyGenerated, isLoading, setTabValue }) => {
                         </div>
                     </section>
 
-                    <div className="flex flex-col items-center gap-6 pt-8 border-t-2 border-app-border">
-                        <div
-                            className="flex items-center gap-3 px-4 py-2.5 rounded-xl bg-app-bg/40 border-2 border-app-border hover:border-primary-300 transition-colors cursor-pointer group"
-                            onClick={() => setIncludeReferences(!includeReferences)}
-                        >
-                            <div className="relative flex items-center justify-center">
-                                <input
-                                    id="include-refs"
-                                    type="checkbox"
-                                    checked={includeReferences}
-                                    onChange={(e) => setIncludeReferences(e.target.checked)}
-                                    onClick={(e) => e.stopPropagation()}
-                                    className="peer h-5 w-5 cursor-pointer appearance-none rounded-md border-2 border-app-border transition-all checked:bg-primary-500 checked:border-primary-500 focus:outline-none focus:ring-4 focus:ring-primary-500/10"
-                                />
-                                <Check
-                                    size={14}
-                                    className="absolute text-white opacity-0 peer-checked:opacity-100 transition-opacity pointer-events-none stroke-[3]"
-                                />
+                    <section aria-labelledby="study-generation-title" className="flex flex-col gap-6">
+                        <SectionHeader id="study-generation-title">Study Generation</SectionHeader>
+                        <div className="p-6 rounded-2xl bg-app-bg/50 border-2 border-app-border shadow-sm flex flex-col sm:flex-row justify-between items-center gap-8">
+                            <div className="flex flex-col gap-1">
+                                <div
+                                    className="flex items-center gap-3 cursor-pointer group"
+                                    onClick={() => setIncludeReferences(!includeReferences)}
+                                >
+                                    <div className="relative flex items-center justify-center">
+                                        <input
+                                            id="include-refs"
+                                            type="checkbox"
+                                            checked={includeReferences}
+                                            onChange={(e) => setIncludeReferences(e.target.checked)}
+                                            onClick={(e) => e.stopPropagation()}
+                                            className="peer h-5 w-5 cursor-pointer appearance-none rounded-md border-2 border-app-border transition-all checked:bg-primary-500 checked:border-primary-500 focus:outline-none focus:ring-4 focus:ring-primary-500/10"
+                                        />
+                                        <Check
+                                            size={14}
+                                            className="absolute text-white opacity-0 peer-checked:opacity-100 transition-opacity pointer-events-none stroke-[3]"
+                                        />
+                                    </div>
+                                    <label
+                                        htmlFor="include-refs"
+                                        className="text-base font-bold text-app-text cursor-pointer select-none group-hover:text-primary-600 dark:group-hover:text-primary-400 transition-colors"
+                                        onClick={(e) => e.stopPropagation()}
+                                    >
+                                        Include References
+                                    </label>
+                                </div>
+                                <p className="text-xs text-app-text-muted ml-8">
+                                    Add Bible verse citations to each question in the study.
+                                </p>
                             </div>
-                            <label
-                                htmlFor="include-refs"
-                                className="text-sm font-bold text-app-text cursor-pointer select-none group-hover:text-primary-600 dark:group-hover:text-primary-400 transition-colors"
-                                onClick={(e) => e.stopPropagation()}
-                            >
-                                Include verse references in study
-                            </label>
-                        </div>
 
-                        {isGenerateDisabled ? (
-                            <Tooltip content="Select at least one question from search results">
-                                <Button type="button" aria-disabled="true" variant="outline" className="flex-grow max-w-xs opacity-50 cursor-not-allowed">
+                            {isGenerateDisabled ? (
+                                <Tooltip content="Select at least one question from search results">
+                                    <Button type="button" aria-disabled="true" variant="outline" className="w-full sm:w-auto min-w-[200px] opacity-50 cursor-not-allowed">
+                                        <BookOpen size={18} />
+                                        Generate Study
+                                    </Button>
+                                </Tooltip>
+                            ) : (
+                                <Button
+                                    type="button"
+                                    onClick={handleSubmit}
+                                    variant="outline"
+                                    isLoading={isLoading || isSubmitting}
+                                    className="w-full sm:w-auto min-w-[200px] border-2"
+                                >
                                     <BookOpen size={18} />
-                                    Generate Study
+                                    Generate Study {selectedIds.length > 0 && `(${selectedIds.length})`}
                                 </Button>
-                            </Tooltip>
-                        ) : (
-                            <Button
-                                type="button"
-                                onClick={handleSubmit}
-                                variant="outline"
-                                isLoading={isLoading || isSubmitting}
-                                className="flex-grow max-w-xs border-2"
-                            >
-                                <BookOpen size={18} />
-                                Generate Study {selectedIds.length > 0 && `(${selectedIds.length})`}
-                            </Button>
-                        )}
-                    </div>
+                            )}
+                        </div>
+                    </section>
 
                     {showSearchResults && (
                         <section
