@@ -22,7 +22,7 @@ export const groupQuestionsByBookAndTheme = (questions) => {
 /**
  * Generates plain text content for a study.
  */
-export const generatePlainTextContent = (data, groupedQuestions, orderedBooksList) => {
+export const generatePlainTextContent = (data, groupedQuestions, orderedBooksList, includeReferences = true) => {
     let plainText = '';
     plainText += 'Bible References:\n';
     if (data?.refArr && data.refArr.filter(ref => ref).length > 0) {
@@ -50,8 +50,12 @@ export const generatePlainTextContent = (data, groupedQuestions, orderedBooksLis
             Object.entries(groupedQuestions[book]).forEach(([theme, questions]) => {
                 plainText += `  ${theme}:\n`;
                 questions.forEach(question => {
-                    const reference = formatReference(question.book, question.chapter, question.verseStart, question.verseEnd);
-                    plainText += `    - [${reference}] ${question.question}\n`;
+                    if (includeReferences) {
+                        const reference = formatReference(question.book, question.chapter, question.verseStart, question.verseEnd);
+                        plainText += `    - [${reference}] ${question.question}\n`;
+                    } else {
+                        plainText += `    - ${question.question}\n`;
+                    }
                 });
             });
             plainText += '\n';
@@ -66,7 +70,7 @@ export const generatePlainTextContent = (data, groupedQuestions, orderedBooksLis
 /**
  * Generates markdown content for a study.
  */
-export const generateMarkdownContent = (data, groupedQuestions, orderedBooksList) => {
+export const generateMarkdownContent = (data, groupedQuestions, orderedBooksList, includeReferences = true) => {
     let markdown = '';
     markdown += '## Bible References\n\n';
     if (data?.refArr && data.refArr.filter(ref => ref).length > 0) {
@@ -91,8 +95,12 @@ export const generateMarkdownContent = (data, groupedQuestions, orderedBooksList
             Object.entries(groupedQuestions[book]).forEach(([theme, questions]) => {
                 markdown += `#### ${theme}\n`;
                 questions.forEach(question => {
-                    const reference = formatReference(question.book, question.chapter, question.verseStart, question.verseEnd);
-                    markdown += `- **${reference}:** ${question.question}\n`;
+                    if (includeReferences) {
+                        const reference = formatReference(question.book, question.chapter, question.verseStart, question.verseEnd);
+                        markdown += `- **${reference}:** ${question.question}\n`;
+                    } else {
+                        markdown += `- ${question.question}\n`;
+                    }
                 });
                 markdown += '\n';
             });
@@ -106,7 +114,7 @@ export const generateMarkdownContent = (data, groupedQuestions, orderedBooksList
 /**
  * Generates rich text (HTML) content for a study.
  */
-export const generateRichTextContent = (data, groupedQuestions, orderedBooksList) => {
+export const generateRichTextContent = (data, groupedQuestions, orderedBooksList, includeReferences = true) => {
     let html = '<div style="font-family: Arial, sans-serif; font-size: 12pt; line-height: 1.4;">';
 
     html += '<h3 style="color: #1976d2; font-size: 1rem; font-weight: 600; margin: 0.7rem 0 0.3rem; border-bottom: 1px solid #e0e0e0; padding-bottom: 0.2rem;">Bible References</h3>';
@@ -139,8 +147,12 @@ export const generateRichTextContent = (data, groupedQuestions, orderedBooksList
                 html += `<p style="margin: 0.4rem 0 0.15rem 0.6rem; font-weight: 500; font-size: 0.9rem;">${theme}</p>`;
                 html += '<ul style="margin: 0.15rem 0 0.6rem 1.2rem; padding-left: 0.6rem;">';
                 questions.forEach(question => {
-                    const reference = formatReference(question.book, question.chapter, question.verseStart, question.verseEnd);
-                    html += `<li style="margin-bottom: 0.15rem; list-style-type: circle; font-size: 0.9rem;"><strong style="color: #455a64;">${reference}:</strong> ${question.question}</li>`;
+                    if (includeReferences) {
+                        const reference = formatReference(question.book, question.chapter, question.verseStart, question.verseEnd);
+                        html += `<li style="margin-bottom: 0.15rem; list-style-type: circle; font-size: 0.9rem;"><strong style="color: #455a64;">${reference}:</strong> ${question.question}</li>`;
+                    } else {
+                        html += `<li style="margin-bottom: 0.15rem; list-style-type: circle; font-size: 0.9rem;">${question.question}</li>`;
+                    }
                 });
                 html += '</ul>';
             });

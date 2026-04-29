@@ -51,15 +51,15 @@ const StudyModal = ({ show, onHide, data }) => {
     }, [data.refArr, groupedQuestions]);
 
     const plainTextContent = useMemo(() =>
-        generatePlainTextContent(data, groupedQuestions, orderedBooksList)
+        generatePlainTextContent(data, groupedQuestions, orderedBooksList, data.includeReferences)
     , [data, groupedQuestions, orderedBooksList]);
 
     const markdownContent = useMemo(() =>
-        generateMarkdownContent(data, groupedQuestions, orderedBooksList)
+        generateMarkdownContent(data, groupedQuestions, orderedBooksList, data.includeReferences)
     , [data, groupedQuestions, orderedBooksList]);
 
     const richTextContent = useMemo(() =>
-        generateRichTextContent(data, groupedQuestions, orderedBooksList)
+        generateRichTextContent(data, groupedQuestions, orderedBooksList, data.includeReferences)
     , [data, groupedQuestions, orderedBooksList]);
 
     return (
@@ -154,9 +154,11 @@ const StudyModal = ({ show, onHide, data }) => {
                                                                     <ul className="space-y-3 list-disc pl-5">
                                                                         {questions.map((question, qIndex) => (
                                                                             <li key={qIndex} className="text-app-text leading-relaxed">
-                                                                                <span className="font-bold text-app-text-muted mr-1">
-                                                                                    {formatReference(question.book, question.chapter, question.verseStart, question.verseEnd)}:
-                                                                                </span>
+                                                                                {data.includeReferences && (
+                                                                                    <span className="font-bold text-app-text-muted mr-1">
+                                                                                        {formatReference(question.book, question.chapter, question.verseStart, question.verseEnd)}:
+                                                                                    </span>
+                                                                                )}
                                                                                 {question.question}
                                                                             </li>
                                                                         ))}
