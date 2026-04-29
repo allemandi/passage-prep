@@ -14,7 +14,7 @@ const LoadingOverlay = ({
       {isLoading && (
         <div
           className="absolute inset-0 flex items-center justify-center bg-app-bg/50 z-10 rounded-lg backdrop-blur-[1px]"
-          role="progressbar"
+          role="status"
           aria-busy="true"
           aria-live="polite"
         >

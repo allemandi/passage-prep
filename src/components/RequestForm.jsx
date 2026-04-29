@@ -1,6 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
-import clsx from 'clsx';
-import { X, Plus, Search, BookOpen, RotateCcw, Eye, EyeOff } from 'lucide-react';
+import { X, Plus, Search, BookOpen, RotateCcw } from 'lucide-react';
 import {
     processForm,
     searchQuestions,
@@ -19,6 +18,7 @@ import BibleReferenceSelector from './BibleReferenceSelector';
 import Tooltip from './Tooltip';
 import QuestionTable from './QuestionTable';
 import LoadingOverlay from './ui/LoadingOverlay';
+import Checkbox from './ui/Checkbox';
 
 const ScriptureReferenceItem = ({ id, index, onRemove, referenceState, firstSelectRef }) => {
     return (
@@ -123,6 +123,7 @@ const RequestForm = ({ onStudyGenerated, isLoading, setTabValue }) => {
     const activeRefs = activeIndices.map(idx => ({ id: idx, state: refSlots[idx] }));
 
     const [selectedThemes, setSelectedThemes] = useState(defaultThemes);
+    const [includeReferences, setIncludeReferences] = useState(true);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [isSearching, setIsSearching] = useState(false);
     const [searchResults, setSearchResults] = useState([]);
@@ -176,7 +177,11 @@ const RequestForm = ({ onStudyGenerated, isLoading, setTabValue }) => {
             const studyBaseData = await processForm({ refArr, themeArr });
             const selectedQuestionsData = searchResults.filter(q => selectedIds.includes(q._id));
 
-            onStudyGenerated({ ...studyBaseData, filteredQuestions: selectedQuestionsData });
+            onStudyGenerated({
+                ...studyBaseData,
+                filteredQuestions: selectedQuestionsData,
+                includeReferences
+            });
             showToast('Study generated successfully!', 'success');
         } catch (err) {
             showToast(err?.message || 'An error occurred while generating your study.', 'error');
@@ -253,27 +258,22 @@ const RequestForm = ({ onStudyGenerated, isLoading, setTabValue }) => {
                     <section aria-labelledby="search-settings-title" className="flex flex-col gap-6">
                         <SectionHeader id="search-settings-title">Search Settings</SectionHeader>
                         <div className="p-6 rounded-2xl bg-app-bg/50 border-2 border-app-border shadow-sm flex flex-col gap-8">
-                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 items-end">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-start">
+                                <Checkbox
+                                    id="show-unapproved"
+                                    label="Show Unapproved"
+                                    checked={showUnapproved}
+                                    onChange={setShowUnapproved}
+                                    helperText="Include questions that haven't been reviewed by an admin yet."
+                                    className="mt-1"
+                                />
+
                                 <ThemeSelect
                                     value={selectedThemes}
                                     onChange={setSelectedThemes}
                                     isMulti
                                     label="Themes"
                                 />
-
-                                <Button
-                                    type="button"
-                                    variant={showUnapproved ? 'secondary' : 'outline'}
-                                    onClick={() => setShowUnapproved(!showUnapproved)}
-                                    className={clsx(
-                                        "w-full h-11 transition-all duration-300",
-                                        showUnapproved && "ring-2 ring-secondary-500/50 border-secondary-500 shadow-md shadow-secondary-500/10"
-                                    )}
-                                    title={showUnapproved ? 'Hide unapproved questions from results' : 'Include unapproved questions in results'}
-                                >
-                                    {showUnapproved ? <EyeOff size={18} /> : <Eye size={18} />}
-                                    {showUnapproved ? 'Hide Unapproved' : 'Show Unapproved'}
-                                </Button>
                             </div>
 
                             <div className="flex flex-col sm:flex-row justify-between items-center gap-4 pt-6 border-t border-app-border/50">
@@ -282,7 +282,7 @@ const RequestForm = ({ onStudyGenerated, isLoading, setTabValue }) => {
                                         type="button"
                                         variant="ghost"
                                         onClick={handleClearForm}
-                                        className="flex-grow sm:flex-grow-0 text-app-text-muted hover:text-secondary-600"
+                                        className="w-full sm:w-auto text-app-text-muted hover:text-secondary-600"
                                         title="Reset Form"
                                     >
                                         <RotateCcw size={18} />
@@ -295,7 +295,7 @@ const RequestForm = ({ onStudyGenerated, isLoading, setTabValue }) => {
                                         ref={searchButtonRef}
                                         type="submit"
                                         isLoading={isLoading || isSearching || isSubmitting}
-                                        className="flex-grow sm:min-w-[140px]"
+                                        className="w-full sm:min-w-[180px]"
                                     >
                                         <Search size={18} />
                                         Search Questions
@@ -305,27 +305,38 @@ const RequestForm = ({ onStudyGenerated, isLoading, setTabValue }) => {
                         </div>
                     </section>
 
-                    <div className="flex justify-center pt-8 border-t-2 border-app-border">
-                        {isGenerateDisabled ? (
-                            <Tooltip content="Select at least one question from search results">
-                                <Button type="button" aria-disabled="true" variant="outline" className="flex-grow max-w-xs opacity-50 cursor-not-allowed">
+                    <section aria-labelledby="study-generation-title" className="flex flex-col gap-6">
+                        <SectionHeader id="study-generation-title">Study Generation</SectionHeader>
+                        <div className="p-6 rounded-2xl bg-app-bg/50 border-2 border-app-border shadow-sm flex flex-col md:flex-row justify-between items-center gap-8">
+                            <Checkbox
+                                id="include-refs"
+                                label="Include References"
+                                checked={includeReferences}
+                                onChange={setIncludeReferences}
+                                helperText="Add Bible verse citations to each question in the study."
+                            />
+
+                            {isGenerateDisabled ? (
+                                <Tooltip content="Select at least one question from search results">
+                                    <Button type="button" aria-disabled="true" variant="outline" className="w-full md:w-auto min-w-[220px] opacity-50 cursor-not-allowed">
+                                        <BookOpen size={18} />
+                                        Generate Study
+                                    </Button>
+                                </Tooltip>
+                            ) : (
+                                <Button
+                                    type="button"
+                                    onClick={handleSubmit}
+                                    variant="outline"
+                                    isLoading={isLoading || isSubmitting}
+                                    className="w-full md:w-auto min-w-[220px] border-2 shadow-sm"
+                                >
                                     <BookOpen size={18} />
-                                    Generate Study
+                                    Generate Study {selectedIds.length > 0 && `(${selectedIds.length})`}
                                 </Button>
-                            </Tooltip>
-                        ) : (
-                            <Button
-                                type="button"
-                                onClick={handleSubmit}
-                                variant="outline"
-                                isLoading={isLoading || isSubmitting}
-                                className="flex-grow max-w-xs border-2"
-                            >
-                                <BookOpen size={18} />
-                                Generate Study {selectedIds.length > 0 && `(${selectedIds.length})`}
-                            </Button>
-                        )}
-                    </div>
+                            )}
+                        </div>
+                    </section>
 
                     {showSearchResults && (
                         <section
