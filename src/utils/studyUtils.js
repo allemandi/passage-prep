@@ -1,3 +1,5 @@
+import { formatReference } from './bibleData';
+
 /**
  * Groups questions by book and then by theme.
  */
@@ -48,7 +50,8 @@ export const generatePlainTextContent = (data, groupedQuestions, orderedBooksLis
             Object.entries(groupedQuestions[book]).forEach(([theme, questions]) => {
                 plainText += `  ${theme}:\n`;
                 questions.forEach(question => {
-                    plainText += `    - ${question.question}\n`;
+                    const reference = formatReference(question.book, question.chapter, question.verseStart, question.verseEnd);
+                    plainText += `    - [${reference}] ${question.question}\n`;
                 });
             });
             plainText += '\n';
@@ -88,7 +91,8 @@ export const generateMarkdownContent = (data, groupedQuestions, orderedBooksList
             Object.entries(groupedQuestions[book]).forEach(([theme, questions]) => {
                 markdown += `#### ${theme}\n`;
                 questions.forEach(question => {
-                    markdown += `- ${question.question}\n`;
+                    const reference = formatReference(question.book, question.chapter, question.verseStart, question.verseEnd);
+                    markdown += `- **${reference}:** ${question.question}\n`;
                 });
                 markdown += '\n';
             });
@@ -135,7 +139,8 @@ export const generateRichTextContent = (data, groupedQuestions, orderedBooksList
                 html += `<p style="margin: 0.4rem 0 0.15rem 0.6rem; font-weight: 500; font-size: 0.9rem;">${theme}</p>`;
                 html += '<ul style="margin: 0.15rem 0 0.6rem 1.2rem; padding-left: 0.6rem;">';
                 questions.forEach(question => {
-                    html += `<li style="margin-bottom: 0.15rem; list-style-type: circle; font-size: 0.9rem;">${question.question}</li>`;
+                    const reference = formatReference(question.book, question.chapter, question.verseStart, question.verseEnd);
+                    html += `<li style="margin-bottom: 0.15rem; list-style-type: circle; font-size: 0.9rem;"><strong style="color: #455a64;">${reference}:</strong> ${question.question}</li>`;
                 });
                 html += '</ul>';
             });

@@ -11,7 +11,7 @@ import {
     generateMarkdownContent,
     generateRichTextContent
 } from '../utils/studyUtils';
-import { BIBLE_BOOK_REGEX } from '../utils/bibleData';
+import { BIBLE_BOOK_REGEX, formatReference } from '../utils/bibleData';
 
 const StudyModal = ({ show, onHide, data }) => {
     const showToast = useToast();
@@ -154,6 +154,9 @@ const StudyModal = ({ show, onHide, data }) => {
                                                                     <ul className="space-y-3 list-disc pl-5">
                                                                         {questions.map((question, qIndex) => (
                                                                             <li key={qIndex} className="text-app-text leading-relaxed">
+                                                                                <span className="font-bold text-app-text-muted mr-1">
+                                                                                    {formatReference(question.book, question.chapter, question.verseStart, question.verseEnd)}:
+                                                                                </span>
                                                                                 {question.question}
                                                                             </li>
                                                                         ))}
