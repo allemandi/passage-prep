@@ -2,8 +2,30 @@
   "short_name": "Passage Prep",
   "name": "Passage Prep - Bible Study Preparation Tool",
   "description": "Build reusable Bible studies in seconds. Format, organize, and export Bible study questions with ease.",
-  "start_url": ".",
+  "start_url": "/",
   "display": "standalone",
   "theme_color": "#0ea5e9",
-  "background_color": "#f0f9ff"
+  "background_color": "#f0f9ff",
+  "orientation": "any",
+  "categories": ["education", "productivity"],
+  "lang": "en-US",
+  "icons": [
+    {
+      "src": "logo.svg",
+      "type": "image/svg+xml",
+      "sizes": "any"
+    },
+    {
+      "src": "logo.svg",
+      "type": "image/svg+xml",
+      "sizes": "192x192",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "logo.svg",
+      "type": "image/svg+xml",
+      "sizes": "512x512",
+      "purpose": "any maskable"
+    }
+  ]
 }
