@@ -4,6 +4,7 @@ import { CircleAlert, LogOut, Clock } from 'lucide-react';
 
 import { ToastProvider, useToast } from './components/ToastMessage/Toast';
 import Header from './components/Header';
+import SEO from './components/SEO';
 import Tabs from './components/Tabs';
 import MainContent from './components/MainContent';
 import AdminPanel from './components/AdminPanel';
@@ -92,6 +93,7 @@ function AppContent() {
 
   return (
     <div className="min-h-screen flex flex-col bg-app-bg text-app-text transition-colors duration-500">
+      <SEO />
       <Header mode={mode} setMode={setMode} tabValue={tabValue} setTabValue={setTabValue} />
 
       <main className="flex-grow w-full pb-24">

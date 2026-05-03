@@ -3,5 +3,6 @@ export const SEO_CONFIG = {
   tagline: import.meta.env.VITE_APP_TAGLINE || 'Build reusable Bible studies in seconds',
   description: import.meta.env.VITE_APP_DESCRIPTION || 'Format, organize, and export Bible study questions with ease.',
   url: import.meta.env.VITE_APP_URL || 'https://passage-prep.netlify.app',
+  author: 'PassagePrep',
   themeColor: '#0ea5e9'
 };
