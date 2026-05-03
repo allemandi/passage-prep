@@ -1,6 +1,6 @@
 {
-  "short_name": "Passage Prep",
-  "name": "Passage Prep - Bible Study Preparation Tool",
+  "short_name": "PassagePrep",
+  "name": "PassagePrep - Bible Study Prep Tool",
   "description": "Build reusable Bible studies in seconds. Format, organize, and export Bible study questions with ease.",
   "start_url": "/",
   "display": "standalone",
