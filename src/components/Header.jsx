@@ -1,6 +1,7 @@
 import { Sun, Moon, BookOpen, Shield } from 'lucide-react';
 import React from 'react';
 import clsx from 'clsx';
+import { SEO_CONFIG } from '../utils/seoConfig';
 
 export default function Header({ mode, setMode, tabValue, setTabValue }) {
   const isAdminActive = tabValue === 2;
@@ -30,10 +31,10 @@ export default function Header({ mode, setMode, tabValue, setTabValue }) {
       </div>
       <div>
         <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-app-text">
-          PassagePrep
+          {SEO_CONFIG.title}
         </h1>
         <p className="text-xs sm:text-sm text-app-text-muted mt-0.5 font-medium">
-          Build reusable Bible studies in seconds.
+          {SEO_CONFIG.tagline}
         </p>
       </div>
     </div>

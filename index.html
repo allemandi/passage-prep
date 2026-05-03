@@ -17,9 +17,48 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="theme-color" content="#0ea5e9" />
-    <meta name="description" content="Build reusable Bible studies in seconds. Format, organize, and export Bible study questions with ease." />
-    <title>Passage Prep - Bible Study Preparation</title>
-    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='0.9em' font-size='90'>📖</text></svg>" />
+
+    <!-- Primary Meta Tags -->
+    <title>%VITE_APP_TITLE% - %VITE_APP_TAGLINE%</title>
+    <meta name="title" content="%VITE_APP_TITLE% - %VITE_APP_TAGLINE%" />
+    <meta name="description" content="%VITE_APP_DESCRIPTION%" />
+    <meta name="author" content="%VITE_APP_TITLE%" />
+
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="%VITE_APP_URL%/" />
+    <meta property="og:title" content="%VITE_APP_TITLE% - %VITE_APP_TAGLINE%" />
+    <meta property="og:description" content="%VITE_APP_DESCRIPTION%" />
+    <meta property="og:image" content="%VITE_APP_URL%/og-image.svg" />
+
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image" />
+    <meta property="twitter:url" content="%VITE_APP_URL%/" />
+    <meta property="twitter:title" content="%VITE_APP_TITLE% - %VITE_APP_TAGLINE%" />
+    <meta property="twitter:description" content="%VITE_APP_DESCRIPTION%" />
+    <meta property="twitter:image" content="%VITE_APP_URL%/og-image.svg" />
+
+    <!-- Canonical URL -->
+    <link rel="canonical" href="%VITE_APP_URL%/" />
+
+    <!-- Favicons -->
+    <link rel="icon" type="image/svg+xml" href="/logo.svg" />
+    <link rel="apple-touch-icon" href="/logo.svg" />
+    <link rel="manifest" href="/manifest.json" />
+
+    <!-- Structured Data (JSON-LD) -->
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "WebApplication",
+        "name": "%VITE_APP_TITLE%",
+        "url": "%VITE_APP_URL%/",
+        "description": "%VITE_APP_DESCRIPTION%",
+        "applicationCategory": "EducationalApplication",
+        "operatingSystem": "All"
+      }
+    </script>
+
     <!-- Vite injects scripts here -->
   </head>
   <body>
