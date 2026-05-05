@@ -8,7 +8,7 @@
     "bcryptjs": "^3.0.3",
     "clsx": "^2.1.1",
     "dotenv": "^17.4.2",
-    "lucide-react": "^1.11.0",
+    "lucide-react": "^1.14.0",
     "mongodb": "^7.2.0",
     "mongoose": "^9.5.0",
     "obscenity": "^0.4.6",
