@@ -10,7 +10,7 @@
     "dotenv": "^17.4.2",
     "lucide-react": "^1.14.0",
     "mongodb": "^7.2.0",
-    "mongoose": "^9.5.0",
+    "mongoose": "^9.6.1",
     "obscenity": "^0.4.6",
     "papaparse": "^5.5.2",
     "react": "^19.2.5",
