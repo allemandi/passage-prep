@@ -1,13 +1,16 @@
-import React, { useState } from 'react';
-import { Filter } from 'lucide-react';
+import React, { useState, useRef } from 'react';
+import { Filter, RotateCcw } from 'lucide-react';
 import BibleReferenceSelector from '../BibleReferenceSelector';
 import ThemeSelect, { defaultThemes } from '../ui/ThemeSelect';
 import Button from '../ui/Button';
+import { useToast } from '../ToastMessage/Toast';
 import useBibleReference from '../../hooks/useBibleReference';
 
 const AdminFilterBar = ({ onApply, initialThemes = defaultThemes, title, children }) => {
+    const showToast = useToast();
     const bibleRef = useBibleReference();
     const [selectedThemes, setSelectedThemes] = useState(initialThemes);
+    const firstSelectRef = useRef(null);
 
     const handleApply = () => {
         onApply({
@@ -17,6 +20,24 @@ const AdminFilterBar = ({ onApply, initialThemes = defaultThemes, title, childre
             verseEnd: bibleRef.verseEnd,
             themes: selectedThemes
         });
+    };
+
+    const handleReset = () => {
+        bibleRef.reset();
+        setSelectedThemes(defaultThemes);
+        showToast('Filters reset.', 'success');
+        onApply({
+            book: '',
+            chapter: '',
+            verseStart: '',
+            verseEnd: '',
+            themes: defaultThemes
+        });
+
+        // Return focus to the first field
+        setTimeout(() => {
+            firstSelectRef.current?.focus();
+        }, 0);
     };
 
     return (
@@ -34,6 +55,7 @@ const AdminFilterBar = ({ onApply, initialThemes = defaultThemes, title, childre
                     bibleReference={bibleRef}
                     layout="grid"
                     labelPrefix="Filter: "
+                    firstSelectRef={firstSelectRef}
                 />
             </div>
 
@@ -48,6 +70,15 @@ const AdminFilterBar = ({ onApply, initialThemes = defaultThemes, title, childre
                 </div>
 
                 <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto">
+                    <Button
+                        type="button"
+                        variant="ghost"
+                        onClick={handleReset}
+                        className="w-full sm:w-auto text-app-text-muted hover:text-secondary-600"
+                    >
+                        <RotateCcw size={18} />
+                        Reset Filters
+                    </Button>
                     <Button
                         onClick={handleApply}
                         variant="primary"

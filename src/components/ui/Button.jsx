@@ -2,10 +2,10 @@ import React from 'react';
 import clsx from 'clsx';
 
 const variants = {
-  primary: 'bg-primary-600 text-white hover:bg-primary-700 disabled:bg-primary-300 shadow-sm transition-all duration-200',
-  secondary: 'bg-secondary-600 text-white hover:bg-secondary-700 disabled:bg-secondary-300 shadow-sm transition-all duration-200',
-  outline: 'border-2 border-primary-400 text-primary-600 hover:bg-primary-50 dark:border-primary-500/50 dark:text-primary-300 dark:hover:bg-primary-900/20 disabled:opacity-50 transition-all duration-200',
-  ghost: 'text-app-text-muted hover:bg-app-surface hover:text-app-text disabled:opacity-50 transition-all duration-200',
+  primary: 'bg-primary-600 text-white hover:bg-primary-700 disabled:bg-primary-300 shadow-sm focus:ring-primary-500',
+  secondary: 'bg-secondary-600 text-white hover:bg-secondary-700 disabled:bg-secondary-300 shadow-sm focus:ring-secondary-500',
+  outline: 'border-2 border-primary-400 text-primary-600 hover:bg-primary-50 dark:border-primary-500/50 dark:text-primary-300 dark:hover:bg-primary-900/20 disabled:opacity-50 focus:ring-primary-500',
+  ghost: 'text-app-text-muted hover:bg-app-surface hover:text-app-text disabled:opacity-50 focus:ring-primary-500',
 };
 
 const sizes = {
@@ -26,7 +26,7 @@ const Button = React.forwardRef(({
     <button
       ref={ref}
       className={clsx(
-        'inline-flex items-center justify-center gap-2 rounded-lg font-semibold transition duration-200 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 disabled:cursor-not-allowed',
+        'inline-flex items-center justify-center gap-2 rounded-lg font-semibold transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:cursor-not-allowed',
         variants[variant],
         sizes[size],
         className

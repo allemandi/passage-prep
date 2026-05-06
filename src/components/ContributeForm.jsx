@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
+import { RotateCcw } from 'lucide-react';
 import clsx from 'clsx';
 import {
     RegExpMatcher,
@@ -29,6 +30,7 @@ const ContributeForm = () => {
     const [selectedTheme, setSelectedTheme] = useState('');
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [errors, setErrors] = useState({});
+    const firstSelectRef = useRef(null);
 
     const bibleReference = useBibleReference();
     const { book, chapter, verseStart, verseEnd } = bibleReference;
@@ -103,6 +105,19 @@ const ContributeForm = () => {
         // We now keep selectedTheme and bibleReference to improve UX for consecutive submissions
     };
 
+    const handleReset = () => {
+        setQuestionText('');
+        setSelectedTheme('');
+        bibleReference.reset();
+        setErrors({});
+        showToast('Form cleared.', 'success');
+
+        // Return focus to the first field
+        setTimeout(() => {
+            firstSelectRef.current?.focus();
+        }, 0);
+    };
+
     return (
         <div className="w-full">
             <form onSubmit={handleSubmit} noValidate>
@@ -120,6 +135,7 @@ const ContributeForm = () => {
                                 labelPrefix="Contribute: "
                                 required
                                 errors={errors}
+                                firstSelectRef={firstSelectRef}
                             />
                         </div>
                     </fieldset>
@@ -173,13 +189,22 @@ const ContributeForm = () => {
                         </div>
                     </fieldset>
 
-                    {/* Submit Button */}
-                    <div className="md:col-span-2 flex justify-center pt-4">
+                    {/* Actions */}
+                    <div className="md:col-span-2 flex flex-col sm:flex-row items-center justify-center gap-4 pt-4">
+                        <Button
+                            type="button"
+                            variant="ghost"
+                            onClick={handleReset}
+                            className="w-full sm:w-auto text-app-text-muted hover:text-secondary-600 order-2 sm:order-1"
+                        >
+                            <RotateCcw size={18} />
+                            Reset Form
+                        </Button>
                         <Button
                             type="submit"
                             isLoading={isSubmitting}
                             size="lg"
-                            className="w-full max-w-md shadow-lg shadow-primary-500/10"
+                            className="w-full sm:w-auto min-w-[280px] shadow-lg shadow-primary-500/10 order-1 sm:order-2"
                         >
                             Submit Question
                         </Button>

@@ -93,10 +93,16 @@ function AppContent() {
 
   return (
     <div className="min-h-screen flex flex-col bg-app-bg text-app-text transition-colors duration-500">
+      <a
+        href="#main-content"
+        className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-[100] focus:px-4 focus:py-2 focus:bg-primary-600 focus:text-white focus:rounded-lg focus:font-bold focus:shadow-xl focus:outline-none focus:ring-4 focus:ring-primary-500/50"
+      >
+        Skip to main content
+      </a>
       <SEO />
       <Header mode={mode} setMode={setMode} tabValue={tabValue} setTabValue={setTabValue} />
 
-      <main className="flex-grow w-full pb-24">
+      <main id="main-content" tabIndex="-1" className="flex-grow w-full pb-24 outline-none">
         <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8 py-8 flex flex-col gap-10">
           {tabValue === 2 ? (
             <AdminPanel isLoggedIn={isLoggedIn} setIsLoggedIn={handleSetIsLoggedIn} />
