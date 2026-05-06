@@ -44,7 +44,7 @@
     "globals": "^17.5.0",
     "jsdom": "^29.1.1",
     "msw": "^2.13.6",
-    "netlify-cli": "^25.6.2",
+    "netlify-cli": "^26.0.1",
     "postcss": "^8.5.14",
     "react-select-event": "^5.5.1",
     "tailwindcss": "^4.2.1",
