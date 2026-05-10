@@ -13,7 +13,7 @@ const Download = () => {
   const showToast = useToast();
   const bibleRef = useBibleReference();
 
-  const excludeFields = ['_id', '__v', 'updatedAt'];
+  const excludeFields = ['_id', '__v', 'updatedAt', 'createdAt'];
 
   const generateAndDownloadCSV = (results, filename) => {
     if (!results?.length) {

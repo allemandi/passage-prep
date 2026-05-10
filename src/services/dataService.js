@@ -49,6 +49,7 @@ let allQuestionsCache = null;
 
 export const clearSearchCache = () => {
   searchQuestionsCache = {};
+  allQuestionsCache = null;
 };
 
 export const getBooks = () => bibleContext;

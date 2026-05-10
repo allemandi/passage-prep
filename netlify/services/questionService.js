@@ -10,7 +10,7 @@ const questionService = {
     },
 
     async getAllQuestions() {
-        return await Question.find();
+        return await Question.find().lean();
     },
 
     async saveQuestion(newData, isAdmin = false) {
@@ -119,7 +119,7 @@ const questionService = {
             if (hasVStart && verseStart !== null) query.verseStart = vStart;
             if (hasVEnd && verseEnd !== null) query.verseEnd = vEnd;
         }
-        return await Question.find(query);
+        return await Question.find(query).lean();
     },
 
     async approveQuestions(questionIds) {
@@ -171,25 +171,19 @@ const questionService = {
             throw new Error('No questions provided');
         }
 
-        const sanitizedQuestions = questions.map(q => {
-            const sanitizedQ = { ...q };
-            Object.keys(sanitizedQ).forEach(key => {
-                if (typeof sanitizedQ[key] === 'string') {
-                    sanitizedQ[key] = sanitizeInput(sanitizedQ[key]);
-                }
-            });
+        const preparedQuestions = questions.map(q => {
             return {
-                theme: sanitizedQ.theme,
-                question: sanitizedQ.question,
-                book: sanitizedQ.book,
-                chapter: parseInt(sanitizedQ.chapter),
-                verseStart: parseInt(sanitizedQ.verseStart),
-                verseEnd: parseInt(sanitizedQ.verseEnd),
-                isApproved: sanitizedQ.isApproved === true
+                theme: q.theme,
+                question: q.question,
+                book: q.book,
+                chapter: parseInt(q.chapter, 10),
+                verseStart: parseInt(q.verseStart, 10),
+                verseEnd: parseInt(q.verseEnd, 10),
+                isApproved: q.isApproved === true
             };
         });
 
-        return await Question.insertMany(sanitizedQuestions, { ordered: false });
+        return await Question.insertMany(preparedQuestions, { ordered: false });
     }
 };
 
