@@ -1,7 +1,6 @@
-const fs = require('fs');
-const path = require('path');
 const { getBook, isValidChapter, isValidReference } = require('@allemandi/bible-validate')
 const { sanitizeInput } = require('./shared/sanitization');
+const themes = require('../../src/data/themes.json');
 
 const Question = require('../../models/Question');
 
@@ -12,8 +11,6 @@ async function processBulkUpload(questions, bulkSaveFn) {
     failed: 0,
     errors: []
   };
-  const themesPath = path.join(__dirname, '../../src/data/themes.json');
-  const themes = JSON.parse(fs.readFileSync(themesPath, 'utf8'));
   
   const validQuestions = [];
   const processedBatch = [];
