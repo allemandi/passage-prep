@@ -10,11 +10,11 @@
     "dotenv": "^17.4.2",
     "lucide-react": "^1.14.0",
     "mongodb": "^7.2.0",
-    "mongoose": "^9.6.1",
+    "mongoose": "^9.6.2",
     "obscenity": "^0.4.6",
     "papaparse": "^5.5.2",
-    "react": "^19.2.5",
-    "react-dom": "^19.2.5",
+    "react": "^19.2.6",
+    "react-dom": "^19.2.6",
     "react-select": "^5.10.2",
     "xss": "^1.0.15"
   },
@@ -37,7 +37,7 @@
     "@testing-library/jest-dom": "^6.9.1",
     "@testing-library/react": "^16.3.2",
     "@vitejs/plugin-react": "^6.0.1",
-    "@vitest/ui": "^4.1.5",
+    "@vitest/ui": "^4.1.6",
     "eslint": "^10.3.0",
     "eslint-plugin-react": "^7.37.5",
     "eslint-plugin-react-hooks": "^7.1.1",
@@ -48,7 +48,7 @@
     "postcss": "^8.5.14",
     "react-select-event": "^5.5.1",
     "tailwindcss": "^4.2.1",
-    "vite": "^8.0.10",
-    "vitest": "^4.1.5"
+    "vite": "^8.0.12",
+    "vitest": "^4.1.6"
   }
 }
