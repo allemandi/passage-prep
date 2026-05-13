@@ -35,7 +35,7 @@ const FormField = ({
           )}
           className={clsx(
             'w-full border-2 rounded-xl p-2.5 bg-app-surface text-app-text transition-all duration-200 shadow-sm',
-            'focus:outline-none focus:ring-4 focus:ring-primary-500/10 focus:border-primary-500',
+            'focus:outline-none focus-visible:ring-4 focus-visible:ring-primary-500/10 focus-visible:border-primary-500',
             isTextarea && 'p-4 resize-none min-h-[120px]',
             error
               ? 'border-secondary-400 focus:border-secondary-500 focus:ring-secondary-500/10 shadow-secondary-100/50'

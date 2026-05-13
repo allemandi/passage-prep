@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { X } from 'lucide-react';
 import { Dialog, DialogPanel, DialogTitle, Transition, TransitionChild } from '@headlessui/react';
 import { sanitizeInput } from '../utils/sanitization';
+import { hasProfanity } from '../utils/validation';
 import useBibleReference from '../hooks/useBibleReference';
 import BibleReferenceSelector from './BibleReferenceSelector';
 import ThemeSelect from './ui/ThemeSelect';
@@ -12,6 +13,7 @@ const EditQuestionModal = ({ isOpen, onClose, question, onSave }) => {
     const [questionText, setQuestionText] = useState(question?.question || '');
     const [selectedTheme, setSelectedTheme] = useState(question?.theme || '');
     const [isSaving, setIsSaving] = useState(false);
+    const [error, setError] = useState(null);
 
     const bibleReference = useBibleReference({
         book: question?.book || '',
@@ -24,6 +26,11 @@ const EditQuestionModal = ({ isOpen, onClose, question, onSave }) => {
 
     const handleSave = async () => {
         if (!book || !chapter || !verseStart || !selectedTheme || !questionText) {
+            return;
+        }
+
+        if (hasProfanity(questionText)) {
+            setError('Possible profanity detected. Please revise.');
             return;
         }
 
@@ -114,10 +121,14 @@ const EditQuestionModal = ({ isOpen, onClose, question, onSave }) => {
                                                 id="edit-questionText"
                                                 label="Question"
                                                 value={questionText}
-                                                onChange={(e) => setQuestionText(e.target.value)}
+                                                onChange={(e) => {
+                                                    setQuestionText(e.target.value);
+                                                    if (error) setError(null);
+                                                }}
                                                 placeholder="Enter your question"
                                                 required
                                                 rows={4}
+                                                error={error}
                                             />
                                         </div>
                                     </section>

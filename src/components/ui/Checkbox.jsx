@@ -13,17 +13,13 @@ const Checkbox = ({
 }) => {
   return (
     <div className={clsx("flex flex-col gap-1", className)}>
-      <div
-        className="flex items-center gap-3 cursor-pointer group"
-        onClick={() => onChange(!checked)}
-      >
+      <div className="flex items-center gap-3 group">
         <div className="relative flex items-center justify-center">
           <input
             id={id}
             type="checkbox"
             checked={checked}
             onChange={(e) => onChange(e.target.checked)}
-            onClick={(e) => e.stopPropagation()}
             className={clsx(
               "peer h-5 w-5 cursor-pointer appearance-none rounded-md border-2 transition-all duration-200",
               "border-app-border bg-app-surface",
@@ -45,7 +41,6 @@ const Checkbox = ({
               "text-base font-bold select-none cursor-pointer transition-colors duration-200",
               "text-app-text group-hover:text-primary-600 dark:group-hover:text-primary-400"
             )}
-            onClick={(e) => e.stopPropagation()}
           >
             {label}
           </label>

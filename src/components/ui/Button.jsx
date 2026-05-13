@@ -26,7 +26,7 @@ const Button = React.forwardRef(({
     <button
       ref={ref}
       className={clsx(
-        'inline-flex items-center justify-center gap-2 rounded-lg font-semibold transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:cursor-not-allowed',
+        'inline-flex items-center justify-center gap-2 rounded-lg font-semibold transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:cursor-not-allowed',
         variants[variant],
         sizes[size],
         className

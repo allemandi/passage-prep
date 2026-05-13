@@ -1,14 +1,10 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { RotateCcw } from 'lucide-react';
 import clsx from 'clsx';
-import {
-    RegExpMatcher,
-    englishDataset,
-    englishRecommendedTransformers,
-} from 'obscenity';
 import { saveQuestion } from '../services/dataService';
 import { useToast } from './ToastMessage/Toast';
 import { sanitizeInput } from '../utils/sanitization';
+import { hasProfanity } from '../utils/validation';
 import useBibleReference from '../hooks/useBibleReference';
 
 import Button from './ui/Button';
@@ -18,11 +14,6 @@ import ThemeSelect from './ui/ThemeSelect';
 import Textarea from './ui/Textarea';
 import BibleReferenceSelector from './BibleReferenceSelector';
 import LoadingOverlay from './ui/LoadingOverlay';
-
-const matcher = new RegExpMatcher({
-    ...englishDataset.build(),
-    ...englishRecommendedTransformers,
-});
 
 const ContributeForm = () => {
     const showToast = useToast();
@@ -58,7 +49,7 @@ const ContributeForm = () => {
             newErrors.question = 'Question is required';
         } else if (questionText.length < 5) {
             newErrors.question = 'Question must be at least 5 characters';
-        } else if (matcher.hasMatch(questionText)) {
+        } else if (hasProfanity(questionText)) {
             newErrors.question = 'Possible profanity detected. Please revise.';
         }
 
