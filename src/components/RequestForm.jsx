@@ -23,22 +23,23 @@ import Checkbox from './ui/Checkbox';
 const ScriptureReferenceItem = ({ id, index, onRemove, referenceState, firstSelectRef }) => {
     return (
         <fieldset className="relative w-full flex flex-col gap-5 p-5 rounded-2xl bg-app-bg/50 border-2 border-app-border shadow-sm">
-            <legend className="contents">
-                <span className="sr-only">Reference {index + 1}</span>
+            <legend className="w-full mb-5">
+                <span className="flex justify-between items-center w-full">
+                    <span className="text-sm font-bold text-app-text-muted">
+                        Reference {index + 1}
+                    </span>
+                    {index > 0 && (
+                        <button
+                            type="button"
+                            aria-label={`Remove reference ${index + 1}`}
+                            onClick={() => onRemove(id)}
+                            className="p-1.5 rounded-xl bg-secondary-50 text-secondary-600 hover:bg-secondary-100 dark:bg-secondary-900/30 dark:text-secondary-400 dark:hover:bg-secondary-900/50 transition-all duration-200"
+                        >
+                            <X size={16} />
+                        </button>
+                    )}
+                </span>
             </legend>
-            <div className="text-sm font-bold text-app-text-muted mb-5 w-full flex justify-between items-center" aria-hidden="true">
-                Reference {index + 1}
-                {index > 0 && (
-                    <button
-                        type="button"
-                        aria-label={`Remove reference ${index + 1}`}
-                        onClick={() => onRemove(id)}
-                        className="p-1.5 rounded-xl bg-secondary-50 text-secondary-600 hover:bg-secondary-100 dark:bg-secondary-900/30 dark:text-secondary-400 dark:hover:bg-secondary-900/50 transition-all duration-200"
-                    >
-                        <X size={16} />
-                    </button>
-                )}
-            </div>
 
             <BibleReferenceSelector
                 bibleReference={referenceState}
