@@ -66,37 +66,42 @@ const ScriptureCombobox = React.forwardRef(({
                 isDisabled={finalIsDisabled}
                 isClearable
                 isSearchable
+                unstyled
+                classNames={{
+                    control: ({ isFocused }) =>
+                        clsx(
+                            "flex items-center min-h-[42px] px-3 rounded-lg border-2 transition-all duration-300 bg-app-surface",
+                            error
+                                ? "border-secondary-400"
+                                : isFocused
+                                    ? "border-primary-400 ring-4 ring-primary-400/20"
+                                    : "border-app-border hover:border-primary-300",
+                            finalIsDisabled && "opacity-50 cursor-not-allowed"
+                        ),
+                    valueContainer: () => "flex gap-1 py-1 overflow-hidden",
+                    input: () => "text-app-text !m-0 !p-0",
+                    singleValue: () => "text-app-text truncate",
+                    placeholder: () => "text-app-text-muted truncate",
+                    indicatorsContainer: () => "flex items-center gap-1",
+                    indicatorSeparator: () => "hidden",
+                    dropdownIndicator: ({ isFocused }) =>
+                        clsx("p-1 transition-colors duration-200", isFocused ? "text-app-text" : "text-app-text-muted"),
+                    clearIndicator: () => "p-1 text-app-text-muted hover:text-secondary-500 transition-colors duration-200",
+                    menu: () => "absolute z-50 w-full mt-2 bg-app-surface border-2 border-app-border shadow-2xl rounded-xl overflow-hidden animate-in fade-in zoom-in-95 duration-200",
+                    menuList: () => "max-h-72 overflow-y-auto py-1",
+                    option: ({ isFocused, isSelected }) =>
+                        clsx(
+                            "px-4 py-3 text-sm cursor-pointer select-none transition-colors duration-150",
+                            isSelected
+                                ? "bg-primary-500 text-white font-bold"
+                                : isFocused
+                                    ? "bg-primary-50 text-primary-600 dark:bg-primary-900/40 dark:text-primary-200"
+                                    : "text-app-text hover:bg-primary-50 dark:hover:bg-primary-900/20"
+                        ),
+                    noOptionsMessage: () => "px-4 py-8 text-sm text-app-text-muted text-center",
+                    loadingMessage: () => "px-4 py-8 text-sm text-app-text-muted text-center",
+                }}
                 styles={{
-                    control: (base) => ({
-                        ...base,
-                        backgroundColor: 'var(--bg-surface)',
-                        borderColor: error ? 'var(--color-secondary-400)' : 'var(--border-app)',
-                        borderWidth: '2px',
-                        '&:hover': {
-                            borderColor: error ? 'var(--color-secondary-500)' : 'var(--color-primary-300)',
-                        }
-                    }),
-                    menu: (base) => ({
-                        ...base,
-                        backgroundColor: 'var(--bg-surface)',
-                    }),
-                    option: (base, state) => ({
-                        ...base,
-                        backgroundColor: state.isSelected
-                            ? 'var(--color-primary-500)'
-                            : state.isFocused
-                                ? 'var(--color-primary-400-alpha-15, rgba(56, 189, 248, 0.15))'
-                                : 'transparent',
-                        color: state.isSelected
-                            ? 'white'
-                            : 'var(--text-app)',
-                        ':active': {
-                            backgroundColor: 'var(--color-primary-500)',
-                        },
-                    }),
-                    input: (base) => ({ ...base, color: 'var(--select-text-color)' }),
-                    singleValue: (base) => ({ ...base, color: 'var(--select-text-color)' }),
-                    placeholder: (base) => ({ ...base, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }),
                     menuPortal: (base) => ({ ...base, zIndex: 9999 }),
                 }}
                 menuPortalTarget={document.body}
@@ -110,12 +115,12 @@ const ScriptureCombobox = React.forwardRef(({
                 )}
             />
             {error && (
-                <p id={`${id}-error`} className="mt-1 text-xs text-secondary-600 font-medium">
+                <p id={`${id}-error`} className="mt-1 text-xs text-secondary-600 font-medium" role="alert">
                     {error}
                 </p>
             )}
-            {helperText && !error && (
-                <p id={`${id}-helper`} className="mt-1 text-xs text-app-text-muted">
+            {helperText && (
+                <p id={`${id}-helper`} className={clsx("mt-1 text-xs text-app-text-muted", error && "sr-only")}>
                     {helperText}
                 </p>
             )}
