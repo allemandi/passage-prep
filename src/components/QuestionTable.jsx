@@ -82,7 +82,7 @@ const QuestionTable = ({
                 {selectedIds.length > 0 && (
                     <button
                         onClick={() => onSelectionChange(sortedQuestions.map(q => q._id), false)}
-                        className="text-xs font-bold text-secondary-600 hover:text-secondary-700 dark:text-secondary-400 dark:hover:text-secondary-300 transition-colors flex items-center gap-1 group"
+                        className="text-xs font-bold text-secondary-600 hover:text-secondary-700 dark:text-secondary-400 dark:hover:text-secondary-300 transition-colors flex items-center gap-1 group focus:outline-none focus-visible:ring-2 focus-visible:ring-secondary-500 focus-visible:ring-offset-2 rounded px-1"
                     >
                         <RotateCcw size={12} className="group-hover:-rotate-45 transition-transform" />
                         Clear Selection
@@ -141,8 +141,13 @@ const QuestionTable = ({
                             return (
                                 <tr
                                     key={question._id}
+                                    onClick={(e) => {
+                                        // Don't toggle if clicking on a button or checkbox
+                                        if (e.target.closest('button') || e.target.closest('input[type="checkbox"]')) return;
+                                        onSelectionChange([question._id], !isSelected);
+                                    }}
                                     className={clsx(
-                                        "transition-colors duration-150",
+                                        "transition-colors duration-150 cursor-pointer select-none",
                                         isSelected
                                             ? "bg-primary-50/50 dark:bg-primary-900/20"
                                             : "hover:bg-primary-50/30 dark:hover:bg-primary-900/10"

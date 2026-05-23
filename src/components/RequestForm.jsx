@@ -278,7 +278,7 @@ const RequestForm = ({ onStudyGenerated, isLoading, setTabValue }) => {
                             </div>
 
                             <div className="flex flex-col sm:flex-row justify-between items-center gap-4 pt-6 border-t border-app-border/50">
-                                <div className="flex gap-2 w-full sm:w-auto order-2 sm:order-1">
+                                <div className="flex gap-2 w-full sm:w-auto">
                                     <Button
                                         type="button"
                                         variant="ghost"
@@ -291,7 +291,7 @@ const RequestForm = ({ onStudyGenerated, isLoading, setTabValue }) => {
                                     </Button>
                                 </div>
 
-                                <div className="flex gap-3 w-full sm:w-auto order-1 sm:order-2">
+                                <div className="flex gap-3 w-full sm:w-auto">
                                     <Button
                                         ref={searchButtonRef}
                                         type="submit"
