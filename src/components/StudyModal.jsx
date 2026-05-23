@@ -207,6 +207,7 @@ const StudyModal = ({ show, onHide, data }) => {
                                                 <Button
                                                     variant="outline"
                                                     className="px-3 h-full"
+                                                    aria-label="More copy options"
                                                 >
                                                     <EllipsisVertical size={20} />
                                                 </Button>

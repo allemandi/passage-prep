@@ -165,12 +165,12 @@ const ContributeForm = () => {
                                         helperText="Explain the context or specific thought behind your question."
                                     />
                                     <div className="flex justify-between items-center px-1">
-                                        <p className="text-[10px] text-app-text-muted italic">
+                                        <p className="text-xs text-app-text-muted italic">
                                             Minimum 5 characters required
                                         </p>
                                         <span className={clsx(
                                             "text-xs font-bold transition-colors duration-300",
-                                            questionText.length >= 5 ? "text-primary-500" : "text-secondary-500"
+                                            questionText.length >= 5 ? "text-primary-600 dark:text-primary-400" : "text-secondary-600 dark:text-secondary-400"
                                         )}>
                                             {questionText.length} characters
                                         </span>
@@ -186,7 +186,7 @@ const ContributeForm = () => {
                             type="button"
                             variant="ghost"
                             onClick={handleReset}
-                            className="w-full sm:w-auto text-app-text-muted hover:text-secondary-600 order-2 sm:order-1"
+                            className="w-full sm:w-auto text-app-text-muted hover:text-secondary-600"
                         >
                             <RotateCcw size={18} />
                             Reset Form
@@ -195,7 +195,7 @@ const ContributeForm = () => {
                             type="submit"
                             isLoading={isSubmitting}
                             size="lg"
-                            className="w-full sm:w-auto min-w-[280px] shadow-lg shadow-primary-500/10 order-1 sm:order-2"
+                            className="w-full sm:w-auto min-w-[280px] shadow-lg shadow-primary-500/10"
                         >
                             Submit Question
                         </Button>
