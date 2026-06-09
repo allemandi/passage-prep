@@ -1,110 +1,120 @@
 # 📖 Passage Prep
 
-Build reusable Bible studies in seconds. Format, organize, and export Bible study questions with ease.
+**Build reusable Bible studies in seconds.**
+Format, organize, and export Bible study questions with ease.
 
-🚀 **[Live Demo on Netlify](https://passage-prep.netlify.app/)**
+🚀 **[Live Demo](https://passage-prep.netlify.app/)**
 
 ---
 
-## ✨ Key Features
+## ✨ Features
 
-- **Question Memory Bank** — Save and retrieve your best study questions.
-- **Smart Formatting** — Export studies in Rich Text or Markdown formats.
-- **Book Context** — Automatic authorship and theme notes for each passage.
-- **Admin Dashboard** — Approve, edit, and bulk-manage your data.
+- **Question Bank:** Centralized storage for your best study questions.
+- **Smart Formatting:** Copy and paste outlines in Rich Text or Markdown.
+- **Automatic Context:** Instant authorship and theme notes for each passage.
+- **Admin Tools:** Dashboard for approving, editing, and bulk-uploading data.
 
 ## 🚀 Getting Started
 
-### 🛠️ Prerequisites
+### 📋 Prerequisites
 
 - **Node.js:** 18.0.0 or higher
 - **Yarn:** 1.22+
-- **MongoDB:** A local instance or a [MongoDB Atlas](https://www.mongodb.com/cloud/atlas) cluster.
+- **MongoDB:** A local instance or an Atlas cluster.
 
-### ⚡ Setup & Installation
+### 🛠️ Local Installation
 
-1. **Clone the repository:**
+1. **Clone the repository**
    ```bash
    git clone <repository-url>
    cd passage-prep
    ```
 
-2. **Install dependencies:**
+2. **Install dependencies**
    ```bash
    yarn install
    ```
 
-3. **Configure Environment:**
-   Create a `.env` file in the root directory:
+3. **Environment Setup**
+   Copy the example environment file:
    ```bash
    cp .env.example .env
    ```
-   Update the `MONGODB_URI` in your `.env` file. If you are using MongoDB Atlas, make sure to include the database name `bible_study_app` in your connection string.
+   Open `.env` and set your `MONGODB_URI`.
+   *Note: Ensure your URI includes the database name (e.g., `/bible_study_app`).*
 
-4. **Initialize the Database:**
+4. **Initialize Database**
    ```bash
-   # Preload sample questions
+   # Seed with sample questions
    yarn import-data
 
-   # Set up admin credentials
+   # Create admin user
    yarn setup-admin
    ```
 
-5. **Run Locally:**
+5. **Start Development**
    ```bash
    yarn dev
    ```
-   Access the app at `http://localhost:8888`.
+   The app will be available at `http://localhost:8888`.
 
 ---
 
-## ⚙️ Configuration
+## 🌐 Deployment
 
-### Environment Variables
+### Netlify Setup
 
-When deploying to **Netlify**, add these variables in **Site settings > Environment variables**:
+1. **Connect Repository:** Link your Git repo to a new Netlify site.
+2. **Environment Variables:** Navigate to **Site settings > Environment variables** and add:
 
-| Variable | Description | Example |
+| Key | Description | Example |
 | :--- | :--- | :--- |
-| `MONGODB_URI` | MongoDB Connection String | `mongodb+srv://user:pass@cluster.mongodb.net/bible_study_app` |
-| `ADMINUSER` | Admin dashboard username | `admin` |
-| `ADMINPASSWORD` | Admin dashboard password | `your-secure-password` |
-| `VITE_APP_TITLE` | Application Title | `PassagePrep` |
+| `MONGODB_URI` | MongoDB Atlas Connection String | `mongodb+srv://...` |
+| `ADMINUSER` | Admin username for dashboard | `admin` |
+| `ADMINPASSWORD` | Admin password for dashboard | `password` |
+| `VITE_APP_TITLE` | Custom app title (Optional) | `PassagePrep` |
+
+3. **Build Settings:** Netlify will automatically detect:
+   - **Build Command:** `yarn build`
+   - **Publish Directory:** `build`
+   - **Functions Directory:** `netlify/functions`
 
 ---
 
-## 💻 Development Scripts
+## 💻 Scripts
 
-- `yarn dev` — Start the local development environment (Vite + Netlify Functions).
-- `yarn build` — Build production-ready frontend assets.
+- `yarn dev` — Run the local dev environment (Vite + Netlify Functions).
+- `yarn build` — Compile frontend for production.
 - `yarn test` — Run the test suite with Vitest.
-- `yarn lint` — Check for code quality and style issues.
+- `yarn lint` — Check code for quality and style issues.
 - `yarn import-data` — Load sample data into MongoDB.
-- `yarn setup-admin` — Create or update admin user credentials.
+- `yarn setup-admin` — Provision admin credentials in the database.
 
-## 🛠️ Built With
+## 🛠️ Stack
 
 - **Frontend:** React 19, Vite 8, Tailwind CSS 4
-- **Backend:** Netlify Functions, Node.js
+- **Backend:** Netlify Functions (Node.js)
 - **Database:** MongoDB, Mongoose
+
+---
 
 ## 🔗 Related Projects
 
-- **[Drag And Preach](https://github.com/allemandi/drag-and-preach)** — A modern drag-and-drop sermon planner.
+- **[Drag And Preach](https://github.com/allemandi/drag-and-preach)** — Modern drag-and-drop sermon planner.
 - **[Vector Knowledge Base](https://github.com/allemandi/vector-knowledge-base)** — Minimalist knowledge system with semantic memory.
 
 ## 🤝 Contributing
 
-Contributions are welcome! Please fork the repo and submit a pull request for any improvements or features.
+Contributions are welcome! Please fork the repository and submit a pull request for any features or bug fixes.
 
 ## ☕ Support
 
-If this project has helped you, consider **[buying me a coffee](https://www.buymeacoffee.com/allemandi)** to help fuel more improvements!
+If this project helps you, consider **[buying me a coffee](https://www.buymeacoffee.com/allemandi)**!
 
 ## 💡 Acknowledgments
 
-Powered by AI-assisted tools like GitHub Copilot and Cursor for enhanced coding efficiency.
+Built with the assistance of AI tools like GitHub Copilot and Cursor for rapid development.
 
 ## 📄 License
 
-This project is licensed under the MIT License.
+[MIT License](LICENSE)
