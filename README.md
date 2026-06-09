@@ -30,7 +30,7 @@
 2. **Configure MongoDB:**
    - Create `.env` in the root:
      ```
-     MONGODB_URI=<your_mongodb_connection_string>
+     MONGODB_URI=mongodb+srv://YOUR_USERNAME:YOUR_PASSWORD@YOUR_CLUSTER.mongodb.net/?retryWrites=true&w=majority
      ```
 3. **Import Data:**
    - Preload sample questions:
