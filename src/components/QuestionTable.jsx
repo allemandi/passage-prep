@@ -153,7 +153,7 @@ const QuestionTable = ({
                         </tr>
                     </thead>
                     <tbody className="divide-y divide-app-border bg-app-surface/40">
-                        {sortedQuestions.map((question) => {
+                        {sortedQuestions.map((question, idx) => {
                             const isSelected = selectedIds.includes(question._id);
                             const reference = formatReference(
                                 question.book,
@@ -172,10 +172,14 @@ const QuestionTable = ({
                                     }}
                                     className={clsx(
                                         "transition-colors duration-150 cursor-pointer select-none",
+                                        "animate-slide-up opacity-0",
                                         isSelected
                                             ? "bg-primary-50/50 dark:bg-primary-900/20"
                                             : "hover:bg-primary-50/30 dark:hover:bg-primary-900/10"
                                     )}
+                                    style={{
+                                        animationDelay: `${Math.min(idx * 50, 500)}ms`
+                                    }}
                                 >
                                     {showActions && (
                                         <td className="p-4">
