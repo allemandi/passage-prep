@@ -1,9 +1,10 @@
 import React, { useState, useMemo } from 'react';
-import { Search, MessageSquarePlus, CheckCircle2, Pen, RotateCcw } from 'lucide-react';
+import { Search, MessageSquarePlus, CheckCircle2, Pen, RotateCcw, CheckSquare, Square } from 'lucide-react';
 import clsx from 'clsx';
 import { getSortedQuestions, formatReference } from '../utils/bibleData';
 import EditQuestionModal from './EditQuestionModal';
 import Button from './ui/Button';
+import Checkbox from './ui/Checkbox';
 
 const EmptyState = ({ setTabValue, isReviewMode }) => (
     <div className="flex flex-col items-center justify-center py-16 px-6 text-center border-dashed border-4 border-app-border bg-app-bg/30 rounded-3xl">
@@ -70,21 +71,45 @@ const QuestionTable = ({
 
     return (
         <>
-            <div className="flex flex-col sm:flex-row justify-between items-end gap-4 mb-2 px-1">
-                <div className="text-sm font-medium text-app-text-muted" aria-live="polite">
-                    {sortedQuestions.length} {sortedQuestions.length === 1 ? 'question' : 'questions'} found.
-                    {selectedIds.length > 0 && (
-                        <span className="ml-2 px-2 py-0.5 bg-primary-100 dark:bg-primary-900/40 text-primary-700 dark:text-primary-300 rounded-full text-xs font-bold">
-                            {selectedIds.length} selected
-                        </span>
+            <div className="flex flex-col sm:flex-row justify-between items-center gap-4 mb-4 px-1">
+                <div className="flex flex-col sm:flex-row items-center gap-4 w-full sm:w-auto">
+                    <div className="text-sm font-medium text-app-text-muted whitespace-nowrap" aria-live="polite">
+                        <span className="font-bold text-app-text">{sortedQuestions.length}</span> {sortedQuestions.length === 1 ? 'question' : 'questions'} found.
+                        {selectedIds.length > 0 && (
+                            <span className="ml-2 px-2.5 py-1 bg-primary-100 dark:bg-primary-900/40 text-primary-700 dark:text-primary-300 rounded-lg text-xs font-bold border border-primary-200 dark:border-primary-800/50">
+                                {selectedIds.length} selected
+                            </span>
+                        )}
+                    </div>
+
+                    {showActions && sortedQuestions.length > 0 && (
+                        <div className="flex items-center gap-2">
+                            <button
+                                onClick={() => onSelectionChange(sortedQuestions.map(q => q._id), true)}
+                                className="flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-bold rounded-lg bg-primary-50 text-primary-600 hover:bg-primary-100 dark:bg-primary-900/20 dark:text-primary-400 transition-all focus:outline-none focus:ring-2 focus:ring-primary-500/20"
+                                title="Select all questions"
+                            >
+                                <CheckSquare size={14} />
+                                Select All
+                            </button>
+                            <button
+                                onClick={() => onSelectionChange(sortedQuestions.map(q => q._id), false)}
+                                className="flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-bold rounded-lg bg-secondary-50 text-secondary-600 hover:bg-secondary-100 dark:bg-secondary-900/20 dark:text-secondary-400 transition-all focus:outline-none focus:ring-2 focus:ring-secondary-500/20"
+                                title="Deselect all questions"
+                            >
+                                <Square size={14} />
+                                Deselect All
+                            </button>
+                        </div>
                     )}
                 </div>
+
                 {selectedIds.length > 0 && (
                     <button
                         onClick={() => onSelectionChange(sortedQuestions.map(q => q._id), false)}
-                        className="text-xs font-bold text-secondary-600 hover:text-secondary-700 dark:text-secondary-400 dark:hover:text-secondary-300 transition-colors flex items-center gap-1 group focus:outline-none focus-visible:ring-2 focus-visible:ring-secondary-500 focus-visible:ring-offset-2 rounded px-1"
+                        className="text-xs font-bold text-secondary-600 hover:text-white dark:text-secondary-400 hover:bg-secondary-500 dark:hover:bg-secondary-600 px-3 py-1.5 rounded-lg border border-secondary-200 dark:border-secondary-800 transition-all flex items-center gap-2 group focus:outline-none focus:ring-2 focus:ring-secondary-500/20"
                     >
-                        <RotateCcw size={12} className="group-hover:-rotate-45 transition-transform" />
+                        <RotateCcw size={14} className="group-hover:-rotate-45 transition-transform" />
                         Clear Selection
                     </button>
                 )}
@@ -96,18 +121,17 @@ const QuestionTable = ({
                     <thead className="sticky top-0 bg-app-surface border-b-2 border-app-border z-10">
                         <tr>
                             {showActions && (
-                                <th scope="col" className="p-4 border-b border-app-border text-left">
-                                    <input
-                                        type="checkbox"
+                                <th scope="col" className="p-4 border-b border-app-border text-left w-10">
+                                    <Checkbox
+                                        id="select-all-checkbox"
                                         aria-label="Select all questions"
-                                        className="cursor-pointer accent-primary-500 w-4 h-4 rounded focus:ring-primary-500 focus:ring-offset-2"
                                         checked={allSelected}
                                         ref={(input) => {
                                             if (input) input.indeterminate = someSelected;
                                         }}
-                                        onChange={(e) => {
+                                        onChange={(checked) => {
                                             const ids = sortedQuestions.map(q => q._id);
-                                            onSelectionChange(ids, e.target.checked);
+                                            onSelectionChange(ids, checked);
                                         }}
                                     />
                                 </th>
@@ -129,7 +153,7 @@ const QuestionTable = ({
                         </tr>
                     </thead>
                     <tbody className="divide-y divide-app-border bg-app-surface/40">
-                        {sortedQuestions.map((question) => {
+                        {sortedQuestions.map((question, idx) => {
                             const isSelected = selectedIds.includes(question._id);
                             const reference = formatReference(
                                 question.book,
@@ -148,19 +172,22 @@ const QuestionTable = ({
                                     }}
                                     className={clsx(
                                         "transition-colors duration-150 cursor-pointer select-none",
+                                        "animate-slide-up",
                                         isSelected
                                             ? "bg-primary-50/50 dark:bg-primary-900/20"
                                             : "hover:bg-primary-50/30 dark:hover:bg-primary-900/10"
                                     )}
+                                    style={{
+                                        animationDelay: `${Math.min(idx * 50, 500)}ms`
+                                    }}
                                 >
                                     {showActions && (
                                         <td className="p-4">
-                                            <input
-                                                type="checkbox"
+                                            <Checkbox
+                                                id={`select-${question._id}`}
                                                 aria-label={`Select question for ${reference}: ${question.question}`}
-                                                className="cursor-pointer accent-primary-500 w-4 h-4 rounded focus:ring-primary-500 focus:ring-offset-2"
                                                 checked={isSelected}
-                                                onChange={(e) => onSelectionChange([question._id], e.target.checked)}
+                                                onChange={(checked) => onSelectionChange([question._id], checked)}
                                             />
                                         </td>
                                     )}

@@ -4,7 +4,6 @@ import {
     processForm,
     searchQuestions,
 } from '../services/dataService';
-import { getSortedQuestions } from '../utils/bibleData';
 import { sanitizeInput } from '../utils/sanitization';
 import { useToast } from './ToastMessage/Toast';
 import useBibleReference from '../hooks/useBibleReference';
@@ -223,13 +222,10 @@ const RequestForm = ({ onStudyGenerated, isLoading, setTabValue }) => {
             });
             const deduplicatedResults = Array.from(uniqueResultsMap.values());
 
-            // Sort results using Bible order
-            const sortedResults = getSortedQuestions(deduplicatedResults);
-
-            setSearchResults(sortedResults);
+            setSearchResults(deduplicatedResults);
             setShowSearchResults(true);
             resetSelection();
-            showToast(sortedResults.length ? 'Search completed successfully.' : 'No questions found.', sortedResults.length ? 'success' : 'info');
+            showToast(deduplicatedResults.length ? 'Search completed successfully.' : 'No questions found.', deduplicatedResults.length ? 'success' : 'info');
         } catch (err) {
             showToast(err?.message || 'Search failed.', 'error');
         } finally {
@@ -306,39 +302,6 @@ const RequestForm = ({ onStudyGenerated, isLoading, setTabValue }) => {
                         </div>
                     </section>
 
-                    <section aria-labelledby="study-generation-title" className="flex flex-col gap-6">
-                        <SectionHeader id="study-generation-title">Study Generation</SectionHeader>
-                        <div className="p-6 rounded-2xl bg-app-bg/50 border-2 border-app-border shadow-sm flex flex-col md:flex-row justify-between items-center gap-8">
-                            <Checkbox
-                                id="include-refs"
-                                label="Include References"
-                                checked={includeReferences}
-                                onChange={setIncludeReferences}
-                                helperText="Add Bible verse citations to each question in the study."
-                            />
-
-                            {isGenerateDisabled ? (
-                                <Tooltip content="Select at least one question from search results">
-                                    <Button type="button" aria-disabled="true" variant="outline" className="w-full md:w-auto min-w-[220px] opacity-50 cursor-not-allowed">
-                                        <BookOpen size={18} />
-                                        Generate Study
-                                    </Button>
-                                </Tooltip>
-                            ) : (
-                                <Button
-                                    type="button"
-                                    onClick={handleSubmit}
-                                    variant="outline"
-                                    isLoading={isLoading || isSubmitting}
-                                    className="w-full md:w-auto min-w-[220px] border-2 shadow-sm"
-                                >
-                                    <BookOpen size={18} />
-                                    Generate Study {selectedIds.length > 0 && `(${selectedIds.length})`}
-                                </Button>
-                            )}
-                        </div>
-                    </section>
-
                     {showSearchResults && (
                         <section
                             ref={resultsRef}
@@ -377,6 +340,39 @@ const RequestForm = ({ onStudyGenerated, isLoading, setTabValue }) => {
                                     setTabValue={setTabValue}
                                 />
                             </LoadingOverlay>
+
+                            <div className="mt-12 flex flex-col gap-6">
+                                <SectionHeader id="study-generation-title">Study Generation</SectionHeader>
+                                <div className="p-6 rounded-2xl bg-app-bg/50 border-2 border-app-border shadow-sm flex flex-col md:flex-row justify-between items-center gap-8">
+                                    <Checkbox
+                                        id="include-refs"
+                                        label="Include References"
+                                        checked={includeReferences}
+                                        onChange={setIncludeReferences}
+                                        helperText="Add Bible verse citations to each question in the study."
+                                    />
+
+                                    {isGenerateDisabled ? (
+                                        <Tooltip content="Select at least one question from search results">
+                                            <Button type="button" aria-disabled="true" variant="outline" className="w-full md:w-auto min-w-[220px] opacity-50 cursor-not-allowed">
+                                                <BookOpen size={18} />
+                                                Generate Study
+                                            </Button>
+                                        </Tooltip>
+                                    ) : (
+                                        <Button
+                                            type="button"
+                                            onClick={handleSubmit}
+                                            variant="outline"
+                                            isLoading={isLoading || isSubmitting}
+                                            className="w-full md:w-auto min-w-[220px] border-2 shadow-sm"
+                                        >
+                                            <BookOpen size={18} />
+                                            Generate Study {selectedIds.length > 0 && `(${selectedIds.length})`}
+                                        </Button>
+                                    )}
+                                </div>
+                            </div>
                         </section>
                     )}
                 </Card>

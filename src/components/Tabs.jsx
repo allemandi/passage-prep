@@ -23,10 +23,11 @@ export default function Tabs() {
             clsx(
               'flex-grow min-w-[120px] md:min-w-0 px-4 sm:px-6 py-3',
               'text-xs sm:text-sm md:text-base font-bold tracking-tight rounded-xl',
-              'text-center whitespace-nowrap transition-all duration-300',
+              'text-center whitespace-nowrap transition-all duration-500',
               'focus:outline-none focus-visible:ring-4 focus-visible:ring-primary-400/20',
+              'active:scale-95',
               selected
-                ? 'bg-primary-500 text-white shadow-md shadow-primary-500/20 dark:bg-primary-600'
+                ? 'bg-primary-500 text-white shadow-lg shadow-primary-500/30 dark:bg-primary-600 scale-105 z-10'
                 : 'bg-transparent text-app-text hover:bg-primary-100/50 hover:text-primary-700 dark:text-app-text-muted dark:hover:bg-primary-900/40 dark:hover:text-primary-300'
             )
           }
