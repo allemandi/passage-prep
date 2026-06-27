@@ -172,7 +172,7 @@ const QuestionTable = ({
                                     }}
                                     className={clsx(
                                         "transition-colors duration-150 cursor-pointer select-none",
-                                        "animate-slide-up opacity-0",
+                                        "animate-slide-up",
                                         isSelected
                                             ? "bg-primary-50/50 dark:bg-primary-900/20"
                                             : "hover:bg-primary-50/30 dark:hover:bg-primary-900/10"
