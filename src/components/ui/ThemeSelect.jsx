@@ -48,7 +48,7 @@ const ThemeSelect = ({
         {({ open }) => (
           <>
             <Label className="block mb-1.5 text-sm font-medium text-app-text">
-              {label} {required && <span className="text-secondary-600 font-bold">*</span>}
+              {label} {required && <span className="text-secondary-600 font-bold" aria-hidden="true">*</span>}
             </Label>
             <div className="relative">
               <ListboxButton
@@ -56,9 +56,9 @@ const ThemeSelect = ({
                   "flex justify-between items-center w-full rounded-lg px-3 py-2.5 text-sm",
                   "border-2 transition-all duration-200",
                   "bg-app-surface text-app-text shadow-sm",
-                  "focus:outline-none focus:ring-4 overflow-hidden text-left",
+                  "focus:outline-none focus-visible:ring-4 overflow-hidden text-left",
                   error
-                    ? "border-secondary-400 focus:ring-secondary-400/20"
+                    ? "border-secondary-400 focus-visible:ring-secondary-400/20"
                     : open
                     ? "border-primary-400 ring-4 ring-primary-400/20"
                     : "border-app-border hover:border-primary-300"
