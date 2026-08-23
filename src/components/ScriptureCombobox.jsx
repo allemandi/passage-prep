@@ -53,7 +53,7 @@ const ScriptureCombobox = React.forwardRef(({
                 htmlFor={id}
                 className="block mb-1.5 text-sm font-medium text-app-text"
             >
-                {label} {required && <span className="text-secondary-600 font-bold">*</span>}
+                {label} {required && <span className="text-secondary-600 font-bold" aria-hidden="true">*</span>}
             </label>
             <Select
                 ref={ref}

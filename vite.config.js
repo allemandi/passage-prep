@@ -4,24 +4,28 @@ import tailwindcss from '@tailwindcss/vite';
 import path from 'path';
 
 export default defineConfig(({ mode }) => {
-    const env = loadEnv(mode, process.cwd(), 'VITE_APP_');
+    const fallbacks = {
+        VITE_APP_TITLE: 'PassagePrep',
+        VITE_APP_TAGLINE: 'Build reusable Bible studies in seconds',
+        VITE_APP_DESCRIPTION: 'Format, organize, and export Bible study questions with ease.',
+        VITE_APP_URL: 'https://passage-prep.netlify.app'
+    };
+
+    for (const [key, val] of Object.entries(fallbacks)) {
+        if (!process.env[key]) {
+            process.env[key] = val;
+        }
+    }
+
+    const env = { ...fallbacks, ...loadEnv(mode, process.cwd(), '') };
 
     const htmlPlugin = () => {
         return {
             name: 'html-transform',
+            enforce: 'pre',
             transformIndexHtml(html) {
                 return html.replace(/%(VITE_APP_[A-Z_]+)%/g, (match, key) => {
-                    const value = env[key];
-                    if (value !== undefined) return value;
-
-                    // Fallbacks matching src/utils/seoConfig.js
-                    const fallbacks = {
-                        VITE_APP_TITLE: 'PassagePrep',
-                        VITE_APP_TAGLINE: 'Build reusable Bible studies in seconds',
-                        VITE_APP_DESCRIPTION: 'Format, organize, and export Bible study questions with ease.',
-                        VITE_APP_URL: 'https://passage-prep.netlify.app'
-                    };
-                    return fallbacks[key] || match;
+                    return env[key] || match;
                 });
             },
         };
@@ -33,6 +37,7 @@ export default defineConfig(({ mode }) => {
             tailwindcss(),
             htmlPlugin()
         ],
+        envPrefix: ['VITE_', 'VITE_APP_'],
         root: path.resolve(__dirname),
         resolve: {
             alias: {

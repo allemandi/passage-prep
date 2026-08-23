@@ -42,6 +42,7 @@ export default function Header({ mode, setMode, tabValue, setTabValue }) {
     <div className="flex items-center gap-2">
     <button
       aria-label={isAdminActive ? 'Exit admin mode' : 'Enter admin mode'}
+      aria-pressed={isAdminActive}
       title={isAdminActive ? 'Exit admin mode' : 'Enter admin mode'}
       onClick={toggleAdmin}
       type="button"
