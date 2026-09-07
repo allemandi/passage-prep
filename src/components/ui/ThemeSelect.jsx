@@ -47,21 +47,21 @@ const ThemeSelect = ({
       <Listbox value={value} onChange={handleSelectionChange} multiple={isMulti}>
         {({ open }) => (
           <>
-            <Label className="block mb-1.5 text-sm font-medium text-app-text">
+            <Label className="block mb-2 text-base font-bold text-app-text">
               {label} {required && <span className="text-secondary-600 font-bold" aria-hidden="true">*</span>}
             </Label>
             <div className="relative">
               <ListboxButton
                 className={clsx(
-                  "flex justify-between items-center w-full rounded-lg px-3 py-2.5 text-sm",
+                  "flex justify-between items-center w-full rounded-xl px-4 py-3 text-base min-h-[48px]",
                   "border-2 transition-all duration-200",
                   "bg-app-surface text-app-text shadow-sm",
-                  "focus:outline-none focus-visible:ring-4 overflow-hidden text-left",
+                  "focus:outline-none focus-visible:ring-4 overflow-hidden text-left font-medium",
                   error
-                    ? "border-secondary-400 focus-visible:ring-secondary-400/20"
+                    ? "border-secondary-500 focus-visible:ring-secondary-500/30"
                     : open
-                    ? "border-primary-400 ring-4 ring-primary-400/20"
-                    : "border-app-border hover:border-primary-300"
+                    ? "border-primary-500 ring-4 ring-primary-500/20"
+                    : "border-app-border hover:border-primary-400"
                 )}
               >
                 <span className={clsx("truncate flex-grow", isMulti ? isNoneSelected && "text-app-text-muted" : !value && "text-app-text-muted")}>
@@ -69,14 +69,14 @@ const ThemeSelect = ({
                 </span>
                 <ChevronDown
                   className={clsx(
-                    "w-4 h-4 flex-shrink-0 transition-transform duration-300 ml-2",
-                    open ? "rotate-180 text-primary-500" : "text-app-text-muted"
+                    "w-5 h-5 flex-shrink-0 transition-transform duration-200 ml-2",
+                    open ? "rotate-180 text-primary-600 dark:text-primary-400" : "text-app-text-muted"
                   )}
                 />
               </ListboxButton>
 
               {error && (
-                <p className="mt-1 text-xs text-secondary-600 font-medium">
+                <p className="mt-1.5 text-sm text-secondary-600 font-bold">
                   {error}
                 </p>
               )}
@@ -89,26 +89,26 @@ const ThemeSelect = ({
               >
                 <ListboxOptions
                   className={clsx(
-                    "absolute z-50 mt-2 w-full max-h-72 overflow-y-auto rounded-xl border-2 border-app-border",
-                    "bg-app-surface shadow-2xl py-1 focus:outline-none"
+                    "absolute z-50 mt-2 w-full max-h-80 overflow-y-auto rounded-xl border-2 border-app-border",
+                    "bg-app-surface shadow-2xl py-1.5 focus:outline-none"
                   )}
                 >
                   {isMulti && (
-                    <div className="sticky top-0 z-10 bg-app-surface border-b border-app-border px-2 py-2 flex gap-2">
+                    <div className="sticky top-0 z-10 bg-app-surface border-b-2 border-app-border p-2 flex gap-2">
                         <button
                             type="button"
                             onClick={selectAll}
-                            className="flex-1 flex items-center justify-center gap-1.5 py-1.5 text-xs font-bold rounded-lg bg-primary-50 text-primary-600 hover:bg-primary-100 dark:bg-primary-900/20 dark:text-primary-400 transition-colors"
+                            className="flex-1 flex items-center justify-center gap-2 py-2 text-sm font-bold rounded-lg bg-primary-100 text-primary-800 hover:bg-primary-200 dark:bg-primary-900/40 dark:text-primary-200 dark:hover:bg-primary-900/60 transition-colors min-h-[40px]"
                         >
-                            <CheckSquare size={14} />
+                            <CheckSquare size={16} />
                             Select All
                         </button>
                         <button
                             type="button"
                             onClick={clearAll}
-                            className="flex-1 flex items-center justify-center gap-1.5 py-1.5 text-xs font-bold rounded-lg bg-secondary-50 text-secondary-600 hover:bg-secondary-100 dark:bg-secondary-900/20 dark:text-secondary-400 transition-colors"
+                            className="flex-1 flex items-center justify-center gap-2 py-2 text-sm font-bold rounded-lg bg-secondary-100 text-secondary-800 hover:bg-secondary-200 dark:bg-secondary-900/40 dark:text-secondary-200 dark:hover:bg-secondary-900/60 transition-colors min-h-[40px]"
                         >
-                            <X size={14} />
+                            <X size={16} />
                             Clear
                         </button>
                     </div>
@@ -119,11 +119,11 @@ const ThemeSelect = ({
                       value={theme}
                       className={({ focus, selected }) =>
                         clsx(
-                          "flex items-center justify-between px-4 py-3 text-sm cursor-pointer select-none transition-all duration-200",
+                          "flex items-center justify-between px-4 py-3.5 text-base cursor-pointer select-none transition-all duration-150 min-h-[48px]",
                           selected
-                            ? "bg-primary-500 text-white font-bold"
+                            ? "bg-primary-600 text-white font-bold dark:bg-primary-500"
                             : focus
-                            ? "bg-primary-50 text-primary-600 dark:bg-primary-900/30 dark:text-primary-200"
+                            ? "bg-primary-100 text-primary-900 dark:bg-primary-900/40 dark:text-primary-100 font-semibold"
                             : "text-app-text"
                         )
                       }
@@ -132,11 +132,11 @@ const ThemeSelect = ({
                         <>
                           <span className="truncate flex items-center gap-3">
                             {isMulti && (
-                                selected ? <CheckSquare size={16} /> : <Square size={16} className="text-app-text-muted opacity-50" />
+                                selected ? <CheckSquare size={18} /> : <Square size={18} className="text-app-text-muted opacity-60" />
                             )}
                             {theme}
                           </span>
-                          {selected && !isMulti && <Check className="w-4 h-4 ml-2 flex-shrink-0" />}
+                          {selected && !isMulti && <Check className="w-5 h-5 ml-2 flex-shrink-0 stroke-[3]" />}
                         </>
                       )}
                     </ListboxOption>

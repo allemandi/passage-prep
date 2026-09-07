@@ -15,7 +15,7 @@ import { BIBLE_BOOK_REGEX, formatReference } from '../utils/bibleData';
 
 const StudyModal = ({ show, onHide, data }) => {
     const showToast = useToast();
-    const noQuestionString = 'Notice: Questions were not selected. Use Search and tick checkboxes against table questions to fill this space, or use the Contribute section to submit your own questions.'
+    const noQuestionString = 'Notice: No questions were selected. Please search and select questions to build your study guide.'
 
     if (!data || !data.filteredQuestions) {
         return null;
@@ -74,7 +74,7 @@ const StudyModal = ({ show, onHide, data }) => {
                     leaveFrom="opacity-100"
                     leaveTo="opacity-0"
                 >
-                    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm" />
+                    <div className="fixed inset-0 bg-black/60 backdrop-blur-md" />
                 </TransitionChild>
 
                 <div className="fixed inset-0 overflow-y-auto">
@@ -88,81 +88,87 @@ const StudyModal = ({ show, onHide, data }) => {
                             leaveFrom="opacity-100 scale-100"
                             leaveTo="opacity-0 scale-95"
                         >
-                            <DialogPanel className="w-full max-w-5xl transform overflow-hidden rounded-2xl bg-app-surface p-0 text-left align-middle shadow-2xl border-2 border-app-border transition-all flex flex-col max-h-[90vh]">
+                            <DialogPanel className="w-full max-w-5xl transform overflow-hidden rounded-3xl bg-app-surface p-0 text-left align-middle shadow-2xl border-2 border-app-border transition-all flex flex-col max-h-[90vh]">
                                 {/* Modal Header */}
-                                <div className="bg-app-surface/80 border-b-2 border-app-border py-4 px-6 flex justify-between items-center select-none">
-                                    <DialogTitle as="h2" className="text-xl font-bold text-primary-600 dark:text-primary-400">
-                                        Bible Study Preparation
-                                    </DialogTitle>
+                                <div className="bg-app-surface border-b-2 border-app-border py-5 px-8 flex justify-between items-center select-none">
+                                    <div>
+                                        <DialogTitle as="h2" className="text-2xl font-bold text-app-text">
+                                            Your Bible Study Guide
+                                        </DialogTitle>
+                                        <p className="text-sm font-medium text-app-text-muted mt-0.5">
+                                            Ready to review, print, or copy for distribution.
+                                        </p>
+                                    </div>
                                     <button
-                                        aria-label="close"
+                                        type="button"
+                                        aria-label="Close modal"
                                         onClick={onHide}
-                                        className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 hover:bg-gray-200 dark:hover:bg-gray-700 p-1.5 rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-sky-500"
+                                        className="text-app-text-muted hover:text-app-text hover:bg-app-bg p-2.5 rounded-2xl transition-colors focus:outline-none focus:ring-4 focus:ring-primary-500/20 min-h-[48px] min-w-[48px] flex items-center justify-center"
                                     >
-                                        <X size={24} />
+                                        <X size={28} />
                                     </button>
                                 </div>
 
-                                <div className="overflow-y-auto p-6 sm:p-10 bg-app-surface/20 text-app-text flex flex-col gap-12" style={{ WebkitOverflowScrolling: 'touch' }}>
+                                <div className="overflow-y-auto p-6 sm:p-10 bg-app-bg/30 text-app-text flex flex-col gap-10" style={{ WebkitOverflowScrolling: 'touch' }}>
                                     <section>
-                                        <SectionHeader centered={false}>Bible References</SectionHeader>
+                                        <SectionHeader centered={false}>Selected Passages</SectionHeader>
                                         {data?.refArr && data.refArr.filter(Boolean).length > 0 ? (
                                             <ul className="grid grid-cols-1 sm:grid-cols-2 gap-3 list-none">
                                                 {data.refArr.filter(Boolean).map((reference, index) => (
-                                                    <li key={index} className="flex items-center gap-2 p-3 rounded-xl bg-primary-50 dark:bg-primary-900/20 text-primary-700 dark:text-primary-200 border-2 border-primary-100 dark:border-primary-800/50">
-                                                        <div className="w-1.5 h-1.5 rounded-full bg-primary-500" />
+                                                    <li key={index} className="flex items-center gap-3 p-4 rounded-xl bg-primary-100/80 dark:bg-primary-900/40 text-primary-900 dark:text-primary-100 border-2 border-primary-300 dark:border-primary-800 font-bold text-base">
+                                                        <div className="w-2.5 h-2.5 rounded-full bg-primary-600" />
                                                         {reference}
                                                     </li>
                                                 ))}
                                             </ul>
                                         ) : (
-                                            <p className="italic opacity-70">No Bible references specified.</p>
+                                            <p className="italic opacity-80 text-base">No Bible passages specified.</p>
                                         )}
                                     </section>
 
                                     <section>
-                                        <SectionHeader centered={false}>General Context</SectionHeader>
+                                        <SectionHeader centered={false}>Passage Context & Background</SectionHeader>
                                         {data?.contextArr && data.contextArr.length > 0 ? (
-                                            <ul className="space-y-3 list-none">
+                                            <ul className="space-y-4 list-none">
                                                 {data.contextArr.map((context, index) => (
-                                                    <li key={index} className="p-4 rounded-xl bg-app-bg dark:bg-app-bg/40 border-2 border-app-border text-app-text">
+                                                    <li key={index} className="p-5 rounded-2xl bg-app-surface border-2 border-app-border text-app-text text-base leading-relaxed font-medium shadow-sm">
                                                         {context}
                                                     </li>
                                                 ))}
                                             </ul>
                                         ) : (
-                                            <p className="italic opacity-70">No context information available.</p>
+                                            <p className="italic opacity-80 text-base">No background notes found for these passages.</p>
                                         )}
                                     </section>
 
                                     <section>
-                                        <SectionHeader centered={false}>Questions by Book and Theme</SectionHeader>
+                                        <SectionHeader centered={false}>Study Discussion Questions</SectionHeader>
                                         {Object.keys(groupedQuestions).length > 0 ? (
-                                            <div className="space-y-10">
+                                            <div className="space-y-8">
                                                 {orderedBooksList.map((book) => (
                                                     <div key={book} className="space-y-4">
-                                                        <h4 className="text-xl font-bold text-app-text flex items-center gap-2">
-                                                            <div className="w-2 h-6 bg-primary-500 rounded-full" />
+                                                        <h4 className="text-xl font-extrabold text-app-text flex items-center gap-3">
+                                                            <div className="w-2.5 h-7 bg-primary-600 rounded-full" />
                                                             {book}
                                                         </h4>
                                                         <div className="grid grid-cols-1 gap-6">
                                                             {Object.entries(groupedQuestions[book]).map(([theme, questions]) => (
-                                                                <div key={theme} className="ml-4 p-5 rounded-2xl border-2 border-app-border bg-app-surface/40">
-                                                                    <h5 className="text-lg font-bold mb-4 text-primary-600 dark:text-primary-400">
-                                                                        {theme}
+                                                                <div key={theme} className="ml-2 sm:ml-4 p-6 rounded-2xl border-2 border-app-border bg-app-surface shadow-sm">
+                                                                    <h5 className="text-lg font-bold mb-4 text-primary-700 dark:text-primary-300 border-b border-app-border pb-2">
+                                                                        Theme: {theme}
                                                                     </h5>
-                                                                    <ul className="space-y-3 list-disc pl-5">
+                                                                    <ol className="space-y-4 list-decimal pl-6">
                                                                         {questions.map((question, qIndex) => (
-                                                                            <li key={qIndex} className="text-app-text leading-relaxed">
+                                                                            <li key={qIndex} className="text-app-text text-base leading-relaxed font-medium pl-2">
                                                                                 {data.includeReferences && (
-                                                                                    <span className="font-bold text-app-text-muted mr-1">
-                                                                                        {formatReference(question.book, question.chapter, question.verseStart, question.verseEnd)}:
+                                                                                    <span className="font-bold text-primary-800 dark:text-primary-200 mr-2 bg-primary-100 dark:bg-primary-900/50 px-2 py-0.5 rounded border border-primary-300 dark:border-primary-700">
+                                                                                        {formatReference(question.book, question.chapter, question.verseStart, question.verseEnd)}
                                                                                     </span>
                                                                                 )}
                                                                                 {question.question}
                                                                             </li>
                                                                         ))}
-                                                                    </ul>
+                                                                    </ol>
                                                                 </div>
                                                             ))}
                                                         </div>
@@ -170,16 +176,16 @@ const StudyModal = ({ show, onHide, data }) => {
                                                 ))}
                                             </div>
                                         ) : (
-                                            <p className="italic opacity-70 text-center py-10 bg-gray-50 dark:bg-gray-800/30 rounded-xl border-2 border-dashed border-gray-200 dark:border-gray-700">
+                                            <p className="italic opacity-80 text-center py-10 bg-app-surface rounded-2xl border-2 border-dashed border-app-border text-base">
                                                 {noQuestionString}
                                             </p>
                                         )}
                                     </section>
                                 </div>
 
-                                <div className="p-6 bg-app-surface/80 border-t-2 border-app-border flex flex-col sm:flex-row justify-between items-center gap-4">
-                                    <Button variant="outline" onClick={onHide} className="w-full sm:w-auto">
-                                        Close
+                                <div className="p-6 bg-app-surface border-t-2 border-app-border flex flex-col sm:flex-row justify-between items-center gap-4">
+                                    <Button variant="outline" onClick={onHide} className="w-full sm:w-auto text-base font-bold py-3.5 px-6">
+                                        Close Window
                                     </Button>
                                     <div className="flex gap-3 w-full sm:w-auto relative">
                                         <Button
@@ -191,25 +197,25 @@ const StudyModal = ({ show, onHide, data }) => {
                                                         'text/plain': new Blob([plainTextContent], { type: 'text/plain' }),
                                                     });
                                                     await navigator.clipboard.write([clipboardItem]);
-                                                    showToast('Successfully copied to clipboard', 'success');
+                                                    showToast('Successfully copied study to clipboard!', 'success');
                                                 } catch (err) {
                                                     showToast(err.message, 'error');
                                                     navigator.clipboard.writeText(plainTextContent).then(() => showToast('Successfully copied plain text', 'success'));
                                                 }
                                             }}
-                                            className="flex-grow sm:flex-grow-0"
+                                            className="flex-grow sm:flex-grow-0 text-base font-bold py-3.5 px-8"
                                         >
-                                            <Copy size={18} /> Copy Study
+                                            <Copy size={20} /> Copy Study Guide
                                         </Button>
 
                                         <Menu as="div" className="relative inline-block text-left">
                                             <MenuButton as={Fragment}>
                                                 <Button
                                                     variant="outline"
-                                                    className="px-3 h-full"
-                                                    aria-label="More copy options"
+                                                    className="px-4 h-full min-h-[48px]"
+                                                    aria-label="More copy format options"
                                                 >
-                                                    <EllipsisVertical size={20} />
+                                                    <EllipsisVertical size={22} />
                                                 </Button>
                                             </MenuButton>
 
@@ -222,68 +228,69 @@ const StudyModal = ({ show, onHide, data }) => {
                                                 leaveFrom="transform opacity-100 scale-100"
                                                 leaveTo="transform opacity-0 scale-95"
                                             >
-                                                <MenuItems className="absolute right-0 bottom-full mb-3 w-64 origin-bottom-right bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl shadow-2xl overflow-hidden z-20 focus:outline-none">
-                                                    <div className="py-1">
-                                                        <MenuItem>
-                                                            {({ focus }) => (
-                                                                <button
-                                                                    onClick={async () => {
-                                                                        navigator.clipboard.writeText(plainTextContent).then(() => {
-                                                                            showToast('Successfully copied plain text', 'success');
-                                                                        });
-                                                                    }}
-                                                                    className={clsx(
-                                                                        focus ? 'bg-gray-100 dark:bg-gray-800' : '',
-                                                                        'w-full text-left px-4 py-3 text-gray-700 dark:text-gray-300 flex items-center gap-3 transition-colors'
-                                                                    )}
-                                                                >
-                                                                    <FileText size={18} className="text-gray-400" />
-                                                                    <span>Copy as Plain Text</span>
-                                                                </button>
-                                                            )}
-                                                        </MenuItem>
-                                                        <MenuItem>
-                                                            {({ focus }) => (
-                                                                <button
-                                                                    onClick={async () => {
-                                                                        navigator.clipboard.writeText(markdownContent).then(() => {
-                                                                            showToast('Successfully copied markdown', 'success');
-                                                                        });
-                                                                    }}
-                                                                    className={clsx(
-                                                                        focus ? 'bg-gray-100 dark:bg-gray-800' : '',
-                                                                        'w-full text-left px-4 py-3 text-gray-700 dark:text-gray-300 flex items-center gap-3 transition-colors border-t border-gray-100 dark:border-gray-800'
-                                                                    )}
-                                                                >
-                                                                    <FileCode size={18} className="text-gray-400" />
-                                                                    <span>Copy as Markdown</span>
-                                                                </button>
-                                                            )}
-                                                        </MenuItem>
-                                                        <MenuItem>
-                                                            {({ focus }) => (
-                                                                <button
-                                                                    onClick={async () => {
-                                                                        try {
-                                                                            const blob = new Blob([richTextContent], { type: 'text/html' });
-                                                                            const clipboardItem = new ClipboardItem({ 'text/html': blob });
-                                                                            await navigator.clipboard.write([clipboardItem]);
-                                                                            showToast('Successfully copied rich text', 'success');
-                                                                        } catch (err) {
-                                                                            showToast(err.message, 'error');
-                                                                        }
-                                                                    }}
-                                                                    className={clsx(
-                                                                        focus ? 'bg-gray-100 dark:bg-gray-800' : '',
-                                                                        'w-full text-left px-4 py-3 text-gray-700 dark:text-gray-300 flex items-center gap-3 transition-colors border-t border-gray-100 dark:border-gray-800'
-                                                                    )}
-                                                                >
-                                                                    <Copy size={18} className="text-gray-400" />
-                                                                    <span>Copy as Rich Text</span>
-                                                                </button>
-                                                            )}
-                                                        </MenuItem>
-                                                    </div>
+                                                <MenuItems className="absolute right-0 bottom-full mb-3 w-72 origin-bottom-right bg-app-surface border-2 border-app-border rounded-2xl shadow-2xl overflow-hidden z-20 focus:outline-none p-1.5">
+                                                    <MenuItem>
+                                                        {({ focus }) => (
+                                                            <button
+                                                                type="button"
+                                                                onClick={async () => {
+                                                                    navigator.clipboard.writeText(plainTextContent).then(() => {
+                                                                        showToast('Successfully copied plain text', 'success');
+                                                                    });
+                                                                }}
+                                                                className={clsx(
+                                                                    focus ? 'bg-primary-100 dark:bg-primary-900/40' : '',
+                                                                    'w-full text-left px-4 py-3.5 text-app-text font-bold text-base flex items-center gap-3 rounded-xl transition-colors min-h-[48px]'
+                                                                )}
+                                                            >
+                                                                <FileText size={20} className="text-app-text-muted" />
+                                                                <span>Copy as Plain Text</span>
+                                                            </button>
+                                                        )}
+                                                    </MenuItem>
+                                                    <MenuItem>
+                                                        {({ focus }) => (
+                                                            <button
+                                                                type="button"
+                                                                onClick={async () => {
+                                                                    navigator.clipboard.writeText(markdownContent).then(() => {
+                                                                        showToast('Successfully copied markdown', 'success');
+                                                                    });
+                                                                }}
+                                                                className={clsx(
+                                                                    focus ? 'bg-primary-100 dark:bg-primary-900/40' : '',
+                                                                    'w-full text-left px-4 py-3.5 text-app-text font-bold text-base flex items-center gap-3 rounded-xl transition-colors border-t border-app-border min-h-[48px]'
+                                                                )}
+                                                            >
+                                                                <FileCode size={20} className="text-app-text-muted" />
+                                                                <span>Copy as Markdown</span>
+                                                            </button>
+                                                        )}
+                                                    </MenuItem>
+                                                    <MenuItem>
+                                                        {({ focus }) => (
+                                                            <button
+                                                                type="button"
+                                                                onClick={async () => {
+                                                                    try {
+                                                                        const blob = new Blob([richTextContent], { type: 'text/html' });
+                                                                        const clipboardItem = new ClipboardItem({ 'text/html': blob });
+                                                                        await navigator.clipboard.write([clipboardItem]);
+                                                                        showToast('Successfully copied rich text', 'success');
+                                                                    } catch (err) {
+                                                                        showToast(err.message, 'error');
+                                                                    }
+                                                                }}
+                                                                className={clsx(
+                                                                    focus ? 'bg-primary-100 dark:bg-primary-900/40' : '',
+                                                                    'w-full text-left px-4 py-3.5 text-app-text font-bold text-base flex items-center gap-3 rounded-xl transition-colors border-t border-app-border min-h-[48px]'
+                                                                )}
+                                                            >
+                                                                <Copy size={20} className="text-app-text-muted" />
+                                                                <span>Copy as Rich Text</span>
+                                                            </button>
+                                                        )}
+                                                    </MenuItem>
                                                 </MenuItems>
                                             </Transition>
                                         </Menu>

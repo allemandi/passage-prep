@@ -1,30 +1,30 @@
 @import 'tailwindcss';
 
 @theme {
-  /* Brand Colors - Refined Pastel Palette */
-  /* Primary: Sky Blue */
-  --color-primary-50: #f0f9ff;
-  --color-primary-100: #e0f2fe;
-  --color-primary-200: #bae6fd;
-  --color-primary-300: #7dd3fc;
-  --color-primary-400: #38bdf8;
-  --color-primary-500: #0ea5e9;
-  --color-primary-600: #0369a1;
-  --color-primary-700: #075985;
-  --color-primary-800: #0c4a6e;
-  --color-primary-900: #0c4a6e;
+  /* Brand Colors - Warm Pastel Palette (Warm Amber & Soft Terracotta) */
+  /* Primary: Warm Honey Amber */
+  --color-primary-50: #fffbeb;
+  --color-primary-100: #fef3c7;
+  --color-primary-200: #fde68a;
+  --color-primary-300: #fcd34d;
+  --color-primary-400: #f59e0b;
+  --color-primary-500: #d97706;
+  --color-primary-600: #b45309;
+  --color-primary-700: #92400e;
+  --color-primary-800: #78350f;
+  --color-primary-900: #451a03;
 
-  /* Secondary: Rose */
-  --color-secondary-50: #fff1f2;
-  --color-secondary-100: #ffe4e6;
-  --color-secondary-200: #fecdd3;
-  --color-secondary-300: #fda4af;
-  --color-secondary-400: #fb7185;
-  --color-secondary-500: #e11d48;
-  --color-secondary-600: #be123c;
-  --color-secondary-700: #9f1239;
-  --color-secondary-800: #9f1239;
-  --color-secondary-900: #881337;
+  /* Secondary: Soft Terracotta */
+  --color-secondary-50: #fff5f2;
+  --color-secondary-100: #ffe6e1;
+  --color-secondary-200: #fbd0c8;
+  --color-secondary-300: #f7a898;
+  --color-secondary-400: #ee7a63;
+  --color-secondary-500: #d95338;
+  --color-secondary-600: #b9381e;
+  --color-secondary-700: #942a15;
+  --color-secondary-800: #792414;
+  --color-secondary-900: #5a1b0f;
 
   /* Application Colors */
   --color-app-bg: var(--bg-app);
@@ -34,13 +34,13 @@
   --color-app-text-muted: var(--text-app-muted);
 
   /* Helper for translucent primary colors */
-  --color-primary-400-alpha-15: rgba(56, 189, 248, 0.15);
+  --color-primary-400-alpha-15: rgba(245, 158, 11, 0.15);
 
-  /* Animations */
-  --animate-fade-in: fade-in 0.3s cubic-bezier(0.4, 0, 0.2, 1) both;
-  --animate-slide-up: slide-up 0.4s cubic-bezier(0.16, 1, 0.3, 1) both;
-  --animate-zoom-in: zoom-in 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) both;
-  --animate-shimmer: shimmer 2s infinite linear;
+  /* Gentle, Non-Disorienting Animations (Elderly Friendly) */
+  --animate-fade-in: fade-in 0.25s cubic-bezier(0.16, 1, 0.3, 1) both;
+  --animate-slide-up: slide-up 0.3s cubic-bezier(0.16, 1, 0.3, 1) both;
+  --animate-zoom-in: zoom-in 0.25s cubic-bezier(0.16, 1, 0.3, 1) both;
+  --animate-shimmer: shimmer 2.5s infinite linear;
 
   @keyframes fade-in {
     from { opacity: 0; }
@@ -50,7 +50,7 @@
   @keyframes slide-up {
     from {
       opacity: 0;
-      transform: translateY(10px);
+      transform: translateY(6px);
     }
     to {
       opacity: 1;
@@ -61,7 +61,7 @@
   @keyframes zoom-in {
     from {
       opacity: 0;
-      transform: scale(0.95);
+      transform: scale(0.98);
     }
     to {
       opacity: 1;
@@ -76,31 +76,31 @@
 }
 
 :root {
-  /* Light Mode Pastel */
-  --bg-app: #f0f9ff;
+  /* Light Mode Warm Pastel Parchment */
+  --bg-app: #faf7f2;
   --bg-surface: #ffffff;
-  --border-app: #bae6fd;
-  --text-app: #0f172a;
-  --text-app-muted: #475569;
-  --select-text-color: #1e293b;
+  --border-app: #e5e0d8;
+  --text-app: #1c1917;
+  --text-app-muted: #57534e;
+  --select-text-color: #1c1917;
 }
 
 .dark {
-  /* Dark Mode Pastel */
-  --color-primary-400-alpha-15: rgba(56, 189, 248, 0.25);
-  --bg-app: #1e293b;
-  --bg-surface: #2d3748;
-  --border-app: #4a5568;
-  --text-app: #f1f5f9;
-  --text-app-muted: #cbd5e1;
-  --select-text-color: #f8fafc;
+  /* Dark Mode Warm Dark Stone/Umber */
+  --color-primary-400-alpha-15: rgba(245, 158, 11, 0.25);
+  --bg-app: #1c1917;
+  --bg-surface: #292524;
+  --border-app: #44403c;
+  --text-app: #f5f5f4;
+  --text-app-muted: #a8a29e;
+  --select-text-color: #f5f5f4;
 }
 
 @custom-variant dark (&:where(.dark, .dark *));
 
 /* Global Styles */
 body {
-  @apply bg-app-bg text-app-text transition-colors duration-500 antialiased;
+  @apply bg-app-bg text-app-text transition-colors duration-300 antialiased text-base leading-relaxed;
 }
 
 /* Utilities */
@@ -112,11 +112,11 @@ body {
   }
 }
 
-@utility stagger-1 { animation-delay: 50ms; }
-@utility stagger-2 { animation-delay: 100ms; }
-@utility stagger-3 { animation-delay: 150ms; }
-@utility stagger-4 { animation-delay: 200ms; }
-@utility stagger-5 { animation-delay: 250ms; }
+@utility stagger-1 { animation-delay: 30ms; }
+@utility stagger-2 { animation-delay: 60ms; }
+@utility stagger-3 { animation-delay: 90ms; }
+@utility stagger-4 { animation-delay: 120ms; }
+@utility stagger-5 { animation-delay: 150ms; }
 
 /* Autofill styling for dark mode */
 .dark input:-webkit-autofill,
