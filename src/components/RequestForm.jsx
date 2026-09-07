@@ -21,20 +21,22 @@ import Checkbox from './ui/Checkbox';
 
 const ScriptureReferenceItem = ({ id, index, onRemove, referenceState, firstSelectRef }) => {
     return (
-        <fieldset className="relative w-full flex flex-col gap-5 p-5 rounded-2xl bg-app-bg/50 border-2 border-app-border shadow-sm">
-            <legend className="w-full mb-5">
+        <fieldset className="relative w-full flex flex-col gap-4 p-4 sm:p-5 rounded-xl bg-secondary-50/60 dark:bg-stone-900/50 border border-app-border shadow-2xs">
+            <legend className="w-full mb-1 px-1">
                 <span className="flex justify-between items-center w-full">
-                    <span className="text-sm font-bold text-app-text-muted">
-                        Reference {index + 1}
+                    <span className="text-sm font-bold tracking-wide uppercase text-primary-700 dark:text-primary-300 flex items-center gap-2">
+                        <span className="w-2 h-2 rounded-full bg-primary-500 inline-block" />
+                        Passage {index + 1}
                     </span>
                     {index > 0 && (
                         <button
                             type="button"
-                            aria-label={`Remove reference ${index + 1}`}
+                            aria-label={`Remove passage ${index + 1}`}
                             onClick={() => onRemove(id)}
-                            className="p-1.5 rounded-xl bg-secondary-50 text-secondary-600 hover:bg-secondary-100 dark:bg-secondary-900/30 dark:text-secondary-400 dark:hover:bg-secondary-900/50 transition-all duration-200"
+                            className="p-1.5 rounded-lg bg-stone-200/60 text-stone-700 hover:bg-stone-300/60 dark:bg-stone-800 dark:text-stone-300 dark:hover:bg-stone-700 transition-colors text-xs font-bold flex items-center gap-1 min-h-[36px]"
                         >
                             <X size={16} />
+                            <span>Remove</span>
                         </button>
                     )}
                 </span>
@@ -43,7 +45,7 @@ const ScriptureReferenceItem = ({ id, index, onRemove, referenceState, firstSele
             <BibleReferenceSelector
                 bibleReference={referenceState}
                 idPrefix={`ref-${id}-`}
-                labelPrefix={`Reference ${index + 1}: `}
+                labelPrefix={`Passage ${index + 1}: `}
                 required={index === 0}
                 firstSelectRef={firstSelectRef}
             />
@@ -62,9 +64,20 @@ const MultiScriptureSelector = ({ references, onAdd, onRemove, newRefId }) => {
     }, [newRefId]);
 
     return (
-        <section className="flex flex-col gap-6">
-            <SectionHeader>Bible References</SectionHeader>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <section className="flex flex-col gap-4 sm:gap-6">
+            <div className="flex items-center gap-3 border-b border-app-border/80 pb-3">
+                <span className="flex items-center justify-center w-8 h-8 rounded-lg bg-primary-600 text-white font-bold text-sm flex-shrink-0 shadow-2xs">
+                    1
+                </span>
+                <SectionHeader className="!mb-0 !border-b-0 text-xl sm:text-2xl">
+                    Choose Bible Passages & Themes
+                </SectionHeader>
+            </div>
+            <p className="text-base text-app-text-muted font-normal -mt-1">
+                Select one or more Bible passages and optional topic themes to search for discussion questions.
+            </p>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
                 {references.map((ref, idx) => (
                     <ScriptureReferenceItem
                         key={ref.id}
@@ -76,10 +89,15 @@ const MultiScriptureSelector = ({ references, onAdd, onRemove, newRefId }) => {
                     />
                 ))}
             </div>
-            <div className="flex justify-center">
-                <Button type="button" variant="outline" onClick={onAdd} className="w-full max-w-xs">
+            <div className="flex justify-center pt-2">
+                <Button
+                    type="button"
+                    variant="outline"
+                    onClick={onAdd}
+                    className="w-full max-w-sm border text-base font-semibold py-2.5"
+                >
                     <Plus size={18} />
-                    Add Another Reference
+                    Add Another Passage
                 </Button>
             </div>
         </section>
@@ -167,6 +185,11 @@ const RequestForm = ({ onStudyGenerated, isLoading, setTabValue }) => {
             return;
         }
 
+        if (selectedIds.length === 0) {
+            showToast('Please select at least one question from the search results.', 'error');
+            return;
+        }
+
         setIsSubmitting(true);
         try {
             const refArr = validRefs.map(ref =>
@@ -208,8 +231,8 @@ const RequestForm = ({ onStudyGenerated, isLoading, setTabValue }) => {
                             chapter: ref.state.chapter || null,
                             verseStart: ref.state.verseStart || null,
                             verseEnd: ref.state.verseEnd || null,
-                                themeArr: themeArr.length === 0 ? undefined : themeArr,
-                                isApproved: showUnapproved ? undefined : true,
+                            themeArr: themeArr.length === 0 ? undefined : themeArr,
+                            isApproved: showUnapproved ? undefined : true,
                         })
                     )
                 )
@@ -225,7 +248,7 @@ const RequestForm = ({ onStudyGenerated, isLoading, setTabValue }) => {
             setSearchResults(deduplicatedResults);
             setShowSearchResults(true);
             resetSelection();
-            showToast(deduplicatedResults.length ? 'Search completed successfully.' : 'No questions found.', deduplicatedResults.length ? 'success' : 'info');
+            showToast(deduplicatedResults.length ? 'Search completed! Scroll down to select questions.' : 'No questions found for the selected criteria.', deduplicatedResults.length ? 'success' : 'info');
         } catch (err) {
             showToast(err?.message || 'Search failed.', 'error');
         } finally {
@@ -243,8 +266,9 @@ const RequestForm = ({ onStudyGenerated, isLoading, setTabValue }) => {
     return (
         <div className="w-full">
             <form onSubmit={handleFormSubmit} noValidate>
-                <LoadingOverlay isLoading={isSearching && !showSearchResults}>
-                <Card className="flex flex-col gap-12">
+                <LoadingOverlay isLoading={isSearching && !showSearchResults} loadingText="Searching questions...">
+                <Card className="flex flex-col gap-6 sm:gap-8">
+                    {/* Step 1: Passages & Themes */}
                     <MultiScriptureSelector
                         references={activeRefs}
                         onAdd={addReference}
@@ -252,84 +276,93 @@ const RequestForm = ({ onStudyGenerated, isLoading, setTabValue }) => {
                         newRefId={newRefId}
                     />
 
-                    <section aria-labelledby="search-settings-title" className="flex flex-col gap-6">
-                        <SectionHeader id="search-settings-title">Search Settings</SectionHeader>
-                        <div className="p-6 rounded-2xl bg-app-bg/50 border-2 border-app-border shadow-sm flex flex-col gap-8">
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-start">
+                    {/* Step 1 Filtering Options */}
+                    <div className="p-4 sm:p-6 rounded-xl bg-secondary-50/60 dark:bg-stone-900/50 border border-app-border shadow-2xs flex flex-col gap-6">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
+                            <ThemeSelect
+                                value={selectedThemes}
+                                onChange={setSelectedThemes}
+                                isMulti
+                                label="Filter by Themes"
+                            />
+
+                            <div className="pt-2">
                                 <Checkbox
                                     id="show-unapproved"
-                                    label="Show Unapproved"
+                                    label="Show Community Unapproved Questions"
                                     checked={showUnapproved}
                                     onChange={setShowUnapproved}
-                                    helperText="Include questions that haven't been reviewed by an admin yet."
-                                    className="mt-1"
+                                    helperText="Include newly submitted questions awaiting admin verification."
                                 />
-
-                                <ThemeSelect
-                                    value={selectedThemes}
-                                    onChange={setSelectedThemes}
-                                    isMulti
-                                    label="Themes"
-                                />
-                            </div>
-
-                            <div className="flex flex-col sm:flex-row justify-between items-center gap-4 pt-6 border-t border-app-border/50">
-                                <div className="flex gap-2 w-full sm:w-auto">
-                                    <Button
-                                        type="button"
-                                        variant="ghost"
-                                        onClick={handleClearForm}
-                                        className="w-full sm:w-auto text-app-text-muted hover:text-secondary-600"
-                                        title="Reset Form"
-                                    >
-                                        <RotateCcw size={18} />
-                                        Reset Form
-                                    </Button>
-                                </div>
-
-                                <div className="flex gap-3 w-full sm:w-auto">
-                                    <Button
-                                        ref={searchButtonRef}
-                                        type="submit"
-                                        isLoading={isLoading || isSearching || isSubmitting}
-                                        className="w-full sm:min-w-[180px]"
-                                    >
-                                        <Search size={18} />
-                                        Search Questions
-                                    </Button>
-                                </div>
                             </div>
                         </div>
-                    </section>
 
+                        <div className="flex flex-col sm:flex-row justify-between items-center gap-4 pt-4 border-t border-app-border/80">
+                            <Button
+                                type="button"
+                                variant="ghost"
+                                onClick={handleClearForm}
+                                className="w-full sm:w-auto text-app-text-muted hover:text-stone-900 dark:hover:text-stone-100 font-semibold"
+                                title="Reset Form"
+                            >
+                                <RotateCcw size={16} />
+                                Reset Form
+                            </Button>
+
+                            <Button
+                                ref={searchButtonRef}
+                                type="submit"
+                                isLoading={isLoading || isSearching}
+                                loadingText="Searching questions..."
+                                className="w-full sm:min-w-[240px] text-base font-bold py-3"
+                            >
+                                <Search size={20} />
+                                Search Questions
+                            </Button>
+                        </div>
+                    </div>
+
+                    {/* Step 2 & 3: Results & Generation */}
                     {showSearchResults && (
                         <section
                             ref={resultsRef}
-                            className="mt-4 animate-in fade-in slide-in-from-bottom-4 duration-500"
+                            className="mt-4 pt-6 border-t border-app-border flex flex-col gap-8 animate-fade-in"
                             role="region"
                             aria-live="polite"
                         >
-                            <div className="flex justify-between items-center mb-8 border-b-4 border-primary-500/20 pb-4">
-                                <SectionHeader
-                                    ref={resultsHeaderRef}
-                                    tabIndex={-1}
-                                    centered={false}
-                                    className="focus:outline-none !mb-0 !pb-0 !border-b-0"
-                                >
-                                    Search Results
-                                </SectionHeader>
-                                <Button
-                                    type="button"
-                                    variant="ghost"
-                                    onClick={handleClearResults}
-                                    className="text-secondary-600 hover:bg-secondary-50 dark:text-secondary-400 dark:hover:bg-secondary-900/20 flex items-center gap-2 px-3 py-1.5"
-                                    title="Clear results"
-                                >
-                                    <X size={18} />
-                                    <span className="hidden sm:inline">Clear Results</span>
-                                </Button>
+                            {/* Step 2 Header */}
+                            <div>
+                                <div className="flex justify-between items-center mb-2">
+                                    <div className="flex items-center gap-3">
+                                        <span className="flex items-center justify-center w-8 h-8 rounded-lg bg-primary-600 text-white font-bold text-sm flex-shrink-0 shadow-2xs">
+                                            2
+                                        </span>
+                                        <SectionHeader
+                                            ref={resultsHeaderRef}
+                                            tabIndex={-1}
+                                            centered={false}
+                                            className="focus:outline-none !mb-0 !pb-0 !border-b-0 text-xl sm:text-2xl"
+                                        >
+                                            Search Results
+                                        </SectionHeader>
+                                    </div>
+                                    <Button
+                                        type="button"
+                                        variant="ghost"
+                                        onClick={handleClearResults}
+                                        className="text-stone-600 hover:bg-stone-200/50 dark:text-stone-400 dark:hover:bg-stone-800 flex items-center gap-1.5 px-3 py-1.5 text-sm font-semibold"
+                                        title="Clear results"
+                                    >
+                                        <X size={16} />
+                                        <span>Clear Results</span>
+                                    </Button>
+                                </div>
+                                <p className="text-base text-app-text-muted font-normal">
+                                    Click or check the boxes next to questions you wish to include in your finalized Bible study guide.
+                                </p>
                             </div>
-                            <LoadingOverlay isLoading={isSearching}>
+
+                            <LoadingOverlay isLoading={isSearching} loadingText="Updating questions...">
                                 <QuestionTable
                                     questions={searchResults}
                                     selectedIds={selectedIds}
@@ -341,36 +374,52 @@ const RequestForm = ({ onStudyGenerated, isLoading, setTabValue }) => {
                                 />
                             </LoadingOverlay>
 
-                            <div className="mt-12 flex flex-col gap-6">
-                                <SectionHeader id="study-generation-title">Study Generation</SectionHeader>
-                                <div className="p-6 rounded-2xl bg-app-bg/50 border-2 border-app-border shadow-sm flex flex-col md:flex-row justify-between items-center gap-8">
+                            {/* Step 3: Generate Study Banner */}
+                            <div className="p-5 sm:p-6 rounded-xl bg-primary-50/70 dark:bg-primary-950/30 border border-primary-200 dark:border-primary-900/60 shadow-2xs flex flex-col gap-6">
+                                <div className="flex items-center gap-3 border-b border-primary-200/80 dark:border-primary-900/40 pb-3">
+                                    <span className="flex items-center justify-center w-8 h-8 rounded-lg bg-primary-600 text-white font-bold text-sm flex-shrink-0 shadow-2xs">
+                                        3
+                                    </span>
+                                    <SectionHeader id="study-generation-title" className="!mb-0 !pb-0 !border-b-0 text-xl sm:text-2xl">
+                                        Generate & Export Study
+                                    </SectionHeader>
+                                </div>
+
+                                <div className="flex flex-col md:flex-row justify-between items-center gap-6">
                                     <Checkbox
                                         id="include-refs"
-                                        label="Include References"
+                                        label="Include scripture references in study text"
                                         checked={includeReferences}
                                         onChange={setIncludeReferences}
-                                        helperText="Add Bible verse citations to each question in the study."
+                                        helperText="When checked, verse citations (e.g. Gen 1:1) will be prepended to questions."
                                     />
 
-                                    {isGenerateDisabled ? (
-                                        <Tooltip content="Select at least one question from search results">
-                                            <Button type="button" aria-disabled="true" variant="outline" className="w-full md:w-auto min-w-[220px] opacity-50 cursor-not-allowed">
-                                                <BookOpen size={18} />
-                                                Generate Study
+                                    <div className="w-full md:w-auto flex flex-col items-center gap-2">
+                                        {isGenerateDisabled ? (
+                                            <Tooltip content="Please check at least one question above to enable study generation">
+                                                <Button
+                                                    type="button"
+                                                    aria-disabled="true"
+                                                    variant="outline"
+                                                    className="w-full md:w-auto min-w-[280px] opacity-60 cursor-not-allowed text-base font-bold py-3"
+                                                >
+                                                    <BookOpen size={20} />
+                                                    Generate Study Guide
+                                                </Button>
+                                            </Tooltip>
+                                        ) : (
+                                            <Button
+                                                type="button"
+                                                onClick={handleSubmit}
+                                                isLoading={isLoading || isSubmitting}
+                                                loadingText="Generating study guide..."
+                                                className="w-full md:w-auto min-w-[280px] text-base font-bold py-3 shadow-md"
+                                            >
+                                                <BookOpen size={20} />
+                                                Generate Study Guide ({selectedIds.length})
                                             </Button>
-                                        </Tooltip>
-                                    ) : (
-                                        <Button
-                                            type="button"
-                                            onClick={handleSubmit}
-                                            variant="outline"
-                                            isLoading={isLoading || isSubmitting}
-                                            className="w-full md:w-auto min-w-[220px] border-2 shadow-sm"
-                                        >
-                                            <BookOpen size={18} />
-                                            Generate Study {selectedIds.length > 0 && `(${selectedIds.length})`}
-                                        </Button>
-                                    )}
+                                        )}
+                                    </div>
                                 </div>
                             </div>
                         </section>

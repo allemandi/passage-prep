@@ -13,7 +13,7 @@ describe('App navigation', () => {
 
         // Initial state should be Search & Format
         expect(screen.getByRole('tab', { name: /Search & Format/i })).toHaveAttribute('aria-selected', 'true');
-        expect(screen.getByText(/Bible References/i)).toBeInTheDocument();
+        expect(screen.getByText(/Choose Bible Passages & Themes/i)).toBeInTheDocument();
 
         // Switch to Contribute
         const contributeTab = screen.getByRole('tab', { name: /Contribute/i });

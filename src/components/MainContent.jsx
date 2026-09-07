@@ -11,17 +11,15 @@ export default function MainContent({
   setTabValue
 }) {
   return (
-    <TabPanels
-      className="w-full transition-colors duration-300"
-    >
-      <TabPanel>
+    <TabPanels className="w-full">
+      <TabPanel className="focus:outline-none transition-all duration-300">
         <RequestForm
           onStudyGenerated={handleShowStudy}
           isLoading={isLoading}
           setTabValue={setTabValue}
         />
       </TabPanel>
-      <TabPanel>
+      <TabPanel className="focus:outline-none transition-all duration-300">
         <ContributeForm isLoading={isLoading} />
       </TabPanel>
 
