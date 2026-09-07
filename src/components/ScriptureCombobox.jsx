@@ -51,7 +51,7 @@ const ScriptureCombobox = React.forwardRef(({
         <div className={clsx("relative w-full", className)}>
             <label
                 htmlFor={id}
-                className="block mb-1.5 text-sm font-medium text-app-text"
+                className="block mb-2 text-base font-bold text-app-text"
             >
                 {label} {required && <span className="text-secondary-600 font-bold" aria-hidden="true">*</span>}
             </label>
@@ -70,36 +70,36 @@ const ScriptureCombobox = React.forwardRef(({
                 classNames={{
                     control: ({ isFocused }) =>
                         clsx(
-                            "flex items-center min-h-[42px] px-3 rounded-lg border-2 transition-all duration-300 bg-app-surface",
+                            "flex items-center min-h-[48px] px-4 rounded-xl border-2 transition-all duration-200 bg-app-surface text-base font-medium",
                             error
-                                ? "border-secondary-400"
+                                ? "border-secondary-500"
                                 : isFocused
-                                    ? "border-primary-400 ring-4 ring-primary-400/20"
-                                    : "border-app-border hover:border-primary-300",
-                            finalIsDisabled && "opacity-50 cursor-not-allowed"
+                                    ? "border-primary-500 ring-4 ring-primary-500/20"
+                                    : "border-app-border hover:border-primary-400",
+                            finalIsDisabled && "opacity-50 cursor-not-allowed bg-app-bg"
                         ),
-                    valueContainer: () => "flex gap-1 py-1 overflow-hidden",
-                    input: () => "text-app-text !m-0 !p-0",
-                    singleValue: () => "text-app-text truncate",
-                    placeholder: () => "text-app-text-muted truncate",
-                    indicatorsContainer: () => "flex items-center gap-1",
+                    valueContainer: () => "flex gap-1 py-1.5 overflow-hidden",
+                    input: () => "text-app-text !m-0 !p-0 text-base",
+                    singleValue: () => "text-app-text font-bold truncate text-base",
+                    placeholder: () => "text-app-text-muted truncate text-base font-normal",
+                    indicatorsContainer: () => "flex items-center gap-1.5",
                     indicatorSeparator: () => "hidden",
                     dropdownIndicator: ({ isFocused }) =>
-                        clsx("p-1 transition-colors duration-200", isFocused ? "text-app-text" : "text-app-text-muted"),
-                    clearIndicator: () => "p-1 text-app-text-muted hover:text-secondary-500 transition-colors duration-200",
+                        clsx("p-1.5 transition-colors duration-200", isFocused ? "text-primary-600 dark:text-primary-400" : "text-app-text-muted"),
+                    clearIndicator: () => "p-1.5 text-app-text-muted hover:text-secondary-600 dark:hover:text-secondary-400 transition-colors duration-200",
                     menu: () => "absolute z-50 w-full mt-2 bg-app-surface border-2 border-app-border shadow-2xl rounded-xl overflow-hidden animate-in fade-in zoom-in-95 duration-200",
-                    menuList: () => "max-h-72 overflow-y-auto py-1",
+                    menuList: () => "max-h-80 overflow-y-auto py-1.5",
                     option: ({ isFocused, isSelected }) =>
                         clsx(
-                            "px-4 py-3 text-sm cursor-pointer select-none transition-colors duration-150",
+                            "px-4 py-3.5 text-base cursor-pointer select-none transition-colors duration-150 min-h-[48px] flex items-center",
                             isSelected
-                                ? "bg-primary-500 text-white font-bold"
+                                ? "bg-primary-600 text-white font-bold dark:bg-primary-500"
                                 : isFocused
-                                    ? "bg-primary-50 text-primary-600 dark:bg-primary-900/40 dark:text-primary-200"
+                                    ? "bg-primary-100 text-primary-900 dark:bg-primary-900/40 dark:text-primary-100 font-semibold"
                                     : "text-app-text hover:bg-primary-50 dark:hover:bg-primary-900/20"
                         ),
-                    noOptionsMessage: () => "px-4 py-8 text-sm text-app-text-muted text-center",
-                    loadingMessage: () => "px-4 py-8 text-sm text-app-text-muted text-center",
+                    noOptionsMessage: () => "px-4 py-8 text-base text-app-text-muted text-center font-medium",
+                    loadingMessage: () => "px-4 py-8 text-base text-app-text-muted text-center font-medium",
                 }}
                 styles={{
                     menuPortal: (base) => ({ ...base, zIndex: 9999 }),
@@ -115,12 +115,12 @@ const ScriptureCombobox = React.forwardRef(({
                 )}
             />
             {error && (
-                <p id={`${id}-error`} className="mt-1 text-xs text-secondary-600 font-medium" role="alert">
+                <p id={`${id}-error`} className="mt-1.5 text-sm text-secondary-600 font-bold" role="alert">
                     {error}
                 </p>
             )}
             {helperText && (
-                <p id={`${id}-helper`} className={clsx("mt-1 text-xs text-app-text-muted", error && "sr-only")}>
+                <p id={`${id}-helper`} className={clsx("mt-1.5 text-sm text-app-text-muted font-medium", error && "sr-only")}>
                     {helperText}
                 </p>
             )}

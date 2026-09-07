@@ -103,12 +103,12 @@ function AppContent() {
       <Header mode={mode} setMode={setMode} tabValue={tabValue} setTabValue={setTabValue} />
 
       <main id="main-content" tabIndex="-1" className="flex-grow w-full pb-24 outline-none">
-        <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8 py-8 flex flex-col gap-10">
+        <div className="w-full px-4 sm:px-6 lg:px-12 py-8 flex flex-col gap-8">
           {tabValue === 2 ? (
             <AdminPanel isLoggedIn={isLoggedIn} setIsLoggedIn={handleSetIsLoggedIn} />
           ) : (
             <TabGroup selectedIndex={tabValue} onChange={setTabValue}>
-              <div className="flex flex-col gap-10">
+              <div className="flex flex-col gap-8">
                 <Tabs />
                 <MainContent
                   isLoading={isLoading}

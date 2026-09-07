@@ -17,8 +17,9 @@ const SEO = () => {
     };
 
     updateMetaTag('description', SEO_CONFIG.description);
+    updateMetaTag('keywords', SEO_CONFIG.keywords);
     updateMetaTag('title', `${SEO_CONFIG.title} - ${SEO_CONFIG.tagline}`);
-    updateMetaTag('author', SEO_CONFIG.title);
+    updateMetaTag('author', SEO_CONFIG.author);
 
     // Open Graph
     updateMetaTag('og:title', `${SEO_CONFIG.title} - ${SEO_CONFIG.tagline}`, 'property');

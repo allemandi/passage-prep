@@ -113,14 +113,14 @@ const ContributeForm = () => {
         <div className="w-full">
             <form onSubmit={handleSubmit} noValidate>
                 <LoadingOverlay isLoading={isSubmitting}>
-                <Card className="grid grid-cols-1 md:grid-cols-2 gap-12">
+                <Card className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12">
                     {/* Left Column: Bible Reference */}
-                    <fieldset className="flex flex-col gap-8">
+                    <fieldset className="flex flex-col gap-6">
                         <legend className="contents">
                             <SectionHeader>Bible Reference</SectionHeader>
                         </legend>
 
-                        <div className="animate-in fade-in slide-in-from-left-4 duration-500">
+                        <div className="animate-in fade-in duration-300">
                             <BibleReferenceSelector
                                 bibleReference={bibleReference}
                                 labelPrefix="Contribute: "
@@ -132,11 +132,11 @@ const ContributeForm = () => {
                     </fieldset>
 
                     {/* Right Column: Theme and Question */}
-                    <fieldset className="flex flex-col gap-8">
+                    <fieldset className="flex flex-col gap-6">
                         <legend className="contents">
                             <SectionHeader>Theme & Question</SectionHeader>
                         </legend>
-                        <div className="animate-in fade-in slide-in-from-right-4 duration-500">
+                        <div className="animate-in fade-in duration-300">
                             <div className="space-y-6">
                                 <ThemeSelect
                                     value={selectedTheme}
@@ -181,21 +181,21 @@ const ContributeForm = () => {
                     </fieldset>
 
                     {/* Actions */}
-                    <div className="md:col-span-2 flex flex-col sm:flex-row items-center justify-center gap-4 pt-4">
+                    <div className="lg:col-span-2 flex flex-col sm:flex-row items-center justify-center gap-4 pt-4 border-t border-app-border/80">
                         <Button
                             type="button"
                             variant="ghost"
                             onClick={handleReset}
-                            className="w-full sm:w-auto text-app-text-muted hover:text-secondary-600"
+                            className="w-full sm:w-auto text-app-text-muted hover:text-stone-900 dark:hover:text-stone-100 font-semibold"
                         >
-                            <RotateCcw size={18} />
+                            <RotateCcw size={16} />
                             Reset Form
                         </Button>
                         <Button
                             type="submit"
                             isLoading={isSubmitting}
                             size="lg"
-                            className="w-full sm:w-auto min-w-[280px] shadow-lg shadow-primary-500/10"
+                            className="w-full sm:w-auto min-w-[280px] shadow-sm font-bold"
                         >
                             Submit Question
                         </Button>
