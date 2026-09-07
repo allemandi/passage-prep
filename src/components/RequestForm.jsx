@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
-import { X, Plus, Search, BookOpen, RotateCcw, ArrowDown } from 'lucide-react';
+import { X, Plus, Search, BookOpen, RotateCcw } from 'lucide-react';
 import {
     processForm,
     searchQuestions,
@@ -21,11 +21,11 @@ import Checkbox from './ui/Checkbox';
 
 const ScriptureReferenceItem = ({ id, index, onRemove, referenceState, firstSelectRef }) => {
     return (
-        <fieldset className="relative w-full flex flex-col gap-5 p-5 rounded-2xl bg-app-bg/60 border-2 border-app-border shadow-sm">
-            <legend className="w-full mb-3 px-2">
+        <fieldset className="relative w-full flex flex-col gap-4 p-5 rounded-xl bg-stone-50/80 dark:bg-stone-900/40 border border-app-border/70 shadow-2xs">
+            <legend className="w-full mb-1 px-1">
                 <span className="flex justify-between items-center w-full">
-                    <span className="text-base font-bold text-primary-700 dark:text-primary-300 flex items-center gap-2">
-                        <span className="w-2.5 h-2.5 rounded-full bg-primary-500 inline-block" />
+                    <span className="text-sm font-bold tracking-wide uppercase text-primary-700 dark:text-primary-300 flex items-center gap-2">
+                        <span className="w-2 h-2 rounded-full bg-primary-500 inline-block" />
                         Passage {index + 1}
                     </span>
                     {index > 0 && (
@@ -33,9 +33,9 @@ const ScriptureReferenceItem = ({ id, index, onRemove, referenceState, firstSele
                             type="button"
                             aria-label={`Remove passage ${index + 1}`}
                             onClick={() => onRemove(id)}
-                            className="p-2 rounded-xl bg-secondary-100 text-secondary-700 hover:bg-secondary-200 dark:bg-secondary-900/40 dark:text-secondary-300 dark:hover:bg-secondary-900/60 transition-all duration-200 min-h-[40px] flex items-center gap-1 text-sm font-bold"
+                            className="p-1.5 rounded-lg bg-stone-200/60 text-stone-700 hover:bg-stone-300/60 dark:bg-stone-800 dark:text-stone-300 dark:hover:bg-stone-700 transition-colors text-xs font-bold flex items-center gap-1 min-h-[36px]"
                         >
-                            <X size={18} />
+                            <X size={16} />
                             <span>Remove</span>
                         </button>
                     )}
@@ -64,20 +64,20 @@ const MultiScriptureSelector = ({ references, onAdd, onRemove, newRefId }) => {
     }, [newRefId]);
 
     return (
-        <section className="flex flex-col gap-6">
-            <div className="flex items-center gap-3 border-b-2 border-app-border pb-3">
-                <span className="flex items-center justify-center w-9 h-9 rounded-full bg-primary-600 text-white font-extrabold text-lg flex-shrink-0">
+        <section className="flex flex-col gap-5">
+            <div className="flex items-center gap-3 border-b border-app-border/60 pb-3">
+                <span className="flex items-center justify-center w-8 h-8 rounded-lg bg-primary-600 text-white font-bold text-sm flex-shrink-0 shadow-2xs">
                     1
                 </span>
-                <SectionHeader className="!mb-0 !border-b-0">
+                <SectionHeader className="!mb-0 !border-b-0 text-xl">
                     Choose Bible Passages & Themes
                 </SectionHeader>
             </div>
-            <p className="text-base text-app-text-muted font-medium -mt-2">
+            <p className="text-base text-app-text-muted font-normal -mt-1">
                 Select one or more Bible passages and optional topic themes to search for discussion questions.
             </p>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                 {references.map((ref, idx) => (
                     <ScriptureReferenceItem
                         key={ref.id}
@@ -94,9 +94,9 @@ const MultiScriptureSelector = ({ references, onAdd, onRemove, newRefId }) => {
                     type="button"
                     variant="outline"
                     onClick={onAdd}
-                    className="w-full max-w-sm border-2 text-base font-bold py-3"
+                    className="w-full max-w-sm border text-base font-semibold py-2.5"
                 >
-                    <Plus size={20} />
+                    <Plus size={18} />
                     Add Another Passage
                 </Button>
             </div>
@@ -267,7 +267,7 @@ const RequestForm = ({ onStudyGenerated, isLoading, setTabValue }) => {
         <div className="w-full max-w-5xl mx-auto">
             <form onSubmit={handleFormSubmit} noValidate>
                 <LoadingOverlay isLoading={isSearching && !showSearchResults} loadingText="Searching questions...">
-                <Card className="flex flex-col gap-10">
+                <Card className="flex flex-col gap-8">
                     {/* Step 1: Passages & Themes */}
                     <MultiScriptureSelector
                         references={activeRefs}
@@ -277,8 +277,8 @@ const RequestForm = ({ onStudyGenerated, isLoading, setTabValue }) => {
                     />
 
                     {/* Step 1 Filtering Options */}
-                    <div className="p-6 rounded-2xl bg-app-bg/60 border-2 border-app-border shadow-sm flex flex-col gap-8">
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-start">
+                    <div className="p-5 rounded-xl bg-stone-50/80 dark:bg-stone-900/40 border border-app-border/70 shadow-2xs flex flex-col gap-6">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
                             <ThemeSelect
                                 value={selectedThemes}
                                 onChange={setSelectedThemes}
@@ -297,15 +297,15 @@ const RequestForm = ({ onStudyGenerated, isLoading, setTabValue }) => {
                             </div>
                         </div>
 
-                        <div className="flex flex-col sm:flex-row justify-between items-center gap-4 pt-6 border-t-2 border-app-border">
+                        <div className="flex flex-col sm:flex-row justify-between items-center gap-4 pt-4 border-t border-app-border/60">
                             <Button
                                 type="button"
                                 variant="ghost"
                                 onClick={handleClearForm}
-                                className="w-full sm:w-auto text-app-text-muted hover:text-secondary-700 font-bold"
+                                className="w-full sm:w-auto text-app-text-muted hover:text-stone-900 dark:hover:text-stone-100 font-semibold"
                                 title="Reset Form"
                             >
-                                <RotateCcw size={18} />
+                                <RotateCcw size={16} />
                                 Reset Form
                             </Button>
 
@@ -314,9 +314,9 @@ const RequestForm = ({ onStudyGenerated, isLoading, setTabValue }) => {
                                 type="submit"
                                 isLoading={isLoading || isSearching}
                                 loadingText="Searching questions..."
-                                className="w-full sm:min-w-[240px] text-lg font-bold py-3.5"
+                                className="w-full sm:min-w-[220px] text-base font-bold py-3"
                             >
-                                <Search size={22} />
+                                <Search size={20} />
                                 Search Questions
                             </Button>
                         </div>
@@ -326,22 +326,22 @@ const RequestForm = ({ onStudyGenerated, isLoading, setTabValue }) => {
                     {showSearchResults && (
                         <section
                             ref={resultsRef}
-                            className="mt-6 pt-8 border-t-4 border-primary-500/30 flex flex-col gap-10 animate-fade-in"
+                            className="mt-4 pt-6 border-t border-app-border flex flex-col gap-8 animate-fade-in"
                             role="region"
                             aria-live="polite"
                         >
                             {/* Step 2 Header */}
                             <div>
-                                <div className="flex justify-between items-center mb-3">
+                                <div className="flex justify-between items-center mb-2">
                                     <div className="flex items-center gap-3">
-                                        <span className="flex items-center justify-center w-9 h-9 rounded-full bg-primary-600 text-white font-extrabold text-lg flex-shrink-0">
+                                        <span className="flex items-center justify-center w-8 h-8 rounded-lg bg-primary-600 text-white font-bold text-sm flex-shrink-0 shadow-2xs">
                                             2
                                         </span>
                                         <SectionHeader
                                             ref={resultsHeaderRef}
                                             tabIndex={-1}
                                             centered={false}
-                                            className="focus:outline-none !mb-0 !pb-0 !border-b-0"
+                                            className="focus:outline-none !mb-0 !pb-0 !border-b-0 text-xl"
                                         >
                                             Search Results
                                         </SectionHeader>
@@ -350,14 +350,14 @@ const RequestForm = ({ onStudyGenerated, isLoading, setTabValue }) => {
                                         type="button"
                                         variant="ghost"
                                         onClick={handleClearResults}
-                                        className="text-secondary-700 hover:bg-secondary-100 dark:text-secondary-300 dark:hover:bg-secondary-900/40 flex items-center gap-2 px-3.5 py-2 text-sm font-bold"
+                                        className="text-stone-600 hover:bg-stone-200/50 dark:text-stone-400 dark:hover:bg-stone-800 flex items-center gap-1.5 px-3 py-1.5 text-sm font-semibold"
                                         title="Clear results"
                                     >
-                                        <X size={18} />
+                                        <X size={16} />
                                         <span>Clear Results</span>
                                     </Button>
                                 </div>
-                                <p className="text-base text-app-text-muted font-medium">
+                                <p className="text-base text-app-text-muted font-normal">
                                     Click or check the boxes next to questions you wish to include in your finalized Bible study guide.
                                 </p>
                             </div>
@@ -375,17 +375,17 @@ const RequestForm = ({ onStudyGenerated, isLoading, setTabValue }) => {
                             </LoadingOverlay>
 
                             {/* Step 3: Generate Study Banner */}
-                            <div className="p-8 rounded-3xl bg-primary-50 dark:bg-primary-950/40 border-2 border-primary-300 dark:border-primary-800 shadow-md flex flex-col gap-8">
-                                <div className="flex items-center gap-3 border-b-2 border-primary-200 dark:border-primary-800 pb-3">
-                                    <span className="flex items-center justify-center w-9 h-9 rounded-full bg-primary-600 text-white font-extrabold text-lg flex-shrink-0">
+                            <div className="p-6 rounded-xl bg-primary-50/60 dark:bg-primary-950/20 border border-primary-200 dark:border-primary-900/60 shadow-2xs flex flex-col gap-6">
+                                <div className="flex items-center gap-3 border-b border-primary-200/60 dark:border-primary-900/40 pb-3">
+                                    <span className="flex items-center justify-center w-8 h-8 rounded-lg bg-primary-600 text-white font-bold text-sm flex-shrink-0 shadow-2xs">
                                         3
                                     </span>
-                                    <SectionHeader id="study-generation-title" className="!mb-0 !pb-0 !border-b-0">
+                                    <SectionHeader id="study-generation-title" className="!mb-0 !pb-0 !border-b-0 text-xl">
                                         Generate & Export Study
                                     </SectionHeader>
                                 </div>
 
-                                <div className="flex flex-col md:flex-row justify-between items-center gap-8">
+                                <div className="flex flex-col md:flex-row justify-between items-center gap-6">
                                     <Checkbox
                                         id="include-refs"
                                         label="Include scripture references in study text"
@@ -401,9 +401,9 @@ const RequestForm = ({ onStudyGenerated, isLoading, setTabValue }) => {
                                                     type="button"
                                                     aria-disabled="true"
                                                     variant="outline"
-                                                    className="w-full md:w-auto min-w-[280px] opacity-60 cursor-not-allowed text-lg font-bold py-4"
+                                                    className="w-full md:w-auto min-w-[260px] opacity-60 cursor-not-allowed text-base font-bold py-3"
                                                 >
-                                                    <BookOpen size={22} />
+                                                    <BookOpen size={20} />
                                                     Generate Study Guide
                                                 </Button>
                                             </Tooltip>
@@ -413,16 +413,11 @@ const RequestForm = ({ onStudyGenerated, isLoading, setTabValue }) => {
                                                 onClick={handleSubmit}
                                                 isLoading={isLoading || isSubmitting}
                                                 loadingText="Generating study guide..."
-                                                className="w-full md:w-auto min-w-[280px] text-lg font-extrabold py-4 shadow-lg animate-bounce-subtle"
+                                                className="w-full md:w-auto min-w-[260px] text-base font-bold py-3 shadow-md"
                                             >
-                                                <BookOpen size={22} />
-                                                Generate Study Guide ({selectedIds.length} {selectedIds.length === 1 ? 'question' : 'questions'})
+                                                <BookOpen size={20} />
+                                                Generate Study Guide ({selectedIds.length})
                                             </Button>
-                                        )}
-                                        {selectedIds.length === 0 && (
-                                            <p className="text-sm text-secondary-600 dark:text-secondary-400 font-bold flex items-center gap-1 mt-1">
-                                                <ArrowDown size={16} /> Select at least 1 question above to proceed
-                                            </p>
                                         )}
                                     </div>
                                 </div>
