@@ -54,8 +54,8 @@ const ThemeSelect = ({
               <ListboxButton
                 className={clsx(
                   "flex justify-between items-center w-full rounded-xl px-4 py-3 text-base min-h-[48px]",
-                  "border-2 transition-all duration-200",
-                  "bg-app-surface text-app-text shadow-sm",
+                  "border transition-all duration-200",
+                  "bg-app-surface text-app-text shadow-2xs",
                   "focus:outline-none focus-visible:ring-4 overflow-hidden text-left font-medium",
                   error
                     ? "border-secondary-500 focus-visible:ring-secondary-500/30"
@@ -89,26 +89,27 @@ const ThemeSelect = ({
               >
                 <ListboxOptions
                   className={clsx(
-                    "absolute z-50 mt-2 w-full max-h-80 overflow-y-auto rounded-xl border-2 border-app-border",
-                    "bg-app-surface shadow-2xl py-1.5 focus:outline-none"
+                    "absolute z-[100] mt-2 w-full max-h-64 overflow-y-auto rounded-xl border border-app-border",
+                    "bg-app-surface shadow-2xl py-1 focus:outline-none",
+                    "bottom-full mb-2.5 mt-0" // Always position above button if tight at bottom or stack cleanly with high z-index
                   )}
                 >
                   {isMulti && (
-                    <div className="sticky top-0 z-10 bg-app-surface border-b-2 border-app-border p-2 flex gap-2">
+                    <div className="sticky top-0 z-10 bg-app-surface border-b border-app-border p-2 flex gap-2 shadow-2xs">
                         <button
                             type="button"
                             onClick={selectAll}
-                            className="flex-1 flex items-center justify-center gap-2 py-2 text-sm font-bold rounded-lg bg-primary-100 text-primary-800 hover:bg-primary-200 dark:bg-primary-900/40 dark:text-primary-200 dark:hover:bg-primary-900/60 transition-colors min-h-[40px]"
+                            className="flex-1 flex items-center justify-center gap-1.5 py-1.5 text-xs font-bold rounded-lg bg-primary-100 text-primary-800 hover:bg-primary-200 dark:bg-primary-950/60 dark:text-primary-200 transition-colors min-h-[36px]"
                         >
-                            <CheckSquare size={16} />
+                            <CheckSquare size={14} />
                             Select All
                         </button>
                         <button
                             type="button"
                             onClick={clearAll}
-                            className="flex-1 flex items-center justify-center gap-2 py-2 text-sm font-bold rounded-lg bg-secondary-100 text-secondary-800 hover:bg-secondary-200 dark:bg-secondary-900/40 dark:text-secondary-200 dark:hover:bg-secondary-900/60 transition-colors min-h-[40px]"
+                            className="flex-1 flex items-center justify-center gap-1.5 py-1.5 text-xs font-bold rounded-lg bg-stone-100 text-stone-700 hover:bg-stone-200 dark:bg-stone-800 dark:text-stone-300 transition-colors min-h-[36px]"
                         >
-                            <X size={16} />
+                            <X size={14} />
                             Clear
                         </button>
                     </div>
@@ -119,11 +120,11 @@ const ThemeSelect = ({
                       value={theme}
                       className={({ focus, selected }) =>
                         clsx(
-                          "flex items-center justify-between px-4 py-3.5 text-base cursor-pointer select-none transition-all duration-150 min-h-[48px]",
+                          "flex items-center justify-between px-4 py-3 text-base cursor-pointer select-none transition-all duration-150 min-h-[44px]",
                           selected
                             ? "bg-primary-600 text-white font-bold dark:bg-primary-500"
                             : focus
-                            ? "bg-primary-100 text-primary-900 dark:bg-primary-900/40 dark:text-primary-100 font-semibold"
+                            ? "bg-primary-100 text-primary-900 dark:bg-primary-950/60 dark:text-primary-100 font-semibold"
                             : "text-app-text"
                         )
                       }

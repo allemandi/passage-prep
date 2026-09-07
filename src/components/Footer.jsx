@@ -23,13 +23,13 @@ export default function Footer({ onHelpClick }) {
  <footer
   className="
     fixed bottom-0 left-0 w-full
-    bg-app-surface/60
+    bg-app-surface/90
     backdrop-blur-md
-    border-t-2 border-app-border
-    shadow-lg
+    border-t border-app-border
+    shadow-sm
     flex justify-center items-center gap-6
-    py-3 px-6
-    z-50
+    py-2.5 px-6
+    z-20
   "
 >
   <p className="text-sm font-medium text-app-text">
