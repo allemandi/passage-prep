@@ -264,7 +264,7 @@ const RequestForm = ({ onStudyGenerated, isLoading, setTabValue }) => {
     };
 
     return (
-        <div className="w-full max-w-7xl mx-auto">
+        <div className="w-full">
             <form onSubmit={handleFormSubmit} noValidate>
                 <LoadingOverlay isLoading={isSearching && !showSearchResults} loadingText="Searching questions...">
                 <Card className="flex flex-col gap-6 sm:gap-8">
