@@ -7,7 +7,7 @@
   --color-primary-100: #fbe8d9;
   --color-primary-200: #f6cdb2;
   --color-primary-300: #eea783;
-  --color-primary-400: #e07a5f;
+  --color-primary-400: #ea8c73;
   --color-primary-500: #c85a32;
   --color-primary-600: #a74323;
   --color-primary-700: #88341d;
@@ -65,13 +65,13 @@
 }
 
 .dark {
-  /* Dark Mode: Elegant High-Contrast Slate & Warm Charcoal */
-  --bg-app: #121316;
-  --bg-surface: #1c1e23;
-  --border-app: #2b2e36;
-  --text-app: #f4f4f5;
-  --text-app-muted: #a1a1aa;
-  --select-text-color: #f4f4f5;
+  /* Dark Mode: Soft, Warm Layered Slate-Charcoal (Elderly Friendly - Gentle Contrast, Low Glare) */
+  --bg-app: #202227;
+  --bg-surface: #2a2d34;
+  --border-app: #424652;
+  --text-app: #f5f5f7;
+  --text-app-muted: #c4c4cc;
+  --select-text-color: #f5f5f7;
 }
 
 @custom-variant dark (&:where(.dark, .dark *));
