@@ -21,7 +21,7 @@ import Checkbox from './ui/Checkbox';
 
 const ScriptureReferenceItem = ({ id, index, onRemove, referenceState, firstSelectRef }) => {
     return (
-        <fieldset className="relative w-full flex flex-col gap-4 p-5 rounded-xl bg-stone-50/80 dark:bg-stone-900/40 border border-app-border/70 shadow-2xs">
+        <fieldset className="relative w-full flex flex-col gap-4 p-4 sm:p-5 rounded-xl bg-secondary-50/60 dark:bg-stone-900/50 border border-app-border shadow-2xs">
             <legend className="w-full mb-1 px-1">
                 <span className="flex justify-between items-center w-full">
                     <span className="text-sm font-bold tracking-wide uppercase text-primary-700 dark:text-primary-300 flex items-center gap-2">
@@ -64,12 +64,12 @@ const MultiScriptureSelector = ({ references, onAdd, onRemove, newRefId }) => {
     }, [newRefId]);
 
     return (
-        <section className="flex flex-col gap-5">
-            <div className="flex items-center gap-3 border-b border-app-border/60 pb-3">
+        <section className="flex flex-col gap-4 sm:gap-6">
+            <div className="flex items-center gap-3 border-b border-app-border/80 pb-3">
                 <span className="flex items-center justify-center w-8 h-8 rounded-lg bg-primary-600 text-white font-bold text-sm flex-shrink-0 shadow-2xs">
                     1
                 </span>
-                <SectionHeader className="!mb-0 !border-b-0 text-xl">
+                <SectionHeader className="!mb-0 !border-b-0 text-xl sm:text-2xl">
                     Choose Bible Passages & Themes
                 </SectionHeader>
             </div>
@@ -77,7 +77,7 @@ const MultiScriptureSelector = ({ references, onAdd, onRemove, newRefId }) => {
                 Select one or more Bible passages and optional topic themes to search for discussion questions.
             </p>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
                 {references.map((ref, idx) => (
                     <ScriptureReferenceItem
                         key={ref.id}
@@ -89,7 +89,7 @@ const MultiScriptureSelector = ({ references, onAdd, onRemove, newRefId }) => {
                     />
                 ))}
             </div>
-            <div className="flex justify-center">
+            <div className="flex justify-center pt-2">
                 <Button
                     type="button"
                     variant="outline"
@@ -264,10 +264,10 @@ const RequestForm = ({ onStudyGenerated, isLoading, setTabValue }) => {
     };
 
     return (
-        <div className="w-full max-w-5xl mx-auto">
+        <div className="w-full max-w-7xl mx-auto">
             <form onSubmit={handleFormSubmit} noValidate>
                 <LoadingOverlay isLoading={isSearching && !showSearchResults} loadingText="Searching questions...">
-                <Card className="flex flex-col gap-8">
+                <Card className="flex flex-col gap-6 sm:gap-8">
                     {/* Step 1: Passages & Themes */}
                     <MultiScriptureSelector
                         references={activeRefs}
@@ -277,7 +277,7 @@ const RequestForm = ({ onStudyGenerated, isLoading, setTabValue }) => {
                     />
 
                     {/* Step 1 Filtering Options */}
-                    <div className="p-5 rounded-xl bg-stone-50/80 dark:bg-stone-900/40 border border-app-border/70 shadow-2xs flex flex-col gap-6">
+                    <div className="p-4 sm:p-6 rounded-xl bg-secondary-50/60 dark:bg-stone-900/50 border border-app-border shadow-2xs flex flex-col gap-6">
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
                             <ThemeSelect
                                 value={selectedThemes}
@@ -297,7 +297,7 @@ const RequestForm = ({ onStudyGenerated, isLoading, setTabValue }) => {
                             </div>
                         </div>
 
-                        <div className="flex flex-col sm:flex-row justify-between items-center gap-4 pt-4 border-t border-app-border/60">
+                        <div className="flex flex-col sm:flex-row justify-between items-center gap-4 pt-4 border-t border-app-border/80">
                             <Button
                                 type="button"
                                 variant="ghost"
@@ -314,7 +314,7 @@ const RequestForm = ({ onStudyGenerated, isLoading, setTabValue }) => {
                                 type="submit"
                                 isLoading={isLoading || isSearching}
                                 loadingText="Searching questions..."
-                                className="w-full sm:min-w-[220px] text-base font-bold py-3"
+                                className="w-full sm:min-w-[240px] text-base font-bold py-3"
                             >
                                 <Search size={20} />
                                 Search Questions
@@ -341,7 +341,7 @@ const RequestForm = ({ onStudyGenerated, isLoading, setTabValue }) => {
                                             ref={resultsHeaderRef}
                                             tabIndex={-1}
                                             centered={false}
-                                            className="focus:outline-none !mb-0 !pb-0 !border-b-0 text-xl"
+                                            className="focus:outline-none !mb-0 !pb-0 !border-b-0 text-xl sm:text-2xl"
                                         >
                                             Search Results
                                         </SectionHeader>
@@ -375,12 +375,12 @@ const RequestForm = ({ onStudyGenerated, isLoading, setTabValue }) => {
                             </LoadingOverlay>
 
                             {/* Step 3: Generate Study Banner */}
-                            <div className="p-6 rounded-xl bg-primary-50/60 dark:bg-primary-950/20 border border-primary-200 dark:border-primary-900/60 shadow-2xs flex flex-col gap-6">
-                                <div className="flex items-center gap-3 border-b border-primary-200/60 dark:border-primary-900/40 pb-3">
+                            <div className="p-5 sm:p-6 rounded-xl bg-primary-50/70 dark:bg-primary-950/30 border border-primary-200 dark:border-primary-900/60 shadow-2xs flex flex-col gap-6">
+                                <div className="flex items-center gap-3 border-b border-primary-200/80 dark:border-primary-900/40 pb-3">
                                     <span className="flex items-center justify-center w-8 h-8 rounded-lg bg-primary-600 text-white font-bold text-sm flex-shrink-0 shadow-2xs">
                                         3
                                     </span>
-                                    <SectionHeader id="study-generation-title" className="!mb-0 !pb-0 !border-b-0 text-xl">
+                                    <SectionHeader id="study-generation-title" className="!mb-0 !pb-0 !border-b-0 text-xl sm:text-2xl">
                                         Generate & Export Study
                                     </SectionHeader>
                                 </div>
@@ -401,7 +401,7 @@ const RequestForm = ({ onStudyGenerated, isLoading, setTabValue }) => {
                                                     type="button"
                                                     aria-disabled="true"
                                                     variant="outline"
-                                                    className="w-full md:w-auto min-w-[260px] opacity-60 cursor-not-allowed text-base font-bold py-3"
+                                                    className="w-full md:w-auto min-w-[280px] opacity-60 cursor-not-allowed text-base font-bold py-3"
                                                 >
                                                     <BookOpen size={20} />
                                                     Generate Study Guide
@@ -413,7 +413,7 @@ const RequestForm = ({ onStudyGenerated, isLoading, setTabValue }) => {
                                                 onClick={handleSubmit}
                                                 isLoading={isLoading || isSubmitting}
                                                 loadingText="Generating study guide..."
-                                                className="w-full md:w-auto min-w-[260px] text-base font-bold py-3 shadow-md"
+                                                className="w-full md:w-auto min-w-[280px] text-base font-bold py-3 shadow-md"
                                             >
                                                 <BookOpen size={20} />
                                                 Generate Study Guide ({selectedIds.length})

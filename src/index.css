@@ -1,30 +1,30 @@
 @import 'tailwindcss';
 
 @theme {
-  /* Production-Grade Warm Pastel Brand Palette */
-  /* Primary Accent: Terracotta Warm Amber */
-  --color-primary-50: #faf3f0;
-  --color-primary-100: #f4e4dc;
-  --color-primary-200: #e8c6b7;
-  --color-primary-300: #da9f88;
-  --color-primary-400: #c97558;
-  --color-primary-500: #b85435;
-  --color-primary-600: #9e3f22;
-  --color-primary-700: #81321b;
-  --color-primary-800: #682b1a;
-  --color-primary-900: #552619;
+  /* Industry-Standard Warm Pastel Brand Palette */
+  /* Primary Accent: Terracotta Warm Coral */
+  --color-primary-50: #fdf6f0;
+  --color-primary-100: #fbe8d9;
+  --color-primary-200: #f6cdb2;
+  --color-primary-300: #eea783;
+  --color-primary-400: #e07a5f;
+  --color-primary-500: #c85a32;
+  --color-primary-600: #a74323;
+  --color-primary-700: #88341d;
+  --color-primary-800: #6f2d1c;
+  --color-primary-900: #5c271b;
 
-  /* Secondary Accent: Soft Warm Clay / Sage */
-  --color-secondary-50: #f6f7f5;
-  --color-secondary-100: #e8ebe6;
-  --color-secondary-200: #d2d8ce;
-  --color-secondary-300: #b3bfad;
-  --color-secondary-400: #8f9f87;
-  --color-secondary-500: #6e8065;
-  --color-secondary-600: #56664f;
-  --color-secondary-700: #465241;
-  --color-secondary-800: #3b4337;
-  --color-secondary-900: #32382f;
+  /* Secondary Accent: Warm Pastel Sage / Oatmeal */
+  --color-secondary-50: #f7f7f5;
+  --color-secondary-100: #ebebe5;
+  --color-secondary-200: #d6d7cb;
+  --color-secondary-300: #b8baaa;
+  --color-secondary-400: #979a86;
+  --color-secondary-500: #7a7e6a;
+  --color-secondary-600: #606453;
+  --color-secondary-700: #4e5043;
+  --color-secondary-800: #414339;
+  --color-secondary-900: #373931;
 
   /* Application Colors */
   --color-app-bg: var(--bg-app);
@@ -33,10 +33,9 @@
   --color-app-text: var(--text-app);
   --color-app-text-muted: var(--text-app-muted);
 
-  /* Gentle, Senior-Friendly Transitions */
+  /* Gentle Transitions */
   --animate-fade-in: fade-in 0.2s cubic-bezier(0.16, 1, 0.3, 1) both;
   --animate-slide-up: slide-up 0.25s cubic-bezier(0.16, 1, 0.3, 1) both;
-  --animate-zoom-in: zoom-in 0.2s cubic-bezier(0.16, 1, 0.3, 1) both;
 
   @keyframes fade-in {
     from { opacity: 0; }
@@ -53,37 +52,26 @@
       transform: translateY(0);
     }
   }
-
-  @keyframes zoom-in {
-    from {
-      opacity: 0;
-      transform: scale(0.99);
-    }
-    to {
-      opacity: 1;
-      transform: scale(1);
-    }
-  }
 }
 
 :root {
-  /* Light Mode: Elegant Warm Parchment & Linen */
-  --bg-app: #f9f7f4;
+  /* Light Mode: Warm Alabaster Parchment */
+  --bg-app: #faf8f5;
   --bg-surface: #ffffff;
-  --border-app: #e7e2da;
+  --border-app: #e6e1da;
   --text-app: #1c1917;
   --text-app-muted: #57534e;
   --select-text-color: #1c1917;
 }
 
 .dark {
-  /* Dark Mode: Warm Deep Slate/Umber */
-  --bg-app: #181615;
-  --bg-surface: #24211f;
-  --border-app: #383431;
-  --text-app: #f5f5f4;
-  --text-app-muted: #a8a29e;
-  --select-text-color: #f5f5f4;
+  /* Dark Mode: Elegant High-Contrast Slate & Warm Charcoal */
+  --bg-app: #121316;
+  --bg-surface: #1c1e23;
+  --border-app: #2b2e36;
+  --text-app: #f4f4f5;
+  --text-app-muted: #a1a1aa;
+  --select-text-color: #f4f4f5;
 }
 
 @custom-variant dark (&:where(.dark, .dark *));
@@ -106,5 +94,5 @@ body {
   border-radius: 9999px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #a8a29e;
+  background: #a1a1aa;
 }
