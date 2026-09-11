@@ -113,109 +113,93 @@ const ContributeForm = () => {
         <div className="w-full">
             <form onSubmit={handleSubmit} noValidate>
                 <LoadingOverlay isLoading={isSubmitting}>
-                <Card className="flex flex-col gap-6 sm:gap-8">
-                    {/* Header */}
-                    <div className="flex items-center gap-3 border-b border-app-border/80 pb-3">
-                        <span className="flex items-center justify-center w-8 h-8 rounded-lg bg-primary-600 text-white font-bold text-sm flex-shrink-0 shadow-2xs">
-                            1
-                        </span>
-                        <SectionHeader className="!mb-0 !border-b-0 text-xl sm:text-2xl">
-                            Contribute a Question
-                        </SectionHeader>
-                    </div>
-                    <p className="text-base text-app-text-muted font-normal -mt-1">
-                        Share a new Bible discussion question with the community. Select the scripture passage, choose a theme, and enter your question.
-                    </p>
-
-                    {/* Bible Reference */}
-                    <fieldset className="p-4 sm:p-5 rounded-xl bg-secondary-50/60 dark:bg-stone-900/50 border border-app-border shadow-2xs flex flex-col gap-4">
-                        <legend className="w-full mb-1 px-1">
-                            <span className="text-sm font-bold tracking-wide uppercase text-primary-700 dark:text-primary-300 flex items-center gap-2">
-                                <span className="w-2 h-2 rounded-full bg-primary-500 inline-block" />
-                                Scripture Passage
-                            </span>
+                <Card className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12">
+                    {/* Left Column: Bible Reference */}
+                    <fieldset className="flex flex-col gap-6">
+                        <legend className="contents">
+                            <SectionHeader>Bible Reference</SectionHeader>
                         </legend>
 
-                        <BibleReferenceSelector
-                            bibleReference={bibleReference}
-                            labelPrefix="Contribute: "
-                            required
-                            layout="grid"
-                            errors={errors}
-                            firstSelectRef={firstSelectRef}
-                        />
+                        <div className="animate-in fade-in duration-300">
+                            <BibleReferenceSelector
+                                bibleReference={bibleReference}
+                                labelPrefix="Contribute: "
+                                required
+                                errors={errors}
+                                firstSelectRef={firstSelectRef}
+                            />
+                        </div>
                     </fieldset>
 
-                    {/* Theme & Question Details */}
-                    <fieldset className="p-4 sm:p-5 rounded-xl bg-secondary-50/60 dark:bg-stone-900/50 border border-app-border shadow-2xs flex flex-col gap-6">
-                        <legend className="w-full mb-1 px-1">
-                            <span className="text-sm font-bold tracking-wide uppercase text-primary-700 dark:text-primary-300 flex items-center gap-2">
-                                <span className="w-2 h-2 rounded-full bg-primary-500 inline-block" />
-                                Details
-                            </span>
+                    {/* Right Column: Theme and Question */}
+                    <fieldset className="flex flex-col gap-6">
+                        <legend className="contents">
+                            <SectionHeader>Theme & Question</SectionHeader>
                         </legend>
-
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
-                            <ThemeSelect
-                                value={selectedTheme}
-                                onChange={(val) => {
-                                    setSelectedTheme(val);
-                                    if (errors.theme) setErrors(prev => ({ ...prev, theme: null }));
-                                }}
-                                required
-                                label="Theme"
-                                error={errors.theme}
-                            />
-
-                            <div className="space-y-1">
-                                <Textarea
-                                    id="questionText"
-                                    label="Question Details"
-                                    value={questionText}
-                                    onChange={(e) => {
-                                        setQuestionText(e.target.value);
-                                        if (errors.question) setErrors(prev => ({ ...prev, question: null }));
+                        <div className="animate-in fade-in duration-300">
+                            <div className="space-y-6">
+                                <ThemeSelect
+                                    value={selectedTheme}
+                                    onChange={(val) => {
+                                        setSelectedTheme(val);
+                                        if (errors.theme) setErrors(prev => ({ ...prev, theme: null }));
                                     }}
-                                    placeholder="Type your Bible study question here..."
                                     required
-                                    rows={4}
-                                    error={errors.question}
-                                    helperText="Explain the context or specific thought behind your question."
+                                    label="Theme"
+                                    error={errors.theme}
                                 />
-                                <div className="flex justify-between items-center px-1">
-                                    <p className="text-xs text-app-text-muted italic">
-                                        Minimum 5 characters required
-                                    </p>
-                                    <span className={clsx(
-                                        "text-xs font-bold transition-colors duration-300",
-                                        questionText.length >= 5 ? "text-primary-600 dark:text-primary-400" : "text-secondary-600 dark:text-secondary-400"
-                                    )}>
-                                        {questionText.length} characters
-                                    </span>
+
+                                <div className="space-y-1">
+                                    <Textarea
+                                        id="questionText"
+                                        label="Question Details"
+                                        value={questionText}
+                                        onChange={(e) => {
+                                            setQuestionText(e.target.value);
+                                            if (errors.question) setErrors(prev => ({ ...prev, question: null }));
+                                        }}
+                                        placeholder="Type your Bible study question here..."
+                                        required
+                                        rows={6}
+                                        error={errors.question}
+                                        helperText="Explain the context or specific thought behind your question."
+                                    />
+                                    <div className="flex justify-between items-center px-1">
+                                        <p className="text-xs text-app-text-muted italic">
+                                            Minimum 5 characters required
+                                        </p>
+                                        <span className={clsx(
+                                            "text-xs font-bold transition-colors duration-300",
+                                            questionText.length >= 5 ? "text-primary-600 dark:text-primary-400" : "text-secondary-600 dark:text-secondary-400"
+                                        )}>
+                                            {questionText.length} characters
+                                        </span>
+                                    </div>
                                 </div>
                             </div>
                         </div>
-
-                        {/* Actions */}
-                        <div className="flex flex-col sm:flex-row justify-between items-center gap-4 pt-4 border-t border-app-border/80">
-                            <Button
-                                type="button"
-                                variant="ghost"
-                                onClick={handleReset}
-                                className="w-full sm:w-auto text-app-text-muted hover:text-stone-900 dark:hover:text-stone-100 font-semibold"
-                            >
-                                <RotateCcw size={16} />
-                                Reset Form
-                            </Button>
-                            <Button
-                                type="submit"
-                                isLoading={isSubmitting}
-                                className="w-full sm:min-w-[240px] text-base font-bold py-3"
-                            >
-                                Submit Question
-                            </Button>
-                        </div>
                     </fieldset>
+
+                    {/* Actions */}
+                    <div className="lg:col-span-2 flex flex-col sm:flex-row items-center justify-center gap-4 pt-4 border-t border-app-border/80">
+                        <Button
+                            type="button"
+                            variant="ghost"
+                            onClick={handleReset}
+                            className="w-full sm:w-auto text-app-text-muted hover:text-stone-900 dark:hover:text-stone-100 font-semibold"
+                        >
+                            <RotateCcw size={16} />
+                            Reset Form
+                        </Button>
+                        <Button
+                            type="submit"
+                            isLoading={isSubmitting}
+                            size="lg"
+                            className="w-full sm:w-auto min-w-[280px] shadow-sm font-bold"
+                        >
+                            Submit Question
+                        </Button>
+                    </div>
                 </Card>
                 </LoadingOverlay>
             </form>

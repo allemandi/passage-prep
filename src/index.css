@@ -55,12 +55,12 @@
 }
 
 :root {
-  /* Light Mode: Rich Warm Parchment with Strong Contrast */
-  --bg-app: #f2ece1;
+  /* Light Mode: Warm Alabaster Parchment */
+  --bg-app: #faf8f5;
   --bg-surface: #ffffff;
-  --border-app: #d8cebe;
+  --border-app: #e6e1da;
   --text-app: #1c1917;
-  --text-app-muted: #524e4a;
+  --text-app-muted: #57534e;
   --select-text-color: #1c1917;
 }
 

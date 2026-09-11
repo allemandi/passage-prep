@@ -50,7 +50,7 @@ const AdminFilterBar = ({ onApply, initialThemes = defaultThemes, title, childre
                 </legend>
             )}
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6 justify-center mb-8">
+            <div className="mb-8">
                 <BibleReferenceSelector
                     bibleReference={bibleRef}
                     layout="grid"

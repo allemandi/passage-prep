@@ -11,7 +11,7 @@ describe('RequestForm', () => {
     it('populates Bible books correctly', async () => {
         renderWithProviders(<RequestForm onStudyGenerated={() => {}} isLoading={false} />);
 
-        const bookSelect = screen.getAllByLabelText(/Passage 1: Book/i)[0];
+        const bookSelect = screen.getAllByLabelText('Book')[0];
         fireEvent.change(bookSelect, { target: { value: 'Genesis' } });
 
         const option = await screen.findByText('Genesis', { selector: '.react-select__option' });
@@ -21,7 +21,7 @@ describe('RequestForm', () => {
     it('performs search and displays results', async () => {
         renderWithProviders(<RequestForm onStudyGenerated={() => {}} isLoading={false} />);
 
-        const bookSelect = screen.getAllByLabelText(/Passage 1: Book/i)[0];
+        const bookSelect = screen.getAllByLabelText('Book')[0];
         fireEvent.change(bookSelect, { target: { value: 'Genesis' } });
         const option = await screen.findByText('Genesis', { selector: '.react-select__option' });
         fireEvent.click(option);
@@ -38,7 +38,7 @@ describe('RequestForm', () => {
         renderWithProviders(<RequestForm onStudyGenerated={() => {}} isLoading={false} />);
 
         // Set a book so search doesn't fail
-        const bookSelect = screen.getAllByLabelText(/Passage 1: Book/i)[0];
+        const bookSelect = screen.getAllByLabelText('Book')[0];
         fireEvent.change(bookSelect, { target: { value: 'Genesis' } });
         const option = await screen.findByText('Genesis', { selector: '.react-select__option' });
         fireEvent.click(option);
