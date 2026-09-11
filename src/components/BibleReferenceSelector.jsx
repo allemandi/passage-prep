@@ -86,7 +86,7 @@ const BibleReferenceSelector = ({
 
     if (layout === 'grid') {
         return (
-            <div className="contents">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 w-full">
                 {config.map((item, idx) => renderCombobox(item, idx === 0 ? firstSelectRef : null))}
             </div>
         );

@@ -53,25 +53,24 @@ export default function HelpModal({ open, onClose }) {
                   <section>
                     <h3 className="text-lg font-bold mb-3 text-app-text flex items-center gap-2">
                       <div className="w-2 h-5 bg-primary-500 rounded-full" />
-                      Search &amp; Format
+                      Search &amp; Build Study Guides
                     </h3>
                     <ul className="list-disc list-inside space-y-2 text-app-text-muted leading-relaxed pl-2">
-                      <li>Add scripture references.</li>
-                      <li>Click Search Questions.</li>
-                      <li>Select questions, then Generate Study to preview/copy.</li>
+                      <li>Select one or more Bible passages and optional topic themes.</li>
+                      <li>Click <strong className="text-app-text">Search Questions</strong> to retrieve matching study questions.</li>
+                      <li>Check the questions you want, then click <strong className="text-app-text">Generate Study Guide</strong> to review or copy formatted text (Plain Text, Markdown, or Rich Text).</li>
                     </ul>
                   </section>
 
                   <section>
                     <h3 className="text-lg font-bold mb-3 text-app-text flex items-center gap-2">
                       <div className="w-2 h-5 bg-primary-500 rounded-full" />
-                      Contribute
+                      Contribute Questions
                     </h3>
                     <ul className="list-disc list-inside space-y-2 text-app-text-muted leading-relaxed pl-2">
-                      <li>Select a theme.</li>
-                      <li>Enter a Bible reference.</li>
-                      <li>Write your question.</li>
-                      <li>Submit for review.</li>
+                      <li>Select the scripture reference and a topic theme.</li>
+                      <li>Write your discussion question (minimum 5 characters).</li>
+                      <li>Submit your question to add it to the shared question bank.</li>
                     </ul>
                   </section>
                 </div>
