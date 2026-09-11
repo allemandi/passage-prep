@@ -375,9 +375,9 @@ const RequestForm = ({ onStudyGenerated, isLoading, setTabValue }) => {
                                 />
                             </LoadingOverlay>
 
-                            {/* Step 3: Generate Study Banner */}
-                            <div className="p-5 sm:p-6 rounded-xl bg-primary-50/70 dark:bg-primary-950/30 border border-primary-200 dark:border-primary-900/60 shadow-2xs flex flex-col gap-6">
-                                <div className="flex items-center gap-3 border-b border-primary-200/80 dark:border-primary-900/40 pb-3">
+                            {/* Step 3: Generate Study Section */}
+                            <div className="p-5 sm:p-6 rounded-xl bg-secondary-50/60 dark:bg-stone-900/50 border border-app-border shadow-2xs flex flex-col gap-6">
+                                <div className="flex items-center gap-3 border-b border-app-border/80 pb-3">
                                     <span className="flex items-center justify-center w-8 h-8 rounded-lg bg-primary-600 text-white font-bold text-sm flex-shrink-0 shadow-2xs">
                                         3
                                     </span>
@@ -395,14 +395,14 @@ const RequestForm = ({ onStudyGenerated, isLoading, setTabValue }) => {
                                         helperText="When checked, verse citations (e.g. Gen 1:1) will be prepended to questions."
                                     />
 
-                                    <div className="w-full md:w-auto flex flex-col items-center gap-2">
+                                    <div className="w-full md:w-auto flex flex-col sm:flex-row items-center gap-3">
                                         {isGenerateDisabled ? (
                                             <Tooltip content="Please check at least one question above to enable study generation">
                                                 <Button
                                                     type="button"
                                                     aria-disabled="true"
                                                     variant="outline"
-                                                    className="w-full md:w-auto min-w-[280px] opacity-60 cursor-not-allowed text-base font-bold py-3"
+                                                    className="w-full md:w-auto min-w-[260px] opacity-60 cursor-not-allowed text-base font-bold py-3"
                                                 >
                                                     <BookOpen size={20} />
                                                     Generate Study Guide
@@ -414,7 +414,7 @@ const RequestForm = ({ onStudyGenerated, isLoading, setTabValue }) => {
                                                 onClick={handleSubmit}
                                                 isLoading={isLoading || isSubmitting}
                                                 loadingText="Generating study guide..."
-                                                className="w-full md:w-auto min-w-[280px] text-base font-bold py-3 shadow-md"
+                                                className="w-full md:w-auto min-w-[260px] text-base font-bold py-3 shadow-md"
                                             >
                                                 <BookOpen size={20} />
                                                 Generate Study Guide ({selectedIds.length})
@@ -424,28 +424,6 @@ const RequestForm = ({ onStudyGenerated, isLoading, setTabValue }) => {
                                 </div>
                             </div>
                         </section>
-                    )}
-
-                    {/* Floating / Sticky Bar when questions are selected */}
-                    {showSearchResults && selectedIds.length > 0 && (
-                        <div className="sticky bottom-4 z-30 mx-auto w-full max-w-2xl bg-app-surface/95 backdrop-blur-md p-4 rounded-2xl border-2 border-primary-500 shadow-2xl flex items-center justify-between gap-4 animate-slide-up">
-                            <div className="flex items-center gap-2 font-bold text-app-text text-sm sm:text-base">
-                                <span className="flex items-center justify-center w-7 h-7 rounded-full bg-primary-600 text-white text-xs">
-                                    {selectedIds.length}
-                                </span>
-                                <span>{selectedIds.length === 1 ? 'question selected' : 'questions selected'}</span>
-                            </div>
-                            <Button
-                                type="button"
-                                onClick={handleSubmit}
-                                isLoading={isLoading || isSubmitting}
-                                loadingText="Generating..."
-                                className="font-bold py-2.5 px-6 shadow-md text-sm sm:text-base whitespace-nowrap"
-                            >
-                                <BookOpen size={18} />
-                                Generate Study Guide ({selectedIds.length})
-                            </Button>
-                        </div>
                     )}
                 </Card>
                 </LoadingOverlay>
