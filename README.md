@@ -59,16 +59,15 @@
 ## 🖥️ Usage
 
 ### Search & Format
-- Add scripture references
-- Filter by theme
+- Add one or more scripture references
+- Optionally filter by topic themes or unapproved questions
 - Click **Search Questions**
-- Select questions, then **Generate Study** to preview/copy
+- Select discussion questions, then click **Generate Study Guide** to preview and copy in Plain Text, Markdown, or Rich Text format
 
 ### Submit a Question
-- Select a theme
-- Enter a Bible reference
-- Write your question
-- Submit
+- Select a scripture passage and topic theme
+- Enter your discussion question
+- Submit to save your question to the shared database
 
 ### Admin
 - Login with admin credentials
