@@ -40,56 +40,66 @@ const AdminFilterBar = ({ onApply, initialThemes = defaultThemes, title, childre
         }, 0);
     };
 
+    const handleSubmit = (e) => {
+        e.preventDefault();
+        handleApply();
+    };
+
     return (
-        <fieldset className="w-full mb-10">
-            {title && (
-                <legend className="contents">
-                    <h2 className="text-xl font-bold mb-8 text-center text-app-text w-full block">
+        <form onSubmit={handleSubmit} noValidate className="w-full mb-8">
+            <fieldset className="w-full p-4 sm:p-6 rounded-xl bg-secondary-50/60 dark:bg-stone-900/50 border border-app-border shadow-2xs flex flex-col gap-6">
+                {title && (
+                    <legend className="px-2 text-lg sm:text-xl font-bold text-app-text">
                         {title}
-                    </h2>
-                </legend>
-            )}
+                    </legend>
+                )}
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6 justify-center mb-8">
-                <BibleReferenceSelector
-                    bibleReference={bibleRef}
-                    layout="grid"
-                    labelPrefix="Filter: "
-                    firstSelectRef={firstSelectRef}
-                />
-            </div>
+                <div className="w-full">
+                    <BibleReferenceSelector
+                        bibleReference={bibleRef}
+                        layout="grid"
+                        labelPrefix="Filter: "
+                        firstSelectRef={firstSelectRef}
+                    />
+                </div>
 
-            <div className="flex flex-col sm:flex-row justify-center items-center gap-6">
-                <div className="w-full max-w-xs">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-start pt-2 border-t border-app-border/80">
                     <ThemeSelect
                         value={selectedThemes}
                         onChange={setSelectedThemes}
                         isMulti
-                        label="Themes"
+                        label="Filter by Themes"
                     />
+
+                    {children && (
+                        <div className="flex flex-col sm:flex-row items-center gap-4 pt-2 md:pt-7 justify-start md:justify-end">
+                            {children}
+                        </div>
+                    )}
                 </div>
 
-                <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto">
+                <div className="flex flex-col sm:flex-row justify-between items-center gap-4 pt-4 border-t border-app-border/80">
                     <Button
                         type="button"
                         variant="ghost"
                         onClick={handleReset}
-                        className="w-full sm:w-auto text-app-text-muted hover:text-secondary-600"
+                        className="w-full sm:w-auto text-app-text-muted hover:text-stone-900 dark:hover:text-stone-100 font-semibold"
+                        title="Reset Filters"
                     >
-                        <RotateCcw size={18} />
+                        <RotateCcw size={16} />
                         Reset Filters
                     </Button>
+
                     <Button
-                        onClick={handleApply}
+                        type="submit"
                         variant="primary"
-                        className="w-full sm:w-auto min-w-[160px]"
+                        className="w-full sm:w-auto min-w-[200px] font-bold py-2.5"
                     >
-                        <Filter className="w-5 h-5" /> Apply Filters
+                        <Filter size={18} /> Apply Filters
                     </Button>
-                    {children}
                 </div>
-            </div>
-        </fieldset>
+            </fieldset>
+        </form>
     );
 };
 

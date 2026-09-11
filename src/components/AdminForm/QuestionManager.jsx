@@ -10,7 +10,7 @@ import {
 } from '../../services/dataService';
 import { defaultThemes } from '../ui/ThemeSelect';
 import Button from '../ui/Button';
-import { Trash2, Check, RotateCcw } from 'lucide-react';
+import { Trash2, Check, RotateCcw, Clock, Database } from 'lucide-react';
 import AdminFilterBar from './AdminFilterBar';
 import LoadingOverlay from '../ui/LoadingOverlay';
 import Checkbox from '../ui/Checkbox';
@@ -53,13 +53,6 @@ const QuestionManager = ({
         try {
             const themes = activeFilters?.themes || [];
 
-            // Logic for isApproved:
-            // 1. In Review Mode (showApproveAction = true):
-            //    - isApproved: false (Always show pending only)
-            // 2. In Edit Mode (showApproveAction = false):
-            //    - If showUnapproved is true -> isApproved: undefined (Show All)
-            //    - If showUnapproved is false -> isApproved: true (Show Approved Only)
-
             const apiFilter = {
                 ...activeFilters,
                 chapter: activeFilters?.chapter || null,
@@ -86,7 +79,6 @@ const QuestionManager = ({
         fetchFilteredData();
     }, [fetchFilteredData]);
 
-    // Auto-refresh when the component is focused/visible or when tab changes (handled by parent typically, but we can detect visibility)
     useEffect(() => {
         const handleVisibilityChange = () => {
             if (document.visibilityState === 'visible') {
@@ -146,35 +138,56 @@ const QuestionManager = ({
 
     return (
         <div className="mb-10 w-full animate-in fade-in duration-500">
+            {/* Mode Banner */}
+            <div className="mb-6 p-4 rounded-xl border border-app-border bg-app-surface shadow-2xs flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+                <div className="flex items-center gap-3">
+                    <span className={clsx(
+                        "p-2 rounded-lg text-white font-bold text-xs flex items-center justify-center",
+                        showApproveAction ? "bg-amber-500 dark:bg-amber-600" : "bg-primary-600 dark:bg-primary-500"
+                    )}>
+                        {showApproveAction ? <Clock size={18} /> : <Database size={18} />}
+                    </span>
+                    <div>
+                        <h2 className="text-base font-bold text-app-text">
+                            {showApproveAction ? 'Pending Community Questions Review' : 'Question Database Management'}
+                        </h2>
+                        <p className="text-xs text-app-text-muted">
+                            {showApproveAction
+                                ? 'Review user-submitted questions and approve them into the shared collection.'
+                                : 'Filter, edit, or remove questions currently in the study database.'}
+                        </p>
+                    </div>
+                </div>
+
+                <Button
+                    type="button"
+                    variant="ghost"
+                    onClick={() => fetchFilteredData(undefined, true)}
+                    className="text-xs font-semibold px-3 py-1.5 min-h-[36px]"
+                    title="Refresh list"
+                    disabled={isFetching}
+                >
+                    <RotateCcw
+                        size={14}
+                        className={clsx(isFetching && "animate-spin text-primary-500")}
+                    />
+                    {isFetching ? 'Refreshing...' : 'Refresh Data'}
+                </Button>
+            </div>
+
             <AdminFilterBar
                 title={title}
                 onApply={handleApplyFilters}
             >
-                <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto">
-                    <Button
-                        type="button"
-                        variant="ghost"
-                        onClick={() => fetchFilteredData(undefined, true)}
-                        className="w-full sm:w-auto"
-                        title="Refresh list"
-                        disabled={isFetching}
-                    >
-                        <RotateCcw
-                            size={18}
-                            className={clsx(isFetching && "animate-spin text-primary-500")}
-                        />
-                        {isFetching ? 'Refreshing...' : 'Refresh'}
-                    </Button>
-                    {!showApproveAction && (
-                        <Checkbox
-                            id="show-unapproved-admin"
-                            label="Show Unapproved"
-                            checked={showUnapproved}
-                            onChange={setShowUnapproved}
-                            className="min-w-[180px]"
-                        />
-                    )}
-                </div>
+                {!showApproveAction && (
+                    <Checkbox
+                        id="show-unapproved-admin"
+                        label="Include Unapproved Questions"
+                        checked={showUnapproved}
+                        onChange={setShowUnapproved}
+                        className="min-w-[180px]"
+                    />
+                )}
             </AdminFilterBar>
 
             <div className="mt-6 w-full">
@@ -190,7 +203,7 @@ const QuestionManager = ({
                 </LoadingOverlay>
             </div>
 
-            <div className="flex flex-col sm:flex-row justify-center gap-6 mt-12">
+            <div className="flex flex-col sm:flex-row justify-center gap-6 mt-8">
                 {showApproveAction && (
                     <Button
                         onClick={handleApproveSelected}
