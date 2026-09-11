@@ -47,6 +47,7 @@ const ScriptureReferenceItem = ({ id, index, onRemove, referenceState, firstSele
                 idPrefix={`ref-${id}-`}
                 labelPrefix={`Passage ${index + 1}: `}
                 required={index === 0}
+                layout="grid"
                 firstSelectRef={firstSelectRef}
             />
         </fieldset>
@@ -77,7 +78,7 @@ const MultiScriptureSelector = ({ references, onAdd, onRemove, newRefId }) => {
                 Select one or more Bible passages and optional topic themes to search for discussion questions.
             </p>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+            <div className="flex flex-col gap-4 sm:gap-6">
                 {references.map((ref, idx) => (
                     <ScriptureReferenceItem
                         key={ref.id}
@@ -111,7 +112,7 @@ const RequestForm = ({ onStudyGenerated, isLoading, setTabValue }) => {
     const searchButtonRef = useRef(null);
 
     // Custom state management for multiple references (up to 6)
-    const [activeIndices, setActiveIndices] = useState([0, 1]);
+    const [activeIndices, setActiveIndices] = useState([0]);
     const [newRefId, setNewRefId] = useState(null);
     const refSlots = [
         useBibleReference(),
@@ -168,7 +169,7 @@ const RequestForm = ({ onStudyGenerated, isLoading, setTabValue }) => {
     };
 
     const handleClearForm = () => {
-        setActiveIndices([0, 1]);
+        setActiveIndices([0]);
         refSlots.forEach(slot => slot.reset());
         setSelectedThemes(defaultThemes);
         setNewRefId(null);
@@ -423,6 +424,28 @@ const RequestForm = ({ onStudyGenerated, isLoading, setTabValue }) => {
                                 </div>
                             </div>
                         </section>
+                    )}
+
+                    {/* Floating / Sticky Bar when questions are selected */}
+                    {showSearchResults && selectedIds.length > 0 && (
+                        <div className="sticky bottom-4 z-30 mx-auto w-full max-w-2xl bg-app-surface/95 backdrop-blur-md p-4 rounded-2xl border-2 border-primary-500 shadow-2xl flex items-center justify-between gap-4 animate-slide-up">
+                            <div className="flex items-center gap-2 font-bold text-app-text text-sm sm:text-base">
+                                <span className="flex items-center justify-center w-7 h-7 rounded-full bg-primary-600 text-white text-xs">
+                                    {selectedIds.length}
+                                </span>
+                                <span>{selectedIds.length === 1 ? 'question selected' : 'questions selected'}</span>
+                            </div>
+                            <Button
+                                type="button"
+                                onClick={handleSubmit}
+                                isLoading={isLoading || isSubmitting}
+                                loadingText="Generating..."
+                                className="font-bold py-2.5 px-6 shadow-md text-sm sm:text-base whitespace-nowrap"
+                            >
+                                <BookOpen size={18} />
+                                Generate Study Guide ({selectedIds.length})
+                            </Button>
+                        </div>
                     )}
                 </Card>
                 </LoadingOverlay>
