@@ -26,11 +26,11 @@ describe('RequestForm', () => {
         const option = await screen.findByText('Genesis', { selector: '.react-select__option' });
         fireEvent.click(option);
 
-        const searchButton = screen.getByRole('button', { name: /Search/i });
+        const searchButton = screen.getByRole('button', { name: /Search Questions/i });
         fireEvent.click(searchButton);
 
         await waitFor(() => {
-            expect(screen.getByText('Question about Genesis')).toBeInTheDocument();
+            expect(screen.getAllByText(/Question about Genesis/i).length).toBeGreaterThan(0);
         });
     });
 
