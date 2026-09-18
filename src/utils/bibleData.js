@@ -27,7 +27,8 @@ export const getVersesForChapter = (bookName, chapterNum) => {
 };
 
 export const formatReference = (book, chapter, startVerse = '', endVerse = '') => {
-    let ref = `${book} ${chapter}`;
+    let ref = book || '';
+    if (chapter) ref += ` ${chapter}`;
     if (startVerse) ref += `:${startVerse}`;
     if (endVerse && endVerse !== startVerse) ref += `-${endVerse}`;
     return ref;
