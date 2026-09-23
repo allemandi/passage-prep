@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useRef, useEffect } from 'react';
 import { Search, MessageSquarePlus, CheckCircle2, Pen, RotateCcw, CheckSquare, Square } from 'lucide-react';
 import clsx from 'clsx';
 import { getSortedQuestions, formatReference } from '../utils/bibleData';
@@ -65,6 +65,14 @@ const QuestionTable = ({
         !allSelected;
     }, [sortedQuestions, selectedIds, allSelected]);
 
+    const selectAllCheckboxRef = useRef(null);
+
+    useEffect(() => {
+        if (selectAllCheckboxRef.current) {
+            selectAllCheckboxRef.current.indeterminate = someSelected;
+        }
+    }, [someSelected]);
+
     if (sortedQuestions.length === 0) {
         return <EmptyState isReviewMode={isReviewMode} setTabValue={setTabValue} />;
     }
@@ -129,9 +137,7 @@ const QuestionTable = ({
                                         id="select-all-checkbox"
                                         aria-label="Select all questions"
                                         checked={allSelected}
-                                        ref={(input) => {
-                                            if (input) input.indeterminate = someSelected;
-                                        }}
+                                        ref={selectAllCheckboxRef}
                                         onChange={(checked) => {
                                             const ids = sortedQuestions.map(q => q._id);
                                             onSelectionChange(ids, checked);
@@ -168,13 +174,23 @@ const QuestionTable = ({
                             return (
                                 <tr
                                     key={question._id}
+                                    tabIndex={0}
+                                    role="row"
+                                    aria-selected={isSelected}
                                     onClick={(e) => {
                                         // Don't toggle if clicking on a button or checkbox
                                         if (e.target.closest('button') || e.target.closest('input[type="checkbox"]')) return;
                                         onSelectionChange([question._id], !isSelected);
                                     }}
+                                    onKeyDown={(e) => {
+                                        if (e.key === ' ' || e.key === 'Enter') {
+                                            if (e.target.closest('button') || e.target.closest('input[type="checkbox"]')) return;
+                                            e.preventDefault();
+                                            onSelectionChange([question._id], !isSelected);
+                                        }
+                                    }}
                                     className={clsx(
-                                        "transition-colors duration-150 cursor-pointer select-none min-h-[56px]",
+                                        "transition-colors duration-150 cursor-pointer select-none min-h-[56px] focus:outline-none focus:ring-2 focus:ring-primary-500/50",
                                         isSelected
                                             ? "bg-primary-100/70 dark:bg-primary-900/40"
                                             : "hover:bg-primary-50/50 dark:hover:bg-primary-900/20"

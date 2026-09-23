@@ -156,7 +156,7 @@ const RequestForm = ({ onStudyGenerated, isLoading, setTabValue }) => {
             // Focus the results header for screen readers
             resultsHeaderRef.current?.focus();
         }
-    }, [showSearchResults]);
+    }, [showSearchResults, searchResults]);
 
     const handleClearResults = () => {
         setSearchResults([]);

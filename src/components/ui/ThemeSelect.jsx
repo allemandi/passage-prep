@@ -90,8 +90,7 @@ const ThemeSelect = ({
                 <ListboxOptions
                   className={clsx(
                     "absolute z-[100] mt-2 w-full max-h-64 overflow-y-auto rounded-xl border border-app-border",
-                    "bg-app-surface shadow-2xl py-1 focus:outline-none",
-                    "bottom-full mb-2.5 mt-0" // Always position above button if tight at bottom or stack cleanly with high z-index
+                    "bg-app-surface shadow-2xl py-1 focus:outline-none"
                   )}
                 >
                   {isMulti && (
