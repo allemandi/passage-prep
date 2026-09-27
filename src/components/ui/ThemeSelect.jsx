@@ -98,7 +98,7 @@ const ThemeSelect = ({
                         <button
                             type="button"
                             onClick={selectAll}
-                            className="flex-1 flex items-center justify-center gap-1.5 py-1.5 text-xs font-bold rounded-lg bg-primary-100 text-primary-800 hover:bg-primary-200 dark:bg-primary-950/60 dark:text-primary-200 transition-colors min-h-[36px]"
+                            className="flex-1 flex items-center justify-center gap-1.5 py-1.5 text-xs font-bold rounded-lg bg-primary-100 text-primary-800 hover:bg-primary-200 dark:bg-stone-800 dark:text-stone-200 dark:hover:bg-stone-700 transition-colors min-h-[36px]"
                         >
                             <CheckSquare size={14} />
                             Select All
@@ -106,7 +106,7 @@ const ThemeSelect = ({
                         <button
                             type="button"
                             onClick={clearAll}
-                            className="flex-1 flex items-center justify-center gap-1.5 py-1.5 text-xs font-bold rounded-lg bg-stone-100 text-stone-700 hover:bg-stone-200 dark:bg-stone-800 dark:text-stone-300 transition-colors min-h-[36px]"
+                            className="flex-1 flex items-center justify-center gap-1.5 py-1.5 text-xs font-bold rounded-lg bg-stone-100 text-stone-700 hover:bg-stone-200 dark:bg-stone-800 dark:text-stone-200 dark:hover:bg-stone-700 transition-colors min-h-[36px]"
                         >
                             <X size={14} />
                             Clear
@@ -121,10 +121,10 @@ const ThemeSelect = ({
                         clsx(
                           "flex items-center justify-between px-4 py-3 text-base cursor-pointer select-none transition-all duration-150 min-h-[44px]",
                           selected
-                            ? "bg-primary-600 text-white font-bold dark:bg-primary-500"
+                            ? "bg-primary-600 text-white font-bold dark:bg-primary-600 dark:text-white"
                             : focus
-                            ? "bg-primary-100 text-primary-900 dark:bg-primary-950/60 dark:text-primary-100 font-semibold"
-                            : "text-app-text"
+                            ? "bg-primary-100 text-primary-900 dark:bg-stone-700/60 dark:text-stone-100 font-semibold"
+                            : "text-app-text hover:bg-primary-50 dark:hover:bg-stone-700/60 dark:hover:text-stone-100"
                         )
                       }
                     >
