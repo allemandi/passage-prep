@@ -4,7 +4,7 @@ import clsx from 'clsx';
 const variants = {
   primary: 'bg-primary-600 text-white hover:bg-primary-700 active:bg-primary-800 disabled:bg-stone-300 dark:disabled:bg-stone-800 shadow-sm focus-visible:ring-primary-500',
   secondary: 'bg-secondary-600 text-white hover:bg-secondary-700 active:bg-secondary-800 disabled:bg-stone-300 dark:disabled:bg-stone-800 shadow-sm focus-visible:ring-secondary-500',
-  outline: 'border border-primary-600/80 text-primary-700 hover:bg-primary-50 dark:border-primary-400 dark:text-primary-200 dark:hover:bg-primary-950/40 disabled:opacity-50 focus-visible:ring-primary-500',
+  outline: 'border border-primary-600/80 text-primary-700 hover:bg-primary-50 dark:border-primary-400 dark:text-primary-200 dark:hover:bg-stone-800/80 disabled:opacity-50 focus-visible:ring-primary-500',
   ghost: 'text-app-text-muted hover:bg-stone-100 hover:text-app-text dark:hover:bg-stone-800/60 disabled:opacity-50 focus-visible:ring-primary-500',
 };
 

@@ -93,10 +93,10 @@ const ScriptureCombobox = React.forwardRef(({
                         clsx(
                             "px-4 py-3.5 text-base cursor-pointer select-none transition-colors duration-150 min-h-[48px] flex items-center",
                             isSelected
-                                ? "bg-primary-600 text-white font-bold dark:bg-primary-500"
+                                ? "bg-primary-600 text-white font-bold dark:bg-primary-600 dark:text-white"
                                 : isFocused
-                                    ? "bg-primary-100 text-primary-900 dark:bg-primary-900/40 dark:text-primary-100 font-semibold"
-                                    : "text-app-text hover:bg-primary-50 dark:hover:bg-primary-900/20"
+                                    ? "bg-primary-100 text-primary-900 dark:bg-stone-700/60 dark:text-stone-100 font-semibold"
+                                    : "text-app-text hover:bg-primary-50 dark:hover:bg-stone-700/60 dark:hover:text-stone-100"
                         ),
                     noOptionsMessage: () => "px-4 py-8 text-base text-app-text-muted text-center font-medium",
                     loadingMessage: () => "px-4 py-8 text-base text-app-text-muted text-center font-medium",
