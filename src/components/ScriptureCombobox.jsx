@@ -47,9 +47,12 @@ const ScriptureCombobox = React.forwardRef(({
         return placeholder || `Select ${label.toLowerCase()}...`;
     }, [finalIsDisabled, isEndVerse, startVerseValue, placeholder, label]);
 
+    const hasCustomAriaLabel = ariaLabel && ariaLabel !== label;
+
     return (
         <div className={clsx("relative w-full", className)}>
             <label
+                id={`${id}-label`}
                 htmlFor={id}
                 className="block mb-2 text-base font-bold text-app-text"
             >
@@ -58,7 +61,8 @@ const ScriptureCombobox = React.forwardRef(({
             <Select
                 ref={ref}
                 inputId={id}
-                aria-label={ariaLabel || label}
+                aria-label={hasCustomAriaLabel ? ariaLabel : undefined}
+                aria-labelledby={!hasCustomAriaLabel ? `${id}-label` : undefined}
                 options={processedOptions}
                 value={selectedValue}
                 onChange={handleChange}

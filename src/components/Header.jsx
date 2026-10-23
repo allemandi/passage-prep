@@ -47,7 +47,7 @@ export default function Header({ mode, setMode, tabValue, setTabValue }) {
       onClick={toggleAdmin}
       type="button"
       className={clsx(
-        "p-2 rounded-xl border transition-all duration-200 focus:outline-none focus:ring-4 focus:ring-primary-400/20 backdrop-blur-md min-h-[40px] min-w-[40px] flex items-center justify-center",
+        "p-2.5 rounded-xl border transition-all duration-200 focus:outline-none focus:ring-4 focus:ring-primary-400/20 backdrop-blur-md min-h-[44px] min-w-[44px] flex items-center justify-center",
         isAdminActive
           ? "bg-primary-600 border-primary-600 text-white shadow-sm"
           : "bg-app-surface/60 border-stone-200 dark:border-stone-800 text-primary-600 dark:text-primary-400 hover:border-primary-400 dark:hover:border-primary-600"
@@ -62,14 +62,14 @@ export default function Header({ mode, setMode, tabValue, setTabValue }) {
       onClick={() => setMode(mode === 'light' ? 'dark' : 'light')}
       type="button"
       className="
-        p-2 rounded-xl border border-stone-200 dark:border-stone-800
+        p-2.5 rounded-xl border border-stone-200 dark:border-stone-800
         bg-app-surface/60
         backdrop-blur-md
         hover:border-primary-400 dark:hover:border-primary-600
         text-primary-600 dark:text-primary-400
         transition-all duration-200
         focus:outline-none focus:ring-4 focus:ring-primary-400/20
-        min-h-[40px] min-w-[40px] flex items-center justify-center
+        min-h-[44px] min-w-[44px] flex items-center justify-center
       "
     >
       {mode === 'dark' ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
