@@ -9227,10 +9227,10 @@ xmlchars@^2.2.0:
   resolved "https://registry.npmjs.org/xmlchars/-/xmlchars-2.2.0.tgz"
   integrity sha512-JZnDKK8B0RCDw84FNdDAIpZK+JuJw+s7Lz8nksI7SIuU3UXJJslUthsi+uWBUYOwPFwW7W7PRLRfUKpxjtjFCw==
 
-xss@^1.0.16:
-  version "1.0.16"
-  resolved "https://registry.yarnpkg.com/xss/-/xss-1.0.16.tgz#85c2f6d71671143cd4dd0259e9e90764ff3748a6"
-  integrity sha512-CsEvZ0QNH9vVgf3qldg+mJmmIwreZZEu/JS1SgldJrJqZgwyMrmIfENt1BJlkj/cPxO0c+R80kB5OMRtUPgqpQ==
+xss@^1.0.17:
+  version "1.0.17"
+  resolved "https://registry.yarnpkg.com/xss/-/xss-1.0.17.tgz#c761ef703d9b26603d7b19898a778cbd9361059f"
+  integrity sha512-+SEr5IDSgTBnhT6bnnf0mVRHT91+HU517zkahLNhkWLz8retCgeR1YDT4OknLiExA5+chn2Wy7z3KyjvnD8A2w==
   dependencies:
     commander "^2.20.3"
     cssfilter "0.0.10"
